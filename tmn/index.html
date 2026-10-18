@@ -92,6 +92,61 @@
       padding: 25px 20px 80px;
     }
 
+    /* Site header - logo bersious góc trên bên trái, link về trang chính */
+    .site-header {
+      position: fixed;
+      top: 22px;
+      left: 24px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px 8px 12px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .site-header:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .site-header .home-emoji {
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    .site-header .logo-text {
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #60a5fa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Đẩy nội dung xuống để không bị header che trên mobile */
+    @media (max-width: 640px) {
+      .site-header {
+        top: 12px;
+        left: 12px;
+        padding: 6px 12px 6px 10px;
+        font-size: 0.85rem;
+      }
+      .site-header .logo-text {
+        font-size: 0.9rem;
+      }
+    }
+
     /* Thanh điều hướng và chuyển vibe */
     .nav-bar {
       width: 100%;
@@ -596,6 +651,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Logo bersious góc trên bên trái, link về trang chính -->
+  <a class="site-header" href="https://bersious.io.vn/" aria-label="Về trang chủ bersious.io.vn">
+    <span class="home-emoji">🏠</span>
+    <span class="logo-text">bersious.</span>
+  </a>
 
   <!-- Canvas hiển thị sóng nước hoặc cánh hoa vàng bay lượn -->
   <canvas id="natureCanvas"></canvas>
