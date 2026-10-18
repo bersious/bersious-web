@@ -2098,17 +2098,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         for (const k of kgKeys) { if (kg >= k) snapKg = k; }
         const sprite = duckSprites[snapKg];
 
-        // ===== ANIMATION ẬP CÁNH =====
+        // ===== ANIMATION ẬP CÁNH (giảm độ giật) =====
         // Phase 0 → 2π: 1 chu kỳ vỗ cánh
-        // 0..π/2: cánh dang rộng (scaleX 1.15)
-        // π/2..π: cánh khép lại (scaleX 0.85)
-        // sin → scaleX dao động mượt
+        // 0..π/2: cánh dang rộng (scaleX 1.10)
+        // π/2..π: cánh khép lại (scaleX 0.90)
+        // Giảm scaleX từ ±18% xuống ±10% (mượt hơn, vịt bớt giật)
         const wingCycle = Math.sin(wingPhase);
-        const scaleX = 1 + wingCycle * 0.18;  // ±18% (rõ rệt)
+        const scaleX = 1 + wingCycle * 0.10;  // ±10% (giảm từ 18%)
         // Body bob lên xuống: cánh đập xuống → thân nhô lên
-        const wingBobY = -Math.abs(wingCycle) * 6;  // nhô lên max 6px
+        const wingBobY = -Math.abs(wingCycle) * 4;  // nhô lên max 4px (giảm từ 6)
         // Subtle breathing scale Y
-        const breathe = 1 + Math.sin(wingPhase * 0.5) * 0.04;  // ±4%
+        const breathe = 1 + Math.sin(wingPhase * 0.5) * 0.03;  // ±3% (giảm từ 4%)
 
         ctx.save();
         ctx.translate(x, y + wingBobY);
