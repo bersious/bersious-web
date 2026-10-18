@@ -775,30 +775,18 @@
       <div class="section-label" data-i18n="projects-label">02 / Projects</div>
       <h2 data-i18n="projects-title">Things I've built</h2>
       <div class="gallery">
-        <a class="gallery-item" href="https://github.com/bersious/bersious-web" target="_blank" rel="noopener">
-          <div>
-            <div class="gallery-icon">🌐</div>
-            <div class="gallery-title" data-i18n="proj-1-title">bersious.io.vn</div>
-            <div class="gallery-desc" data-i18n="proj-1-desc">My personal website — minimalist dark, bilingual EN/VI, built with HTML/CSS/JS and deployed on Vercel.</div>
-          </div>
-          <span class="gallery-tag" data-i18n="proj-1-tag">live</span>
+        <a class="gallery-item" href="project.html" data-project-slug="bersious-web">
+          <div class="gallery-icon">🌐</div>
+          <div class="gallery-title" data-i18n="proj-1-title">bersious.io.vn</div>
         </a>
-        <a class="gallery-item" href="#" data-project-link="tmn-2010">
-          <div>
-            <div class="gallery-icon">🎁</div>
-            <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
-            <div class="gallery-desc" data-i18n="proj-2-desc">A surprise gift page for 20/10 — animation, letter, memories. Coming soon to a subdomain near you.</div>
-          </div>
-          <span class="gallery-tag" data-i18n="proj-2-tag">in progress</span>
+        <a class="gallery-item" href="project.html" data-project-slug="tmn-2010">
+          <div class="gallery-icon">🎁</div>
+          <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
         </a>
-        <div class="gallery-item coming-soon">
-          <div>
-            <div class="gallery-icon">✦</div>
-            <div class="gallery-title" data-i18n="proj-3-title">Project 03</div>
-            <div class="gallery-desc" data-i18n="proj-3-desc">A new chapter, just about to begin.</div>
-          </div>
-          <span class="gallery-tag" data-i18n="proj-tag">soon</span>
-        </div>
+        <a class="gallery-item" href="project.html" data-project-slug="project-03">
+          <div class="gallery-icon">✦</div>
+          <div class="gallery-title" data-i18n="proj-3-title">Project 03</div>
+        </a>
       </div>
     </section>
 
@@ -1021,6 +1009,15 @@
             }
           }
         }
+      });
+    });
+
+    // Project cards: navigate to project.html with slug as query param
+    document.querySelectorAll('.gallery-item[data-project-slug]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const slug = link.getAttribute('data-project-slug');
+        window.location.href = 'project.html?slug=' + encodeURIComponent(slug);
       });
     });
 
