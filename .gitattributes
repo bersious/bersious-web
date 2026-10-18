@@ -1,0 +1,12 @@
+# Force binary cho assets (PNG, JPG, MP3, WAV) để tránh git autocrlf làm hỏng file
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.webm binary
+*.mp4 binary
+*.ico binary
