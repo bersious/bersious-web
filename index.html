@@ -411,38 +411,70 @@
       align-self: flex-start;
     }
 
-    /* Connect */
+    /* Connect badges (GitHub README style) */
     .connect-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 10px;
       margin-top: 24px;
     }
 
-    .connect-link {
+    .connect-badge {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text-main);
+      gap: 0;
       text-decoration: none;
-      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
       font-weight: 500;
+      border-radius: 6px;
+      overflow: hidden;
       transition: all 0.2s ease;
+      border: 1px solid var(--border);
     }
 
-    .connect-link:hover {
-      border-color: var(--blue);
-      background: rgba(125, 211, 252, 0.05);
+    .connect-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
-    .connect-link svg {
-      width: 18px;
-      height: 18px;
+    .connect-badge .left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: #1f2937;
+      color: var(--text-main);
     }
+
+    .connect-badge .left svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .connect-badge .right {
+      padding: 8px 14px;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .connect-badge .beta-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .connect-badge.website .right { background: linear-gradient(135deg, var(--blue), var(--pink)); color: #0b0d12; }
+    .connect-badge.github .right { background: #24292e; color: #ffffff; }
+    .connect-badge.facebook .right { background: #1877f2; color: #ffffff; }
+    .connect-badge.email .right { background: #ea4335; color: #ffffff; }
 
     /* Footer */
     footer {
@@ -576,23 +608,41 @@
         I'm always open to interesting conversations, collaborations, or just a friendly hello.
       </p>
       <div class="connect-links">
-        <a href="https://github.com/bersious" class="connect-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.755-1.333-1.755-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.305 3.492.998.108-.776.42-1.305.763-1.605-2.665-.305-5.467-1.335-5.467-5.93 0-1.31.467-2.382 1.235-3.22-.124-.303-.535-1.523.117-3.176 0 0 1.008-.323 3.3 1.23a11.5 11.5 0 0 1 3.003-.403c1.02.005 2.045.138 3.003.403 2.29-1.553 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.838 1.233 1.91 1.233 3.22 0 4.608-2.807 5.62-5.48 5.92.43.372.815 1.102.815 2.222 0 1.604-.015 2.896-.015 3.286 0 .32.218.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-          GitHub
+        <a href="https://github.com/bersious" class="connect-badge github" target="_blank" rel="noopener">
+          <span class="left">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.755-1.333-1.755-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.305 3.492.998.108-.776.42-1.305.763-1.605-2.665-.305-5.467-1.335-5.467-5.93 0-1.31.467-2.382 1.235-3.22-.124-.303-.535-1.523.117-3.176 0 0 1.008-.323 3.3 1.23a11.5 11.5 0 0 1 3.003-.403c1.02.005 2.045.138 3.003.403 2.29-1.553 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.838 1.233 1.91 1.233 3.22 0 4.608-2.807 5.62-5.48 5.92.43.372.815 1.102.815 2.222 0 1.604-.015 2.896-.015 3.286 0 .32.218.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            bersious
+          </span>
+          <span class="right">GitHub</span>
         </a>
-        <a href="https://www.facebook.com/bersious" class="connect-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.027 1.792-4.7 4.533-4.7 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.49 0-1.955.93-1.955 1.886v2.265h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
-          </svg>
-          Facebook
+        <a href="https://www.facebook.com/bersious" class="connect-badge facebook" target="_blank" rel="noopener">
+          <span class="left">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.027 1.792-4.7 4.533-4.7 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.49 0-1.955.93-1.955 1.886v2.265h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+            </svg>
+            bersious
+          </span>
+          <span class="right">Facebook</span>
         </a>
-        <a href="mailto:25521290@gm.uit.edu.vn" class="connect-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-          </svg>
-          Email
+        <a href="https://bersious.io.vn" class="connect-badge website" target="_blank" rel="noopener">
+          <span class="left">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+            bersious.io.vn <span class="beta-tag">beta</span>
+          </span>
+          <span class="right">Website</span>
+        </a>
+        <a href="mailto:25521290@gm.uit.edu.vn" class="connect-badge email" target="_blank" rel="noopener">
+          <span class="left">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            25521290@gm.uit.edu.vn
+          </span>
+          <span class="right">Email</span>
         </a>
       </div>
     </section>
