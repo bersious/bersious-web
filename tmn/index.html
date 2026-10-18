@@ -1192,7 +1192,6 @@
       <!-- Start screen -->
       <div class="game-screen" id="startScreen">
         <h2>🦆 DucklyNgoc</h2>
-        <p class="game-subtitle">Flappy Duck Edition • Phiên bản đặc biệt 20/10 💌</p>
         <p>Click chuột / chạm / nhấn <strong>Space</strong> để vịt bay lên.<br>
         Lụm <strong>15 món</strong> (ly trà sữa + bún bò) để vịt đạt <strong>80 kg</strong>.<br>
         Càng mập càng khó bay, cẩn thận kẻo đâm cột nhé!</p>
@@ -1588,6 +1587,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const GRAVITY = 0.45;
       const FLAP_VELOCITY = -7.5;
       const PIPE_SPEED = 2.6;        // px/frame (~60fps => ~156 px/s, chậm hơn Flappy 4-5 px/frame)
+      const PIPE_W = 110;            // chiều rộng thân ống (cap rộng hơn = PIPE_W * 1.4)
       const PIPE_GAP = 230;          // gap giữa 2 ống (rộng hơn Flappy gốc ~120-140px)
       const PIPE_SPACING = 320;      // khoảng cách giữa các cặp ống
       const BIRD_X = 140;             // vị trí vịt cố định theo X
@@ -1797,7 +1797,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           i.x -= PIPE_SPEED;
           i.wobblePhase = (i.wobblePhase || 0) + 0.08;  // tốc độ lắc
         });
-        pipes = pipes.filter(p => p.x > -100);
+        // Xóa pipes/items đã ra khỏi khung hình
+        // Cap pipe rộng PIPE_W*1.4 → dùng -PIPE_W*1.5 để chắc chắn cả vành cũng ra hết
+        pipes = pipes.filter(p => p.x > -PIPE_W * 1.5);
         items = items.filter(i => i.x > -100 && !i.collected);
 
         // Collision: vịt với cột
