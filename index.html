@@ -298,14 +298,17 @@
       padding: 80px 0 90px;
     }
 
-    /* Tooltip for story reveals on hover (multi-line) */
-    .story-tooltip {
+    /* Tooltip for story reveals on hover (multi-line, real DOM element) */
+    .story-tooltip-wrap {
       position: relative;
+      display: inline-block;
+    }
+
+    .story-tooltip-wrap > .gradient {
       cursor: help;
     }
 
-    .story-tooltip::after {
-      content: attr(data-story);
+    .story-tooltip {
       position: absolute;
       top: calc(100% + 14px);
       left: 50%;
@@ -328,14 +331,15 @@
       pointer-events: auto;
       transition: opacity 0.25s ease, transform 0.25s ease;
       z-index: 60;
+      visibility: hidden;
     }
 
     .story-tooltip::before {
       content: '';
       position: absolute;
-      top: calc(100% + 8px);
+      top: -6px;
       left: 50%;
-      transform: translateX(-50%) translateY(-6px);
+      transform: translateX(-50%);
       width: 0;
       height: 0;
       border-left: 6px solid transparent;
@@ -343,25 +347,20 @@
       border-bottom: 6px solid rgba(11, 13, 18, 0.96);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      transition: opacity 0.25s ease;
       z-index: 60;
     }
 
-    .story-tooltip:hover::after,
-    .story-tooltip:focus::after {
+    .story-tooltip-wrap:hover .story-tooltip,
+    .story-tooltip-wrap:focus-within .story-tooltip {
       opacity: 1;
+      visibility: visible;
       transform: translateX(-50%) translateY(0);
     }
 
-    .story-tooltip:hover::before,
-    .story-tooltip:focus::before {
+    .story-tooltip-wrap:hover .story-tooltip::before,
+    .story-tooltip-wrap:focus-within .story-tooltip::before {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .story-tooltip::after {
-      -webkit-text-fill-color: var(--text-main);
-      background: none;
     }
 
     /* Link inside story tooltip */
@@ -671,7 +670,12 @@
       </div>
       <h1>
         <span data-i18n="hero-hi">Hi, I'm</span> <span class="gradient name-tooltip" data-i18n="hero-name" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân" tabindex="0">Nhan</span>.<br>
-        <span data-i18n="hero-call">You can call me</span> <span class="gradient story-tooltip" data-i18n="hero-name-tooltip" data-story-en="I&apos;ve used this name since 2017 — picked it up from an <a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>Enderman character in Minecraft Endventures</a> on YouTube." data-story-vi="Tớ dùng tên này từ năm 2017 — lấy từ <a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>nhân vật Enderman trong Minecraft Endventures</a> trên YouTube." tabindex="0">Endy</span> <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
+        <span data-i18n="hero-call">You can call me</span>
+        <span class="story-tooltip-wrap">
+          <span class="gradient" tabindex="0" data-i18n="hero-name-tooltip">Endy</span>
+          <span class="story-tooltip" data-story-en="I've used this name since 2017 — picked it up from an &lt;a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Enderman character in Minecraft Endventures&lt;/a&gt; on YouTube." data-story-vi="Tớ dùng tên này từ năm 2017 — lấy từ &lt;a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;nhân vật Enderman trong Minecraft Endventures&lt;/a&gt; trên YouTube."></span>
+        </span>
+        <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
       </h1>
       <div class="cta-group">
         <a href="#projects" class="btn btn-primary" data-i18n="cta-work">View my work →</a>
@@ -895,7 +899,16 @@
       // Update story tooltip for story reveals (supports HTML links)
       document.querySelectorAll('.story-tooltip').forEach(el => {
         const story = el.getAttribute(`data-story-${lang}`);
-        if (story) el.setAttribute('data-story', story);
+        if (story) {
+          // Decode HTML entities so the <a> tag renders as a real link
+          const decoded = story
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&apos;/g, "'")
+            .replace(/&amp;/g, '&');
+          el.innerHTML = decoded;
+        }
       });
 
       // Keep hero name span text from being overwritten (data-i18n="hero-name" lives on the same span as the tooltip)
@@ -929,16 +942,6 @@
       btn.addEventListener('click', () => {
         applyLanguage(btn.dataset.lang);
       });
-    });
-
-    // Keep the story tooltip open when hovering over its content (so users can click the link)
-    document.querySelectorAll('.story-tooltip').forEach(el => {
-      const onEnter = () => el.classList.add('tooltip-active');
-      const onLeave = () => el.classList.remove('tooltip-active');
-      el.addEventListener('mouseenter', onEnter);
-      el.addEventListener('mouseleave', onLeave);
-      el.addEventListener('focusin', onEnter);
-      el.addEventListener('focusout', onLeave);
     });
 
     initLanguage();
