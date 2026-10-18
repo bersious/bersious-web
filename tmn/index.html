@@ -1553,7 +1553,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Rotation theo velocity (xoay tự nhiên)
         bird.rotation = Math.max(-0.5, Math.min(1.2, bird.vy * 0.08));
         // Wing animation (scale Y oscillation để giả vỗ cánh)
-        bird.wingPhase += 0.25;  // 0.15 → 0.25 cho animation mượt hơn
+        bird.wingPhase += 0.4;  // tốc độ ập cánh (nhanh = sống động)
 
         // Move pipes & items
         pipes.forEach(p => p.x -= PIPE_SPEED);
@@ -1675,8 +1675,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       drawDuck(bird.x, bird.y, currentKg, bird.rotation, bird.wingPhase);
     }
 
-      // ===== VẼ VỊT - 5 SPRITE PNG MẬP DẦN THEO KG =====
+      // ===== VẼ VỊT - 5 SPRITE PNG MẬP DẦN THEO KG + ANIMATION ẬP CÁNH =====
       // Cậu đã gen 5 sprite (30/45/60/70/80kg), vịt đổi sprite theo currentKg
+      // Animation: ập cánh (scaleX dao động) + bay lên xuống (translateY) + bob
       function drawDuck(x, y, kg, rotation, wingPhase) {
         // Lấy sprite theo kg gần nhất (snap về 30/45/60/70/80)
         const kgKeys = Object.keys(duckSprites).map(Number).sort((a, b) => a - b);
@@ -1684,13 +1685,22 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         for (const k of kgKeys) { if (kg >= k) snapKg = k; }
         const sprite = duckSprites[snapKg];
 
-        // Subtle bobbing khi bay (scale Y nhẹ theo sin)
-        const bob = 1 + Math.sin(wingPhase * 0.5) * 0.04;  // ±4%
+        // ===== ANIMATION ẬP CÁNH =====
+        // Phase 0 → 2π: 1 chu kỳ vỗ cánh
+        // 0..π/2: cánh dang rộng (scaleX 1.15)
+        // π/2..π: cánh khép lại (scaleX 0.85)
+        // sin → scaleX dao động mượt
+        const wingCycle = Math.sin(wingPhase);
+        const scaleX = 1 + wingCycle * 0.18;  // ±18% (rõ rệt)
+        // Body bob lên xuống: cánh đập xuống → thân nhô lên
+        const wingBobY = -Math.abs(wingCycle) * 6;  // nhô lên max 6px
+        // Subtle breathing scale Y
+        const breathe = 1 + Math.sin(wingPhase * 0.5) * 0.04;  // ±4%
 
         ctx.save();
-        ctx.translate(x, y);
+        ctx.translate(x, y + wingBobY);
         ctx.rotate(rotation);
-        ctx.scale(1, bob);
+        ctx.scale(scaleX, breathe);
 
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
           // Scale 80px (30kg) → 110px (80kg) - phản ánh sprite to dần
