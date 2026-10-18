@@ -1642,6 +1642,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
     window.addEventListener('resize', () => {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
+      initParticlesForSky();
     });
 
     const ripples = [];
@@ -1681,9 +1682,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         });
       }
 
-      // Khởi tạo 5 bông hoa cúc to ở dưới chân trang (đứng yên, đung đưa lofi chill)
-      // Bố trí ở góc dưới trái, góc dưới phải và giữa đáy màn hình
-      const flowerConfigs = [
+      // Khởi tạo các bông hoa cúc to ở dưới chân trang (đứng yên, đung đưa lofi chill)
+      // Trên mobile (màn hẹp): dùng 3 bông vừa vặn để không che chữ hay chồng chéo
+      // Trên desktop / tablet (màn rộng): dùng 5 bông trải đều sang hai bên và giữa
+      const isMobile = w < 650;
+      const flowerConfigs = isMobile ? [
+        { xRatio: 0.12, yOffset: -30, radius: 26, stemH: 95, petalsCount: 10, swaySpeed: 0.020, swayAmp: 0.08, hasTag: true },
+        { xRatio: 0.50, yOffset: -25, radius: 24, stemH: 85, petalsCount: 9, swaySpeed: 0.024, swayAmp: 0.06, hasTag: false },
+        { xRatio: 0.88, yOffset: -32, radius: 28, stemH: 100, petalsCount: 10, swaySpeed: 0.018, swayAmp: 0.08, hasTag: true }
+      ] : [
         { xRatio: 0.08, yOffset: -50, radius: 42, stemH: 140, petalsCount: 12, swaySpeed: 0.018, swayAmp: 0.08, hasTag: true },
         { xRatio: 0.16, yOffset: -30, radius: 32, stemH: 110, petalsCount: 10, swaySpeed: 0.024, swayAmp: 0.07, hasTag: false },
         { xRatio: 0.50, yOffset: -40, radius: 36, stemH: 125, petalsCount: 11, swaySpeed: 0.020, swayAmp: 0.06, hasTag: false },
