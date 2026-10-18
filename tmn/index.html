@@ -678,8 +678,9 @@
     /* Khung game */
     .game-frame {
       position: relative;
-      width: min(90vw, 480px);
+      width: min(95vw, 95vh * 3 / 4, 720px);
       aspect-ratio: 3 / 4;
+      max-height: 95vh;
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12);
@@ -808,6 +809,24 @@
     }
     .game-screen .btn-play:hover {
       transform: translateY(-2px);
+    }
+    .game-screen .btn-home {
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.32);
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transition: all 0.2s ease;
+    }
+    .game-screen .btn-home:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-1px);
     }
 
     /* Form nhập mật khẩu (sau khi thắng) */
@@ -1030,6 +1049,7 @@
         <h2>💥 Vịt rơi rồi!</h2>
         <p>Chú vịt lỡ đâm cột hoặc rớt xuống đất. Thử lại nhé, cố lên!</p>
         <button class="btn-play" id="btnRetry">Chơi lại</button>
+        <button class="btn-home" id="btnHomeLose">🏠 Về trang chủ</button>
       </div>
     </div>
   </div>
@@ -1394,7 +1414,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PIPE_GAP = 230;          // gap giữa 2 ống (rộng hơn Flappy gốc ~120-140px)
       const PIPE_SPACING = 320;      // khoảng cách giữa các cặp ống
       const BIRD_X = 140;             // vị trí vịt cố định theo X
-      const BIRD_RADIUS = 28;        // hitbox vịt (dùng cho collision)
+      const BIRD_RADIUS = 36;        // hitbox vịt (dùng cho collision) - frame 1.5x lớn hơn
       const TARGET_SCORE = 10;       // lụm 10 món = win
       const BASE_KG = 30;
       const KG_PER_ITEM = 5;
@@ -1518,7 +1538,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Collision: vịt với cột
         for (const p of pipes) {
-          const pipeW = 80;
+          const pipeW = 110;
           if (bird.x + BIRD_RADIUS > p.x && bird.x - BIRD_RADIUS < p.x + pipeW) {
             // Check top pipe (0 -> gapY) và bottom pipe (gapY + PIPE_GAP -> CANVAS_H)
             if (bird.y - BIRD_RADIUS < p.gapY || bird.y + BIRD_RADIUS > p.gapY + PIPE_GAP) {
@@ -1591,7 +1611,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Vẽ pipes - dùng 2 sprite riêng (top + bottom)
         pipes.forEach(p => {
-          const pipeW = 80;
+          const pipeW = 110;
           const topH = p.gapY;
           const botY = p.gapY + PIPE_GAP;
           const botH = CANVAS_H - botY;
@@ -1607,8 +1627,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (it.collected || !it.sprite.complete) return;
         const nw = it.sprite.naturalWidth || 60;
         const nh = it.sprite.naturalHeight || 60;
-        // Collectible max 60x60, powerup max 50x50
-        const maxDim = it.isPowerup ? 50 : 60;
+        // Collectible max 90x90, powerup max 75x75 (frame lớn hơn 1.5x)
+        const maxDim = it.isPowerup ? 75 : 90;
         const ratio = Math.min(maxDim / nw, maxDim / nh);
         const w = nw * ratio;
         const h = nh * ratio;
@@ -2095,12 +2115,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           startGame();
         });
         document.getElementById('closeGameBtn').addEventListener('click', () => {
-          // Chỉ cho đóng khi đã unlock
-          if (isUnlocked()) {
-            document.getElementById('gameOverlay').classList.remove('show');
-            state = 'idle';
-          }
+          // Nút × ở góc → quay về trang chủ bersious.io.vn
+          window.location.href = 'https://bersious.io.vn/';
         });
+        // Nút "Về trang chủ" trên lose/win screen
+        const btnHomeLose = document.getElementById('btnHomeLose');
+        if (btnHomeLose) {
+          btnHomeLose.addEventListener('click', () => {
+            window.location.href = 'https://bersious.io.vn/';
+          });
+        }
       }
 
       // ===== INIT =====
