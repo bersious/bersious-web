@@ -1504,12 +1504,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PIPE_SPACING = 320;      // khoảng cách giữa các cặp ống
       const BIRD_X = 140;             // vị trí vịt cố định theo X
       const BIRD_RADIUS = 36;        // hitbox vịt (dùng cho collision) - frame 1.5x lớn hơn
-      const TARGET_SCORE = 15;       // lụm 15 món = win
-      const WIN_KG = 80;             // đạt 80kg = win (ăn 15 món × 5 = 75, món 15 = 80)
+      const TARGET_SCORE = 16;       // 15 trà/bún + 1 lá thư = 16 món = win
+      const LETTER_TRIGGER_SCORE = 15;  // mốc spawn lá thư + vào chase state
+      const WIN_KG = 80;             // đạt 80kg = win
       const BASE_KG = 30;
-      const KG_PER_ITEM = 3;         // 14 món đầu × 3 = 42 → 72kg; món 15 (lá thư) +8 → 80kg
-      const LETTER_KG_BONUS = 8;     // lá thư cho nhiều kg hơn (món cuối)
+      const KG_PER_ITEM = 3;         // 14 món đầu × 3 = 42 → 72kg
+      const LETTER_KG_BONUS = 5;     // lá thư +5kg → 80kg
       const MAX_KG = WIN_KG;         // 80
+      // Chase state: lá thư bay tự do, vịt đuổi theo
+      const LETTER_FLY_SPEED = 1.6;  // lá thư bay chậm hơn PIPE_SPEED (2.6)
+      const CHASE_BOOST = 1.4;       // vịt bay nhanh hơn 40% khi chase
 
       // Mật khẩu (security through obscurity - base64)
       // User đặt riêng: "171" (Ngọc sinh ngày 17/1/2007)
@@ -1622,6 +1626,32 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       let animId = null;
 
       // Spawn pipe mỗi PIPE_SPACING px
+      // ===== CHASE MODE (sau khi ăn 15 món) =====
+      // Lá thư tự bay, vịt đuổi theo, KHÔNG có ống chướng ngại
+      let chaseTime = 0;  // đếm frame trong chase
+      function triggerChaseMode() {
+        console.log('[tmn] CHASE MODE triggered! Lá thư xuất hiện...');
+        state = 'chasing';
+        chaseTime = 0;
+        // Xóa hết ống cũ → vùng trời trống
+        pipes = [];
+        // Spawn lá thư ở giữa bên phải canvas
+        const letterStartX = CANVAS_W - 100;
+        const letterStartY = CANVAS_H / 2;
+        // Lá thư có vận tốc riêng: bay từ phải sang trái + lắc Y (sin)
+        items.push({
+          x: letterStartX,
+          y: letterStartY,
+          isLetter: true,
+          collected: false,
+          wobblePhase: 0,
+          vx: -LETTER_FLY_SPEED,  // bay sang trái
+          vy: 0,
+          flyStartX: letterStartX,
+          flyStartY: letterStartY,
+        });
+      }
+
       function spawnPipe() {
         const minGapY = 150;
         const maxGapY = CANVAS_H - 150 - PIPE_GAP;
@@ -1632,16 +1662,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const itemX = CANVAS_W + 50 + PIPE_SPACING / 2;
         const itemY = gapY + PIPE_GAP / 2 - 30;  // giữa gap, trừ 30 để căn giữa item
 
-        // Món cuối (sau khi ăn 14 món) = lá thư → vịt ăn → màn hình win
-        if (score >= TARGET_SCORE - 1 && collectibles.length > 0) {
-          items.push({
-            x: itemX, y: itemY,
-            isLetter: true,         // marker vẽ lá thư bằng code
-            collected: false,
-            wobblePhase: Math.random() * Math.PI * 2,
-          });
-          return;
-        }
+        // Không spawn item nếu đang ở chase mode (lá thư do triggerChaseMode spawn riêng)
+        if (state === 'chasing') return;
 
         if (collectibles.length === 0) return;
         const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
@@ -1651,8 +1673,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== UPDATE LOOP =====
       function update() {
-        if (state !== 'playing') return;
+        if (state === 'idle' || state === 'won' || state === 'lost') return;
         frameCount++;
+        chaseTime++;
+
+        // CHASING MODE: lá thư bay tự do, vịt đuổi
+        if (state === 'chasing') {
+          updateChase();
+          return;
+        }
+
+        // PLAYING MODE (còn lại như cũ)
 
         // Spawn pipe đầu tiên sau 60 frame (~1s warmup)
         if (frameCount === 60) spawnPipe();
@@ -1710,6 +1741,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
               gameWin();
               return;
             }
+            // Mốc 15 món trà/bún → trigger chase mode (sau 100ms)
+            if (score === LETTER_TRIGGER_SCORE && !it.isLetter) {
+              setTimeout(() => triggerChaseMode(), 100);
+            }
           }
         }
 
@@ -1717,6 +1752,53 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (bird.y + BIRD_RADIUS >= CANVAS_H || bird.y - BIRD_RADIUS <= 0) {
           gameOver();
         }
+      }
+
+      // ===== CHASE MODE UPDATE =====
+      // Lá thư tự bay + vịt đuổi theo, KHÔNG có ống chướng ngại
+      function updateChase() {
+        for (const it of items) {
+          if (!it.isLetter || it.collected) continue;
+          // Bay từ phải sang trái (vx < 0)
+          it.x += it.vx;
+          // Lắc theo sin: quỹ đạo cong
+          it.y = (it.flyStartY || CANVAS_H / 2) + Math.sin(chaseTime * 0.04) * 80;
+          // Wobble nhẹ (cho lá thư vẫn rung)
+          it.wobblePhase = (it.wobblePhase || 0) + 0.08;
+          // Bay ra khỏi canvas bên trái → respawn từ phải (dễ ăn hơn)
+          if (it.x < -50) {
+            it.x = CANVAS_W + 50;
+            it.flyStartY = CANVAS_H / 2 + (Math.random() - 0.5) * 100;
+          }
+        }
+
+        // Vịt gravity nhẹ (dễ bay hơn trong chase)
+        bird.vy += GRAVITY * 0.4;
+        bird.y += bird.vy;
+        bird.vy = Math.max(-12, Math.min(12, bird.vy));
+        bird.rotation = Math.max(-0.5, Math.min(1.2, bird.vy * 0.06));
+        // Wing animation nhanh hơn (đang đuổi!)
+        bird.wingPhase += 0.55;
+
+        // Collision: vịt với lá thư
+        for (const it of items) {
+          if (!it.isLetter || it.collected) continue;
+          const dx = bird.x - it.x;
+          const dy = bird.y - it.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < BIRD_RADIUS + 35) {
+            it.collected = true;
+            score++;
+            currentKg = Math.min(WIN_KG, currentKg + LETTER_KG_BONUS);
+            spawnFloatingKg(it.x, it.y);
+            playCollectSound();
+            gameWin();
+            return;
+          }
+        }
+
+        // Giới hạn vịt trong canvas (không rơi xuống đất)
+        bird.y = Math.max(BIRD_RADIUS, Math.min(CANVAS_H - BIRD_RADIUS, bird.y));
       }
 
       // ===== RENDER =====
