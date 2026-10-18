@@ -230,12 +230,13 @@
       cursor: help;
     }
 
+    /* Show name tooltip BELOW the word instead of above, to avoid clashing with the next line */
     .name-tooltip::after {
       content: attr(data-fullname);
       position: absolute;
-      bottom: calc(100% + 14px);
+      top: calc(100% + 14px);
       left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      transform: translateX(-50%) translateY(-6px);
       padding: 10px 16px;
       background: rgba(11, 13, 18, 0.96);
       color: var(--text-main);
@@ -249,24 +250,24 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 10;
+      z-index: 50;
     }
 
     .name-tooltip::before {
       content: '';
       position: absolute;
-      bottom: calc(100% + 8px);
+      top: calc(100% + 8px);
       left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      transform: translateX(-50%) translateY(-6px);
       width: 0;
       height: 0;
       border-left: 6px solid transparent;
       border-right: 6px solid transparent;
-      border-top: 6px solid rgba(11, 13, 18, 0.96);
+      border-bottom: 6px solid rgba(11, 13, 18, 0.96);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 10;
+      z-index: 50;
     }
 
     .name-tooltip:hover::after,
@@ -286,6 +287,11 @@
       background: none;
     }
 
+    /* Give the hero section extra bottom padding so the below-tooltip has room */
+    .hero {
+      padding: 80px 0 90px;
+    }
+
     /* Tooltip for story reveals on hover (multi-line) */
     .story-tooltip {
       position: relative;
@@ -295,9 +301,9 @@
     .story-tooltip::after {
       content: attr(data-story);
       position: absolute;
-      bottom: calc(100% + 14px);
+      top: calc(100% + 14px);
       left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      transform: translateX(-50%) translateY(-6px);
       padding: 12px 18px;
       background: rgba(11, 13, 18, 0.96);
       color: var(--text-main);
@@ -315,24 +321,24 @@
       opacity: 0;
       pointer-events: auto;
       transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 10;
+      z-index: 60;
     }
 
     .story-tooltip::before {
       content: '';
       position: absolute;
-      bottom: calc(100% + 8px);
+      top: calc(100% + 8px);
       left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      transform: translateX(-50%) translateY(-6px);
       width: 0;
       height: 0;
       border-left: 6px solid transparent;
       border-right: 6px solid transparent;
-      border-top: 6px solid rgba(11, 13, 18, 0.96);
+      border-bottom: 6px solid rgba(11, 13, 18, 0.96);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 10;
+      z-index: 60;
     }
 
     .story-tooltip:hover::after,
