@@ -1912,28 +1912,42 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         ctx.fillStyle = BG_GRAD;
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
+        // PERF: tắt smoothing cho ảnh bg (ảnh đã được downscale 480x89, không cần smooth khi tile)
+        const prevSmoothing = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = false;
         // Lớp 2: bg-far (chậm nhất)
         if (bgFar.complete && bgFar.naturalWidth > 0) {
-          const farOffset = (frameCount * 0.3) % bgFar.naturalWidth;
+          const farW = bgFar.naturalWidth;
+          const farH = bgFar.naturalHeight;
+          let x = -((frameCount * 0.3) % farW);
+          if (x > 0) x -= farW;  // đảm bảo x <= 0
           // Tile theo chiều ngang để cuộn
-          for (let x = -farOffset; x < CANVAS_W; x += bgFar.naturalWidth) {
-            ctx.drawImage(bgFar, x, 0, bgFar.naturalWidth, CANVAS_H);
+          for (; x < CANVAS_W; x += farW) {
+            ctx.drawImage(bgFar, x, 0, farW, farH);
           }
         }
         // Lớp 3: bg-mid (vừa)
         if (bgMid.complete && bgMid.naturalWidth > 0) {
-          const midOffset = (frameCount * 0.8) % bgMid.naturalWidth;
-          for (let x = -midOffset; x < CANVAS_W; x += bgMid.naturalWidth) {
-            ctx.drawImage(bgMid, x, 0, bgMid.naturalWidth, CANVAS_H);
+          const midW = bgMid.naturalWidth;
+          const midH = bgMid.naturalHeight;
+          let x = -((frameCount * 0.8) % midW);
+          if (x > 0) x -= midW;
+          for (; x < CANVAS_W; x += midW) {
+            ctx.drawImage(bgMid, x, 0, midW, midH);
           }
         }
         // Lớp 4: bg-near (nhanh nhất)
         if (bgNear.complete && bgNear.naturalWidth > 0) {
-          const nearOffset = (frameCount * 1.5) % bgNear.naturalWidth;
-          for (let x = -nearOffset; x < CANVAS_W; x += bgNear.naturalWidth) {
-            ctx.drawImage(bgNear, x, 0, bgNear.naturalWidth, CANVAS_H);
+          const nearW = bgNear.naturalWidth;
+          const nearH = bgNear.naturalHeight;
+          let x = -((frameCount * 1.5) % nearW);
+          if (x > 0) x -= nearW;
+          for (; x < CANVAS_W; x += nearW) {
+            ctx.drawImage(bgNear, x, 0, nearW, nearH);
           }
         }
+        // PERF: bật lại smoothing (duck + items cần mượt)
+        ctx.imageSmoothingEnabled = prevSmoothing;
 
         // Vẽ pipes - dùng 2 sprite riêng (top + bottom)
         pipes.forEach(p => {
