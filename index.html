@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bersious | AI Student at UIT</title>
   <meta name="description" content="Personal website of Nhan (Endy / bersious) - AI student at UIT, class of 2025." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2360a5fa'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Inter, sans-serif' font-size='42' font-weight='800' fill='%230b0d12'%3EN%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -96,34 +97,6 @@
     }
 
     .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .logo-mark {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--blue), var(--pink));
-      color: #0b0d12;
-      font-weight: 700;
-      font-size: 1.05rem;
-      letter-spacing: -0.02em;
-      box-shadow: 0 4px 12px var(--blue-glow);
-      transition: transform 0.2s ease;
-    }
-
-    .logo:hover .logo-mark {
-      transform: rotate(-6deg) scale(1.05);
-    }
-
-    .logo-text {
       font-weight: 600;
       font-size: 1.1rem;
       letter-spacing: -0.02em;
@@ -717,10 +690,7 @@
   <div class="container">
     <!-- Navigation -->
     <nav>
-      <a href="index.html" class="logo">
-        <span class="logo-mark">N</span>
-        <span class="logo-text">bersious</span>
-      </a>
+      <div class="logo">bersious</div>
       <div class="nav-right">
         <div class="nav-links">
           <a href="#about" data-i18n="nav-about">About</a>
