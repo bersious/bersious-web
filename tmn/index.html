@@ -1666,6 +1666,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== GAME STATE =====
       let canvas, ctx;
+      // PERF: flag báo cần render lại (set true khi state đổi, idle chỉ render 1 lần)
+      let needsRender = true;
       // PERF: cache gradient tĩnh (pipe body/cap), tạo 1 lần lúc init thay vì mỗi frame
       // Tọa độ gradient theo relative 0..1 (sau đó dùng ctx.translate để dời)
       let PIPE_BODY_GRAD_TOP, PIPE_BODY_GRAD_BOT, PIPE_CAP_GRAD_TOP, PIPE_CAP_GRAD_BOT;
@@ -1692,6 +1694,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         console.log('[tmn] CHASE MODE triggered! Lá thư xuất hiện...');
         state = 'chasing';
         chaseTime = 0;
+        needsRender = true;  // PERF: render frame chase ngay
         // Xóa hết ống cũ + item chưa ăn → vùng trời trống
         pipes = [];
         items = items.filter(it => it.collected);
@@ -2278,7 +2281,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (delta < 100) {
           update();
         }
-        render();
+        // PERF: ở idle/won/lost, chỉ render 1 frame (vẽ vịt + bg), skip các frame sau
+        // để giảm CPU/GPU khi user chưa bấm Bắt đầu
+        if (state === 'idle' || state === 'won' || state === 'lost') {
+          if (needsRender) {
+            render();
+            needsRender = false;
+          }
+        } else {
+          render();
+        }
         animId = requestAnimationFrame(gameLoop);
       }
 
@@ -2293,6 +2305,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function gameOver(reason) {
         state = 'lost';
+        needsRender = true;  // PERF: idle cần render 1 frame để show lose screen
         // Phát âm thanh theo lý do: thud (đâm cột) hoặc fall (rớt)
         try {
           if (reason === 'fall') playFallSound();
@@ -2310,6 +2323,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function gameWin() {
         state = 'won';
+        needsRender = true;  // PERF: idle cần render 1 frame
         document.getElementById('winScreen').style.display = 'flex';
         // Hiệu ứng glow cho vịt
         const celebration = document.createElement('div');
@@ -2320,6 +2334,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function resetGame() {
         state = 'idle';
+        needsRender = true;  // PERF: idle cần render 1 frame (vịt + bg)
         bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
         pipes = [];
         items = [];
@@ -2340,6 +2355,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       function startGame() {
         if (state === 'playing') return;
         state = 'playing';
+        needsRender = true;  // PERF: flag để gameLoop render frame đầu
         document.getElementById('startScreen').style.display = 'none';
         document.getElementById('loseScreen').style.display = 'none';
         // Reset bird nếu vừa thua
