@@ -15,10 +15,10 @@
       --border: rgba(255, 255, 255, 0.08);
       --text-main: #f3f4f6;
       --text-sub: #9ca3af;
-      --blue: #7dd3fc;
-      --pink: #f9a8d4;
-      --blue-glow: rgba(125, 211, 252, 0.18);
-      --pink-glow: rgba(249, 168, 212, 0.18);
+      --blue: #38bdf8;
+      --pink: #ec4899;
+      --blue-glow: rgba(56, 189, 248, 0.22);
+      --pink-glow: rgba(236, 72, 153, 0.18);
     }
 
     * {
@@ -57,19 +57,25 @@
       filter: blur(120px);
       z-index: 0;
       pointer-events: none;
-      opacity: 0.5;
     }
 
     body::before {
       background: var(--blue-glow);
       top: -200px;
       left: -200px;
+      width: 720px;
+      height: 720px;
+      opacity: 0.65;
     }
 
     body::after {
       background: var(--pink-glow);
       bottom: -200px;
       right: -200px;
+      width: 460px;
+      height: 460px;
+      opacity: 0.4;
+      filter: blur(140px);
     }
 
     .container {
@@ -218,7 +224,7 @@
     }
 
     h1 .gradient {
-      background: linear-gradient(135deg, var(--blue) 0%, var(--pink) 100%);
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue) 40%, var(--pink) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
