@@ -2118,14 +2118,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         window.addEventListener('resize', setupCanvasResolution);
 
         // Nếu đã unlock → show letter NGAY, không cần đợi assets
-        if (isUnlocked()) {
+        // Trừ khi ?play=1 (force chơi lại từ trang chủ)
+        const forcePlay = new URLSearchParams(window.location.search).get('play') === '1';
+        if (isUnlocked() && !forcePlay) {
           console.log('[tmn] already unlocked → show letter');
           // Ẩn game overlay
           document.getElementById('gameOverlay').classList.remove('show');
           unlockLetter();
         } else {
-          // Chưa unlock → show game splash NGAY (không cần đợi assets)
-          console.log('[tmn] not unlocked → show game splash');
+          // Chưa unlock (hoặc ?play=1) → show game splash NGAY (không cần đợi assets)
+          console.log('[tmn] not unlocked (or ?play=1) → show game splash');
           try {
             showGameSplash();
             console.log('[tmn] showGameSplash OK, animId:', animId);
