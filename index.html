@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -94,6 +94,12 @@
       background-clip: text;
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
     .nav-links {
       display: flex;
       gap: 24px;
@@ -108,6 +114,40 @@
 
     .nav-links a:hover {
       color: var(--text-main);
+    }
+
+    /* Language switcher */
+    .lang-switch {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .lang-btn {
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      transition: all 0.2s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .lang-btn:hover {
+      color: var(--text-main);
+    }
+
+    .lang-btn.active {
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      color: #0b0d12;
+      font-weight: 600;
     }
 
     /* Hero */
@@ -408,10 +448,16 @@
     <!-- Navigation -->
     <nav>
       <div class="logo">bersious.</div>
-      <div class="nav-links">
-        <a href="#about">About</a>
-        <a href="#projects">Projects</a>
-        <a href="#connect">Connect</a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="#about" data-i18n="nav-about">About</a>
+          <a href="#projects" data-i18n="nav-projects">Projects</a>
+          <a href="#connect" data-i18n="nav-connect">Connect</a>
+        </div>
+        <div class="lang-switch" role="tablist" aria-label="Language switcher">
+          <button class="lang-btn active" data-lang="en" type="button">EN</button>
+          <button class="lang-btn" data-lang="vi" type="button">VI</button>
+        </div>
       </div>
     </nav>
 
@@ -419,21 +465,24 @@
     <header class="hero">
       <div class="status">
         <span class="dot"></span>
-        <span>online / build 0.2</span>
+        <span data-i18n="status">online / build 0.3</span>
       </div>
-      <h1>Hi, I'm <span class="gradient">Nhan</span>.<br>You can call me <span class="gradient">Endy</span> or <span class="gradient">bersious</span>.</h1>
-      <p class="tagline">A curious mind building small things with code, design, and a bit of wonder.</p>
+      <h1>
+        <span data-i18n="hero-hi">Hi, I'm</span> <span class="gradient">Nhan</span>.<br>
+        <span data-i18n="hero-call">You can call me</span> <span class="gradient">Endy</span> <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
+      </h1>
+      <p class="tagline" data-i18n="tagline">A curious mind building small things with code, design, and a bit of wonder.</p>
       <div class="cta-group">
-        <a href="#projects" class="btn btn-primary">View my work →</a>
-        <a href="#connect" class="btn btn-ghost">Get in touch</a>
+        <a href="#projects" class="btn btn-primary" data-i18n="cta-work">View my work →</a>
+        <a href="#connect" class="btn btn-ghost" data-i18n="cta-contact">Get in touch</a>
       </div>
     </header>
 
     <!-- About -->
     <section id="about">
-      <div class="section-label">01 / About</div>
-      <h2>A little bit about me</h2>
-      <p class="about-text">
+      <div class="section-label" data-i18n="about-label">01 / About</div>
+      <h2 data-i18n="about-title">A little bit about me</h2>
+      <p class="about-text" data-i18n="about-text">
         I'm <strong>Nhan</strong>, an <span class="hl-blue">Artificial Intelligence</span> student at the
         <span class="hl-pink">University of Information Technology (UIT)</span>, class of <strong>2025</strong>.
         I spend most of my time exploring how machines learn, building side projects that combine
@@ -442,61 +491,61 @@
 
       <div class="info-grid">
         <div class="info-card">
-          <div class="info-label">Field</div>
-          <div class="info-value">Artificial Intelligence</div>
+          <div class="info-label" data-i18n="info-field">Field</div>
+          <div class="info-value" data-i18n="info-field-value">Artificial Intelligence</div>
         </div>
         <div class="info-card">
-          <div class="info-label">University</div>
+          <div class="info-label" data-i18n="info-university">University</div>
           <div class="info-value">UIT · VNU-HCM</div>
         </div>
         <div class="info-card">
-          <div class="info-label">Class of</div>
+          <div class="info-label" data-i18n="info-class">Class of</div>
           <div class="info-value">2025</div>
         </div>
         <div class="info-card">
-          <div class="info-label">Based in</div>
-          <div class="info-value">Ho Chi Minh City, VN</div>
+          <div class="info-label" data-i18n="info-based">Based in</div>
+          <div class="info-value" data-i18n="info-based-value">Ho Chi Minh City, VN</div>
         </div>
       </div>
     </section>
 
     <!-- Projects -->
     <section id="projects">
-      <div class="section-label">02 / Projects</div>
-      <h2>Things I've built</h2>
+      <div class="section-label" data-i18n="projects-label">02 / Projects</div>
+      <h2 data-i18n="projects-title">Things I've built</h2>
       <div class="gallery">
         <div class="gallery-item coming-soon">
           <div>
             <div class="gallery-icon">✦</div>
-            <div class="gallery-title">Project 01</div>
-            <div class="gallery-desc">A small experiment, waiting to be shipped.</div>
+            <div class="gallery-title" data-i18n="proj-1-title">Project 01</div>
+            <div class="gallery-desc" data-i18n="proj-1-desc">A small experiment, waiting to be shipped.</div>
           </div>
-          <span class="gallery-tag">soon</span>
+          <span class="gallery-tag" data-i18n="proj-tag">soon</span>
         </div>
         <div class="gallery-item coming-soon">
           <div>
             <div class="gallery-icon">✦</div>
-            <div class="gallery-title">Project 02</div>
-            <div class="gallery-desc">A work in progress, half-done and full of ideas.</div>
+            <div class="gallery-title" data-i18n="proj-2-title">Project 02</div>
+            <div class="gallery-desc" data-i18n="proj-2-desc">A work in progress, half-done and full of ideas.</div>
           </div>
-          <span class="gallery-tag">soon</span>
+          <span class="gallery-tag" data-i18n="proj-tag">soon</span>
         </div>
         <div class="gallery-item coming-soon">
           <div>
             <div class="gallery-icon">✦</div>
-            <div class="gallery-title">Project 03</div>
-            <div class="gallery-desc">A new chapter, just about to begin.</div>
+            <div class="gallery-title" data-i18n="proj-3-title">Project 03</div>
+            <div class="gallery-desc" data-i18n="proj-3-desc">A new chapter, just about to begin.</div>
           </div>
-          <span class="gallery-tag">soon</span>
+          <span class="gallery-tag" data-i18n="proj-tag">soon</span>
         </div>
       </div>
     </section>
 
     <!-- Connect -->
     <section id="connect">
-      <div class="section-label">03 / Connect</div>
-      <h2>Let's talk</h2>
-      <p class="about-text" style="margin-bottom: 8px;">
+      <div class="section-label" data-i18n="connect-label">03 / Connect</div>
+      <h2 data-i18n="connect-title">Let's talk</h2>
+      <p class="about-text" style="margin-bottom: 8px;" data-i18n="connect-text">
         I'm always open to interesting conversations, collaborations, or just a friendly hello.
       </p>
       <div class="connect-links">
@@ -517,9 +566,130 @@
 
     <!-- Footer -->
     <footer>
-      <span>© 2026 bersious · made with care</span>
+      <span data-i18n="footer-copy">© 2026 bersious · made with care</span>
       <span class="status-ok">status: 200 OK</span>
     </footer>
   </div>
+
+  <script>
+    const translations = {
+      en: {
+        'nav-about': 'About',
+        'nav-projects': 'Projects',
+        'nav-connect': 'Connect',
+        'status': 'online / build 0.3',
+        'hero-hi': "Hi, I'm",
+        'hero-call': 'You can call me',
+        'hero-or': 'or',
+        'hero-dot': '.',
+        'tagline': 'A curious mind building small things with code, design, and a bit of wonder.',
+        'cta-work': 'View my work →',
+        'cta-contact': 'Get in touch',
+        'about-label': '01 / About',
+        'about-title': 'A little bit about me',
+        'about-text': "I'm <strong>Nhan</strong>, an <span class=\"hl-blue\">Artificial Intelligence</span> student at the <span class=\"hl-pink\">University of Information Technology (UIT)</span>, class of <strong>2025</strong>. I spend most of my time exploring how machines learn, building side projects that combine creativity and code, and writing things down so I don't forget them later.",
+        'info-field': 'Field',
+        'info-field-value': 'Artificial Intelligence',
+        'info-university': 'University',
+        'info-class': 'Class of',
+        'info-based': 'Based in',
+        'info-based-value': 'Ho Chi Minh City, VN',
+        'projects-label': '02 / Projects',
+        'projects-title': "Things I've built",
+        'proj-1-title': 'Project 01',
+        'proj-1-desc': 'A small experiment, waiting to be shipped.',
+        'proj-2-title': 'Project 02',
+        'proj-2-desc': 'A work in progress, half-done and full of ideas.',
+        'proj-3-title': 'Project 03',
+        'proj-3-desc': 'A new chapter, just about to begin.',
+        'proj-tag': 'soon',
+        'connect-label': '03 / Connect',
+        'connect-title': "Let's talk",
+        'connect-text': "I'm always open to interesting conversations, collaborations, or just a friendly hello.",
+        'footer-copy': '© 2026 bersious · made with care'
+      },
+      vi: {
+        'nav-about': 'Giới thiệu',
+        'nav-projects': 'Dự án',
+        'nav-connect': 'Liên hệ',
+        'status': 'trực tuyến / bản 0.3',
+        'hero-hi': 'Chào, mình là',
+        'hero-call': 'Bạn có thể gọi mình là',
+        'hero-or': 'hoặc',
+        'hero-dot': 'nha.',
+        'tagline': 'Một tâm hồn tò mò, thỏa sức nhào nặn những điều nhỏ xinh bằng mã, thiết kế và cả một chút kỳ diệu.',
+        'cta-work': 'Xem dự án của tôi →',
+        'cta-contact': 'Liên hệ ngay',
+        'about-label': '01 / Giới thiệu',
+        'about-title': 'Một chút về mình',
+        'about-text': 'Mình là <strong>Nhân</strong>, sinh viên ngành <span class="hl-blue">Trí tuệ Nhân tạo</span> tại <span class="hl-pink">Trường Đại học Công nghệ Thông tin (UIT)</span>, khóa <strong>2025</strong>. Mình dành phần lớn thời gian để khám phá cách máy móc học hỏi, làm các dự án nhỏ kết hợp giữa sáng tạo và lập trình, rồi ghi chép lại để sau này khỏi quên.',
+        'info-field': 'Chuyên ngành',
+        'info-field-value': 'Trí tuệ Nhân tạo',
+        'info-university': 'Trường',
+        'info-class': 'Khóa',
+        'info-based': 'Nơi sống',
+        'info-based-value': 'TP. Hồ Chí Minh, VN',
+        'projects-label': '02 / Dự án',
+        'projects-title': 'Những thứ mình đã làm',
+        'proj-1-title': 'Dự án 01',
+        'proj-1-desc': 'Một thử nghiệm nhỏ, đang chờ ngày ra mắt.',
+        'proj-2-title': 'Dự án 02',
+        'proj-2-desc': 'Đang làm dở, đầy ý tưởng và cả mấy lần chỉnh sửa.',
+        'proj-3-title': 'Dự án 03',
+        'proj-3-desc': 'Một chương mới, sắp sửa bắt đầu.',
+        'proj-tag': 'sắp có',
+        'connect-label': '03 / Liên hệ',
+        'connect-title': 'Nói chuyện nha',
+        'connect-text': 'Mình luôn sẵn lòng trò chuyện về những ý tưởng thú vị, hợp tác, hay chỉ đơn giản là một lời chào thân thiện.',
+        'footer-copy': '© 2026 bersious · làm với tất cả tâm huyết'
+      }
+    };
+
+    const STORAGE_KEY = 'bersious.lang';
+    const DEFAULT_LANG = 'en';
+
+    function applyLanguage(lang) {
+      const dict = translations[lang] || translations[DEFAULT_LANG];
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key] !== undefined) {
+          el.innerHTML = dict[key];
+        }
+      });
+
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch (e) {
+        /* localStorage may be unavailable in some sandboxed contexts */
+      }
+    }
+
+    function initLanguage() {
+      let saved = DEFAULT_LANG;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && translations[stored]) {
+          saved = stored;
+        }
+      } catch (e) {
+        /* localStorage may be unavailable in some sandboxed contexts */
+      }
+      applyLanguage(saved);
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyLanguage(btn.dataset.lang);
+      });
+    });
+
+    initLanguage();
+  </script>
 </body>
 </html>
