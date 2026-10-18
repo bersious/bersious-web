@@ -908,6 +908,83 @@
       transform: translateY(-1px);
     }
 
+    /* ====== RESPONSIVE MOBILE - WIN/LOSE/START SCREEN ====== */
+    @media (max-width: 480px) {
+      .game-screen {
+        padding: 14px 12px !important;
+        gap: 8px !important;
+        max-width: 100% !important;
+        width: calc(100% - 16px) !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+        border-radius: 14px !important;
+      }
+      .game-screen h2 {
+        font-size: 1.1rem !important;
+        margin: 4px 0 !important;
+        line-height: 1.2 !important;
+      }
+      .game-screen p {
+        font-size: 0.82rem !important;
+        line-height: 1.35 !important;
+        margin: 2px 0 !important;
+      }
+      .game-screen .screen-art {
+        width: 90px !important;
+        height: 90px !important;
+        object-fit: contain !important;
+      }
+      .game-screen .btn-play,
+      .game-screen .btn-home,
+      .game-screen .btn-replay {
+        padding: 9px 16px !important;
+        font-size: 0.85rem !important;
+        margin-top: 4px !important;
+      }
+      .win-actions {
+        flex-direction: row !important;
+        gap: 8px !important;
+        margin-top: 6px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+      }
+      .win-actions button {
+        flex: 1 1 calc(50% - 4px) !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 9px 12px !important;
+        font-size: 0.82rem !important;
+      }
+      .password-form {
+        max-width: 100% !important;
+        gap: 8px !important;
+      }
+      .password-form input {
+        padding: 10px 12px !important;
+        font-size: 0.88rem !important;
+      }
+      .password-form button {
+        padding: 10px !important;
+        font-size: 0.88rem !important;
+      }
+      .password-hint {
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+      }
+    }
+    @media (max-height: 600px) and (orientation: landscape) {
+      .game-screen {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        padding: 12px !important;
+        gap: 8px !important;
+        max-height: 96% !important;
+      }
+      .game-screen h2 { font-size: 1rem !important; }
+      .game-screen p { font-size: 0.75rem !important; }
+      .game-screen .screen-art { width: 70px !important; height: 70px !important; }
+    }
+
     /* Form nhập mật khẩu (sau khi thắng) */
     .password-form {
       display: flex;
@@ -1135,8 +1212,8 @@
       <!-- Lose screen -->
       <div class="game-screen" id="loseScreen" style="display:none">
         <img src="../assets/game/processed/duck-lose.png" class="screen-art" alt="Vịt đâm cột" onerror="this.style.display='none'">
-        <h2>💥 Vịt rơi rồi!</h2>
-        <p>Chú vịt lỡ đâm cột hoặc rớt xuống đất. Thử lại nhé, cố lên!</p>
+        <h2>💥 Vịt con khéo lắm!</h2>
+        <p>Khéo bá =))</p>
         <button class="btn-play" id="btnRetry">Chơi lại</button>
         <button class="btn-home" id="btnHomeLose">🏠 Về trang chủ</button>
       </div>
@@ -1508,8 +1585,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const LETTER_TRIGGER_SCORE = 15;  // mốc spawn lá thư + vào chase state
       const WIN_KG = 80;             // đạt 80kg = win
       const BASE_KG = 30;
-      const KG_PER_ITEM = 3;         // 14 món đầu × 3 = 42 → 72kg
+      const KG_PER_ITEM = 5;  // mỗi món trà/bún +5kg → 30/45/60/70/80 đều hiện
       const LETTER_KG_BONUS = 5;     // lá thư +5kg → 80kg
+      // Math: món 1=35, 3=45, 5=55, 7=65, 9=75, 10=80 (đạt max), 11-16=80kg
       const MAX_KG = WIN_KG;         // 80
       // Chase state: lá thư bay tự do, vịt đuổi theo
       const LETTER_FLY_SPEED = 1.6;  // lá thư bay chậm hơn PIPE_SPEED (2.6)
