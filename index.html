@@ -1160,5 +1160,59 @@
       });
     }
   </script>
+
+  <!-- Visitor tracking (client-side, no middleware needed) -->
+  <script>
+    (function () {
+      try {
+        // Build the visitor entry from browser info
+        var ua = navigator.userAgent || '';
+        var u = ua.toLowerCase();
+        var isBot = /(bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|discord|preview|monitor)/.test(u);
+        var device = 'desktop';
+        if (/ipad|tablet|playbook|silk/.test(u)) device = 'tablet';
+        else if (/mobi|android|iphone|ipod|blackberry|iemobile|opera mini/.test(u)) device = 'mobile';
+        var browser = 'unknown';
+        if (/edg\//.test(u)) browser = 'Edge';
+        else if (/opr\/|opera/.test(u)) browser = 'Opera';
+        else if (/chrome|crios/.test(u)) browser = 'Chrome';
+        else if (/firefox|fxios/.test(u)) browser = 'Firefox';
+        else if (/safari/.test(u)) browser = 'Safari';
+        var os = 'unknown';
+        if (/windows nt/.test(u)) os = 'Windows';
+        else if (/mac os x|macintosh/.test(u)) os = 'macOS';
+        else if (/android/.test(u)) os = 'Android';
+        else if (/iphone|ipad|ipod/.test(u)) os = 'iOS';
+        else if (/linux/.test(u)) os = 'Linux';
+
+        // Get geo from Vercel response headers (set by Vercel CDN on the page request)
+        // We can't read these from JS, but we can include the path/lang and let API
+        // enrich with IP geo later.
+        var entry = {
+          ts: Date.now(),
+          ip: 'client', // filled in by server
+          city: '',
+          country: '',
+          region: '',
+          ua: ua,
+          device: isBot ? 'bot' : device,
+          browser: isBot ? 'bot' : browser,
+          os: isBot ? 'bot' : os,
+          ref: document.referrer ? (function(){try{return new URL(document.referrer).host;}catch(e){return '';}})() : '',
+          path: location.pathname,
+          lang: (navigator.language || '').split(',')[0] || ''
+        };
+
+        // Send to a serverless function that enriches with IP geo and stores
+        // Using sendBeacon for reliability (works even when page unloads)
+        var payload = JSON.stringify(entry);
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/log-visit', payload);
+        } else {
+          fetch('/api/log-visit', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
+        }
+      } catch (e) { /* never break the page */ }
+    })();
+  </script>
 </body>
 </html>
