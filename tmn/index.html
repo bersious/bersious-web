@@ -2256,16 +2256,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== GAME LOOP =====
       function gameLoop(timestamp) {
+        animId = requestAnimationFrame(gameLoop);
         if (!lastFrameTime) lastFrameTime = timestamp;
         const delta = timestamp - lastFrameTime;
         lastFrameTime = timestamp;
 
-        // Cap delta để tránh giật khi tab bị ẩn
-        if (delta < 100) {
+        try {
           update();
+          render();
+        } catch(err) {
+          console.error('[gameLoop error]:', err);
         }
-        render();
-        animId = requestAnimationFrame(gameLoop);
       }
 
       // ===== GAME EVENTS =====
@@ -2324,8 +2325,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
 
       function startGame() {
-        ensureAudioCtx();
-        preloadSfxBuffers();
         if (state === 'playing') return;
         state = 'playing';
         document.getElementById('startScreen').style.display = 'none';
@@ -2370,71 +2369,65 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         updateHUD();
       }
 
-      // ===== SOUND ENGINE (Web Audio API - decodeAudioData, zero latency, zero lag) =====
-      let audioCtx = null;
-      const sfxBuffers = {};
+      // ===== SOUND EFFECTS (Alternating Pool, Zero-Lag, Zero-Crash) =====
+      const quackAudio1 = new Audio('../assets/game/sfx/quack.mp3');
+      const quackAudio2 = new Audio('../assets/game/sfx/quack.mp3');
+      quackAudio1.preload = 'auto';
+      quackAudio2.preload = 'auto';
+      quackAudio1.volume = 0.6;
+      quackAudio2.volume = 0.6;
+      let quackToggle = false;
 
-      function ensureAudioCtx() {
-        if (!audioCtx) {
-          try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          } catch(e) {
-            audioCtx = null;
-          }
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
-        }
-        return audioCtx;
-      }
+      const thudAudio = new Audio('../assets/game/sfx/thud.mp3');
+      thudAudio.preload = 'auto';
+      thudAudio.volume = 0.7;
 
-      const SFX_URLS = {
-        quack: '../assets/game/sfx/quack.mp3',
-        thud:  '../assets/game/sfx/thud.mp3',
-        win:   '../assets/game/sfx/win.mp3',
-        fall:  '../assets/game/sfx/fall.mp3',
-        collect: '../assets/game/sfx/collect.mp3',
-      };
+      const winAudio = new Audio('../assets/game/sfx/win.mp3');
+      winAudio.preload = 'auto';
+      winAudio.volume = 0.6;
 
-      function preloadSfxBuffers() {
-        const ctx = ensureAudioCtx();
-        Object.entries(SFX_URLS).forEach(([name, url]) => {
-          if (sfxBuffers[name]) return;
-          fetch(url)
-            .then(res => res.arrayBuffer())
-            .then(buf => {
-              if (!ctx) return;
-              ctx.decodeAudioData(buf, decoded => {
-                sfxBuffers[name] = decoded;
-              }, () => {});
-            })
-            .catch(() => {});
-        });
-      }
+      const collectAudio = new Audio('../assets/game/sfx/collect.mp3');
+      collectAudio.preload = 'auto';
+      collectAudio.volume = 0.5;
 
-      function playSfx(name, volume = 0.5) {
+      function playFlapSound() {
         try {
-          const ctx = ensureAudioCtx();
-          if (!ctx) return;
-          const buffer = sfxBuffers[name];
-          if (!buffer) return;
-
-          const source = ctx.createBufferSource();
-          source.buffer = buffer;
-          const gainNode = ctx.createGain();
-          gainNode.gain.setValueAtTime(volume, ctx.currentTime);
-          source.connect(gainNode);
-          gainNode.connect(ctx.destination);
-          source.start(0);
+          // Luân phiên 2 instance: instance này đang phát thì instance kia phát tiếp, không bị seek stall hay giật render
+          const a = quackToggle ? quackAudio1 : quackAudio2;
+          quackToggle = !quackToggle;
+          a.currentTime = 0;
+          const p = a.play();
+          if (p && p.catch) p.catch(() => {});
         } catch(e) {}
       }
 
-      // Aliases (giữ tên cũ cho không vỡ code)
-      function playFlapSound() { playSfx('quack', 0.6); }
-      function playCollectSound() { playSfx('collect', 0.5); }
-      function playWinSound() { playSfx('win', 0.6); }
-      function playHitSound() { playSfx('thud', 0.7); }
-      function playFallSound() { playSfx('fall', 0.7); }
+      function playCollectSound() {
+        try {
+          collectAudio.currentTime = 0;
+          const p = collectAudio.play();
+          if (p && p.catch) p.catch(() => {});
+        } catch(e) {}
+      }
+
+      function playWinSound() {
+        try {
+          winAudio.currentTime = 0;
+          const p = winAudio.play();
+          if (p && p.catch) p.catch(() => {});
+        } catch(e) {}
+      }
+
+      function playHitSound() {
+        try {
+          thudAudio.currentTime = 0;
+          const p = thudAudio.play();
+          if (p && p.catch) p.catch(() => {});
+        } catch(e) {}
+      }
+
+      function playFallSound() {
+        playHitSound();
+      }
 
       // ===== PASSWORD =====
       window.submitPassword = function(event) {
@@ -2600,9 +2593,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Gắn sự kiện trước để các nút luôn tương tác được
         bindEvents();
-
-        // Preload Web Audio buffers
-        preloadSfxBuffers();
 
         // Setup canvas cho retina + resize
         setupCanvasResolution();
