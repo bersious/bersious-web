@@ -788,6 +788,18 @@
       margin: 0 0 12px;
       color: #fef3c7;
     }
+    .game-screen .screen-art {
+      width: min(50%, 200px);
+      height: auto;
+      margin-bottom: 12px;
+      animation: popBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4));
+    }
+    @keyframes popBounce {
+      0% { opacity: 0; transform: scale(0.5); }
+      60% { transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
     .game-screen p {
       font-size: 0.95rem;
       margin: 0 0 20px;
@@ -1034,6 +1046,7 @@
 
       <!-- Win screen (form nhập mật khẩu) -->
       <div class="game-screen" id="winScreen" style="display:none">
+        <img src="../assets/game/processed/duck-win.png" class="screen-art" alt="Vịt ăn mừng" onerror="this.style.display='none'">
         <h2>🎉 Vịt đã mập vĩ đại!</h2>
         <p>Chú vịt 70kg lăn không ngừng. Nhập mật khẩu anh gửi riêng để mở thư nè:</p>
         <form class="password-form" id="passwordForm" onsubmit="submitPassword(event)">
@@ -1046,6 +1059,7 @@
 
       <!-- Lose screen -->
       <div class="game-screen" id="loseScreen" style="display:none">
+        <img src="../assets/game/processed/duck-lose.png" class="screen-art" alt="Vịt đâm cột" onerror="this.style.display='none'">
         <h2>💥 Vịt rơi rồi!</h2>
         <p>Chú vịt lỡ đâm cột hoặc rớt xuống đất. Thử lại nhé, cố lên!</p>
         <button class="btn-play" id="btnRetry">Chơi lại</button>
@@ -1453,8 +1467,19 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           img.src = `${ASSETS_BASE}${name}.png`;
         });
 
-        // 2) Duck (tự vẽ bằng code, không load sprite)
-        // Chỉ cần biết weight (kg) để tính kích thước & màu sắc
+        // 2) Duck sprites (15 ảnh: 5 weight × 3 frame animation bay)
+        const duckSprites = {};  // duckSprites[kg][frameIdx] = Image
+        [30, 45, 60, 70, 80].forEach(kg => {
+          duckSprites[kg] = [];
+          for (let f = 1; f <= 3; f++) {
+            const img = new Image();
+            assetsTotal++;
+            img.onload = markAssetLoaded;
+            img.onerror = () => { console.error(`Failed to load duck-${kg}kg-f${f}.png`); markAssetLoaded(); };
+            img.src = `${ASSETS_BASE}duck-${kg}kg-f${f}.png`;
+            duckSprites[kg].push(img);
+          }
+        });
 
         // 3) Collectibles (6 trà + 1 bún)
         const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue'];
@@ -1642,110 +1667,31 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       // ===== VẼ VỊT BẰNG CODE (canvas drawing) =====
       // Tránh lỗi sprite scale + cho phép animation vỗ cánh mượt
       function drawDuck(x, y, kg, rotation, wingPhase) {
+        // Lấy sprite theo kg + frame (frame swap theo wingPhase)
+        const sprites = duckSprites[kg] || duckSprites[30];
+        const frameIdx = Math.floor((Math.sin(wingPhase) + 1) * 1.5) % 3;  // 0,1,2
+        const sprite = sprites[frameIdx];
+
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
-        // Kích thước tỉ lệ theo weight (30kg nhỏ → 80kg to)
-        // Body radius: 30kg=18, 80kg=32
-        const bodyR = 18 + (kg - 30) * 0.35;  // 18 → 32
-        // Wing flap angle (0 = giữa, + = lên, - = xuống)
-        const wingAngle = Math.sin(wingPhase) * 0.9;  // ±0.9 rad (~50°)
-
-        // --- Cánh trái (vẽ trước, bị thân che 1 phần) ---
-        ctx.save();
-        ctx.translate(-bodyR * 0.6, -bodyR * 0.15);
-        ctx.rotate(-wingAngle);
-        ctx.fillStyle = '#fcd34d';  // vàng nhạt
-        ctx.strokeStyle = '#92400e'; // viền nâu
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.ellipse(-bodyR * 0.7, 0, bodyR * 0.85, bodyR * 0.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        // --- Thân (vẽ chính giữa, đè lên cánh) ---
-        // Shadow phía dưới thân (gradient)
-        const bodyGrad = ctx.createRadialGradient(0, -bodyR * 0.3, 0, 0, 0, bodyR);
-        bodyGrad.addColorStop(0, '#ffffff');
-        bodyGrad.addColorStop(0.7, '#fef3c7');
-        bodyGrad.addColorStop(1, '#fde68a');
-        ctx.fillStyle = bodyGrad;
-        ctx.strokeStyle = '#92400e';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, bodyR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // --- Cánh phải (vẽ sau, đè lên thân) ---
-        ctx.save();
-        ctx.translate(bodyR * 0.6, -bodyR * 0.15);
-        ctx.rotate(wingAngle);
-        ctx.fillStyle = '#fcd34d';
-        ctx.strokeStyle = '#92400e';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.ellipse(bodyR * 0.7, 0, bodyR * 0.85, bodyR * 0.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        // --- Mắt trái ---
-        ctx.fillStyle = '#1f2937';
-        ctx.beginPath();
-        ctx.arc(-bodyR * 0.25, -bodyR * 0.2, bodyR * 0.13, 0, Math.PI * 2);
-        ctx.fill();
-        // Highlight mắt
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(-bodyR * 0.22, -bodyR * 0.24, bodyR * 0.05, 0, Math.PI * 2);
-        ctx.fill();
-
-        // --- Mắt phải ---
-        ctx.fillStyle = '#1f2937';
-        ctx.beginPath();
-        ctx.arc(bodyR * 0.25, -bodyR * 0.2, bodyR * 0.13, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(bodyR * 0.28, -bodyR * 0.24, bodyR * 0.05, 0, Math.PI * 2);
-        ctx.fill();
-
-        // --- Mỏ (cam) ---
-        ctx.fillStyle = '#fb923c';
-        ctx.strokeStyle = '#92400e';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.ellipse(0, bodyR * 0.15, bodyR * 0.3, bodyR * 0.18, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // --- Lông đỉnh đầu (chỉ 30-45kg mới có, tạo cảm giác baby) ---
-        if (kg <= 45) {
+        if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+          // Vẽ sprite - giữ aspect ratio, fit vừa với bodyR cũ (18→32 → sprite ~80×80→150×150)
+          const targetSize = 18 + (kg - 30) * 0.7 * 2;  // ~36 → 88 (gấp đôi bodyR cũ)
+          // Sprite nguồn 400×400 → scale giữ tỉ lệ vuông
+          const sw = sprite.naturalWidth;
+          const sh = sprite.naturalHeight;
+          const scale = targetSize / Math.max(sw, sh);
+          const dw = sw * scale;
+          const dh = sh * scale;
+          ctx.drawImage(sprite, -dw / 2, -dh / 2, dw, dh);
+        } else {
+          // Fallback nếu sprite chưa load: vẽ 1 hình tròn vàng đơn giản
           ctx.fillStyle = '#fcd34d';
-          ctx.strokeStyle = '#92400e';
-          ctx.lineWidth = 1.5;
-          for (let i = -1; i <= 1; i++) {
-            ctx.beginPath();
-            ctx.ellipse(i * bodyR * 0.15, -bodyR * 0.95, bodyR * 0.08, bodyR * 0.12, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          }
-        }
-
-        // --- Biểu cảm mặt theo weight (càng mập càng khó chịu) ---
-        if (kg >= 70) {
-          // Lông mày cau (70-80kg)
-          ctx.strokeStyle = '#1f2937';
-          ctx.lineWidth = 2.5;
           ctx.beginPath();
-          ctx.moveTo(-bodyR * 0.45, -bodyR * 0.45);
-          ctx.lineTo(-bodyR * 0.05, -bodyR * 0.35);
-          ctx.moveTo(bodyR * 0.05, -bodyR * 0.35);
-          ctx.lineTo(bodyR * 0.45, -bodyR * 0.45);
-          ctx.stroke();
+          ctx.arc(0, 0, 18 + (kg - 30) * 0.35, 0, Math.PI * 2);
+          ctx.fill();
         }
 
         ctx.restore();
