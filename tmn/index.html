@@ -1774,9 +1774,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           collectibles.push(img);
         });
 
-        // 4) Powerups - BỎ: chỉ giữ trà sữa + bún bò theo yêu cầu
-        // (Mảng powerups giữ trống, vẫn khai báo để tương thích code cũ)
-        // powerupNames đã bị xóa, không load 4 sprite sao/ớt/heart/bomb
+        // 4) Màn hình kết thúc (pre-cache duck-lose và fall để hiện tức thì 0ms)
+        const fallImg = new Image();
+        fallImg.src = `${ASSETS_BASE}fall.png`;
+        const loseDuckImg = new Image();
+        loseDuckImg.src = `${ASSETS_BASE}duck-lose.png`;
 
         // 5) Pipes - bỏ load, giờ vẽ bằng code trong drawPipeTop/Bottom
       }
@@ -2435,8 +2437,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (loseImg) {
           loseImg.style.display = 'block';
           loseImg.src = reason === 'fall'
-            ? '../assets/game/processed/fall.png?v=' + Date.now()
-            : '../assets/game/processed/duck-lose.png?v=' + Date.now();
+            ? '../assets/game/processed/fall.png'
+            : '../assets/game/processed/duck-lose.png';
         }
         document.getElementById('loseScreen').style.display = 'flex';
       }
