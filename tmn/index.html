@@ -1571,7 +1571,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== ASSETS (preload) =====
       const duckSprites = {};   // duckSprites[kg][frameIdx] = Image (khai báo ngoài để drawDuck truy cập được)
-      const collectibles = [];  // 7 sprite (6 trà + 1 bún)
+      const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue', 'cake-flan', 'cake-tart'];
+      const collectibles = [];  // 9 sprite (6 trà + 1 bún + 2 bánh)
       const powerups = [];      // 4 sprite (sao, ớt, heart, bom)
       const spawnHistory = [];  // nho 2 sprite vua spawn (tranh trung lap)
       const bgFar = new Image();
@@ -1647,7 +1648,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         });
 
         // 3) Collectibles (6 trà + 1 bún + 2 bánh = 9 item)
-        const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue', 'cake-flan', 'cake-tart'];
         collectibleNames.forEach(name => {
           const img = new Image();
           assetsTotal++;
