@@ -1457,6 +1457,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function preloadAssets(onAllLoaded) {
         window._allAssetsCallback = onAllLoaded;
+        // Failsafe: nếu sau 8s vẫn chưa load xong → vẫn chạy callback
+        // (tránh kẹt vĩnh viễn nếu 1 sprite nào đó bị cache/CORS fail lặng lẽ)
+        setTimeout(() => {
+          if (assetsLoaded < assetsTotal && window._allAssetsCallback) {
+            console.warn(`[preload] Timeout: ${assetsLoaded}/${assetsTotal} loaded, forcing callback`);
+            const cb = window._allAssetsCallback;
+            window._allAssetsCallback = null;
+            cb();
+          }
+        }, 8000);
 
         // 1) Backgrounds (3 lớp parallax)
         ['bg-far', 'bg-mid', 'bg-near'].forEach(name => {
@@ -2084,16 +2094,20 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         setupCanvasResolution();
         window.addEventListener('resize', setupCanvasResolution);
 
+        // Nếu đã unlock → show letter NGAY, không cần đợi assets
+        if (isUnlocked()) {
+          // Ẩn game overlay
+          document.getElementById('gameOverlay').classList.remove('show');
+          unlockLetter();
+        } else {
+          // Chưa unlock → show game splash NGAY (không cần đợi assets)
+          showGameSplash();
+        }
+
+        // Preload assets cho phần vẽ canvas (chạy nền, không block)
         preloadAssets(() => {
-          // Render frame idle
-          render();
-          // QUAN TRỌNG: Nếu chưa unlock → show game splash
-          // Nếu đã unlock → show letter ngay
-          if (isUnlocked()) {
-            unlockLetter();
-          } else {
-            showGameSplash();
-          }
+          // Render frame idle khi asset sẵn sàng
+          try { render(); } catch(e) { console.error('render fail:', e); }
         });
         bindEvents();
       }
