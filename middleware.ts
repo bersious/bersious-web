@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Redis } from '@upstash/redis';
 
 /**
- * Edge Middleware — log every visitor to Upstash Redis.
+ * Edge Middleware — log every visitor to Upstash Redis via plain fetch (no SDK).
  * Captures: timestamp, IP, user-agent, country/city/region (from Vercel headers),
  *           device type, browser, OS, referrer, path.
  *
@@ -32,36 +31,19 @@ interface VisitorEntry {
 
 const MAX_ENTRIES = 2000;
 
-// Lazily-initialized Redis client. We try multiple env var name shapes
-// because Upstash names them based on the database name (e.g. "dailys_KV_REST_API_URL")
-// while @upstash/redis reads the standard "UPSTASH_REDIS_REST_URL".
-let redisClient: Redis | null = null;
-let redisInitTried = false;
-
-function getRedis(): Redis | null {
-  if (redisInitTried) return redisClient;
-  redisInitTried = true;
-  try {
-    const url =
-      process.env.UPSTASH_REDIS_REST_URL ||
-      process.env.KV_REST_API_URL ||
-      process.env.dailys_KV_REST_API_URL ||
-      process.env.bersious_visitors_KV_REST_API_URL;
-    const token =
-      process.env.UPSTASH_REDIS_REST_TOKEN ||
-      process.env.KV_REST_API_TOKEN ||
-      process.env.dailys_KV_REST_API_TOKEN ||
-      process.env.bersious_visitors_KV_REST_API_TOKEN;
-    if (!url || !token) {
-      console.warn('[middleware] Redis env vars not found — logging disabled');
-      return null;
-    }
-    redisClient = new Redis({ url, token });
-    return redisClient;
-  } catch (e) {
-    console.error('[middleware] Failed to init Redis client:', e);
-    return null;
-  }
+function getUpstashCreds(): { url: string; token: string } | null {
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.KV_REST_API_URL ||
+    process.env.dailys_KV_REST_API_URL ||
+    process.env.bersious_visitors_KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.dailys_KV_REST_API_TOKEN ||
+    process.env.bersious_visitors_KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  return { url, token };
 }
 
 function parseDevice(ua: string): { device: string; browser: string; os: string } {
@@ -96,6 +78,23 @@ function stripQueryHost(url: string): string {
   }
 }
 
+function upstashLog(creds: { url: string; token: string }, entry: VisitorEntry): void {
+  // Pipeline: LPUSH then LTRIM in one request
+  const payload = JSON.stringify([
+    ['LPUSH', 'visitors:log', JSON.stringify(entry)],
+    ['LTRIM', 'visitors:log', '0', String(MAX_ENTRIES - 1)],
+  ]);
+  // Fire-and-forget — don't await (don't slow down the page)
+  fetch(creds.url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${creds.token}`,
+      'Content-Type': 'application/json',
+    },
+    body: payload,
+  }).catch((err) => console.error('[middleware] Upstash log failed:', err));
+}
+
 export default async function middleware(req: NextRequest) {
   // Build response FIRST so the page is never blocked, even if logging crashes
   const res = NextResponse.next();
@@ -105,8 +104,8 @@ export default async function middleware(req: NextRequest) {
 
   // Try to log, but EVERY error is caught — never break the user's page
   try {
-    const redis = getRedis();
-    if (!redis) return res; // env not configured → silent skip
+    const creds = getUpstashCreds();
+    if (!creds) return res; // env not configured → silent skip
 
     const ua = req.headers.get('user-agent') || '';
     const { device, browser, os } = parseDevice(ua);
@@ -130,11 +129,7 @@ export default async function middleware(req: NextRequest) {
       lang: (req.headers.get('accept-language') || '').split(',')[0] || '',
     };
 
-    // Fire-and-forget — don't await (don't slow page). Cap list at MAX_ENTRIES.
-    redis
-      .lpush('visitors:log', JSON.stringify(entry))
-      .then(() => redis.ltrim('visitors:log', 0, MAX_ENTRIES - 1))
-      .catch((err) => console.error('[middleware] Redis log failed:', err));
+    upstashLog(creds, entry);
   } catch (err) {
     // Last-resort safety net — middleware must NEVER crash
     console.error('[middleware] Unexpected error:', err);
