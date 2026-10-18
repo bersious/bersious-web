@@ -716,7 +716,7 @@
         <span data-i18n="hero-hi">Hi, I'm</span>
         <span class="name-tooltip-wrap">
           <span class="gradient" data-i18n="hero-name" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân" tabindex="0">Nhan</span>
-          <span class="name-tooltip" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân"></span>
+          <span class="name-tooltip" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân">Nguyen Thanh Thien Nhan</span>
         </span>.<br>
         <span data-i18n="hero-call">You can call me</span>
         <span class="story-tooltip-wrap">
@@ -947,7 +947,7 @@
       // Update fullname tooltip for the name reveal
       document.querySelectorAll('.name-tooltip').forEach(el => {
         const full = el.getAttribute(`data-fullname-${lang}`);
-        if (full) el.setAttribute('data-fullname', full);
+        if (full) el.textContent = full;
       });
 
       // Update story tooltip for story reveals (supports HTML links)
