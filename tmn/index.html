@@ -1439,6 +1439,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PASSWORD_HASH = btoa('171');
 
       // ===== ASSETS (preload) =====
+      const duckSprites = {};   // duckSprites[kg][frameIdx] = Image (khai báo ngoài để drawDuck truy cập được)
       const collectibles = [];  // 7 sprite (6 trà + 1 bún)
       const powerups = [];      // 4 sprite (sao, ớt, heart, bom)
       const bgFar = new Image();
@@ -1478,7 +1479,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         });
 
         // 2) Duck sprites (15 ảnh: 5 weight × 3 frame animation bay)
-        const duckSprites = {};  // duckSprites[kg][frameIdx] = Image
         [30, 45, 60, 70, 80].forEach(kg => {
           duckSprites[kg] = [];
           for (let f = 1; f <= 3; f++) {
@@ -1678,7 +1678,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       // Tránh lỗi sprite scale + cho phép animation vỗ cánh mượt
       function drawDuck(x, y, kg, rotation, wingPhase) {
         // Lấy sprite theo kg + frame (frame swap theo wingPhase)
-        const sprites = duckSprites[kg] || duckSprites[30];
+        const sprites = duckSprites[kg] || duckSprites[30] || [];
         const frameIdx = Math.floor((Math.sin(wingPhase) + 1) * 1.5) % 3;  // 0,1,2
         const sprite = sprites[frameIdx];
 
@@ -2095,6 +2095,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
+        // Gắn sự kiện trước để các nút luôn tương tác được
+        bindEvents();
+
         // Setup canvas cho retina + resize
         setupCanvasResolution();
         window.addEventListener('resize', setupCanvasResolution);
@@ -2122,7 +2125,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           // Render frame idle khi asset sẵn sàng
           try { render(); } catch(e) { console.error('render fail:', e); }
         });
-        bindEvents();
         console.log('[tmn] init() done');
       }
 
