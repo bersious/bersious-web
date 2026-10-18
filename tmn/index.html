@@ -1502,18 +1502,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           collectibles.push(img);
         });
 
-        // 4) Powerups (4 loại)
-        const powerupNames = ['star', 'chili', 'heart', 'bomb'];
-        powerupNames.forEach(name => {
-          const img = new Image();
-          assetsTotal++;
-          img.onload = markAssetLoaded;
-          img.onerror = () => { console.error('Failed to load', name); markAssetLoaded(); };
-          img.src = `${ASSETS_BASE}${name}.png`;
-          powerups.push(img);
-        });
+        // 4) Powerups - BỎ: chỉ giữ trà sữa + bún bò theo yêu cầu
+        // (Mảng powerups giữ trống, vẫn khai báo để tương thích code cũ)
+        // powerupNames đã bị xóa, không load 4 sprite sao/ớt/heart/bomb
 
-        // 4) Pipes - bỏ load, giờ vẽ bằng code trong drawPipeTop/Bottom
+        // 5) Pipes - bỏ load, giờ vẽ bằng code trong drawPipeTop/Bottom
       }
 
       // ===== GAME STATE =====
@@ -1535,14 +1528,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const gapY = minGapY + Math.random() * (maxGapY - minGapY);
         pipes.push({ x: CANVAS_W + 50, gapY, passed: false });
 
-        // Spawn 1 item ngẫu nhiên trong gap: 75% collectible (trà/bún), 25% powerup
+        // Spawn 1 item ngẫu nhiên trong gap: 100% collectible (trà/bún) - bỏ powerup
         const itemX = CANVAS_W + 50 + PIPE_SPACING / 2;
         const itemY = gapY + PIPE_GAP / 2 - 30;  // giữa gap, trừ 30 để căn giữa item
-        const isPowerup = Math.random() < 0.25;
-        const pool = isPowerup ? powerups : collectibles;
-        if (pool.length === 0) return;
-        const sprite = pool[Math.floor(Math.random() * pool.length)];
-        items.push({ x: itemX, y: itemY, sprite, collected: false, isPowerup });
+        if (collectibles.length === 0) return;
+        const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
+        items.push({ x: itemX, y: itemY, sprite, collected: false, isPowerup: false });
       }
 
       // ===== UPDATE LOOP =====
@@ -1674,33 +1665,64 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       drawDuck(bird.x, bird.y, currentKg, bird.rotation, bird.wingPhase);
     }
 
-      // ===== VẼ VỊT BẰNG CODE (canvas drawing) =====
-      // Tránh lỗi sprite scale + cho phép animation vỗ cánh mượt
+      // ===== VẼ VỊT BẰNG CODE + LỚP MỠ =====
+      // Vịt giữ 1 size cố định, chỉ "mỡ" tăng dần theo currentKg
       function drawDuck(x, y, kg, rotation, wingPhase) {
-        // Lấy sprite theo kg + frame (frame swap theo wingPhase)
-        const sprites = duckSprites[kg] || duckSprites[30] || [];
+        // Lấy sprite theo kg gần nhất (kg tăng dần: 30→45→60→70→80)
+        // nhưng sprite vẫn giữ 1 size cố định, chỉ mỡ tăng
+        const kgKeys = Object.keys(duckSprites).map(Number).sort((a, b) => a - b);
+        let snapKg = kgKeys[0];
+        for (const k of kgKeys) { if (kg >= k) snapKg = k; }
+        const sprites = duckSprites[snapKg] || [];
         const frameIdx = Math.floor((Math.sin(wingPhase) + 1) * 1.5) % 3;  // 0,1,2
         const sprite = sprites[frameIdx];
+
+        // Size CỐ ĐỊNH cho sprite vịt (không scale theo kg)
+        const DUCK_SIZE = 80;
+
+        // Mỡ tăng theo kg: 30kg=0px, 80kg=30px (ellipse bụng)
+        const fatR = Math.max(0, (kg - 30) * 0.6);
 
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
+        // 1) Lớp mỡ vàng (vẽ SAU sprite nên nằm dưới, hiện ra ở 2 bên)
+        if (fatR > 2) {
+          ctx.save();
+          // Quay về góc 0 để ellipse không bị rotation kéo nghiêng
+          ctx.rotate(-rotation);
+          ctx.fillStyle = 'rgba(255, 230, 130, 0.85)';
+          ctx.strokeStyle = 'rgba(180, 100, 30, 0.6)';
+          ctx.lineWidth = 1.5;
+          // 2 ellipse: trái + phải, lệch xuống dưới bụng
+          for (const side of [-1, 1]) {
+            ctx.beginPath();
+            ctx.ellipse(side * (DUCK_SIZE * 0.32), DUCK_SIZE * 0.18, DUCK_SIZE * 0.22 + fatR * 0.3, DUCK_SIZE * 0.18 + fatR * 0.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+          // 1 ellipse bụng chính giữa
+          ctx.beginPath();
+          ctx.ellipse(0, DUCK_SIZE * 0.22, DUCK_SIZE * 0.28 + fatR * 0.4, DUCK_SIZE * 0.20 + fatR * 0.4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 2) Vẽ sprite vịt (1 size cố định)
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-          // Vẽ sprite - giữ aspect ratio, fit vừa với bodyR cũ (18→32 → sprite ~80×80→150×150)
-          const targetSize = 18 + (kg - 30) * 0.7 * 2;  // ~36 → 88 (gấp đôi bodyR cũ)
-          // Sprite nguồn 400×400 → scale giữ tỉ lệ vuông
           const sw = sprite.naturalWidth;
           const sh = sprite.naturalHeight;
-          const scale = targetSize / Math.max(sw, sh);
+          const scale = DUCK_SIZE / Math.max(sw, sh);
           const dw = sw * scale;
           const dh = sh * scale;
           ctx.drawImage(sprite, -dw / 2, -dh / 2, dw, dh);
         } else {
-          // Fallback nếu sprite chưa load: vẽ 1 hình tròn vàng đơn giản
+          // Fallback: tròn vàng
           ctx.fillStyle = '#fcd34d';
           ctx.beginPath();
-          ctx.arc(0, 0, 18 + (kg - 30) * 0.35, 0, Math.PI * 2);
+          ctx.arc(0, 0, DUCK_SIZE / 2, 0, Math.PI * 2);
           ctx.fill();
         }
 
