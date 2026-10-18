@@ -1303,14 +1303,9 @@
   <div id="letterSection" style="display:none">
   <div class="viewport">
 
-    <!-- Thanh chuyển đổi vibe & công cụ -->
+    <!-- Thanh công cụ -->
     <div class="nav-bar">
-      <!-- Chỉ giữ 1 vibe: Bầu Trời & Hoa Vàng (bỏ Hồ Nước Lững Lờ) -->
-      <div class="vibe-switcher">
-        <button class="vibe-tab active" id="tabSky">
-          <span>🌼</span> Bầu Trời & Hoa Vàng
-        </button>
-      </div>
+      <div></div>
 
       <div class="tool-group">
         <button class="btn-pill" id="btnEdit">
@@ -1342,13 +1337,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Hộp thoại của chú vịt -->
-      <div class="speech-bubble" id="duckSpeech">
-        <span>Quạc!</span> Đang trôi rất chill... 🌿
-      </div>
-
-      <!-- Các nút tương tác (Cho vịt ăn/Chọc vịt/Quạc) đã được gỡ hoàn toàn theo yêu cầu -->
     </div>
 
     <!-- BỨC THƯ 20/10 CHỮA LÀNH -->
@@ -1893,18 +1881,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
     function quackDuck() {
       playLetterDuckQuack();
-      const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
-      const speech = document.getElementById('duckSpeech');
-
-      if (currentVibe === 'water') {
-        addRipple(rect.left + rect.width / 2, rect.top + rect.height / 2, 2.0);
-        speech.innerText = waterQuotes[Math.floor(Math.random() * waterQuotes.length)];
-        popWordFloating(rect.left + rect.width / 2, rect.top, 'Quạc! 🦆', '#f59e0b');
-      } else {
-        burstPetals(rect.left + rect.width / 2, rect.top + rect.height / 2);
-        speech.innerText = skyQuotes[Math.floor(Math.random() * skyQuotes.length)];
-        popWordFloating(rect.left + rect.width / 2, rect.top, 'Quạc quạc! 🌼', '#eab308');
-      }
+      const rect = document.getElementById('vinylRecord') ? document.getElementById('vinylRecord').getBoundingClientRect() : { left: w/2, top: 200, width: 0, height: 0 };
+      burstPetals(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      popWordFloating(rect.left + rect.width / 2, rect.top, 'Quạc quạc! 🌼', '#eab308');
     }
 
     function burstPetals(x, y) {
