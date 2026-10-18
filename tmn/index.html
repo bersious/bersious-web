@@ -904,6 +904,8 @@
   <!-- Canvas hiển thị sóng nước hoặc cánh hoa vàng bay lượn -->
   <canvas id="natureCanvas"></canvas>
 
+  <!-- Phần thư + duck: ẩn cho đến khi unlock game -->
+  <div id="letterSection" style="display:none">
   <div class="viewport">
 
     <!-- Thanh chuyển đổi vibe & công cụ -->
@@ -924,9 +926,6 @@
         </button>
         <button class="btn-pill" id="btnSound">
           <span id="soundIcon">🎵</span> <span id="soundLabel">Bật Nhạc Chill</span>
-        </button>
-        <button class="btn-game" id="btnOpenGame" onclick="openGame()">
-          <span>🦆</span> Mini game vịt phá
         </button>
       </div>
     </div>
@@ -990,6 +989,8 @@
     </div>
 
   </div>
+  </div>
+  <!-- /#letterSection -->
 
   <!-- ===== FLAPPY DUCK MINI-GAME OVERLAY ===== -->
   <div class="game-overlay" id="gameOverlay">
@@ -1552,38 +1553,49 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           drawPipeSegment(p.x, botY, pipeW, botH);
         });
 
-        // Vẽ items
-        items.forEach(it => {
-          if (it.collected || !it.sprite.complete) return;
-          const w = 60, h = 60;
-          ctx.drawImage(it.sprite, it.x - w/2, it.y - h/2, w, h);
-        });
+      // Vẽ items - theo natural ratio để không méo
+      items.forEach(it => {
+        if (it.collected || !it.sprite.complete) return;
+        const nw = it.sprite.naturalWidth || 60;
+        const nh = it.sprite.naturalHeight || 60;
+        // Fit vào max 60x60 giữ tỉ lệ
+        const maxDim = 60;
+        const ratio = Math.min(maxDim / nw, maxDim / nh);
+        const w = nw * ratio;
+        const h = nh * ratio;
+        ctx.drawImage(it.sprite, it.x - w/2, it.y - h/2, w, h);
+      });
 
-        // Vẽ vịt
-        const currentSprite = duckSprites[String(currentKg)];
-        if (currentSprite && currentSprite.complete) {
-          ctx.save();
-          ctx.translate(bird.x, bird.y);
-          ctx.rotate(bird.rotation);
-          // Wing flap: scale Y nhẹ theo sin(wingPhase)
-          const wingScale = 1 + Math.sin(bird.wingPhase) * 0.08;
-          ctx.scale(1, wingScale);
-          // Sprite kích thước hiển thị ~70px (để không quá to so với gap 230)
-          const sw = 70, sh = 70;
-          ctx.drawImage(currentSprite, -sw/2, -sh/2, sw, sh);
-          ctx.restore();
-        } else {
-          // Fallback: vẽ vòng tròn
-          ctx.fillStyle = '#fbbf24';
-          ctx.beginPath();
-          ctx.arc(bird.x, bird.y, BIRD_RADIUS, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Vẽ "ground" mờ phía dưới (cho cảm giác có rơi xuống đất)
-        ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
-        ctx.fillRect(0, CANVAS_H - 8, CANVAS_W, 8);
+      // Vẽ vịt - theo natural ratio
+      const currentSprite = duckSprites[String(currentKg)];
+      if (currentSprite && currentSprite.complete) {
+        ctx.save();
+        ctx.translate(bird.x, bird.y);
+        ctx.rotate(bird.rotation);
+        // Wing flap: scale Y nhẹ theo sin(wingPhase)
+        const wingScale = 1 + Math.sin(bird.wingPhase) * 0.08;
+        ctx.scale(1, wingScale);
+        // Fit vịt vào max 80x80 giữ tỉ lệ (duck sprite thường vuông ~280x280)
+        const nw = currentSprite.naturalWidth || 280;
+        const nh = currentSprite.naturalHeight || 280;
+        const maxDim = 80;
+        const ratio = Math.min(maxDim / nw, maxDim / nh);
+        const sw = nw * ratio;
+        const sh = nh * ratio;
+        ctx.drawImage(currentSprite, -sw/2, -sh/2, sw, sh);
+        ctx.restore();
+      } else {
+        // Fallback: vẽ vòng tròn
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(bird.x, bird.y, BIRD_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
       }
+
+      // Vẽ "ground" mờ phía dưới (cho cảm giác có rơi xuống đất)
+      ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
+      ctx.fillRect(0, CANVAS_H - 8, CANVAS_W, 8);
+    }
 
       function drawPipeSegment(x, y, w, h) {
         if (!pipeSprite.complete) {
@@ -1793,21 +1805,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const value = input.value;
 
         if (btoa(value) === PASSWORD_HASH) {
-          // Đúng → ẩn game, hiện celebration trên duck avatar
+          // Đúng → unlock thư + lưu localStorage
           input.classList.remove('shake');
           error.textContent = '';
-          closeGame();
-
-          // Hiệu ứng glow trên duck avatar (kéo dài 3s)
-          const frame = document.getElementById('duckAvatarFrame');
-          if (frame) {
-            frame.classList.add('unlocked');
-            frame.style.transition = 'box-shadow 1.5s ease';
-            frame.style.boxShadow = '0 0 40px rgba(254, 243, 199, 0.7), 0 0 80px rgba(236, 72, 153, 0.4)';
-            setTimeout(() => {
-              frame.style.boxShadow = '';
-            }, 5000);
-          }
+          try { localStorage.setItem('tmnUnlocked', '1'); } catch(e) {}
+          unlockLetter();
         } else {
           // Sai → shake
           input.classList.add('shake');
@@ -1817,22 +1819,39 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         }
       };
 
-      // ===== OPEN / CLOSE GAME =====
-      window.openGame = function() {
+      // ===== FLOW MỚI: Mở /tmn → Game fullscreen → Win → Pass → Thư =====
+      // Lưu state unlock vào localStorage
+      function isUnlocked() {
+        try { return localStorage.getItem('tmnUnlocked') === '1'; }
+        catch(e) { return false; }
+      }
+
+      function unlockLetter() {
+        // Ẩn game overlay, hiện letter section
+        document.getElementById('gameOverlay').classList.remove('show');
+        const letterSec = document.getElementById('letterSection');
+        if (letterSec) letterSec.style.display = 'block';
+
+        // Reset game state cho lần sau (nếu user muốn chơi lại)
+        state = 'idle';
+
+        // Hiệu ứng glow trên duck avatar (kéo dài 5s)
+        const frame = document.getElementById('duckAvatarFrame');
+        if (frame) {
+          frame.style.transition = 'box-shadow 1.5s ease';
+          frame.style.boxShadow = '0 0 40px rgba(254, 243, 199, 0.7), 0 0 80px rgba(236, 72, 153, 0.4)';
+          setTimeout(() => { frame.style.boxShadow = ''; }, 5000);
+        }
+
+        // Scroll lên đầu để thấy thư ngay
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function showGameSplash() {
+        // Hiện game overlay (fullscreen)
         document.getElementById('gameOverlay').classList.add('show');
         resetGame();
-        // Bắt đầu animation loop
         if (!animId) animId = requestAnimationFrame(gameLoop);
-      };
-
-      function closeGame() {
-        document.getElementById('gameOverlay').classList.remove('show');
-        // KHÔNG cancel animId - để render tiếp cho mượt khi mở lại
-        // Nhưng pause game logic
-        if (state === 'playing' || state === 'won' || state === 'lost') {
-          // Reset state để lần sau mở lại bắt đầu từ idle
-          state = 'idle';
-        }
       }
 
       // ===== EVENT BINDINGS =====
@@ -1841,10 +1860,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         document.getElementById('gameCanvas').addEventListener('mousedown', flap);
         document.getElementById('gameCanvas').addEventListener('touchstart', (e) => { e.preventDefault(); flap(); }, { passive: false });
 
-        // Space / ArrowUp = flap
+        // Space / ArrowUp = flap, ESC = đóng
         document.addEventListener('keydown', (e) => {
           if (e.code === 'Space' || e.code === 'ArrowUp') {
-            // Chỉ flap khi game đang mở
             if (document.getElementById('gameOverlay').classList.contains('show')) {
               e.preventDefault();
               if (state === 'idle' && document.getElementById('startScreen').style.display !== 'none') {
@@ -1854,10 +1872,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
               }
             }
           }
-          // ESC = đóng game
           if (e.code === 'Escape') {
-            if (document.getElementById('gameOverlay').classList.contains('show')) {
-              closeGame();
+            if (document.getElementById('gameOverlay').classList.contains('show') && isUnlocked()) {
+              // Chỉ ESC đóng được khi đã unlock
+              document.getElementById('gameOverlay').classList.remove('show');
+              state = 'idle';
             }
           }
         });
@@ -1865,7 +1884,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Buttons
         document.getElementById('btnStartGame').addEventListener('click', startGame);
         document.getElementById('btnRetry').addEventListener('click', () => {
-          // Reset everything
           state = 'idle';
           bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
           pipes = [];
@@ -1876,11 +1894,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           document.getElementById('loseScreen').style.display = 'none';
           startGame();
         });
-        document.getElementById('closeGameBtn').addEventListener('click', closeGame);
-
-        // Click ra ngoài overlay (vùng tối) cũng đóng
-        document.getElementById('gameOverlay').addEventListener('click', (e) => {
-          if (e.target.id === 'gameOverlay') closeGame();
+        document.getElementById('closeGameBtn').addEventListener('click', () => {
+          // Chỉ cho đóng khi đã unlock
+          if (isUnlocked()) {
+            document.getElementById('gameOverlay').classList.remove('show');
+            state = 'idle';
+          }
         });
       }
 
@@ -1888,15 +1907,37 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       function init() {
         canvas = document.getElementById('gameCanvas');
         ctx = canvas.getContext('2d');
-        // Disable image smoothing cho pixel-art feel
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
+        // Setup canvas cho retina + resize
+        setupCanvasResolution();
+        window.addEventListener('resize', setupCanvasResolution);
+
         preloadAssets(() => {
-          // Render frame idle đầu tiên
+          // Render frame idle
           render();
+          // QUAN TRỌNG: Nếu chưa unlock → show game splash
+          // Nếu đã unlock → show letter ngay
+          if (isUnlocked()) {
+            unlockLetter();
+          } else {
+            showGameSplash();
+          }
         });
         bindEvents();
+      }
+
+      // Setup canvas resolution cho retina + responsive
+      function setupCanvasResolution() {
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = canvas.clientWidth || CANVAS_W;
+        const cssH = canvas.clientHeight || CANVAS_H;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        // Scale context để vẽ theo CSS pixel (game logic dùng CANVAS_W/H)
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+        ctx.scale((canvas.width / CANVAS_W), (canvas.height / CANVAS_H));
       }
 
       // Chờ DOM ready (đã có vì script ở cuối body)
