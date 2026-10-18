@@ -1405,11 +1405,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PASSWORD_HASH = btoa('171');
 
       // ===== ASSETS (preload) =====
-      const duckFrames = {};   // duckFrames[kg][frameIndex] = Image (3 frames per kg)
       const collectibles = [];  // 7 sprite (6 trà + 1 bún)
       const powerups = [];      // 4 sprite (sao, ớt, heart, bom)
-      const pipeTopSprite = new Image();
-      const pipeBottomSprite = new Image();
       const bgFar = new Image();
       const bgMid = new Image();
       const bgNear = new Image();
@@ -1436,19 +1433,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           img.src = `${ASSETS_BASE}${name}.png`;
         });
 
-        // 2) Duck frames (5 con vịt × 3 frame bay)
-        const duckWeights = ['30', '45', '60', '70', '80'];
-        duckWeights.forEach(kg => {
-          duckFrames[kg] = [];
-          for (let f = 1; f <= 3; f++) {
-            const img = new Image();
-            assetsTotal++;
-            img.onload = markAssetLoaded;
-            img.onerror = () => { console.error(`Failed to load duck-${kg}kg-f${f}`); markAssetLoaded(); };
-            img.src = `${ASSETS_BASE}duck-${kg}kg-f${f}.png`;
-            duckFrames[kg].push(img);
-          }
-        });
+        // 2) Duck (tự vẽ bằng code, không load sprite)
+        // Chỉ cần biết weight (kg) để tính kích thước & màu sắc
 
         // 3) Collectibles (6 trà + 1 bún)
         const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue'];
@@ -1472,16 +1458,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           powerups.push(img);
         });
 
-        // 5) Pipes (2 loại riêng: top thòng từ trên, bottom mọc từ dưới)
-        assetsTotal++;
-        pipeTopSprite.onload = markAssetLoaded;
-        pipeTopSprite.onerror = () => { console.error('Failed to load pipe-top'); markAssetLoaded(); };
-        pipeTopSprite.src = `${ASSETS_BASE}pipe-top.png`;
-
-        assetsTotal++;
-        pipeBottomSprite.onload = markAssetLoaded;
-        pipeBottomSprite.onerror = () => { console.error('Failed to load pipe-bottom'); markAssetLoaded(); };
-        pipeBottomSprite.src = `${ASSETS_BASE}pipe-bottom.png`;
+        // 4) Pipes - bỏ load, giờ vẽ bằng code trong drawPipeTop/Bottom
       }
 
       // ===== GAME STATE =====
@@ -1638,81 +1615,228 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         ctx.drawImage(it.sprite, it.x - w/2, it.y - h/2, w, h);
       });
 
-      // Vẽ vịt - dùng 3 frame animation (vỗ cánh) theo wingPhase
-      const frames = duckFrames[String(currentKg)];
-      const frameIdx = frames ? Math.floor(bird.wingPhase / 1.2) % 3 : 0;
-      const currentSprite = frames ? frames[frameIdx] : null;
-      if (currentSprite && currentSprite.complete && currentSprite.naturalWidth > 0) {
-        ctx.save();
-        ctx.translate(bird.x, bird.y);
-        ctx.rotate(bird.rotation);
-        // Fit vịt vào max 80x80 giữ tỉ lệ
-        const nw = currentSprite.naturalWidth || 280;
-        const nh = currentSprite.naturalHeight || 280;
-        const maxDim = 80;
-        const ratio = Math.min(maxDim / nw, maxDim / nh);
-        const sw = nw * ratio;
-        const sh = nh * ratio;
-        ctx.drawImage(currentSprite, -sw/2, -sh/2, sw, sh);
-        ctx.restore();
-      } else {
-        // Fallback: vẽ vòng tròn
-        ctx.fillStyle = '#fbbf24';
-        ctx.beginPath();
-        ctx.arc(bird.x, bird.y, BIRD_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      // Vẽ vịt - TỰ VẼ bằng code (canvas drawing) để tránh lỗi sprite scale
+      drawDuck(bird.x, bird.y, currentKg, bird.rotation, bird.wingPhase);
     }
 
-      // Top pipe: ống thòng từ TRÊN xuống (vành ở dưới cùng, thân kéo lên trần)
-      // Sprite pipe-top.png có vành ở DƯỚI + thân kéo lên
-      // Vẽ bằng cách: flip ngược sprite (vì sprite gốc có vành ở dưới nhưng vẽ lên trần cần vành ở đáy của hình vẽ)
-      function drawPipeTop(x, y, w, h) {
-        if (!pipeTopSprite.complete || pipeTopSprite.naturalWidth === 0) {
-          ctx.fillStyle = '#f9a8d4';
-          ctx.fillRect(x, y, w, h);
-          return;
+      // ===== VẼ VỊT BẰNG CODE (canvas drawing) =====
+      // Tránh lỗi sprite scale + cho phép animation vỗ cánh mượt
+      function drawDuck(x, y, kg, rotation, wingPhase) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+
+        // Kích thước tỉ lệ theo weight (30kg nhỏ → 80kg to)
+        // Body radius: 30kg=18, 80kg=32
+        const bodyR = 18 + (kg - 30) * 0.35;  // 18 → 32
+        // Wing flap angle (0 = giữa, + = lên, - = xuống)
+        const wingAngle = Math.sin(wingPhase) * 0.9;  // ±0.9 rad (~50°)
+
+        // --- Cánh trái (vẽ trước, bị thân che 1 phần) ---
+        ctx.save();
+        ctx.translate(-bodyR * 0.6, -bodyR * 0.15);
+        ctx.rotate(-wingAngle);
+        ctx.fillStyle = '#fcd34d';  // vàng nhạt
+        ctx.strokeStyle = '#92400e'; // viền nâu
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(-bodyR * 0.7, 0, bodyR * 0.85, bodyR * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // --- Thân (vẽ chính giữa, đè lên cánh) ---
+        // Shadow phía dưới thân (gradient)
+        const bodyGrad = ctx.createRadialGradient(0, -bodyR * 0.3, 0, 0, 0, bodyR);
+        bodyGrad.addColorStop(0, '#ffffff');
+        bodyGrad.addColorStop(0.7, '#fef3c7');
+        bodyGrad.addColorStop(1, '#fde68a');
+        ctx.fillStyle = bodyGrad;
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, bodyR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // --- Cánh phải (vẽ sau, đè lên thân) ---
+        ctx.save();
+        ctx.translate(bodyR * 0.6, -bodyR * 0.15);
+        ctx.rotate(wingAngle);
+        ctx.fillStyle = '#fcd34d';
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(bodyR * 0.7, 0, bodyR * 0.85, bodyR * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // --- Mắt trái ---
+        ctx.fillStyle = '#1f2937';
+        ctx.beginPath();
+        ctx.arc(-bodyR * 0.25, -bodyR * 0.2, bodyR * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+        // Highlight mắt
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-bodyR * 0.22, -bodyR * 0.24, bodyR * 0.05, 0, Math.PI * 2);
+        ctx.fill();
+
+        // --- Mắt phải ---
+        ctx.fillStyle = '#1f2937';
+        ctx.beginPath();
+        ctx.arc(bodyR * 0.25, -bodyR * 0.2, bodyR * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(bodyR * 0.28, -bodyR * 0.24, bodyR * 0.05, 0, Math.PI * 2);
+        ctx.fill();
+
+        // --- Mỏ (cam) ---
+        ctx.fillStyle = '#fb923c';
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(0, bodyR * 0.15, bodyR * 0.3, bodyR * 0.18, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // --- Lông đỉnh đầu (chỉ 30-45kg mới có, tạo cảm giác baby) ---
+        if (kg <= 45) {
+          ctx.fillStyle = '#fcd34d';
+          ctx.strokeStyle = '#92400e';
+          ctx.lineWidth = 1.5;
+          for (let i = -1; i <= 1; i++) {
+            ctx.beginPath();
+            ctx.ellipse(i * bodyR * 0.15, -bodyR * 0.95, bodyR * 0.08, bodyR * 0.12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
         }
-        const spriteW = pipeTopSprite.naturalWidth;
-        const spriteH = pipeTopSprite.naturalHeight;
-        // Vành thường = 15-20% chiều cao sprite
-        const capH = Math.min(h * 0.08, spriteH * 0.08);  // spriteH*0.2 → 0.08 cho vành nhỏ vừa phải
-        const bodyH = h - capH;
-        // Body kéo lên trên (phần trên của sprite = thân)
-        const bodySrcRatio = (spriteH - spriteH * 0.2) / spriteH; // lấy 80% trên của sprite
-        ctx.drawImage(pipeTopSprite,
-          0, 0, spriteW, spriteH * bodySrcRatio,  // source: thân (80% trên)
-          x, y, w, bodyH                             // dest: kéo lên trần
-        );
-        // Vành ở dưới cùng (lấy phần dưới 20% của sprite)
-        ctx.drawImage(pipeTopSprite,
-          0, spriteH * 0.8, spriteW, spriteH * 0.2,  // source: vành (20% dưới)
-          x, y + bodyH, w, capH                       // dest: ngay trên gap
-        );
+
+        // --- Biểu cảm mặt theo weight (càng mập càng khó chịu) ---
+        if (kg >= 70) {
+          // Lông mày cau (70-80kg)
+          ctx.strokeStyle = '#1f2937';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-bodyR * 0.45, -bodyR * 0.45);
+          ctx.lineTo(-bodyR * 0.05, -bodyR * 0.35);
+          ctx.moveTo(bodyR * 0.05, -bodyR * 0.35);
+          ctx.lineTo(bodyR * 0.45, -bodyR * 0.45);
+          ctx.stroke();
+        }
+
+        ctx.restore();
       }
 
-      // Bottom pipe: ống mọc từ DƯỚI lên (vành ở trên cùng, thân kéo xuống đáy)
+      // ===== VẼ ỐNG CỘT BẰNG CODE (canvas drawing) =====
+      // Tránh scale xấu từ ảnh sprite - vẽ procedural sạch đẹp
+
+      // Top pipe: ống thòng từ trên xuống
+      function drawPipeTop(x, y, w, h) {
+        ctx.save();
+        // Vành ở dưới cùng (chỗ miệng khe)
+        const capH = Math.min(36, h * 0.15);
+        const capW = w * 1.4;
+        const capX = x - (capW - w) / 2;
+        const capY = y + h - capH;
+
+        // Thân ống (gradient hồng → hồng đậm)
+        const bodyGrad = ctx.createLinearGradient(x, 0, x + w, 0);
+        bodyGrad.addColorStop(0, '#fbcfe8');
+        bodyGrad.addColorStop(0.5, '#f472b6');
+        bodyGrad.addColorStop(1, '#db2777');
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(x, y, w, h);
+
+        // Viền thân
+        ctx.strokeStyle = '#831843';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+
+        // Vành (bo tròn 2 bên)
+        const capGrad = ctx.createLinearGradient(capX, capY, capX + capW, capY);
+        capGrad.addColorStop(0, '#fbcfe8');
+        capGrad.addColorStop(0.5, '#ec4899');
+        capGrad.addColorStop(1, '#9d174d');
+        ctx.fillStyle = capGrad;
+        ctx.beginPath();
+        const r = capH * 0.4;  // bo góc
+        ctx.moveTo(capX + r, capY);
+        ctx.lineTo(capX + capW - r, capY);
+        ctx.quadraticCurveTo(capX + capW, capY, capX + capW, capY + r);
+        ctx.lineTo(capX + capW, capY + capH - r);
+        ctx.quadraticCurveTo(capX + capW, capY + capH, capX + capW - r, capY + capH);
+        ctx.lineTo(capX + r, capY + capH);
+        ctx.quadraticCurveTo(capX, capY + capH, capX, capY + capH - r);
+        ctx.lineTo(capX, capY + r);
+        ctx.quadraticCurveTo(capX, capY, capX + r, capY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Highlight trên thân (ánh sáng)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(x + w * 0.15, y, w * 0.2, h);
+
+        // Highlight trên vành
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fillRect(capX + capW * 0.1, capY + capH * 0.15, capW * 0.3, capH * 0.2);
+
+        ctx.restore();
+      }
+
+      // Bottom pipe: ống mọc từ dưới lên
       function drawPipeBottom(x, y, w, h) {
-        if (!pipeBottomSprite.complete || pipeBottomSprite.naturalWidth === 0) {
-          ctx.fillStyle = '#f9a8d4';
-          ctx.fillRect(x, y, w, h);
-          return;
-        }
-        const spriteW = pipeBottomSprite.naturalWidth;
-        const spriteH = pipeBottomSprite.naturalHeight;
-        const capH = Math.min(h * 0.08, spriteH * 0.08);  // spriteH*0.2 → 0.08 cho vành nhỏ vừa phải
-        const bodyH = h - capH;
-        // Vành ở trên cùng (lấy phần trên 20% của sprite)
-        ctx.drawImage(pipeBottomSprite,
-          0, 0, spriteW, spriteH * 0.2,  // source: vành (20% trên)
-          x, y, w, capH                   // dest: ngay dưới gap
-        );
-        // Body kéo xuống dưới (lấy 80% dưới của sprite)
-        const bodySrcRatio = (spriteH - spriteH * 0.2) / spriteH;
-        ctx.drawImage(pipeBottomSprite,
-          0, spriteH * 0.2, spriteW, spriteH * bodySrcRatio,
-          x, y + capH, w, bodyH
-        );
+        ctx.save();
+        // Vành ở trên cùng (chỗ miệng khe)
+        const capH = Math.min(36, h * 0.15);
+        const capW = w * 1.4;
+        const capX = x - (capW - w) / 2;
+
+        // Thân ống
+        const bodyGrad = ctx.createLinearGradient(x, 0, x + w, 0);
+        bodyGrad.addColorStop(0, '#fbcfe8');
+        bodyGrad.addColorStop(0.5, '#f472b6');
+        bodyGrad.addColorStop(1, '#db2777');
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(x, y, w, h);
+
+        // Viền thân
+        ctx.strokeStyle = '#831843';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+
+        // Vành
+        const capGrad = ctx.createLinearGradient(capX, y, capX + capW, y);
+        capGrad.addColorStop(0, '#fbcfe8');
+        capGrad.addColorStop(0.5, '#ec4899');
+        capGrad.addColorStop(1, '#9d174d');
+        ctx.fillStyle = capGrad;
+        ctx.beginPath();
+        const r = capH * 0.4;
+        ctx.moveTo(capX + r, y);
+        ctx.lineTo(capX + capW - r, y);
+        ctx.quadraticCurveTo(capX + capW, y, capX + capW, y + r);
+        ctx.lineTo(capX + capW, y + capH - r);
+        ctx.quadraticCurveTo(capX + capW, y + capH, capX + capW - r, y + capH);
+        ctx.lineTo(capX + r, y + capH);
+        ctx.quadraticCurveTo(capX, y + capH, capX, y + capH - r);
+        ctx.lineTo(capX, y + r);
+        ctx.quadraticCurveTo(capX, y, capX + r, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(x + w * 0.15, y, w * 0.2, h);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fillRect(capX + capW * 0.1, y + capH * 0.15, capW * 0.3, capH * 0.2);
+
+        ctx.restore();
       }
 
       // ===== GAME LOOP =====
