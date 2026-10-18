@@ -1886,6 +1886,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           currentKg = BASE_KG;
           frameCount = 0;
         }
+        // Auto-flap nhẹ khi bấm "Bắt đầu" để vịt không rơi ngay
+        bird.vy = -6;
         updateHUD();
       }
 
@@ -2085,8 +2087,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== INIT =====
       function init() {
+        console.log('[tmn] init() start');
         canvas = document.getElementById('gameCanvas');
         ctx = canvas.getContext('2d');
+        if (!ctx) { console.error('[tmn] FATAL: cannot get 2d context'); return; }
+        console.log('[tmn] canvas:', canvas.width, 'x', canvas.height);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
@@ -2096,20 +2101,29 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Nếu đã unlock → show letter NGAY, không cần đợi assets
         if (isUnlocked()) {
+          console.log('[tmn] already unlocked → show letter');
           // Ẩn game overlay
           document.getElementById('gameOverlay').classList.remove('show');
           unlockLetter();
         } else {
           // Chưa unlock → show game splash NGAY (không cần đợi assets)
-          showGameSplash();
+          console.log('[tmn] not unlocked → show game splash');
+          try {
+            showGameSplash();
+            console.log('[tmn] showGameSplash OK, animId:', animId);
+          } catch(e) {
+            console.error('[tmn] showGameSplash FAIL:', e);
+          }
         }
 
         // Preload assets cho phần vẽ canvas (chạy nền, không block)
         preloadAssets(() => {
+          console.log('[tmn] preload complete');
           // Render frame idle khi asset sẵn sàng
           try { render(); } catch(e) { console.error('render fail:', e); }
         });
         bindEvents();
+        console.log('[tmn] init() done');
       }
 
       // Setup canvas resolution cho retina + responsive
