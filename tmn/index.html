@@ -1790,6 +1790,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Wing animation (scale Y oscillation để giả vỗ cánh)
         bird.wingPhase += 0.4;  // tốc độ ập cánh (nhanh = sống động)
 
+        // Check rớt xuống đáy hoặc chạm trần → gameOver dùng ảnh fall.png
+        if (bird.y > CANVAS_H || bird.y < 0) {
+          gameOver('fall');
+          return;
+        }
+
         // Move pipes & items
         pipes.forEach(p => p.x -= PIPE_SPEED);
         items.forEach(i => {
@@ -2250,8 +2256,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         }
       }
 
-      function gameOver() {
+      function gameOver(reason) {
         state = 'lost';
+        // Đổi ảnh: rớt xuống/trần → fall.png, đâm cột → duck-lose.png
+        const loseImg = document.querySelector('#loseScreen .screen-art');
+        if (loseImg) {
+          loseImg.src = reason === 'fall'
+            ? '../assets/game/processed/fall.png'
+            : '../assets/game/processed/duck-lose.png';
+        }
         document.getElementById('loseScreen').style.display = 'flex';
       }
 
