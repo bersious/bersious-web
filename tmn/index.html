@@ -2324,6 +2324,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
 
       function startGame() {
+        ensureAudioCtx();
+        preloadSfxBuffers();
         if (state === 'playing') return;
         state = 'playing';
         document.getElementById('startScreen').style.display = 'none';
@@ -2368,46 +2370,71 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         updateHUD();
       }
 
-      // ===== SOUND (Web Audio API - lightweight) =====
+      // ===== SOUND ENGINE (Web Audio API - decodeAudioData, zero latency, zero lag) =====
       let audioCtx = null;
+      const sfxBuffers = {};
+
       function ensureAudioCtx() {
         if (!audioCtx) {
-          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-          catch(e) { audioCtx = null; }
+          try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          } catch(e) {
+            audioCtx = null;
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
         }
         return audioCtx;
       }
-      // ===== SOUND EFFECTS (MP3 preloaded, low latency) =====
-      const SFX = {
-        quack: new Audio('../assets/game/sfx/quack.mp3'),
-        thud:  new Audio('../assets/game/sfx/thud.mp3'),
-        win:   new Audio('../assets/game/sfx/win.mp3'),
-        fall:  new Audio('../assets/game/sfx/fall.mp3'),
-        collect: new Audio('../assets/game/sfx/collect.mp3'),
-      };
-      // Preload + set volume
-      Object.values(SFX).forEach(a => {
-        a.preload = 'auto';
-        a.volume = 0.5;
-      });
 
-      function playSfx(name) {
+      const SFX_URLS = {
+        quack: '../assets/game/sfx/quack.mp3',
+        thud:  '../assets/game/sfx/thud.mp3',
+        win:   '../assets/game/sfx/win.mp3',
+        fall:  '../assets/game/sfx/fall.mp3',
+        collect: '../assets/game/sfx/collect.mp3',
+      };
+
+      function preloadSfxBuffers() {
+        const ctx = ensureAudioCtx();
+        Object.entries(SFX_URLS).forEach(([name, url]) => {
+          if (sfxBuffers[name]) return;
+          fetch(url)
+            .then(res => res.arrayBuffer())
+            .then(buf => {
+              if (!ctx) return;
+              ctx.decodeAudioData(buf, decoded => {
+                sfxBuffers[name] = decoded;
+              }, () => {});
+            })
+            .catch(() => {});
+        });
+      }
+
+      function playSfx(name, volume = 0.5) {
         try {
-          // Pause + reset to start (latency thấp vì element đã load)
-          const a = SFX[name];
-          if (!a) return;
-          a.currentTime = 0;
-          const p = a.play();
-          if (p && p.catch) p.catch(() => {});  // ignore autoplay block
+          const ctx = ensureAudioCtx();
+          if (!ctx) return;
+          const buffer = sfxBuffers[name];
+          if (!buffer) return;
+
+          const source = ctx.createBufferSource();
+          source.buffer = buffer;
+          const gainNode = ctx.createGain();
+          gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+          source.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          source.start(0);
         } catch(e) {}
       }
 
       // Aliases (giữ tên cũ cho không vỡ code)
-      function playFlapSound() { playSfx('quack'); }
-      function playCollectSound() { playSfx('collect'); }
-      function playWinSound() { playSfx('win'); }
-      function playHitSound() { playSfx('thud'); }
-      function playFallSound() { playSfx('fall'); }
+      function playFlapSound() { playSfx('quack', 0.6); }
+      function playCollectSound() { playSfx('collect', 0.5); }
+      function playWinSound() { playSfx('win', 0.6); }
+      function playHitSound() { playSfx('thud', 0.7); }
+      function playFallSound() { playSfx('fall', 0.7); }
 
       // ===== PASSWORD =====
       window.submitPassword = function(event) {
@@ -2573,6 +2600,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Gắn sự kiện trước để các nút luôn tương tác được
         bindEvents();
+
+        // Preload Web Audio buffers
+        preloadSfxBuffers();
 
         // Setup canvas cho retina + resize
         setupCanvasResolution();
