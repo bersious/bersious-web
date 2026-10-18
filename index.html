@@ -627,6 +627,12 @@
       margin-bottom: 4px;
     }
 
+    .gallery-desc {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
     .gallery-tag {
       display: inline-block;
       font-family: 'JetBrains Mono', monospace;
@@ -824,7 +830,8 @@
           <span class="gallery-tag" data-i18n="proj-1-tag">live</span>
         </a>
         <a class="gallery-item gallery-item-tmn" href="/tmn" data-project-slug="tmn-2010">
-          <div class="gallery-icon">
+          <div>
+            <div class="gallery-icon">
             <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="48" height="48" aria-hidden="true">
               <!-- Hammer (background, top-right) -->
               <g transform="rotate(-30 50 14)">
@@ -862,11 +869,13 @@
             </svg>
           </div>
           <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
-          <span class="gallery-join">
-            <span class="join-emoji">🍜</span>
-            <span class="join-text">Join for food</span>
-          </span>
-        </a>
+          <div class="gallery-desc" data-i18n="proj-2-desc">An intangible gift accompanying the main gift on the occasion of October 20, 2026.</div>
+        </div>
+        <span class="gallery-join">
+          <span class="join-emoji">🍜</span>
+          <span class="join-text">Join for food</span>
+        </span>
+      </a>
         <div class="gallery-item coming-soon">
           <div>
             <div class="gallery-icon">✦</div>
@@ -959,6 +968,7 @@
         'proj-1-title': 'bersious.io.vn',
         'proj-1-tag': 'live',
         'proj-2-title': 'TMN 20/10',
+        'proj-2-desc': 'An intangible gift accompanying the main gift on the occasion of October 20, 2026.',
         'proj-2-tag': 'live',
         'proj-3-title': 'Project 03',
         'proj-tag': 'soon',
@@ -992,6 +1002,7 @@
         'proj-1-title': 'bersious.io.vn',
         'proj-1-tag': 'live',
         'proj-2-title': 'TMN 20/10',
+        'proj-2-desc': 'An intangible gift accompanying the main gift on the occasion of October 20, 2026.',
         'proj-2-tag': 'live',
         'proj-3-title': 'Dự án 03',
         'proj-tag': 'sắp có',
