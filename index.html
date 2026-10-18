@@ -224,6 +224,68 @@
       background-clip: text;
     }
 
+    /* Tooltip for name reveal on hover */
+    .name-tooltip {
+      position: relative;
+      cursor: help;
+    }
+
+    .name-tooltip::after {
+      content: attr(data-fullname);
+      position: absolute;
+      bottom: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      padding: 10px 16px;
+      background: rgba(11, 13, 18, 0.96);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 10;
+    }
+
+    .name-tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgba(11, 13, 18, 0.96);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 10;
+    }
+
+    .name-tooltip:hover::after,
+    .name-tooltip:focus::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .name-tooltip:hover::before,
+    .name-tooltip:focus::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .name-tooltip::after {
+      -webkit-text-fill-color: var(--text-main);
+      background: none;
+    }
+
     .cta-group {
       display: flex;
       gap: 12px;
@@ -518,7 +580,7 @@
         <span data-i18n="status">online / build 0.3</span>
       </div>
       <h1>
-        <span data-i18n="hero-hi">Hi, I'm</span> <span class="gradient">Nhan</span>.<br>
+        <span data-i18n="hero-hi">Hi, I'm</span> <span class="gradient name-tooltip" data-i18n="hero-name" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân" tabindex="0">Nhan</span>.<br>
         <span data-i18n="hero-call">You can call me</span> <span class="gradient">Endy</span> <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
       </h1>
       <div class="cta-group">
@@ -652,6 +714,7 @@
         'nav-connect': 'Connect',
         'status': 'online / build 0.3',
         'hero-hi': "Hi, I'm",
+        'hero-name': 'Nhan',
         'hero-call': 'You can call me',
         'hero-or': 'or',
         'hero-dot': '.',
@@ -686,6 +749,7 @@
         'nav-connect': 'Liên hệ',
         'status': 'đang trực tuyến · bản 0.4',
         'hero-hi': 'Xin chào, mình là',
+        'hero-name': 'Nhân',
         'hero-call': 'Bạn có thể gọi mình là',
         'hero-or': 'hoặc',
         'hero-dot': '.',
@@ -730,6 +794,12 @@
         if (dict[key] !== undefined) {
           el.innerHTML = dict[key];
         }
+      });
+
+      // Update fullname tooltip for the name reveal
+      document.querySelectorAll('.name-tooltip').forEach(el => {
+        const full = el.getAttribute(`data-fullname-${lang}`);
+        if (full) el.setAttribute('data-fullname', full);
       });
 
       document.querySelectorAll('.lang-btn').forEach(btn => {
