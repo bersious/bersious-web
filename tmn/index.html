@@ -655,16 +655,48 @@
     /* Chữ ký */
     .letter-footer {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      justify-content: flex-end;
+      align-items: center;
       margin-top: 35px;
       padding-top: 25px;
       border-top: 1px solid rgba(0, 0, 0, 0.08);
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 16px;
+    }
+
+    .btn-thenkiu {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+      color: #713f12;
+      font-family: 'Comfortaa', cursive, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35);
+      border: 1px solid rgba(254, 240, 138, 0.8);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .btn-thenkiu:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(234, 179, 8, 0.5);
+      background: linear-gradient(135deg, #fef9c3 0%, #facc15 100%);
+      color: #422006;
+    }
+
+    .btn-thenkiu:active {
+      transform: translateY(0) scale(0.98);
     }
 
     .footer-sign {
+      display: flex;
+      align-items: center;
+      gap: 14px;
       text-align: right;
     }
 
@@ -1358,6 +1390,9 @@
       <!-- Chữ ký -->
       <div class="letter-footer">
         <div class="footer-sign">
+          <a href="https://www.facebook.com/bersious" target="_blank" rel="noopener noreferrer" class="btn-thenkiu" title="Nhắn cho Nhân nha! 💌">
+            <span>💛</span> thenkiu
+          </a>
           <div class="sign-name" id="letterSender">Nhân</div>
         </div>
       </div>
@@ -1550,7 +1585,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           wobbleSpeed: Math.random() * 0.03 + 0.015,
           angle: Math.random() * 360,
           spinSpeed: (Math.random() - 0.5) * 1.2,
-          opacity: Math.random() * 0.25 + 0.75
+          opacity: Math.random() * 0.25 + 0.75,
+          hasTag: false,
+          tagAlpha: 0,
+          tagTimer: Math.random() * 400 + 100 // hẹn giờ ngẫu nhiên xuất hiện chữ
         });
       }
     }
@@ -1716,6 +1754,16 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           df.y += df.speedY;
           df.angle += df.spinSpeed;
 
+          // Quản lý hiển thị tag \"bấm vào tớ đi\"
+          df.tagTimer = (df.tagTimer || 0) - 1;
+          if (df.tagTimer <= 0) {
+            df.hasTag = !df.hasTag;
+            // Nếu bật thì hiện khoảng 5-7 giây, nếu tắt thì chờ 8-15 giây mới xuất hiện lại
+            df.tagTimer = df.hasTag ? (Math.random() * 200 + 300) : (Math.random() * 500 + 400);
+          }
+          if (df.hasTag && df.tagAlpha < 1) df.tagAlpha = Math.min(1, df.tagAlpha + 0.04);
+          if (!df.hasTag && df.tagAlpha > 0) df.tagAlpha = Math.max(0, df.tagAlpha - 0.04);
+
           if (df.y > h + 40) {
             df.y = -40;
             df.x = Math.random() * w;
@@ -1724,12 +1772,110 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           if (df.x < -40) df.x = w + 40;
 
           drawDaisyFlower(ctx, df.x, df.y, df.radius, df.angle, df.petalsCount, df.opacity || 0.9);
+
+          // Vẽ bong bóng chữ \"bấm vào tớ đi ✨\" nhỏ xinh phía trên bông hoa
+          if (df.tagAlpha > 0.05) {
+            ctx.save();
+            ctx.globalAlpha = (df.opacity || 0.9) * df.tagAlpha;
+            ctx.font = 'bold 11px \"Comfortaa\", cursive, sans-serif';
+            const tagText = 'bấm vào tớ đi ✨';
+            const textWidth = ctx.measureText(tagText).width;
+            const tagBoxW = textWidth + 14;
+            const tagBoxH = 20;
+            const tagBoxX = df.x - tagBoxW / 2;
+            const tagBoxY = df.y - df.radius - 22;
+
+            // Nền tag trắng bo tròn viền vàng nhạt
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+            ctx.shadowColor = 'rgba(234, 179, 8, 0.4)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(tagBoxX, tagBoxY, tagBoxW, tagBoxH, 10);
+            } else {
+              ctx.rect(tagBoxX, tagBoxY, tagBoxW, tagBoxH);
+            }
+            ctx.fill();
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Tam giác nhỏ chỉ xuống hoa
+            ctx.beginPath();
+            ctx.moveTo(df.x - 4, tagBoxY + tagBoxH);
+            ctx.lineTo(df.x + 4, tagBoxY + tagBoxH);
+            ctx.lineTo(df.x, tagBoxY + tagBoxH + 4);
+            ctx.closePath();
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // Chữ bên trong
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#713f12';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tagText, df.x, tagBoxY + tagBoxH / 2);
+            ctx.restore();
+          }
         }
       }
 
       requestAnimationFrame(drawNature);
     }
     drawNature();
+
+    // Click vào bông hoa cúc daisy (đặc biệt khi có tag hoặc click trúng bông hoa) -> chuyển trang tìm hiểu hoa Daisy
+    window.addEventListener('click', (e) => {
+      // Chỉ hoạt động khi phần thư đang hiển thị và không click vào nút/link khác
+      const letterSec = document.getElementById('letterSection');
+      if (!letterSec || letterSec.style.display === 'none') return;
+      if (e.target.closest('button, a, input, textarea, .modal-card, #gameOverlay')) return;
+
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+
+      for (let df of daisyFlowers) {
+        const dx = clickX - df.x;
+        const dy = clickY - df.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Kiểm tra trúng bông hoa (bán kính rộng hơn chút để dễ bấm) hoặc trúng vùng tag
+        const hitFlower = dist <= (df.radius + 18);
+        const tagBoxY = df.y - df.radius - 22;
+        const hitTag = (df.tagAlpha > 0.3) &&
+                       (clickX >= df.x - 55 && clickX <= df.x + 55) &&
+                       (clickY >= tagBoxY - 8 && clickY <= tagBoxY + 28);
+
+        if (hitFlower || hitTag) {
+          window.open('https://www.tierra.vn/tin-tuc/hoa-daisy-hoa-cuc-dai', '_blank');
+          break;
+        }
+      }
+    });
+
+    // Thay đổi con trỏ chuột sang hình pointer khi rê vào gần bông hoa cúc daisy
+    window.addEventListener('mousemove', (e) => {
+      const letterSec = document.getElementById('letterSection');
+      if (!letterSec || letterSec.style.display === 'none') return;
+      if (e.target.closest('button, a, input, textarea, .modal-card, #gameOverlay')) return;
+
+      let isNearDaisy = false;
+      for (let df of daisyFlowers) {
+        const dx = e.clientX - df.x;
+        const dy = e.clientY - df.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const tagBoxY = df.y - df.radius - 22;
+        const hitTag = (df.tagAlpha > 0.3) &&
+                       (e.clientX >= df.x - 55 && e.clientX <= df.x + 55) &&
+                       (e.clientY >= tagBoxY - 8 && e.clientY <= tagBoxY + 28);
+
+        if (dist <= (df.radius + 14) || hitTag) {
+          isNearDaisy = true;
+          break;
+        }
+      }
+      document.body.style.cursor = isNearDaisy ? 'pointer' : 'default';
+    });
 
 
     /* ========================================================
