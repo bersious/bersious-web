@@ -1718,7 +1718,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (state === 'chasing') return;
 
         if (collectibles.length === 0) return;
-        const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
+        // Weighted random: bun-bo-hue x2 (user thich bun bo hon)
+        // Build pool weighted -> flat
+        const weighted = [];
+        for (let i = 0; i < collectibles.length; i++) {
+          const name = collectibleNames[i];
+          const weight = (name === 'bun-bo-hue') ? 2 : 1;
+          for (let k = 0; k < weight; k++) weighted.push(collectibles[i]);
+        }
+        const sprite = weighted[Math.floor(Math.random() * weighted.length)];
         // wobblePhase khởi đầu random → mỗi item lắc lệch pha
         items.push({ x: itemX, y: itemY, sprite, collected: false, isPowerup: false, wobblePhase: Math.random() * Math.PI * 2 });
       }
