@@ -774,20 +774,19 @@
           <div>
             <div class="gallery-icon">🌐</div>
             <div class="gallery-title" data-i18n="proj-1-title">bersious.io.vn</div>
+            <div class="gallery-desc" data-i18n="proj-1-desc">My personal website — minimalist dark, bilingual EN/VI, built with HTML/CSS/JS and deployed on Vercel.</div>
           </div>
           <span class="gallery-tag" data-i18n="proj-1-tag">live</span>
         </a>
-        <a class="gallery-item" href="tmn/">
-          <div>
-            <div class="gallery-icon">🎁</div>
-            <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
-          </div>
-          <span class="gallery-tag" data-i18n="proj-2-tag">live</span>
+        <a class="gallery-item" href="/tmn" data-project-slug="tmn-2010">
+          <div class="gallery-icon">🎁</div>
+          <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
         </a>
         <div class="gallery-item coming-soon">
           <div>
             <div class="gallery-icon">✦</div>
             <div class="gallery-title" data-i18n="proj-3-title">Project 03</div>
+            <div class="gallery-desc" data-i18n="proj-3-desc">A new chapter, just about to begin.</div>
           </div>
           <span class="gallery-tag" data-i18n="proj-tag">soon</span>
         </div>
@@ -1012,7 +1011,12 @@
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const slug = link.getAttribute('data-project-slug');
-        window.location.href = 'project.html?slug=' + encodeURIComponent(slug);
+        // Use pretty URL for tmn-2010, fallback to project.html for others
+        if (slug === 'tmn-2010') {
+          window.location.href = '/tmn';
+        } else {
+          window.location.href = 'project.html?slug=' + encodeURIComponent(slug);
+        }
       });
     });
 

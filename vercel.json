@@ -2,6 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/tmn",
+      "destination": "/project.html"
+    },
+    {
+      "source": "/tmn/",
+      "destination": "/project.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/index.html",
@@ -10,11 +20,6 @@
     },
     {
       "source": "/tmn/index.html",
-      "destination": "/tmn",
-      "statusCode": 301
-    },
-    {
-      "source": "/tmn/",
       "destination": "/tmn",
       "statusCode": 301
     }
