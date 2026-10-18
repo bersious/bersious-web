@@ -13,5 +13,11 @@
       "destination": "/tmn",
       "statusCode": 301
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/tmn",
+      "destination": "/project.html"
+    }
   ]
 }

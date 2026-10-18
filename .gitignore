@@ -1,5 +1,7 @@
 .vercel
 .env*
+node_modules/
+package-lock.json
 # Working files - file goc + script xu ly (khong commit)
 tools/asset-processing/*.png
 tools/asset-processing/*.jpg
