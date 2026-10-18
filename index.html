@@ -313,7 +313,7 @@
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       opacity: 0;
-      pointer-events: none;
+      pointer-events: auto;
       transition: opacity 0.25s ease, transform 0.25s ease;
       z-index: 10;
     }
@@ -350,6 +350,18 @@
     .story-tooltip::after {
       -webkit-text-fill-color: var(--text-main);
       background: none;
+    }
+
+    /* Link inside story tooltip */
+    .story-tooltip a {
+      color: var(--blue);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 500;
+    }
+
+    .story-tooltip a:hover {
+      color: var(--pink);
     }
 
     .cta-group {
@@ -647,7 +659,7 @@
       </div>
       <h1>
         <span data-i18n="hero-hi">Hi, I'm</span> <span class="gradient name-tooltip" data-i18n="hero-name" data-fullname-en="Nguyen Thanh Thien Nhan" data-fullname-vi="Nguyễn Thành Thiện Nhân" tabindex="0">Nhan</span>.<br>
-        <span data-i18n="hero-call">You can call me</span> <span class="gradient story-tooltip" data-i18n="hero-name-tooltip" data-story-en="I've used this name since 2017. I think I first picked it up from a character in a Minecraft animation I watched on YouTube back then." data-story-vi="Tớ dùng tên này từ năm 2017. Hình như ban đầu là lấy từ một nhân vật trong phim hoạt hình Minecraft trên YouTube thời đó." tabindex="0">Endy</span> <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
+        <span data-i18n="hero-call">You can call me</span> <span class="gradient story-tooltip" data-i18n="hero-name-tooltip" data-story-en="I&apos;ve used this name since 2017 — picked it up from an <a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>Enderman character in Minecraft Endventures</a> on YouTube." data-story-vi="Tớ dùng tên này từ năm 2017 — lấy từ <a href=&quot;https://www.youtube.com/playlist?list=PL4yo37Ig2VHHHfs4z47-VKQSUVhUJ_GEh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>nhân vật Enderman trong Minecraft Endventures</a> trên YouTube." tabindex="0">Endy</span> <span data-i18n="hero-or">or</span> <span class="gradient">bersious</span><span data-i18n="hero-dot">.</span>
       </h1>
       <div class="cta-group">
         <a href="#projects" class="btn btn-primary" data-i18n="cta-work">View my work →</a>
@@ -868,11 +880,14 @@
         if (full) el.setAttribute('data-fullname', full);
       });
 
-      // Update story tooltip for story reveals
+      // Update story tooltip for story reveals (supports HTML links)
       document.querySelectorAll('.story-tooltip').forEach(el => {
         const story = el.getAttribute(`data-story-${lang}`);
         if (story) el.setAttribute('data-story', story);
       });
+
+      // Keep hero name span text from being overwritten (data-i18n="hero-name" lives on the same span as the tooltip)
+      // The data-story for Endy is intentionally a separate span, so this is safe.
 
       document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -902,6 +917,16 @@
       btn.addEventListener('click', () => {
         applyLanguage(btn.dataset.lang);
       });
+    });
+
+    // Keep the story tooltip open when hovering over its content (so users can click the link)
+    document.querySelectorAll('.story-tooltip').forEach(el => {
+      const onEnter = () => el.classList.add('tooltip-active');
+      const onLeave = () => el.classList.remove('tooltip-active');
+      el.addEventListener('mouseenter', onEnter);
+      el.addEventListener('mouseleave', onLeave);
+      el.addEventListener('focusin', onEnter);
+      el.addEventListener('focusout', onLeave);
     });
 
     initLanguage();
