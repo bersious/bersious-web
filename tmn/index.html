@@ -1573,6 +1573,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const duckSprites = {};   // duckSprites[kg][frameIdx] = Image (khai báo ngoài để drawDuck truy cập được)
       const collectibles = [];  // 7 sprite (6 trà + 1 bún)
       const powerups = [];      // 4 sprite (sao, ớt, heart, bom)
+      const spawnHistory = [];  // nho 2 sprite vua spawn (tranh trung lap)
       const bgFar = new Image();
       const bgMid = new Image();
       const bgNear = new Image();
@@ -1726,7 +1727,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           const weight = (name === 'bun-bo-hue') ? 2 : 1;
           for (let k = 0; k < weight; k++) weighted.push(collectibles[i]);
         }
-        const sprite = weighted[Math.floor(Math.random() * weighted.length)];
+        // Tránh spawn trùng item vừa rồi (memory 2 spawn gần nhất)
+        let lastSprite = spawnHistory[spawnHistory.length - 1];
+        let pick;
+        let tries = 0;
+        do {
+          pick = weighted[Math.floor(Math.random() * weighted.length)];
+          tries++;
+        } while (pick === lastSprite && tries < 5);
+        const sprite = pick;
+        spawnHistory.push(sprite);
+        if (spawnHistory.length > 2) spawnHistory.shift();  // chỉ nhớ 2 spawn gần nhất
         // wobblePhase khởi đầu random → mỗi item lắc lệch pha
         items.push({ x: itemX, y: itemY, sprite, collected: false, isPowerup: false, wobblePhase: Math.random() * Math.PI * 2 });
       }
