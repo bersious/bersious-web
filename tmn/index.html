@@ -1531,7 +1531,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Rotation theo velocity (xoay tự nhiên)
         bird.rotation = Math.max(-0.5, Math.min(1.2, bird.vy * 0.08));
         // Wing animation (scale Y oscillation để giả vỗ cánh)
-        bird.wingPhase += 0.15;
+        bird.wingPhase += 0.25;  // 0.15 → 0.25 cho animation mượt hơn
 
         // Move pipes & items
         pipes.forEach(p => p.x -= PIPE_SPEED);
@@ -1676,7 +1676,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const spriteW = pipeTopSprite.naturalWidth;
         const spriteH = pipeTopSprite.naturalHeight;
         // Vành thường = 15-20% chiều cao sprite
-        const capH = Math.min(h * 0.18, spriteH * 0.2);
+        const capH = Math.min(h * 0.08, spriteH * 0.08);  // spriteH*0.2 → 0.08 cho vành nhỏ vừa phải
         const bodyH = h - capH;
         // Body kéo lên trên (phần trên của sprite = thân)
         const bodySrcRatio = (spriteH - spriteH * 0.2) / spriteH; // lấy 80% trên của sprite
@@ -1700,7 +1700,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         }
         const spriteW = pipeBottomSprite.naturalWidth;
         const spriteH = pipeBottomSprite.naturalHeight;
-        const capH = Math.min(h * 0.18, spriteH * 0.2);
+        const capH = Math.min(h * 0.08, spriteH * 0.08);  // spriteH*0.2 → 0.08 cho vành nhỏ vừa phải
         const bodyH = h - capH;
         // Vành ở trên cùng (lấy phần trên 20% của sprite)
         ctx.drawImage(pipeBottomSprite,
