@@ -1548,37 +1548,48 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
     function initParticlesForSky() {
       yellowPetals.length = 0;
       daisyFlowers.length = 0;
-      for (let i = 0; i < 35; i++) {
+      // 18 cánh hoa vàng nhỏ bay lơ lửng cực nhẹ
+      for (let i = 0; i < 18; i++) {
         yellowPetals.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          size: Math.random() * 9 + 5,
-          speedX: Math.random() * 1.5 - 0.2,
-          speedY: Math.random() * 1.4 + 0.8,
+          size: Math.random() * 8 + 4,
+          speedX: Math.random() * 1.0 - 0.2,
+          speedY: Math.random() * 0.9 + 0.5,
           angle: Math.random() * 360,
-          spinSpeed: Math.random() * 2 - 1,
+          spinSpeed: Math.random() * 1.5 - 0.75,
           color: ['#fde047', '#facc15', '#fef08a', '#eab308'][Math.floor(Math.random() * 4)]
         });
       }
-      // Khởi tạo 25 bông hoa cúc daisy cánh trắng nhụy vàng lofi chill
-      for (let i = 0; i < 25; i++) {
+
+      // Khởi tạo 5 bông hoa cúc to ở dưới chân trang (đứng yên, đung đưa lofi chill)
+      // Bố trí ở góc dưới trái, góc dưới phải và giữa đáy màn hình
+      const flowerConfigs = [
+        { xRatio: 0.08, yOffset: -50, radius: 42, stemH: 140, petalsCount: 12, swaySpeed: 0.018, swayAmp: 0.08, hasTag: true },
+        { xRatio: 0.16, yOffset: -30, radius: 32, stemH: 110, petalsCount: 10, swaySpeed: 0.024, swayAmp: 0.07, hasTag: false },
+        { xRatio: 0.50, yOffset: -40, radius: 36, stemH: 125, petalsCount: 11, swaySpeed: 0.020, swayAmp: 0.06, hasTag: false },
+        { xRatio: 0.84, yOffset: -35, radius: 34, stemH: 115, petalsCount: 10, swaySpeed: 0.022, swayAmp: 0.07, hasTag: false },
+        { xRatio: 0.92, yOffset: -55, radius: 44, stemH: 150, petalsCount: 12, swaySpeed: 0.016, swayAmp: 0.09, hasTag: true }
+      ];
+
+      flowerConfigs.forEach((cfg, idx) => {
         daisyFlowers.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          radius: Math.random() * 14 + 11, // kích thước hoa 11 - 25px
-          petalsCount: Math.random() > 0.5 ? 10 : 8,
-          speedX: (Math.random() - 0.3) * 0.9,
-          speedY: Math.random() * 0.8 + 0.4,
-          wobblePhase: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.03 + 0.015,
-          angle: Math.random() * 360,
-          spinSpeed: (Math.random() - 0.5) * 1.2,
-          opacity: Math.random() * 0.25 + 0.75,
-          hasTag: false,
-          tagAlpha: 0,
-          tagTimer: Math.random() * 400 + 100 // hẹn giờ ngẫu nhiên xuất hiện chữ
+          baseX: cfg.xRatio * w,
+          x: cfg.xRatio * w,
+          baseY: h + 15,
+          headY: h - cfg.stemH + cfg.yOffset,
+          stemH: cfg.stemH,
+          radius: cfg.radius,
+          petalsCount: cfg.petalsCount,
+          swayPhase: idx * 1.3,
+          swaySpeed: cfg.swaySpeed,
+          swayAmp: cfg.swayAmp,
+          angle: 0,
+          hasTag: cfg.hasTag,
+          tagAlpha: cfg.hasTag ? 1 : 0,
+          tagTimer: Math.random() * 200 + 100
         });
-      }
+      });
     }
 
     // Hàm vẽ một bông hoa cúc daisy cánh trắng nhụy vàng lofi chill
@@ -1743,64 +1754,79 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           ctx.restore();
         }
 
-        // Vẽ những bông hoa cúc daisy bay lơ lửng, lắc lư lofi chill trong gió
+        // Vẽ 5 bông hoa cúc daisy to ở dưới chân trang đung đưa lofi chill
         for (let df of daisyFlowers) {
-          df.wobblePhase = (df.wobblePhase || 0) + df.wobbleSpeed;
-          df.x += df.speedX + Math.sin(df.wobblePhase) * 0.45;
-          df.y += df.speedY;
-          df.angle += df.spinSpeed;
+          df.swayPhase += df.swaySpeed;
+          // Góc nghiêng đung đưa nhẹ nhàng
+          df.angle = Math.sin(df.swayPhase) * (df.swayAmp * 180 / Math.PI);
+          // Đầu hoa lắc lư nhẹ quanh vị trí gốc
+          const swayRad = df.angle * Math.PI / 180;
+          df.x = df.baseX + Math.sin(swayRad) * (df.stemH * 0.45);
+          df.y = df.headY - (1 - Math.cos(swayRad)) * 20;
 
-          // Quản lý hiển thị tag \"bấm vào tớ đi\"
+          // 1. Vẽ cuống hoa xanh mướt uốn cong mềm mại từ đáy màn hình lên
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(df.baseX, df.baseY);
+          const cpX = df.baseX + (df.x - df.baseX) * 0.3;
+          const cpY = df.baseY - df.stemH * 0.55;
+          ctx.quadraticCurveTo(cpX, cpY, df.x, df.y);
+          ctx.strokeStyle = '#4d7c0f'; // cuống xanh mộc
+          ctx.lineWidth = 3.5;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          // Một chiếc lá nhỏ mọc nghiêng trên thân
+          const leafX = df.baseX + (df.x - df.baseX) * 0.5;
+          const leafY = df.baseY - df.stemH * 0.45;
+          ctx.beginPath();
+          ctx.fillStyle = '#65a30d';
+          ctx.ellipse(leafX + 10, leafY, 14, 5, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Vẽ bông hoa cúc to
+          drawDaisyFlower(ctx, df.x, df.y, df.radius, df.angle, df.petalsCount, 1.0);
+
+          // 3. Quản lý tag \"bấm vào tớ đi ✨\"
           df.tagTimer = (df.tagTimer || 0) - 1;
           if (df.tagTimer <= 0) {
             df.hasTag = !df.hasTag;
-            // Nếu bật thì hiện khoảng 5-7 giây, nếu tắt thì chờ 8-15 giây mới xuất hiện lại
-            df.tagTimer = df.hasTag ? (Math.random() * 200 + 300) : (Math.random() * 500 + 400);
+            df.tagTimer = df.hasTag ? (Math.random() * 250 + 350) : (Math.random() * 450 + 300);
           }
-          if (df.hasTag && df.tagAlpha < 1) df.tagAlpha = Math.min(1, df.tagAlpha + 0.04);
-          if (!df.hasTag && df.tagAlpha > 0) df.tagAlpha = Math.max(0, df.tagAlpha - 0.04);
+          if (df.hasTag && df.tagAlpha < 1) df.tagAlpha = Math.min(1, df.tagAlpha + 0.03);
+          if (!df.hasTag && df.tagAlpha > 0) df.tagAlpha = Math.max(0, df.tagAlpha - 0.03);
 
-          if (df.y > h + 40) {
-            df.y = -40;
-            df.x = Math.random() * w;
-          }
-          if (df.x > w + 40) df.x = -40;
-          if (df.x < -40) df.x = w + 40;
-
-          drawDaisyFlower(ctx, df.x, df.y, df.radius, df.angle, df.petalsCount, df.opacity || 0.9);
-
-          // Vẽ bong bóng chữ \"bấm vào tớ đi ✨\" nhỏ xinh phía trên bông hoa
           if (df.tagAlpha > 0.05) {
             ctx.save();
-            ctx.globalAlpha = (df.opacity || 0.9) * df.tagAlpha;
-            ctx.font = 'bold 11px \"Comfortaa\", cursive, sans-serif';
+            ctx.globalAlpha = df.tagAlpha;
+            ctx.font = 'bold 12px \"Comfortaa\", cursive, sans-serif';
             const tagText = 'bấm vào tớ đi ✨';
             const textWidth = ctx.measureText(tagText).width;
-            const tagBoxW = textWidth + 14;
-            const tagBoxH = 20;
+            const tagBoxW = textWidth + 18;
+            const tagBoxH = 24;
             const tagBoxX = df.x - tagBoxW / 2;
-            const tagBoxY = df.y - df.radius - 22;
+            const tagBoxY = df.y - df.radius - 28;
 
-            // Nền tag trắng bo tròn viền vàng nhạt
             ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-            ctx.shadowColor = 'rgba(234, 179, 8, 0.4)';
-            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(234, 179, 8, 0.45)';
+            ctx.shadowBlur = 10;
             ctx.beginPath();
             if (ctx.roundRect) {
-              ctx.roundRect(tagBoxX, tagBoxY, tagBoxW, tagBoxH, 10);
+              ctx.roundRect(tagBoxX, tagBoxY, tagBoxW, tagBoxH, 12);
             } else {
               ctx.rect(tagBoxX, tagBoxY, tagBoxW, tagBoxH);
             }
             ctx.fill();
             ctx.strokeStyle = '#facc15';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
 
-            // Tam giác nhỏ chỉ xuống hoa
+            // Tam giác nhỏ chỉ xuống bông hoa
             ctx.beginPath();
-            ctx.moveTo(df.x - 4, tagBoxY + tagBoxH);
-            ctx.lineTo(df.x + 4, tagBoxY + tagBoxH);
-            ctx.lineTo(df.x, tagBoxY + tagBoxH + 4);
+            ctx.moveTo(df.x - 5, tagBoxY + tagBoxH);
+            ctx.lineTo(df.x + 5, tagBoxY + tagBoxH);
+            ctx.lineTo(df.x, tagBoxY + tagBoxH + 5);
             ctx.closePath();
             ctx.fillStyle = '#ffffff';
             ctx.fill();
@@ -1820,9 +1846,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
     }
     drawNature();
 
-    // Click vào bông hoa cúc daisy (đặc biệt khi có tag hoặc click trúng bông hoa) -> chuyển trang tìm hiểu hoa Daisy
+    // Click vào bông hoa cúc daisy dưới chân trang -> chuyển trang tìm hiểu hoa Daisy
     window.addEventListener('click', (e) => {
-      // Chỉ hoạt động khi phần thư đang hiển thị và không click vào nút/link khác
       const letterSec = document.getElementById('letterSection');
       if (!letterSec || letterSec.style.display === 'none') return;
       if (e.target.closest('button, a, input, textarea, .modal-card, #gameOverlay')) return;
@@ -1835,12 +1860,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const dy = clickY - df.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        // Kiểm tra trúng bông hoa (bán kính rộng hơn chút để dễ bấm) hoặc trúng vùng tag
-        const hitFlower = dist <= (df.radius + 18);
-        const tagBoxY = df.y - df.radius - 22;
-        const hitTag = (df.tagAlpha > 0.3) &&
-                       (clickX >= df.x - 55 && clickX <= df.x + 55) &&
-                       (clickY >= tagBoxY - 8 && clickY <= tagBoxY + 28);
+        // Bông hoa to nên click cực kỳ dễ trúng
+        const hitFlower = dist <= (df.radius + 15);
+        const tagBoxY = df.y - df.radius - 28;
+        const hitTag = (df.tagAlpha > 0.2) &&
+                       (clickX >= df.x - 65 && clickX <= df.x + 65) &&
+                       (clickY >= tagBoxY - 10 && clickY <= tagBoxY + 30);
 
         if (hitFlower || hitTag) {
           window.open('https://www.tierra.vn/tin-tuc/hoa-daisy-hoa-cuc-dai', '_blank');
@@ -1849,7 +1874,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
     });
 
-    // Thay đổi con trỏ chuột sang hình pointer khi rê vào gần bông hoa cúc daisy
+    // Thay đổi con trỏ chuột sang hình pointer khi rê vào bông hoa cúc daisy
     window.addEventListener('mousemove', (e) => {
       const letterSec = document.getElementById('letterSection');
       if (!letterSec || letterSec.style.display === 'none') return;
@@ -1860,12 +1885,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const dx = e.clientX - df.x;
         const dy = e.clientY - df.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const tagBoxY = df.y - df.radius - 22;
-        const hitTag = (df.tagAlpha > 0.3) &&
-                       (e.clientX >= df.x - 55 && e.clientX <= df.x + 55) &&
-                       (e.clientY >= tagBoxY - 8 && e.clientY <= tagBoxY + 28);
+        const tagBoxY = df.y - df.radius - 28;
+        const hitTag = (df.tagAlpha > 0.2) &&
+                       (e.clientX >= df.x - 65 && e.clientX <= df.x + 65) &&
+                       (e.clientY >= tagBoxY - 10 && e.clientY <= tagBoxY + 30);
 
-        if (dist <= (df.radius + 14) || hitTag) {
+        if (dist <= (df.radius + 15) || hitTag) {
           isNearDaisy = true;
           break;
         }
