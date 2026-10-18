@@ -1196,6 +1196,14 @@
         </button>
       </div>
 
+      <!-- Diet prompt screen (tạm dừng khi ăn món thứ 15) -->
+      <div class="game-screen" id="dietPromptScreen" style="display:none">
+        <img src="../assets/game/processed/duck-80kg-f1.png" class="screen-art" alt="Vịt béo ú" onerror="this.style.display='none'">
+        <h2>Mập địt quá rồi! giảm cân thôi</h2>
+        <p>Ăn hết 15 món no nê 80kg rồi, giờ phải vận động để đón quà nhé =))</p>
+        <button class="btn-play" id="btnDietOk">Oke</button>
+      </div>
+
       <!-- Win screen (form nhập mật khẩu) -->
       <div class="game-screen" id="winScreen" style="display:none">
         <img src="../assets/game/processed/duck-win.png" class="screen-art" alt="Vịt ăn mừng" onerror="this.style.display='none'">
@@ -1553,17 +1561,36 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PIPE_SPACING = 320;      // khoảng cách giữa các cặp ống
       const BIRD_X = 140;             // vị trí vịt cố định theo X
       const BIRD_RADIUS = 36;        // hitbox vịt (dùng cho collision) - frame 1.5x lớn hơn
-      const TARGET_SCORE = 16;       // 15 trà/bún + 1 lá thư = 16 món = win
-      const LETTER_TRIGGER_SCORE = 15;  // mốc spawn lá thư + vào chase state
-      const WIN_KG = 80;             // đạt 80kg = win
+      const TARGET_SCORE = 16;       // 15 trà/bún/bánh + 1 lá thư = 16 món = win
+      const LETTER_TRIGGER_SCORE = 15;  // mốc ăn 15 món → tạm dừng giảm cân và chase lá thư
+      const WIN_KG = 80;
       const BASE_KG = 30;
-      const KG_PER_ITEM = 5;  // mỗi món trà/bún +5kg → 30/45/60/70/80 đều hiện
-      const LETTER_KG_BONUS = 5;     // lá thư +5kg → 80kg
-      // Math: món 1=35, 3=45, 5=55, 7=65, 9=75, 10=80 (đạt max), 11-16=80kg
-      const MAX_KG = WIN_KG;         // 80
-      // Chase state: lá thư bay tự do, vịt đuổi theo
-      const LETTER_FLY_SPEED = 1.6;  // lá thư bay chậm hơn PIPE_SPEED (2.6)
-      const CHASE_BOOST = 1.4;       // vịt bay nhanh hơn 40% khi chase
+      const CHASE_DURATION_FRAMES = 900; // 15 giây đuổi bắt lá thư @ 60fps (15 * 60 = 900)
+
+      // Chia đều tỉ lệ ngoại hình con vịt khi ăn từ 0 -> 15 món:
+      // 0..2 món: sprite 30kg (30, 33, 37kg)
+      // 3..5 món: sprite 45kg (45, 50, 55kg)
+      // 6..8 món: sprite 60kg (60, 63, 67kg)
+      // 9..11 món: sprite 70kg (70, 73, 77kg)
+      // 12..15 món: sprite 80kg (80kg - ảnh cuối cùng béo nhất)
+      const SCORE_TO_KG = [
+        30, // 0 món
+        33, // 1 món
+        37, // 2 món
+        45, // 3 món -> đổi sprite 45kg
+        50, // 4 món
+        55, // 5 món
+        60, // 6 món -> đổi sprite 60kg
+        63, // 7 món
+        67, // 8 món
+        70, // 9 món -> đổi sprite 70kg
+        73, // 10 món
+        77, // 11 món
+        80, // 12 món -> đổi sprite 80kg (ảnh cuối cùng)
+        80, // 13 món
+        80, // 14 món
+        80  // 15 món
+      ];
 
       // Mật khẩu (security through obscurity - base64)
       // User đặt riêng: "171" (Ngọc sinh ngày 17/1/2007)
@@ -1677,20 +1704,28 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       let animId = null;
 
       // Spawn pipe mỗi PIPE_SPACING px
-      // ===== CHASE MODE (sau khi ăn 15 món) =====
-      // Lá thư đứng yên giữa canvas, chỉ bay lên xuống (lắc sin)
-      // Vịt đuổi theo lá thư, có thể ấn để bay lên
+      // ===== CHASE MODE (sau khi ăn 15 món & bấm Oke giảm cân) =====
+      // Thời gian đuổi bắt kéo dài ~15s (900 frames). Vịt giảm cân từ 80kg về 30kg.
       let chaseTime = 0;  // đếm frame trong chase
+
+      function pauseForDietPrompt() {
+        state = 'paused';
+        bird.vy = 0;
+        const promptEl = document.getElementById('dietPromptScreen');
+        if (promptEl) {
+          promptEl.style.display = 'flex';
+        }
+      }
+
       function triggerChaseMode() {
-        console.log('[tmn] CHASE MODE triggered! Lá thư xuất hiện...');
+        console.log('[tmn] CHASE MODE triggered! Bắt đầu giảm cân và đuổi thư...');
         state = 'chasing';
         chaseTime = 0;
         // Xóa hết ống cũ + item chưa ăn → vùng trời trống
         pipes = [];
         items = items.filter(it => it.collected);
-        // Spawn lá thư ở giữa bên phải canvas (75% từ trái)
-        // Đứng yên theo X, chỉ lắc Y theo sin
-        const letterStartX = CANVAS_W * 0.7;
+        // Spawn lá thư ở góc phải phía trước vịt
+        const letterStartX = CANVAS_W * 0.72;
         const letterStartY = CANVAS_H / 2;
         items.push({
           x: letterStartX,
@@ -1698,9 +1733,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           isLetter: true,
           collected: false,
           wobblePhase: 0,
-          vx: 0,           // KHÔNG bay ngang, đứng yên
-          vy: 0,
-          anchorX: letterStartX,  // vị trí cố định X
+          anchorX: letterStartX,
           anchorY: letterStartY,
         });
       }
@@ -1744,11 +1777,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== UPDATE LOOP =====
       function update() {
-        if (state === 'idle' || state === 'won' || state === 'lost') return;
+        if (state === 'idle' || state === 'won' || state === 'lost' || state === 'paused') return;
         frameCount++;
-        chaseTime++;
 
-        // CHASING MODE: lá thư bay tự do, vịt đuổi
+        // CHASING MODE: lá thư bay tự do, vịt đuổi & giảm cân
         if (state === 'chasing') {
           updateChase();
           return;
@@ -1811,20 +1843,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           if (dist < BIRD_RADIUS + 30) {
             it.collected = true;
             score++;
-            // Lá thư cho nhiều kg hơn (món cuối) → bay thẳng tới 80kg
-            const kgGain = it.isLetter ? LETTER_KG_BONUS : KG_PER_ITEM;
-            currentKg = Math.min(WIN_KG, currentKg + kgGain);
-            spawnFloatingKg(it.x, it.y);
+            const oldKg = currentKg;
+            currentKg = SCORE_TO_KG[score] !== undefined ? SCORE_TO_KG[score] : 80;
+            const gain = currentKg - oldKg;
+            spawnFloatingKg(it.x, it.y, gain > 0 ? `+${gain}kg` : 'No nê! 😋');
             playCollectSound();
-            // Chi win khi da an la thu (score >= 16), kg chi de doi sprite
-            // (truoc day: currentKg >= WIN_KG win ngay khi an mon 15 -> khong vao chase)
-            if (score >= TARGET_SCORE) {
-              gameWin();
-              return;
-            }
-            // Mốc 15 món trà/bún → trigger chase mode (sau 100ms)
+            updateHUD();
+
+            // Mốc 15 món trà/bún/bánh → tạm dừng game và hiện popup "Mập địt quá rồi! giảm cân thôi"
             if (score === LETTER_TRIGGER_SCORE && !it.isLetter) {
-              setTimeout(() => triggerChaseMode(), 100);
+              pauseForDietPrompt();
+              return;
             }
           }
         }
@@ -1836,54 +1865,74 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
 
       // ===== CHASE MODE UPDATE =====
-      // Lá thư đứng yên giữa canvas, chỉ lắc Y theo sin
-      // Vịt đuổi theo, gravity nhẹ, flap nhanh hơn
+      // Trong 15s này, lá thư lượn lờ phía trước, vịt đuổi theo và giảm cân từ 80kg về 30kg
       function updateChase() {
-        for (const it of items) {
-          if (!it.isLetter || it.collected) continue;
-          // Đứng yên theo X
-          it.x = it.anchorX;
-          // Lắc Y theo sin: quỹ đạo cong, ±100px quanh anchorY
-          it.y = it.anchorY + Math.sin(chaseTime * 0.04) * 100;
-          // Wobble nhẹ (cho lá thư vẫn rung)
-          it.wobblePhase = (it.wobblePhase || 0) + 0.08;
-        }
+        chaseTime++;
 
-        // Vịt gravity nhẹ (dễ bay hơn trong chase)
-        bird.vy += GRAVITY * 0.3;  // yếu hơn nữa để dễ bay
-        bird.y += bird.vy;
-        bird.vy = Math.max(-14, Math.min(14, bird.vy));
-        bird.rotation = Math.max(-0.5, Math.min(1.2, bird.vy * 0.06));
-        // Wing animation nhanh hơn (đang đuổi!)
-        bird.wingPhase += 0.6;
-
-        // Vịt gravity ngược: nếu ở rìa canvas, đẩy vịt về phía lá thư
-        // (giúp vịt không bị kẹt ở trên/dưới)
-        const letterX = (items.find(i => i.isLetter && !i.collected) || {}).anchorX || CANVAS_W * 0.7;
-        const dx = letterX - bird.x;
-        // Nếu vịt cách lá thư quá xa → boost X (kéo về phía thư)
-        if (Math.abs(dx) > 50) {
-          bird.x += Math.sign(dx) * 0.4;  // từ từ kéo về
-        }
-
-        // Collision: vịt với lá thư
-        for (const it of items) {
-          if (!it.isLetter || it.collected) continue;
-          const ddx = bird.x - it.x;
-          const ddy = bird.y - it.y;
-          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-          if (dist < BIRD_RADIUS + 40) {  // hitbox rộng để dễ ăn
-            it.collected = true;
-            score++;
-            currentKg = Math.min(WIN_KG, currentKg + LETTER_KG_BONUS);
-            spawnFloatingKg(it.x, it.y);
-            playCollectSound();
-            gameWin();
-            return;
+        // 1) NGOẠI HÌNH VỊT THAY ĐỔI THEO CHIỀU NGƯỢC LẠI (ỐM DẦN TỪ 80kg VỀ 30kg TRONG 15s)
+        const progress = Math.min(1, chaseTime / CHASE_DURATION_FRAMES);
+        const oldKg = currentKg;
+        currentKg = Math.round(80 - progress * 50);
+        if (currentKg !== oldKg) {
+          updateHUD();
+          // Thỉnh thoảng hiện floating -kg mỗi khi sụt 5kg
+          if (oldKg % 5 === 0 && currentKg < oldKg) {
+            spawnFloatingKg(bird.x, bird.y - 20, `-${oldKg - currentKg}kg 💨`);
           }
         }
 
-        // Giới hạn vịt trong canvas (không rơi xuống đất)
+        // 2) LÁ THƯ BAY LƯỢN VÀ TRÊU VỊT TRONG 15s
+        for (const it of items) {
+          if (!it.isLetter || it.collected) continue;
+
+          it.wobblePhase = (it.wobblePhase || 0) + 0.08;
+
+          if (chaseTime < CHASE_DURATION_FRAMES) {
+            // Trong 15s đầu: lá thư bay nhấp nhô lượn lờ trêu ngươi, duy trì khoảng cách an toàn trước vịt
+            it.y = it.anchorY + Math.sin(chaseTime * 0.04) * 110 + Math.cos(chaseTime * 0.025) * 35;
+
+            // X: giữ lá thư luôn ở phía trước vịt một khoảng an toàn (~110 - 150px)
+            const targetX = bird.x + 130 + Math.sin(chaseTime * 0.03) * 30;
+            it.x += (targetX - it.x) * 0.1;
+
+            // Giữ trong khung nhìn canvas
+            it.x = Math.max(CANVAS_W * 0.45, Math.min(CANVAS_W - 70, it.x));
+            it.y = Math.max(70, Math.min(CANVAS_H - 90, it.y));
+          } else {
+            // Sau 15s: vịt đã ốm về 30kg, lá thư chậm lại và lượn về phía vịt để vịt bắt lấy!
+            it.x += (bird.x - it.x) * 0.05;
+            it.y += (bird.y - it.y) * 0.05;
+
+            // Va chạm với lá thư -> THẮNG!
+            const ddx = bird.x - it.x;
+            const ddy = bird.y - it.y;
+            const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+            if (dist < BIRD_RADIUS + 45) {
+              it.collected = true;
+              score = TARGET_SCORE; // 16
+              currentKg = BASE_KG;  // 30kg
+              spawnFloatingKg(it.x, it.y, 'Bắt được rồi! 💌');
+              playCollectSound();
+              setTimeout(gameWin, 400);
+              return;
+            }
+          }
+        }
+
+        // 3) VỊT TRONG CHASE MODE:
+        // Gravity nhẹ để người chơi dễ bay lượn đuổi theo
+        bird.vy += GRAVITY * 0.32;
+        bird.y += bird.vy;
+        bird.vy = Math.max(-14, Math.min(14, bird.vy));
+        bird.rotation = Math.max(-0.4, Math.min(0.8, bird.vy * 0.06));
+        bird.wingPhase += 0.5;
+
+        // Vịt từ từ tiến lên nếu chưa tới khoảng 40% canvas
+        if (bird.x < CANVAS_W * 0.4) {
+          bird.x += 0.3;
+        }
+
+        // Giữ vịt an toàn trong canvas (không bị rơi xuống chết)
         bird.y = Math.max(BIRD_RADIUS, Math.min(CANVAS_H - BIRD_RADIUS, bird.y));
         bird.x = Math.max(BIRD_RADIUS, Math.min(CANVAS_W - BIRD_RADIUS, bird.x));
       }
@@ -2061,41 +2110,39 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       drawDuck(bird.x, bird.y, currentKg, bird.rotation, bird.wingPhase);
 
       // ===== CHASE MODE BANNER =====
-      // Hiện text to giữa canvas ~2.5s khi vừa vào chase (chaseTime 0..150)
-      if (state === 'chasing' && chaseTime < 150) {
-        const fadeIn = Math.min(1, chaseTime / 20);   // fade in 20 frames
-        const fadeOut = chaseTime > 100 ? Math.max(0, 1 - (chaseTime - 100) / 50) : 1;
-        const alpha = fadeIn * fadeOut;
-        if (alpha > 0.05) {
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          // Banner nền mờ
-          const bannerW = 380;
-          const bannerH = 70;
-          const bx = CANVAS_W / 2 - bannerW / 2;
-          const by = 60;
-          const grad2 = ctx.createLinearGradient(bx, by, bx, by + bannerH);
-          grad2.addColorStop(0, 'rgba(255, 215, 0, 0.95)');
-          grad2.addColorStop(1, 'rgba(251, 191, 36, 0.95)');
-          ctx.fillStyle = grad2;
-          roundRect(ctx, bx, by, bannerW, bannerH, 16);
-          ctx.fill();
-          // Viền
-          ctx.strokeStyle = '#b45309';
-          ctx.lineWidth = 3;
-          roundRect(ctx, bx, by, bannerW, bannerH, 16);
-          ctx.stroke();
-          // Text
-          ctx.fillStyle = '#7c2d12';
-          ctx.font = 'bold 22px system-ui, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('💌 Đuổi lấy lá thư!', CANVAS_W / 2, by + 26);
-          ctx.font = '600 14px system-ui, sans-serif';
-          ctx.fillStyle = '#92400e';
-          ctx.fillText('Của Ngọc dành cho Nhân đó 💛', CANVAS_W / 2, by + 50);
-          ctx.restore();
+      // Hiện thông báo phía trên: "hãy bắt lấy lá thư của tôi nhé!"
+      if (state === 'chasing') {
+        ctx.save();
+        const bannerW = 420;
+        const bannerH = 66;
+        const bx = CANVAS_W / 2 - bannerW / 2;
+        const by = 55;
+        const grad2 = ctx.createLinearGradient(bx, by, bx, by + bannerH);
+        grad2.addColorStop(0, 'rgba(255, 237, 213, 0.96)');
+        grad2.addColorStop(1, 'rgba(254, 215, 170, 0.96)');
+        ctx.fillStyle = grad2;
+        roundRect(ctx, bx, by, bannerW, bannerH, 16);
+        ctx.fill();
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 2.5;
+        roundRect(ctx, bx, by, bannerW, bannerH, 16);
+        ctx.stroke();
+
+        ctx.fillStyle = '#9a3412';
+        ctx.font = 'bold 18px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('💌 hãy bắt lấy lá thư của tôi nhé!', CANVAS_W / 2, by + 23);
+
+        ctx.font = '600 13px system-ui, sans-serif';
+        ctx.fillStyle = '#c2410c';
+        if (chaseTime < CHASE_DURATION_FRAMES) {
+          const timeLeft = Math.ceil((CHASE_DURATION_FRAMES - chaseTime) / 60);
+          ctx.fillText(`Đang giảm cân: ${currentKg}kg... (${timeLeft}s)`, CANVAS_W / 2, by + 47);
+        } else {
+          ctx.fillText('Đã giảm cân thành công! Bắt lấy lá thư thôi! 🏃💨', CANVAS_W / 2, by + 47);
         }
+        ctx.restore();
       }
     }
 
@@ -2319,6 +2366,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Ẩn tất cả screens
         document.getElementById('startScreen').style.display = 'flex';
         document.getElementById('winScreen').style.display = 'none';
+          const dPrompt = document.getElementById('dietPromptScreen'); if (dPrompt) dPrompt.style.display = 'none';
         document.getElementById('loseScreen').style.display = 'none';
         updateHUD();
         render();
@@ -2348,11 +2396,13 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         document.getElementById('scoreDisplay').textContent = `${score} / ${TARGET_SCORE}`;
       }
 
-      function spawnFloatingKg(x, y) {
+      function spawnFloatingKg(x, y, text = '+5kg') {
         // Convert canvas coords -> game-frame DOM coords
         const frame = document.querySelector('.game-frame');
+        if (!frame) return;
         const rect = frame.getBoundingClientRect();
         const canvas = document.getElementById('gameCanvas');
+        if (!canvas) return;
         const canvasRect = canvas.getBoundingClientRect();
         const scaleX = canvasRect.width / CANVAS_W;
         const scaleY = canvasRect.height / CANVAS_H;
@@ -2361,12 +2411,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         const float = document.createElement('div');
         float.className = 'float-kg';
-        float.textContent = '+5kg';
+        float.textContent = text;
         float.style.left = (left - 20) + 'px';
         float.style.top = (top - 20) + 'px';
         frame.appendChild(float);
         setTimeout(() => float.remove(), 1200);
-        updateHUD();
       }
 
       // ===== SOUND EFFECTS (Alternating Pool, Zero-Lag, Zero-Crash) =====
@@ -2543,6 +2592,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           frameCount = 0;
           document.getElementById('loseScreen').style.display = 'none';
           document.getElementById('winScreen').style.display = 'none';
+          const dPrompt = document.getElementById('dietPromptScreen'); if (dPrompt) dPrompt.style.display = 'none';
           document.getElementById('passwordError').textContent = '';
           document.getElementById('passwordInput').value = '';
         }
@@ -2577,6 +2627,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
             state = 'idle';
             resetGame();
             startGame();
+          });
+        }
+        // Nút "Oke" trên popup giảm cân
+        const btnDietOk = document.getElementById('btnDietOk');
+        if (btnDietOk) {
+          btnDietOk.addEventListener('click', () => {
+            const promptEl = document.getElementById('dietPromptScreen');
+            if (promptEl) promptEl.style.display = 'none';
+            triggerChaseMode();
           });
         }
       }
