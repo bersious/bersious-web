@@ -1805,7 +1805,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
             currentKg = Math.min(WIN_KG, currentKg + kgGain);
             spawnFloatingKg(it.x, it.y);
             playCollectSound();
-            if (score >= TARGET_SCORE || currentKg >= WIN_KG) {
+            // Chi win khi da an la thu (score >= 16), kg chi de doi sprite
+            // (truoc day: currentKg >= WIN_KG win ngay khi an mon 15 -> khong vao chase)
+            if (score >= TARGET_SCORE) {
               gameWin();
               return;
             }
