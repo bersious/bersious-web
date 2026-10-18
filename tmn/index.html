@@ -220,6 +220,183 @@
       transform: translateY(-2px) scale(1.04);
     }
 
+    
+    /* ===== PHONG CÁCH ĐĨA THAN & KIM RÀ ĐĨA (VINYL PLAYER THEME) ===== */
+    .vinyl-player-container {
+      position: relative;
+      width: 330px;
+      height: 330px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto 15px;
+    }
+
+    /* Đĩa than cổ điển */
+    .vinyl-record {
+      position: relative;
+      width: 295px;
+      height: 295px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #27272a 0%, #18181b 35%, #09090b 60%, #18181b 85%, #000 100%);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55), inset 0 0 0 3px rgba(255, 255, 255, 0.15), inset 0 0 20px rgba(0,0,0,0.8);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Rãnh đĩa than phản chiếu ánh sáng xoay tròn */
+    .vinyl-record::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      background: repeating-radial-gradient(circle, transparent 0, transparent 4px, rgba(255, 255, 255, 0.04) 5px, rgba(255, 255, 255, 0.04) 6px);
+      pointer-events: none;
+    }
+
+    /* Vệt sáng bóng đặc trưng của đĩa vinyl */
+    .vinyl-record::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%, rgba(255,255,255,0.15) 100%);
+      pointer-events: none;
+    }
+
+    .vinyl-record:hover {
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.65), 0 0 25px rgba(253, 224, 71, 0.3);
+    }
+
+    /* Nhãn đĩa ở tâm chính là Avatar Vịt */
+    .vinyl-label-center {
+      position: relative;
+      width: 175px;
+      height: 175px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 0 6px #1c1917, 0 0 0 8px rgba(253, 224, 71, 0.8), 0 0 15px rgba(0,0,0,0.5);
+      z-index: 2;
+    }
+
+    .vinyl-label-center img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Lỗ tâm đĩa than */
+    .vinyl-spindle-hole {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      background: #facc15;
+      border: 3px solid #78350f;
+      border-radius: 50%;
+      z-index: 3;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
+      pointer-events: none;
+    }
+
+    /* Hiệu ứng xoay tròn đĩa khi nhạc đang phát */
+    .vinyl-record.spinning {
+      animation: vinylSpin 6s linear infinite;
+    }
+
+    @keyframes vinylSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* CẦN RÀ ĐĨA THAN (TONEARM) */
+    .tonearm {
+      position: absolute;
+      top: -12px;
+      right: 5px;
+      width: 80px;
+      height: 140px;
+      z-index: 10;
+      pointer-events: none;
+      transform-origin: 65px 20px;
+      transform: rotate(-32deg); /* Khi tắt nhạc: cần rà nhấc ra ngoài */
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Khi đang phát nhạc: cần rà đĩa hạ xuống mặt đĩa */
+    .tonearm.playing {
+      transform: rotate(14deg);
+    }
+
+    .tonearm-base {
+      position: absolute;
+      top: 10px;
+      right: 5px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fde047 30%, #b45309 80%, #78350f 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.6);
+    }
+
+    .tonearm-arm {
+      position: absolute;
+      top: 22px;
+      right: 17px;
+      width: 5px;
+      height: 105px;
+      background: linear-gradient(to right, #e2e8f0, #94a3b8, #cbd5e1);
+      border-radius: 3px;
+      box-shadow: 2px 3px 6px rgba(0,0,0,0.35);
+      transform-origin: top center;
+    }
+
+    .tonearm-head {
+      position: absolute;
+      bottom: -6px;
+      left: -8px;
+      width: 22px;
+      height: 14px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1.5px solid #fbbf24;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    /* Nốt nhạc bay bổng khi phát nhạc */
+    .music-note-bubble {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.4rem;
+      animation: noteFloatUp 2.4s ease-out forwards;
+      z-index: 15;
+    }
+
+    @keyframes noteFloatUp {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.6) rotate(-10deg);
+      }
+      20% {
+        opacity: 0.95;
+        transform: translate(-10px, -25px) scale(1.1) rotate(15deg);
+      }
+      80% {
+        opacity: 0.8;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(25px, -90px) scale(1.25) rotate(-25deg);
+      }
+    }
+
     /* KHU VỰC VỊT TƯƠNG TÁC (HERO SECTION) */
     .duck-hero-section {
       position: relative;
@@ -1115,17 +1292,26 @@
 
     <!-- KHU VỰC VỊT TƯƠNG TÁC -->
     <div class="duck-hero-section">
-      <div class="portal-ring"></div>
-      <div class="portal-ring"></div>
+      <!-- MÁY HÁT ĐĨA THAN VINYL VỊT -->
+      <div class="vinyl-player-container" id="vinylContainer">
+        <!-- Đĩa than vinyl xoay tròn -->
+        <div class="vinyl-record" id="vinylRecord" onclick="quackDuck()" title="Bấm vào để nghe vịt quạc hoặc bật/tắt nhạc!">
+          <div class="vinyl-label-center">
+            <img id="duckImg" src="../assets/img/two-ducks.png" alt="Hai chú vịt đĩa than">
+          </div>
+          <div class="vinyl-spindle-hole"></div>
+        </div>
 
-            <!-- Khung ảnh 2 chú vịt đáng yêu -->
-      <div class="duck-portal-frame" id="duckAvatarFrame" onclick="quackDuck()" style="cursor:pointer;" title="Bấm vào để nghe tiếng quạc quạc!">
-        <div class="duck-img-wrapper">
-          <img id="duckImg" src="../assets/img/two-ducks.png" alt="Hai chú vịt đáng yêu">
+        <!-- Cần rà đĩa than (Tonearm) hạ xuống đĩa khi nhạc phát -->
+        <div class="tonearm" id="tonearm">
+          <div class="tonearm-base"></div>
+          <div class="tonearm-arm">
+            <div class="tonearm-head"></div>
+          </div>
         </div>
       </div>
 
-<!-- Hộp thoại của chú vịt -->
+      <!-- Hộp thoại của chú vịt -->
       <div class="speech-bubble" id="duckSpeech">
         <span>Quạc!</span> Đang trôi rất chill... 🌿
       </div>
@@ -1581,6 +1767,47 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
     let isAudioOn = false;
     const AUDIO_SRC = '../assets/nhac.mp3';
 
+    
+    // Cập nhật trạng thái hiển thị của Đĩa than & Cần rà đĩa
+    function updateVinylVisuals(playing) {
+      const record = document.getElementById('vinylRecord');
+      const arm = document.getElementById('tonearm');
+      if (record) {
+        if (playing) record.classList.add('spinning');
+        else record.classList.remove('spinning');
+      }
+      if (arm) {
+        if (playing) arm.classList.add('playing');
+        else arm.classList.remove('playing');
+      }
+    }
+
+    // Hiệu ứng nốt nhạc bay ra từ đĩa than
+    let noteInterval = null;
+    function startMusicNotes() {
+      if (noteInterval) clearInterval(noteInterval);
+      const notes = ['🎵', '🎶', '✨', '💛', '🎼', '🌼'];
+      const container = document.getElementById('vinylContainer');
+      if (!container) return;
+
+      noteInterval = setInterval(() => {
+        if (!isAudioOn) return;
+        const noteEl = document.createElement('div');
+        noteEl.className = 'music-note-bubble';
+        noteEl.innerText = notes[Math.floor(Math.random() * notes.length)];
+        noteEl.style.left = (Math.random() * 80 + 120) + 'px';
+        noteEl.style.top = (Math.random() * 60 + 100) + 'px';
+        container.appendChild(noteEl);
+        setTimeout(() => noteEl.remove(), 2500);
+      }, 700);
+    }
+    function stopMusicNotes() {
+      if (noteInterval) {
+        clearInterval(noteInterval);
+        noteInterval = null;
+      }
+    }
+
     function toggleAudio() {
       if (!bgAudio) {
         bgAudio = new Audio(AUDIO_SRC);
@@ -1595,11 +1822,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         isAudioOn = true;
         document.getElementById('soundLabel').innerText = 'Tắt Nhạc';
         document.getElementById('soundIcon').innerText = '⏸️';
+        updateVinylVisuals(true);
+        startMusicNotes();
       } else {
         bgAudio.pause();
         isAudioOn = false;
         document.getElementById('soundLabel').innerText = 'Bật Nhạc Chill';
         document.getElementById('soundIcon').innerText = '🎵';
+        updateVinylVisuals(false);
+        stopMusicNotes();
       }
     }
     document.getElementById('btnSound').addEventListener('click', toggleAudio);
@@ -2631,6 +2862,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
             const soundIcon = document.getElementById('soundIcon');
             if (soundLabel) soundLabel.innerText = 'Tắt Nhạc';
             if (soundIcon) soundIcon.innerText = '⏸️';
+            updateVinylVisuals(true);
+            startMusicNotes();
           }
         } catch(e) {}
 
