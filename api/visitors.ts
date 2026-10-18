@@ -37,10 +37,9 @@ function getRedis(): Redis | null {
 const MAX_LIMIT = 2000;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const expected = process.env.STATS_KEY;
-  if (!expected) {
-    return res.status(503).json({ error: 'STATS_KEY env var not set' });
-  }
+  // Allow STATS_KEY via env var, OR hardcoded fallback (so we don't have to redeploy
+  // to change the key). To rotate the key later, just edit this file and push.
+  const expected = process.env.STATS_KEY || '[REDACTED-STATS-KEY]';
   const provided = (req.query.key as string) || '';
   if (provided !== expected) {
     return res.status(401).json({ error: 'unauthorized' });
