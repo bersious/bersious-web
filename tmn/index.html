@@ -1666,15 +1666,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== GAME STATE =====
       let canvas, ctx;
-      // PERF: flag báo cần render lại (set true khi state đổi, idle chỉ render 1 lần)
-      let needsRender = true;
-      // PERF: cache gradient tĩnh (pipe body/cap), tạo 1 lần lúc init thay vì mỗi frame
-      // Tọa độ gradient theo relative 0..1 (sau đó dùng ctx.translate để dời)
-      let PIPE_BODY_GRAD_TOP, PIPE_BODY_GRAD_BOT, PIPE_CAP_GRAD_TOP, PIPE_CAP_GRAD_BOT;
-      // PERF: cache letter glow radial gradient (tạo 1 lần)
-      let LETTER_GLOW_GRAD = null;
-      // PERF: cache background gradient tĩnh (tạo 1 lần)
-      let BG_GRAD = null;
       let state = 'idle';   // 'idle' | 'playing' | 'won' | 'lost'
       let bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
       let pipes = [];       // {x, gapY, passed}
@@ -1694,7 +1685,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         console.log('[tmn] CHASE MODE triggered! Lá thư xuất hiện...');
         state = 'chasing';
         chaseTime = 0;
-        needsRender = true;  // PERF: render frame chase ngay
         // Xóa hết ống cũ + item chưa ăn → vùng trời trống
         pipes = [];
         items = items.filter(it => it.collected);
@@ -1793,16 +1783,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           i.x -= PIPE_SPEED;
           i.wobblePhase = (i.wobblePhase || 0) + 0.08;  // tốc độ lắc
         });
-        // PERF: dùng splice ngược thay vì filter (không tạo mảng mới mỗi frame)
+        // Xóa pipes/items đã ra khỏi khung hình
         // Cap pipe rộng PIPE_W*1.4 → dùng -PIPE_W*1.5 để chắc chắn cả vành cũng ra hết
-        const PIPE_REMOVE_X = -PIPE_W * 1.5;  // PERF: precompute 1 lần
-        for (let pi = pipes.length - 1; pi >= 0; pi--) {
-          if (pipes[pi].x <= PIPE_REMOVE_X) pipes.splice(pi, 1);
-        }
-        for (let ii = items.length - 1; ii >= 0; ii--) {
-          const it = items[ii];
-          if (it.x <= -100 || it.collected) items.splice(ii, 1);
-        }
+        pipes = pipes.filter(p => p.x > -PIPE_W * 1.5);
+        items = items.filter(i => i.x > -100 && !i.collected);
 
         // Collision: vịt với cột
         for (const p of pipes) {
@@ -1819,14 +1803,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         }
 
         // Collision: vịt với item
-        // PERF: so sánh dist² thay vì Math.sqrt (nhanh hơn nhiều)
-        const COLLIDE_DIST = BIRD_RADIUS + 30;
-        const COLLIDE_DIST_SQ = COLLIDE_DIST * COLLIDE_DIST;
         for (const it of items) {
           if (it.collected) continue;
           const dx = bird.x - it.x;
           const dy = bird.y - it.y;
-          if (dx * dx + dy * dy < COLLIDE_DIST_SQ) {
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < BIRD_RADIUS + 30) {
             it.collected = true;
             score++;
             // Lá thư cho nhiều kg hơn (món cuối) → bay thẳng tới 80kg
@@ -1885,14 +1867,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         }
 
         // Collision: vịt với lá thư
-        // PERF: so sánh dist² thay vì Math.sqrt
-        const CHASE_DIST = BIRD_RADIUS + 40;
-        const CHASE_DIST_SQ = CHASE_DIST * CHASE_DIST;
         for (const it of items) {
           if (!it.isLetter || it.collected) continue;
           const ddx = bird.x - it.x;
           const ddy = bird.y - it.y;
-          if (ddx * ddx + ddy * ddy < CHASE_DIST_SQ) {
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+          if (dist < BIRD_RADIUS + 40) {  // hitbox rộng để dễ ăn
             it.collected = true;
             score++;
             currentKg = Math.min(WIN_KG, currentKg + LETTER_KG_BONUS);
@@ -1911,46 +1891,36 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       // ===== RENDER =====
       function render() {
         // Background: 3 lớp parallax (far/mid/near) + gradient fallback
-        // Lớp 1: Gradient nền (PERF: dùng cache thay vì tạo mỗi frame)
-        ctx.fillStyle = BG_GRAD;
+        // Lớp 1: Gradient nền (nếu bg chưa load)
+        const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
+        grad.addColorStop(0, '#bae6fd');  // sky-200
+        grad.addColorStop(0.6, '#e0f2fe');
+        grad.addColorStop(1, '#fef3c7');  // vàng nhạt phía dưới
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-        // PERF: tắt smoothing cho ảnh bg (ảnh đã được downscale 480x89, không cần smooth khi tile)
-        const prevSmoothing = ctx.imageSmoothingEnabled;
-        ctx.imageSmoothingEnabled = false;
         // Lớp 2: bg-far (chậm nhất)
         if (bgFar.complete && bgFar.naturalWidth > 0) {
-          const farW = bgFar.naturalWidth;
-          const farH = bgFar.naturalHeight;
-          let x = -((frameCount * 0.3) % farW);
-          if (x > 0) x -= farW;  // đảm bảo x <= 0
+          const farOffset = (frameCount * 0.3) % bgFar.naturalWidth;
           // Tile theo chiều ngang để cuộn
-          for (; x < CANVAS_W; x += farW) {
-            ctx.drawImage(bgFar, x, 0, farW, farH);
+          for (let x = -farOffset; x < CANVAS_W; x += bgFar.naturalWidth) {
+            ctx.drawImage(bgFar, x, 0, bgFar.naturalWidth, CANVAS_H);
           }
         }
         // Lớp 3: bg-mid (vừa)
         if (bgMid.complete && bgMid.naturalWidth > 0) {
-          const midW = bgMid.naturalWidth;
-          const midH = bgMid.naturalHeight;
-          let x = -((frameCount * 0.8) % midW);
-          if (x > 0) x -= midW;
-          for (; x < CANVAS_W; x += midW) {
-            ctx.drawImage(bgMid, x, 0, midW, midH);
+          const midOffset = (frameCount * 0.8) % bgMid.naturalWidth;
+          for (let x = -midOffset; x < CANVAS_W; x += bgMid.naturalWidth) {
+            ctx.drawImage(bgMid, x, 0, bgMid.naturalWidth, CANVAS_H);
           }
         }
         // Lớp 4: bg-near (nhanh nhất)
         if (bgNear.complete && bgNear.naturalWidth > 0) {
-          const nearW = bgNear.naturalWidth;
-          const nearH = bgNear.naturalHeight;
-          let x = -((frameCount * 1.5) % nearW);
-          if (x > 0) x -= nearW;
-          for (; x < CANVAS_W; x += nearW) {
-            ctx.drawImage(bgNear, x, 0, nearW, nearH);
+          const nearOffset = (frameCount * 1.5) % bgNear.naturalWidth;
+          for (let x = -nearOffset; x < CANVAS_W; x += bgNear.naturalWidth) {
+            ctx.drawImage(bgNear, x, 0, bgNear.naturalWidth, CANVAS_H);
           }
         }
-        // PERF: bật lại smoothing (duck + items cần mượt)
-        ctx.imageSmoothingEnabled = prevSmoothing;
 
         // Vẽ pipes - dùng 2 sprite riêng (top + bottom)
         pipes.forEach(p => {
@@ -1970,9 +1940,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       function drawLetter(x, y, size, wobbleT) {
         ctx.save();
         ctx.translate(x, y);
-        // PERF: dùng cache glow gradient (tạo 1 lần lúc init)
-        // Cache dùng size=42 (default), vẫn scale đúng vì fillRect vẽ theo size
-        ctx.fillStyle = LETTER_GLOW_GRAD;
+        // Sparkle glow nhẹ phía sau
+        const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.9);
+        glowGrad.addColorStop(0, 'rgba(255, 215, 0, 0.35)');
+        glowGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        ctx.fillStyle = glowGrad;
         ctx.fillRect(-size, -size, size * 2, size * 2);
 
         // Thân envelope (hình chữ nhật bo góc)
@@ -2179,27 +2151,32 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // Top pipe: ống thòng từ trên xuống
       function drawPipeTop(x, y, w, h) {
-        // PERF: dùng gradient cache (tạo 1 lần lúc init)
-        // Dùng ctx.translate(x, 0) để dời, vì gradient theo relative 0..PIPE_W
         ctx.save();
-        ctx.translate(x, 0);
         // Vành ở dưới cùng (chỗ miệng khe)
         const capH = Math.min(36, h * 0.15);
         const capW = w * 1.4;
-        const capX = 0 - (capW - w) / 2;  // tọa độ local sau translate
+        const capX = x - (capW - w) / 2;
         const capY = y + h - capH;
 
-        // Thân ống (gradient tĩnh)
-        ctx.fillStyle = PIPE_BODY_GRAD_TOP;
-        ctx.fillRect(0, y, w, h);
+        // Thân ống (gradient hồng → hồng đậm)
+        const bodyGrad = ctx.createLinearGradient(x, 0, x + w, 0);
+        bodyGrad.addColorStop(0, '#fbcfe8');
+        bodyGrad.addColorStop(0.5, '#f472b6');
+        bodyGrad.addColorStop(1, '#db2777');
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(x, y, w, h);
 
         // Viền thân
         ctx.strokeStyle = '#831843';
         ctx.lineWidth = 2;
-        ctx.strokeRect(0, y, w, h);
+        ctx.strokeRect(x, y, w, h);
 
-        // Vành (bo góc) - giữ nguyên path vẽ vành
-        ctx.fillStyle = PIPE_CAP_GRAD_TOP;
+        // Vành (bo tròn 2 bên)
+        const capGrad = ctx.createLinearGradient(capX, capY, capX + capW, capY);
+        capGrad.addColorStop(0, '#fbcfe8');
+        capGrad.addColorStop(0.5, '#ec4899');
+        capGrad.addColorStop(1, '#9d174d');
+        ctx.fillStyle = capGrad;
         ctx.beginPath();
         const r = capH * 0.4;  // bo góc
         ctx.moveTo(capX + r, capY);
@@ -2217,7 +2194,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Highlight trên thân (ánh sáng)
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(w * 0.15, y, w * 0.2, h);
+        ctx.fillRect(x + w * 0.15, y, w * 0.2, h);
 
         // Highlight trên vành
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
@@ -2228,25 +2205,31 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // Bottom pipe: ống mọc từ dưới lên
       function drawPipeBottom(x, y, w, h) {
-        // PERF: dùng gradient cache
         ctx.save();
-        ctx.translate(x, 0);
         // Vành ở trên cùng (chỗ miệng khe)
         const capH = Math.min(36, h * 0.15);
         const capW = w * 1.4;
-        const capX = 0 - (capW - w) / 2;  // local sau translate
+        const capX = x - (capW - w) / 2;
 
         // Thân ống
-        ctx.fillStyle = PIPE_BODY_GRAD_BOT;
-        ctx.fillRect(0, y, w, h);
+        const bodyGrad = ctx.createLinearGradient(x, 0, x + w, 0);
+        bodyGrad.addColorStop(0, '#fbcfe8');
+        bodyGrad.addColorStop(0.5, '#f472b6');
+        bodyGrad.addColorStop(1, '#db2777');
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(x, y, w, h);
 
         // Viền thân
         ctx.strokeStyle = '#831843';
         ctx.lineWidth = 2;
-        ctx.strokeRect(0, y, w, h);
+        ctx.strokeRect(x, y, w, h);
 
         // Vành
-        ctx.fillStyle = PIPE_CAP_GRAD_BOT;
+        const capGrad = ctx.createLinearGradient(capX, y, capX + capW, y);
+        capGrad.addColorStop(0, '#fbcfe8');
+        capGrad.addColorStop(0.5, '#ec4899');
+        capGrad.addColorStop(1, '#9d174d');
+        ctx.fillStyle = capGrad;
         ctx.beginPath();
         const r = capH * 0.4;
         ctx.moveTo(capX + r, y);
@@ -2264,7 +2247,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Highlight
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(w * 0.15, y, w * 0.2, h);
+        ctx.fillRect(x + w * 0.15, y, w * 0.2, h);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.fillRect(capX + capW * 0.1, y + capH * 0.15, capW * 0.3, capH * 0.2);
 
@@ -2281,16 +2264,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         if (delta < 100) {
           update();
         }
-        // PERF: ở idle/won/lost, chỉ render 1 frame (vẽ vịt + bg), skip các frame sau
-        // để giảm CPU/GPU khi user chưa bấm Bắt đầu
-        if (state === 'idle' || state === 'won' || state === 'lost') {
-          if (needsRender) {
-            render();
-            needsRender = false;
-          }
-        } else {
-          render();
-        }
+        render();
         animId = requestAnimationFrame(gameLoop);
       }
 
@@ -2305,7 +2279,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function gameOver(reason) {
         state = 'lost';
-        needsRender = true;  // PERF: idle cần render 1 frame để show lose screen
         // Phát âm thanh theo lý do: thud (đâm cột) hoặc fall (rớt)
         try {
           if (reason === 'fall') playFallSound();
@@ -2323,7 +2296,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function gameWin() {
         state = 'won';
-        needsRender = true;  // PERF: idle cần render 1 frame
         document.getElementById('winScreen').style.display = 'flex';
         // Hiệu ứng glow cho vịt
         const celebration = document.createElement('div');
@@ -2334,7 +2306,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       function resetGame() {
         state = 'idle';
-        needsRender = true;  // PERF: idle cần render 1 frame (vịt + bg)
         bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
         pipes = [];
         items = [];
@@ -2355,7 +2326,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       function startGame() {
         if (state === 'playing') return;
         state = 'playing';
-        needsRender = true;  // PERF: flag để gameLoop render frame đầu
         document.getElementById('startScreen').style.display = 'none';
         document.getElementById('loseScreen').style.display = 'none';
         // Reset bird nếu vừa thua
@@ -2608,9 +2578,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         setupCanvasResolution();
         window.addEventListener('resize', setupCanvasResolution);
 
-        // PERF: tạo 1 lần các gradient tĩnh (pipe body, pipe cap, letter glow, bg)
-        initGradientCache();
-
         // Mỗi lần vào /tmn → luôn show game (không auto-skip dù đã unlock)
         // Để chơi lại nhiều lần, không cần ?play=1
         console.log('[tmn] show game splash');
@@ -2640,36 +2607,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Scale context để vẽ theo CSS pixel (game logic dùng CANVAS_W/H)
         ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         ctx.scale((canvas.width / CANVAS_W), (canvas.height / CANVAS_H));
-      }
-
-      // PERF: tạo 1 lần các gradient tĩnh dùng trong nhiều frame
-      // Trước: mỗi pipe tạo 2 gradient (body+cap) theo tọa độ tuyệt đối → tốn CPU
-      // Sau: tạo 1 gradient theo relative 0..1, dùng ctx.translate để dời → nhanh hơn nhiều
-      function initGradientCache() {
-        // Pipe body gradient (PIPE_W rộng, gradient ngang)
-        // Trước: createLinearGradient(x, 0, x+w, 0) với mỗi pipe
-        // Sau: gradient (0,0)→(PIPE_W,0) - dùng ctx.translate(x, 0) khi vẽ
-        PIPE_BODY_GRAD_TOP = ctx.createLinearGradient(0, 0, PIPE_W, 0);
-        PIPE_BODY_GRAD_TOP.addColorStop(0, '#fbcfe8');
-        PIPE_BODY_GRAD_TOP.addColorStop(0.5, '#f472b6');
-        PIPE_BODY_GRAD_TOP.addColorStop(1, '#db2777');
-        // Body bottom dùng cùng gradient (màu giống body top)
-        PIPE_BODY_GRAD_BOT = PIPE_BODY_GRAD_TOP;
-        // Pipe cap gradient (capW = PIPE_W * 1.4 rộng hơn body)
-        PIPE_CAP_GRAD_TOP = ctx.createLinearGradient(0, 0, PIPE_W * 1.4, 0);
-        PIPE_CAP_GRAD_TOP.addColorStop(0, '#fbcfe8');
-        PIPE_CAP_GRAD_TOP.addColorStop(0.5, '#ec4899');
-        PIPE_CAP_GRAD_TOP.addColorStop(1, '#9d174d');
-        PIPE_CAP_GRAD_BOT = PIPE_CAP_GRAD_TOP;
-        // Letter glow gradient (radial, kích thước tùy size lá thư - tạo 1 lần với size=42 mặc định)
-        LETTER_GLOW_GRAD = ctx.createRadialGradient(0, 0, 0, 0, 0, 42 * 0.9);
-        LETTER_GLOW_GRAD.addColorStop(0, 'rgba(255, 215, 0, 0.35)');
-        LETTER_GLOW_GRAD.addColorStop(1, 'rgba(255, 215, 0, 0)');
-        // Background gradient (linear từ trên xuống dưới)
-        BG_GRAD = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
-        BG_GRAD.addColorStop(0, '#bae6fd');
-        BG_GRAD.addColorStop(0.6, '#e0f2fe');
-        BG_GRAD.addColorStop(1, '#fef3c7');
       }
 
       // Chờ DOM ready (đã có vì script ở cuối body)
