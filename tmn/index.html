@@ -804,16 +804,24 @@
     .spark-bubble {
       position: fixed;
       pointer-events: none;
-      font-size: 20px;
+      font-size: 15px;
+      font-family: 'Comfortaa', cursive, sans-serif;
       font-weight: 700;
-      animation: sparkUp 1.2s ease-out forwards;
+      white-space: nowrap;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(250, 204, 21, 0.6);
+      animation: sparkUp 1.8s ease-out forwards;
       z-index: 1000;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     @keyframes sparkUp {
-      0% { transform: translateY(0) scale(0.8); opacity: 1; }
-      100% { transform: translateY(-70px) scale(1.3); opacity: 0; }
+      0% { transform: translateY(0) scale(0.85); opacity: 0; }
+      15% { transform: translateY(-10px) scale(1); opacity: 1; }
+      80% { transform: translateY(-45px) scale(1); opacity: 0.95; }
+      100% { transform: translateY(-75px) scale(0.95); opacity: 0; }
     }
 
     @media (max-width: 650px) {
@@ -1788,14 +1796,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           // 2. Vẽ bông hoa cúc to
           drawDaisyFlower(ctx, df.x, df.y, df.radius, df.angle, df.petalsCount, 1.0);
 
-          // 3. Quản lý tag \"bấm vào tớ đi ✨\"
+          // 3. Quản lý tag \"bấm vào tớ đi ✨\" (tần suất thấp, lâu lâu mới xuất hiện)
           df.tagTimer = (df.tagTimer || 0) - 1;
           if (df.tagTimer <= 0) {
             df.hasTag = !df.hasTag;
-            df.tagTimer = df.hasTag ? (Math.random() * 250 + 350) : (Math.random() * 450 + 300);
+            // Hiện trong 4-6 giây, sau đó biến mất và chờ 18-35 giây sau mới xuất hiện lại
+            df.tagTimer = df.hasTag ? (Math.random() * 150 + 250) : (Math.random() * 1000 + 1100);
           }
-          if (df.hasTag && df.tagAlpha < 1) df.tagAlpha = Math.min(1, df.tagAlpha + 0.03);
-          if (!df.hasTag && df.tagAlpha > 0) df.tagAlpha = Math.max(0, df.tagAlpha - 0.03);
+          if (df.hasTag && df.tagAlpha < 1) df.tagAlpha = Math.min(1, df.tagAlpha + 0.025);
+          if (!df.hasTag && df.tagAlpha > 0) df.tagAlpha = Math.max(0, df.tagAlpha - 0.025);
 
           if (df.tagAlpha > 0.05) {
             ctx.save();
@@ -1912,11 +1921,35 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       } catch (e) {}
     }
 
+    // Danh sách câu fact ngắn về loài vịt & lời chúc 20/10 dễ thương khi bấm đĩa than vịt
+    const duckFactsAndWishes = [
+      '🦆 Lông vịt chống nước 100% lận đó!',
+      '🌸 20/10 chúc Ngọc luôn rạng rỡ!',
+      '🦆 Vịt con nhận ai đầu tiên là mẹ á!',
+      '✨ Chúc em ăn ngon ngủ kỹ không lo béo!',
+      '🦆 Vịt ngủ mở 1 mắt để canh chừng á!',
+      '💌 Có anh người yêu siêu cưng chiều nè!',
+      '🦆 Tiếng quạc của vịt không hề dội âm!',
+      '💖 20/10 vui vẻ bình an nha Ngọc!',
+      '🦆 Bàn chân vịt không có dây thần kinh đâu!',
+      '🌼 Hôm nay Ngọc là cô gái xinh nhất!'
+    ];
+    let lastFactIndex = -1;
+
     function quackDuck() {
       playLetterDuckQuack();
       const rect = document.getElementById('vinylRecord') ? document.getElementById('vinylRecord').getBoundingClientRect() : { left: w/2, top: 200, width: 0, height: 0 };
       burstPetals(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      popWordFloating(rect.left + rect.width / 2, rect.top, 'Quạc quạc! 🌼', '#eab308');
+
+      // Chọn ngẫu nhiên không trùng với câu trước
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * duckFactsAndWishes.length);
+      } while (idx === lastFactIndex && duckFactsAndWishes.length > 1);
+      lastFactIndex = idx;
+
+      const factText = duckFactsAndWishes[idx];
+      popWordFloating(rect.left + rect.width / 2, rect.top + 30, factText, '#b45309');
     }
 
     function burstPetals(x, y) {
