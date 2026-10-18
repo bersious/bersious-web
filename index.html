@@ -7,7 +7,7 @@
   <meta name="description" content="Personal website of Nhan (Endy / bersious) - AI student at UIT, class of 2025." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0b0d12;
@@ -39,6 +39,11 @@
       line-height: 1.6;
       position: relative;
       overflow-x: hidden;
+    }
+
+    /* Use Vietnamese-optimized font when language is Vietnamese */
+    body.lang-vi {
+      font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     /* Background gradient blobs */
@@ -153,6 +158,28 @@
     /* Hero */
     .hero {
       padding: 80px 0 60px;
+    }
+
+    /* Tighter line height for Vietnamese diacritics */
+    body.lang-vi h1,
+    body.lang-vi h2,
+    body.lang-vi .tagline,
+    body.lang-vi .about-text,
+    body.lang-vi .gallery-desc,
+    body.lang-vi .section-label,
+    body.lang-vi .info-value,
+    body.lang-vi .gallery-title,
+    body.lang-vi .nav-links a,
+    body.lang-vi .lang-btn,
+    body.lang-vi .connect-link,
+    body.lang-vi footer,
+    body.lang-vi .status {
+      line-height: 1.55;
+      letter-spacing: 0.005em;
+    }
+
+    body.lang-vi h1 {
+      letter-spacing: -0.02em;
     }
 
     .status {
@@ -612,24 +639,24 @@
         'nav-about': 'Giới thiệu',
         'nav-projects': 'Dự án',
         'nav-connect': 'Liên hệ',
-        'status': 'trực tuyến / bản 0.3',
-        'hero-hi': 'Chào, mình là',
+        'status': 'đang trực tuyến · bản 0.4',
+        'hero-hi': 'Xin chào, mình là',
         'hero-call': 'Bạn có thể gọi mình là',
         'hero-or': 'hoặc',
-        'hero-dot': 'nha.',
-        'tagline': 'Một tâm hồn tò mò, thỏa sức nhào nặn những điều nhỏ xinh bằng mã, thiết kế và cả một chút kỳ diệu.',
-        'cta-work': 'Xem dự án của tôi →',
-        'cta-contact': 'Liên hệ ngay',
-        'about-label': '01 / Giới thiệu',
+        'hero-dot': '.',
+        'tagline': 'Tò mò với mọi thứ xung quanh, thích nhào nặn những ý tưởng nhỏ bằng mã, thiết kế và cả một chút kỳ diệu riêng.',
+        'cta-work': 'Xem các dự án →',
+        'cta-contact': 'Liên hệ với mình',
+        'about-label': '01 · Giới thiệu',
         'about-title': 'Một chút về mình',
-        'about-text': 'Mình là <strong>Nhân</strong>, sinh viên ngành <span class="hl-blue">Trí tuệ Nhân tạo</span> tại <span class="hl-pink">Trường Đại học Công nghệ Thông tin (UIT)</span>, khóa <strong>2025</strong>. Mình dành phần lớn thời gian để khám phá cách máy móc học hỏi, làm các dự án nhỏ kết hợp giữa sáng tạo và lập trình, rồi ghi chép lại để sau này khỏi quên.',
+        'about-text': 'Mình là <strong>Nhân</strong>, sinh viên ngành <span class="hl-blue">Trí tuệ Nhân tạo</span> tại <span class="hl-pink">Trường Đại học Công nghệ Thông tin (UIT)</span>, khóa <strong>2025</strong>. Phần lớn thời gian mình dành cho việc khám phá cách máy móc học hỏi, làm những dự án nhỏ kết hợp giữa sáng tạo và lập trình, rồi ghi chép lại để sau này khỏi quên mất.',
         'info-field': 'Chuyên ngành',
         'info-field-value': 'Trí tuệ Nhân tạo',
         'info-university': 'Trường',
         'info-class': 'Khóa',
         'info-based': 'Nơi sống',
-        'info-based-value': 'TP. Hồ Chí Minh, VN',
-        'projects-label': '02 / Dự án',
+        'info-based-value': 'TP. Hồ Chí Minh',
+        'projects-label': '02 · Dự án',
         'projects-title': 'Những thứ mình đã làm',
         'proj-1-title': 'Dự án 01',
         'proj-1-desc': 'Một thử nghiệm nhỏ, đang chờ ngày ra mắt.',
@@ -638,7 +665,7 @@
         'proj-3-title': 'Dự án 03',
         'proj-3-desc': 'Một chương mới, sắp sửa bắt đầu.',
         'proj-tag': 'sắp có',
-        'connect-label': '03 / Liên hệ',
+        'connect-label': '03 · Liên hệ',
         'connect-title': 'Nói chuyện nha',
         'connect-text': 'Mình luôn sẵn lòng trò chuyện về những ý tưởng thú vị, hợp tác, hay chỉ đơn giản là một lời chào thân thiện.',
         'footer-copy': '© 2026 bersious · làm với tất cả tâm huyết'
@@ -651,6 +678,8 @@
     function applyLanguage(lang) {
       const dict = translations[lang] || translations[DEFAULT_LANG];
       document.documentElement.lang = lang;
+      document.body.classList.toggle('lang-vi', lang === 'vi');
+      document.body.classList.toggle('lang-en', lang === 'en');
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
