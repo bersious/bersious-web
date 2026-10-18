@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project · bersious</title>
-  <meta name="description" content="Project details — bersious" />
+  <title>TMN 20/10 · bersious</title>
+  <meta name="description" content="A surprise duck game for 20/10" />
   <link rel="icon" type="image/svg+xml" href="/favicon-tmn.svg?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,12 @@
       --pink: #ec4899;
       --blue-glow: rgba(96, 165, 250, 0.22);
       --pink-glow: rgba(236, 72, 153, 0.18);
+      --water-1: #a8d8b9;
+      --water-2: #7ab893;
+      --water-3: #5a8a73;
+      --duck-body: #ffffff;
+      --duck-shadow: #e8e8e8;
+      --beak: #f5a623;
     }
 
     * {
@@ -28,8 +34,8 @@
       padding: 0;
     }
 
-    html {
-      scroll-behavior: smooth;
+    html, body {
+      height: 100%;
     }
 
     body {
@@ -38,7 +44,7 @@
       color: var(--text-main);
       min-height: 100vh;
       line-height: 1.6;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     /* Background gradient blobs */
@@ -60,7 +66,7 @@
       left: -200px;
       width: 640px;
       height: 640px;
-      opacity: 0.55;
+      opacity: 0.4;
     }
 
     body::after {
@@ -69,23 +75,26 @@
       right: -200px;
       width: 460px;
       height: 460px;
-      opacity: 0.4;
+      opacity: 0.3;
       filter: blur(140px);
     }
 
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 24px;
-      position: relative;
-      z-index: 1;
-    }
-
+    /* Navigation - fixed top, doesn't take game space */
     nav {
-      padding: 28px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    nav > * {
+      pointer-events: auto;
     }
 
     .logo {
@@ -94,89 +103,592 @@
       letter-spacing: -0.02em;
       color: var(--text-main);
       text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    .logo:hover {
+      opacity: 1;
     }
 
     .back-link {
       color: var(--text-sub);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-family: 'JetBrains Mono', monospace;
-      transition: color 0.2s ease;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
     }
 
     .back-link:hover {
       color: var(--blue);
+      border-color: var(--blue);
     }
 
-    main {
-      padding: 80px 0 120px;
+    /* Game container - full viewport, responsive */
+    .game-wrap {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 16px 16px;
+      z-index: 1;
     }
 
-    .project-header {
-      margin-bottom: 60px;
+    .game {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: min(100vw - 32px, 1100px);
+      max-height: calc(100vh - 76px);
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #b8e0c9 0%, var(--water-1) 60%, var(--water-2) 100%);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      cursor: crosshair;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    .project-slug {
+    /* Sun in the sky */
+    .sun {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff8b8 0%, #fde68a 60%, transparent 100%);
+      top: 8%;
+      right: 8%;
+      pointer-events: none;
+    }
+
+    /* Sky clouds */
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .cloud-1 {
+      width: 60px;
+      height: 20px;
+      top: 12%;
+      left: 10%;
+      box-shadow:
+        18px -8px 0 -4px rgba(255, 255, 255, 0.7),
+        36px 0 0 -2px rgba(255, 255, 255, 0.7);
+    }
+
+    .cloud-2 {
+      width: 40px;
+      height: 14px;
+      top: 18%;
+      left: 40%;
+      box-shadow:
+        14px -6px 0 -3px rgba(255, 255, 255, 0.6),
+        28px 0 0 -1px rgba(255, 255, 255, 0.6);
+    }
+
+    /* Water reflections - decorative */
+    .water-reflection {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Duck */
+    .duck {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      transition: transform 0.15s ease;
+      will-change: transform;
+      z-index: 3;
+    }
+
+    .duck svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Floating hearts/lily pads - tap targets */
+    .item {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .item:hover {
+      transform: scale(1.1);
+    }
+
+    .item.collected {
+      animation: pop 0.4s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.7; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    /* HUD */
+    .hud {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .hud-card {
+      background: rgba(11, 13, 18, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 10px 16px;
+      color: var(--text-main);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--blue);
-      margin-bottom: 12px;
-      letter-spacing: 0.05em;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .project-title {
-      font-size: clamp(2rem, 5vw, 3rem);
+    .hud-label {
+      color: var(--text-sub);
+    }
+
+    .hud-value {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .hearts {
+      color: var(--pink);
+      letter-spacing: 2px;
+    }
+
+    /* Message / hint */
+    .message {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(11, 13, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 10px 20px;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      z-index: 5;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .message.show {
+      opacity: 1;
+    }
+
+    /* End overlay */
+    .end-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 13, 18, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .end-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .end-title {
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
       font-weight: 700;
       letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .project-empty {
+    .end-sub {
       color: var(--text-sub);
-      font-size: 1.05rem;
-      padding: 60px 32px;
-      border: 1px dashed var(--border);
-      border-radius: 16px;
+      font-size: 0.95rem;
       text-align: center;
-      background: var(--surface);
+      max-width: 80%;
+    }
+
+    .end-btn {
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      color: #0b0d12;
+      border: none;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s ease;
+    }
+
+    .end-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .end-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+      nav {
+        padding: 14px 16px;
+      }
+      .hud-card {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+      }
+      .duck {
+        width: 64px;
+        height: 64px;
+      }
+    }
+
+    @media (max-height: 500px) and (orientation: landscape) {
+      nav {
+        padding: 10px 16px;
+      }
+      .game-wrap {
+        padding: 50px 8px 8px;
+      }
+      .sun {
+        width: 50px;
+        height: 50px;
+      }
+      .duck {
+        width: 56px;
+        height: 56px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <nav>
-      <a href="index.html" class="logo">bersious.</a>
-      <a href="index.html" class="back-link">← back</a>
-    </nav>
+  <div class="game-wrap">
+    <div class="game" id="game">
+      <div class="sun"></div>
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
 
-    <main>
-      <div class="project-header">
-        <div class="project-slug" id="project-slug">project</div>
-        <h1 class="project-title" id="project-title">Untitled</h1>
+      <div class="hud">
+        <div class="hud-card">
+          <span class="hud-label">hearts</span>
+          <span class="hud-value" id="hearts">5</span>
+          <span class="hearts">♥♥♥♥♥</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">score</span>
+          <span class="hud-value" id="score">0</span>
+        </div>
       </div>
 
-      <div class="project-empty">
-        🚧 This page is empty for now. Content coming soon.
+      <div class="message" id="message">Click to move the duck</div>
+
+      <div class="end-overlay" id="endOverlay">
+        <div class="end-title" id="endTitle">You did it!</div>
+        <div class="end-sub" id="endSub">Score: 0</div>
+        <button class="end-btn" id="restartBtn">Play again</button>
       </div>
-    </main>
+    </div>
   </div>
 
   <script>
-    // Read slug from URL
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('slug') || 'project';
+    (function() {
+      const game = document.getElementById('game');
+      const message = document.getElementById('message');
+      const heartsEl = document.getElementById('hearts');
+      const scoreEl = document.getElementById('score');
+      const endOverlay = document.getElementById('endOverlay');
+      const endTitle = document.getElementById('endTitle');
+      const endSub = document.getElementById('endSub');
+      const restartBtn = document.getElementById('restartBtn');
 
-    // Map slug to display name
-    const projectNames = {
-      'bersious-web': 'bersious.io.vn',
-      'tmn-2010': 'TMN 20/10',
-      'project-03': 'Project 03'
-    };
+      const DUCK_SVG = `
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="32" cy="58" rx="16" ry="3" fill="#5a8a73" opacity="0.6"/>
+          <ellipse cx="32" cy="56" rx="16" ry="2.5" fill="#e8e8e8"/>
+          <circle cx="32" cy="32" r="18" fill="#ffffff"/>
+          <ellipse cx="22" cy="38" rx="3" ry="4" fill="#f0f0f0"/>
+          <line x1="38" y1="30" x2="50" y2="30" stroke="#f5a623" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="38" y1="34" x2="50" y2="34" stroke="#f5a623" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="38" y1="38" x2="42" y2="38" stroke="#808080" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="26" cy="28" r="1.8" fill="#0b0d12"/>
+          <circle cx="26.5" cy="27.5" r="0.6" fill="#ffffff"/>
+        </svg>
+      `;
 
-    document.getElementById('project-slug').textContent = '/' + slug;
-    document.getElementById('project-title').textContent = projectNames[slug] || slug;
-    document.title = (projectNames[slug] || slug) + ' · bersious';
+      const ITEM_TYPES = [
+        { emoji: '💖', points: 1, label: 'heart' },
+        { emoji: '🌸', points: 2, label: 'flower' },
+        { emoji: '⭐', points: 3, label: 'star' },
+        { emoji: '🪷', points: 2, label: 'lotus' }
+      ];
+
+      const DANGER_TYPES = [
+        { emoji: '⚡', points: -1, label: 'storm' }
+      ];
+
+      let state = {
+        duck: { x: 50, y: 50, targetX: 50, targetY: 50, el: null, dir: 1 },
+        items: [],
+        score: 0,
+        hearts: 5,
+        collected: 0,
+        spawnInterval: null,
+        moveInterval: null,
+        running: true
+      };
+
+      // Init duck
+      const duckEl = document.createElement('div');
+      duckEl.className = 'duck';
+      duckEl.innerHTML = DUCK_SVG;
+      game.appendChild(duckEl);
+      state.duck.el = duckEl;
+
+      // Helper: clamp value
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+      }
+
+      // Helper: spawn one item
+      function spawnItem() {
+        if (!state.running) return;
+        const isDanger = Math.random() < 0.2;
+        const types = isDanger ? DANGER_TYPES : ITEM_TYPES;
+        const type = types[Math.floor(Math.random() * types.length)];
+
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.textContent = type.emoji;
+        item.style.fontSize = '32px';
+        item.style.lineHeight = '1';
+
+        // Random position (% based, relative to game box, with padding)
+        const xPct = 5 + Math.random() * 85;
+        const yPct = 45 + Math.random() * 50; // ở phần nước (dưới)
+        item.style.left = xPct + '%';
+        item.style.top = yPct + '%';
+        item.style.transform = 'translate(-50%, -50%)';
+
+        item.dataset.points = type.points;
+        item.dataset.label = type.label;
+
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          collectItem(item, type);
+        });
+        item.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          collectItem(item, type);
+        }, { passive: false });
+
+        game.appendChild(item);
+        state.items.push(item);
+
+        // Auto-remove after 6s
+        setTimeout(() => {
+          if (item.parentNode && !item.classList.contains('collected')) {
+            item.remove();
+            state.items = state.items.filter(i => i !== item);
+          }
+        }, 6000);
+      }
+
+      // Collect item
+      function collectItem(item, type) {
+        if (!state.running) return;
+        if (item.classList.contains('collected')) return;
+
+        item.classList.add('collected');
+        state.score += type.points;
+        state.collected += 1;
+        if (type.points > 0) {
+          state.hearts = Math.min(5, state.hearts + 1);
+        } else {
+          state.hearts = Math.max(0, state.hearts - 1);
+        }
+        updateHUD();
+        setTimeout(() => item.remove(), 400);
+        state.items = state.items.filter(i => i !== item);
+
+        if (state.hearts <= 0) {
+          endGame(false);
+        } else if (state.collected >= 10) {
+          endGame(true);
+        }
+      }
+
+      function updateHUD() {
+        heartsEl.textContent = state.hearts;
+        scoreEl.textContent = state.score;
+        const heartDisplay = '♥'.repeat(state.hearts) + '♡'.repeat(5 - state.hearts);
+        document.querySelector('.hearts').textContent = heartDisplay;
+      }
+
+      // Move duck toward target
+      function moveDuck() {
+        if (!state.running) return;
+        const d = state.duck;
+        const dx = d.targetX - d.x;
+        const dy = d.targetY - d.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0.5) {
+          const speed = 1.2;
+          d.x += (dx / dist) * speed;
+          d.y += (dy / dist) * speed;
+          d.x = clamp(d.x, 5, 95);
+          d.y = clamp(d.y, 30, 90); // chỉ bơi ở phần nước
+
+          // Flip duck based on direction
+          d.dir = dx < 0 ? -1 : 1;
+        } else {
+          d.dir = 1;
+        }
+
+        d.el.style.left = d.x + '%';
+        d.el.style.top = d.y + '%';
+        d.el.style.transform = `translate(-50%, -50%) scaleX(${d.dir})`;
+      }
+
+      // Game tick: check collision with items
+      function checkCollisions() {
+        if (!state.running) return;
+        const d = state.duck;
+        state.items.forEach(item => {
+          if (item.classList.contains('collected')) return;
+          const rect = item.getBoundingClientRect();
+          const duckRect = d.el.getBoundingClientRect();
+          const cx = (rect.left + rect.right) / 2;
+          const cy = (rect.top + rect.bottom) / 2;
+          const dx = cx - (duckRect.left + duckRect.right) / 2;
+          const dy = cy - (duckRect.top + duckRect.bottom) / 2;
+          if (Math.hypot(dx, dy) < 30) {
+            const points = parseInt(item.dataset.points, 10);
+            const label = item.dataset.label;
+            const type = { points, label };
+            collectItem(item, type);
+          }
+        });
+      }
+
+      // Click / tap to set target
+      function setTarget(clientX, clientY) {
+        const rect = game.getBoundingClientRect();
+        const xPct = ((clientX - rect.left) / rect.width) * 100;
+        const yPct = ((clientY - rect.top) / rect.height) * 100;
+        state.duck.targetX = clamp(xPct, 5, 95);
+        state.duck.targetY = clamp(yPct, 30, 90);
+      }
+
+      game.addEventListener('click', (e) => {
+        if (e.target === game) setTarget(e.clientX, e.clientY);
+      });
+      game.addEventListener('touchstart', (e) => {
+        if (e.target === game) {
+          const t = e.touches[0];
+          setTarget(t.clientX, t.clientY);
+        }
+      }, { passive: true });
+
+      // Auto-show message
+      setTimeout(() => {
+        message.classList.add('show');
+        setTimeout(() => message.classList.remove('show'), 3000);
+      }, 500);
+
+      // Spawn items periodically
+      state.spawnInterval = setInterval(() => {
+        spawnItem();
+        if (Math.random() < 0.3) spawnItem();
+      }, 1200);
+
+      // Game loop
+      state.moveInterval = setInterval(() => {
+        moveDuck();
+        checkCollisions();
+      }, 50);
+
+      function endGame(won) {
+        state.running = false;
+        clearInterval(state.spawnInterval);
+        clearInterval(state.moveInterval);
+        if (won) {
+          endTitle.textContent = '🌸 You did it! 🌸';
+          endSub.textContent = `Score: ${state.score} · Hearts: ${state.hearts}`;
+        } else {
+          endTitle.textContent = '💔 Out of hearts';
+          endSub.textContent = `Score: ${state.score} · Better luck next time`;
+        }
+        setTimeout(() => endOverlay.classList.add('show'), 400);
+      }
+
+      restartBtn.addEventListener('click', () => {
+        // Remove all items
+        state.items.forEach(i => i.remove());
+        state.items = [];
+        // Reset state
+        state.score = 0;
+        state.hearts = 5;
+        state.collected = 0;
+        state.running = true;
+        state.duck.x = 50; state.duck.y = 50;
+        state.duck.targetX = 50; state.duck.targetY = 50;
+        updateHUD();
+        endOverlay.classList.remove('show');
+        // Restart loops
+        state.spawnInterval = setInterval(() => {
+          spawnItem();
+          if (Math.random() < 0.3) spawnItem();
+        }, 1200);
+        state.moveInterval = setInterval(() => {
+          moveDuck();
+          checkCollisions();
+        }, 50);
+      });
+
+      // Initial HUD
+      updateHUD();
+    })();
   </script>
 </body>
 </html>
