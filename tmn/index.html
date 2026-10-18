@@ -2540,23 +2540,14 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         setupCanvasResolution();
         window.addEventListener('resize', setupCanvasResolution);
 
-        // Nếu đã unlock → show letter NGAY, không cần đợi assets
-        // Trừ khi ?play=1 (force chơi lại từ trang chủ)
-        const forcePlay = new URLSearchParams(window.location.search).get('play') === '1';
-        if (isUnlocked() && !forcePlay) {
-          console.log('[tmn] already unlocked → show letter');
-          // Ẩn game overlay
-          document.getElementById('gameOverlay').classList.remove('show');
-          unlockLetter();
-        } else {
-          // Chưa unlock (hoặc ?play=1) → show game splash NGAY (không cần đợi assets)
-          console.log('[tmn] not unlocked (or ?play=1) → show game splash');
-          try {
-            showGameSplash();
-            console.log('[tmn] showGameSplash OK, animId:', animId);
-          } catch(e) {
-            console.error('[tmn] showGameSplash FAIL:', e);
-          }
+        // Mỗi lần vào /tmn → luôn show game (không auto-skip dù đã unlock)
+        // Để chơi lại nhiều lần, không cần ?play=1
+        console.log('[tmn] show game splash');
+        try {
+          showGameSplash();
+          console.log('[tmn] showGameSplash OK, animId:', animId);
+        } catch(e) {
+          console.error('[tmn] showGameSplash FAIL:', e);
         }
 
         // Preload assets cho phần vẽ canvas (chạy nền, không block)
