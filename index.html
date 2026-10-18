@@ -1004,6 +1004,26 @@
       });
     });
 
+    // Smooth scroll for in-page anchor links (avoids adding # to URL)
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('href');
+        if (targetId.length > 1) {
+          const target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Update URL with replaceState to keep it clean (no #)
+            try {
+              history.replaceState(null, '', window.location.pathname);
+            } catch (err) {
+              /* ignore */
+            }
+          }
+        }
+      });
+    });
+
     // Pronunciation buttons (Web Speech API)
     document.querySelectorAll('.pronounce-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
