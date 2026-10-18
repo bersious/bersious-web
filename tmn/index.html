@@ -841,6 +841,32 @@
       transform: translateY(-1px);
     }
 
+    /* Win screen: layout 2 nút (home + replay) */
+    .win-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .win-actions .btn-replay {
+      margin-top: 0;
+      padding: 10px 24px;
+      background: rgba(251, 191, 36, 0.18);
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      border-radius: 999px;
+      color: #fde68a;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .win-actions .btn-replay:hover {
+      background: rgba(251, 191, 36, 0.32);
+      transform: translateY(-1px);
+    }
+
     /* Form nhập mật khẩu (sau khi thắng) */
     .password-form {
       display: flex;
@@ -1047,14 +1073,18 @@
       <!-- Win screen (form nhập mật khẩu) -->
       <div class="game-screen" id="winScreen" style="display:none">
         <img src="../assets/game/processed/duck-win.png" class="screen-art" alt="Vịt ăn mừng" onerror="this.style.display='none'">
-        <h2>🎉 Vịt đã mập vĩ đại!</h2>
-        <p>Chú vịt 70kg lăn không ngừng. Nhập mật khẩu anh gửi riêng để mở thư nè:</p>
+        <h2>🎉 Bạn nhận được một lá thư 20/10!</h2>
+        <p>Vui lòng nhập mật khẩu để mở thư nhé 💌</p>
         <form class="password-form" id="passwordForm" onsubmit="submitPassword(event)">
           <input type="password" id="passwordInput" placeholder="Mật khẩu" autocomplete="off">
           <button type="submit" class="btn-confirm">Mở khóa</button>
         </form>
         <p class="password-error" id="passwordError"></p>
         <p class="password-hint">Gợi ý: gồm 3 số, liên quan đến ngày quan trọng 💌</p>
+        <div class="win-actions">
+          <button class="btn-home" id="btnHomeWin" type="button">🏠 Về trang chủ</button>
+          <button class="btn-replay" id="btnReplayWin" type="button">🔄 Chơi lại</button>
+        </div>
       </div>
 
       <!-- Lose screen -->
@@ -1430,9 +1460,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const BIRD_X = 140;             // vị trí vịt cố định theo X
       const BIRD_RADIUS = 36;        // hitbox vịt (dùng cho collision) - frame 1.5x lớn hơn
       const TARGET_SCORE = 15;       // lụm 15 món = win
+      const WIN_KG = 80;             // đạt 80kg = win (ăn 15 món × 5 = 75, món 15 = 80)
       const BASE_KG = 30;
-      const KG_PER_ITEM = 5;
-      const MAX_KG = BASE_KG + TARGET_SCORE * KG_PER_ITEM;  // 80
+      const KG_PER_ITEM = 3;         // 14 món đầu × 3 = 42 → 72kg; món 15 (lá thư) +8 → 80kg
+      const LETTER_KG_BONUS = 8;     // lá thư cho nhiều kg hơn (món cuối)
+      const MAX_KG = WIN_KG;         // 80
 
       // Mật khẩu (security through obscurity - base64)
       // User đặt riêng: "171" (Ngọc sinh ngày 17/1/2007)
@@ -1526,9 +1558,21 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const gapY = minGapY + Math.random() * (maxGapY - minGapY);
         pipes.push({ x: CANVAS_W + 50, gapY, passed: false });
 
-        // Spawn 1 item ngẫu nhiên trong gap: 100% collectible (trà/bún) - bỏ powerup
+        // Spawn 1 item ngẫu nhiên trong gap
         const itemX = CANVAS_W + 50 + PIPE_SPACING / 2;
         const itemY = gapY + PIPE_GAP / 2 - 30;  // giữa gap, trừ 30 để căn giữa item
+
+        // Món cuối (sau khi ăn 14 món) = lá thư → vịt ăn → màn hình win
+        if (score >= TARGET_SCORE - 1 && collectibles.length > 0) {
+          items.push({
+            x: itemX, y: itemY,
+            isLetter: true,         // marker vẽ lá thư bằng code
+            collected: false,
+            wobblePhase: Math.random() * Math.PI * 2,
+          });
+          return;
+        }
+
         if (collectibles.length === 0) return;
         const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
         // wobblePhase khởi đầu random → mỗi item lắc lệch pha
@@ -1587,10 +1631,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           if (dist < BIRD_RADIUS + 30) {
             it.collected = true;
             score++;
-            currentKg = BASE_KG + score * KG_PER_ITEM;
+            // Lá thư cho nhiều kg hơn (món cuối) → bay thẳng tới 80kg
+            const kgGain = it.isLetter ? LETTER_KG_BONUS : KG_PER_ITEM;
+            currentKg = Math.min(WIN_KG, currentKg + kgGain);
             spawnFloatingKg(it.x, it.y);
             playCollectSound();
-            if (score >= TARGET_SCORE) {
+            if (score >= TARGET_SCORE || currentKg >= WIN_KG) {
               gameWin();
               return;
             }
@@ -1651,22 +1697,123 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         });
 
       // Vẽ items - theo natural ratio
+      // Vẽ 1 lá thư bằng code (envelope + trái tim seal + sparkle glow)
+      function drawLetter(x, y, size, wobbleT) {
+        ctx.save();
+        ctx.translate(x, y);
+        // Sparkle glow nhẹ phía sau
+        const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.9);
+        glowGrad.addColorStop(0, 'rgba(255, 215, 0, 0.35)');
+        glowGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        ctx.fillStyle = glowGrad;
+        ctx.fillRect(-size, -size, size * 2, size * 2);
+
+        // Thân envelope (hình chữ nhật bo góc)
+        const w = size * 1.4;
+        const h = size * 0.95;
+        const r = 6;  // bo góc
+        ctx.fillStyle = '#fef3c7';  // giấy vàng nhạt
+        ctx.strokeStyle = '#92400e';  // viền nâu
+        ctx.lineWidth = 2.5;
+        roundRect(ctx, -w / 2, -h / 2, w, h, r);
+        ctx.fill();
+        ctx.stroke();
+
+        // Nắp envelope (hình tam giác ở trên)
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.moveTo(-w / 2, -h / 2);
+        ctx.lineTo(0, h * 0.15);
+        ctx.lineTo(w / 2, -h / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Heart seal ở giữa
+        const heartSize = size * 0.25;
+        drawHeart(ctx, 0, h * 0.18, heartSize, '#ef4444');
+
+        // Sparkle particles nhỏ bay quanh (4 góc)
+        const sparkCount = 4;
+        for (let i = 0; i < sparkCount; i++) {
+          const angle = (wobbleT * 0.5) + (i * Math.PI * 2 / sparkCount);
+          const dist = size * 0.85;
+          const sx = Math.cos(angle) * dist;
+          const sy = Math.sin(angle) * dist;
+          const sparkleSize = 2 + Math.sin(wobbleT * 2 + i) * 1.2;
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(sx, sy, sparkleSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      // Helper: vẽ hình chữ nhật bo góc
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      // Helper: vẽ trái tim
+      function drawHeart(ctx, cx, cy, size, color) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#7f1d1d';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const t = size * 0.3;
+        ctx.moveTo(cx, cy + t);
+        ctx.bezierCurveTo(cx, cy, cx - t, cy - t, cx - t * 1.5, cy - t * 0.5);
+        ctx.bezierCurveTo(cx - t * 2, cy, cx, cy + t * 1.2, cx, cy + t * 2.2);
+        ctx.bezierCurveTo(cx, cy + t * 1.2, cx + t * 2, cy, cx + t * 1.5, cy - t * 0.5);
+        ctx.bezierCurveTo(cx + t, cy - t, cx, cy, cx, cy + t);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
       items.forEach(it => {
-        if (it.collected || !it.sprite.complete) return;
-        const nw = it.sprite.naturalWidth || 60;
-        const nh = it.sprite.naturalHeight || 60;
-        // Collectible max 90x90 (frame lớn hơn 1.5x)
-        const maxDim = 90;
-        const ratio = Math.min(maxDim / nw, maxDim / nh);
-        const w = nw * ratio;
-        const h = nh * ratio;
+        if (it.collected) return;
+
         // Wobble: lắc ±15° quanh Y + bay ±5px theo Y
         const t = (it.wobblePhase || 0);
         const sway = Math.sin(t) * 0.26;  // ±0.26 rad ≈ ±15°
         const bobY = Math.cos(t * 1.3) * 5;  // ±5px
+
+        if (it.isLetter) {
+          // Vẽ lá thư bằng code (envelope + heart + sparkle)
+          const size = 42;  // kích thước lá thư (90x60)
+          ctx.save();
+          ctx.translate(it.x, it.y + bobY);
+          ctx.scale(Math.cos(sway), 1);
+          drawLetter(0, 0, size, t);
+          ctx.restore();
+          return;
+        }
+
+        if (!it.sprite || !it.sprite.complete) return;
+        const nw = it.sprite.naturalWidth || 60;
+        const nh = it.sprite.naturalHeight || 60;
+        // Collectible max 90x90
+        const maxDim = 90;
+        const ratio = Math.min(maxDim / nw, maxDim / nh);
+        const w = nw * ratio;
+        const h = nh * ratio;
         ctx.save();
         ctx.translate(it.x, it.y + bobY);
-        ctx.scale(Math.cos(sway), 1);  // nghiêng trục X (mặt phẳng YZ)
+        ctx.scale(Math.cos(sway), 1);
         ctx.drawImage(it.sprite, -w / 2, -h / 2, w, h);
         ctx.restore();
       });
@@ -2076,8 +2223,9 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Buttons
         document.getElementById('btnStartGame').addEventListener('click', startGame);
-        document.getElementById('btnRetry').addEventListener('click', () => {
-          state = 'idle';
+
+        // Reset game state → gọi lại startGame
+        function resetGame() {
           bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
           pipes = [];
           items = [];
@@ -2085,17 +2233,41 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           currentKg = BASE_KG;
           frameCount = 0;
           document.getElementById('loseScreen').style.display = 'none';
+          document.getElementById('winScreen').style.display = 'none';
+          document.getElementById('passwordError').textContent = '';
+          document.getElementById('passwordInput').value = '';
+        }
+
+        document.getElementById('btnRetry').addEventListener('click', () => {
+          state = 'idle';
+          resetGame();
           startGame();
         });
         document.getElementById('closeGameBtn').addEventListener('click', () => {
           // Nút × ở góc → quay về trang chủ bersious.io.vn
           window.location.href = 'https://bersious.io.vn/';
         });
-        // Nút "Về trang chủ" trên lose/win screen
+        // Nút "Về trang chủ" trên lose screen
         const btnHomeLose = document.getElementById('btnHomeLose');
         if (btnHomeLose) {
           btnHomeLose.addEventListener('click', () => {
             window.location.href = 'https://bersious.io.vn/';
+          });
+        }
+        // Nút "Về trang chủ" trên win screen
+        const btnHomeWin = document.getElementById('btnHomeWin');
+        if (btnHomeWin) {
+          btnHomeWin.addEventListener('click', () => {
+            window.location.href = 'https://bersious.io.vn/';
+          });
+        }
+        // Nút "Chơi lại" trên win screen
+        const btnReplayWin = document.getElementById('btnReplayWin');
+        if (btnReplayWin) {
+          btnReplayWin.addEventListener('click', () => {
+            state = 'idle';
+            resetGame();
+            startGame();
           });
         }
       }
