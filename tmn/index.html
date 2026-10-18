@@ -1187,7 +1187,7 @@
       <div class="game-screen" id="startScreen">
         <h2>🐥 ChuppyBird</h2>
         <p>Click chuột / chạm / nhấn <strong>Space</strong> để vịt bay lên.<br>
-        Lụm <strong>15 món</strong> (ly trà sữa + bún bò) để vịt đạt <strong>80 kg</strong>.<br>
+        Lụm <strong>15 món</strong> (trà sữa, bún bò, bánh ngọt) để vịt đạt <strong>80 kg</strong>.<br>
         Càng mập càng khó bay, cẩn thận kẻo đâm cột nhé!</p>
         <button class="btn-play" id="btnStartGame" disabled>
           <span class="btn-play-text">⏳ Đang tải...</span>
@@ -1645,8 +1645,8 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           duckSprites[kg] = img;  // 1 sprite, không cần mảng frame
         });
 
-        // 3) Collectibles (6 trà + 1 bún)
-        const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue'];
+        // 3) Collectibles (6 trà + 1 bún + 2 bánh = 9 item)
+        const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue', 'cake-flan', 'cake-tart'];
         collectibleNames.forEach(name => {
           const img = new Image();
           assetsTotal++;
