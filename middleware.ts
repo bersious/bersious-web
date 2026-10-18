@@ -1,56 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
 /**
- * Edge Middleware — log every visitor to Vercel KV
+ * Edge Middleware — log every visitor to Upstash Redis.
  * Captures: timestamp, IP, user-agent, country/city/region (from Vercel headers),
  *           device type, browser, OS, referrer, path.
  *
- * Cost: 1 KV read + 1 KV write per request.
  * Skips: /api/* (own internal calls) and /secret-stats (caller, not visitor).
+ * Safe: any error here is swallowed — middleware NEVER blocks the page.
  */
 export const config = {
-  // Match all paths except static assets and internal endpoints
   matcher: [
     '/((?!_next/|favicon|assets/|api/visitors|secret-stats|sw\\.js|manifest\\.json).*)',
   ],
 };
 
 interface VisitorEntry {
-  ts: number;        // epoch ms
+  ts: number;
   ip: string;
   city: string;
   country: string;
   region: string;
   ua: string;
-  device: string;    // mobile | tablet | desktop | bot
+  device: string;
   browser: string;
   os: string;
-  ref: string;       // referrer host
+  ref: string;
   path: string;
   lang: string;
 }
 
-const MAX_ENTRIES = 2000; // ring buffer cap
+const MAX_ENTRIES = 2000;
+
+// Lazily-initialized Redis client. We try multiple env var name shapes
+// because Upstash names them based on the database name (e.g. "dailys_KV_REST_API_URL")
+// while @upstash/redis reads the standard "UPSTASH_REDIS_REST_URL".
+let redisClient: Redis | null = null;
+let redisInitTried = false;
+
+function getRedis(): Redis | null {
+  if (redisInitTried) return redisClient;
+  redisInitTried = true;
+  try {
+    const url =
+      process.env.UPSTASH_REDIS_REST_URL ||
+      process.env.KV_REST_API_URL ||
+      process.env.dailys_KV_REST_API_URL ||
+      process.env.bersious_visitors_KV_REST_API_URL;
+    const token =
+      process.env.UPSTASH_REDIS_REST_TOKEN ||
+      process.env.KV_REST_API_TOKEN ||
+      process.env.dailys_KV_REST_API_TOKEN ||
+      process.env.bersious_visitors_KV_REST_API_TOKEN;
+    if (!url || !token) {
+      console.warn('[middleware] Redis env vars not found — logging disabled');
+      return null;
+    }
+    redisClient = new Redis({ url, token });
+    return redisClient;
+  } catch (e) {
+    console.error('[middleware] Failed to init Redis client:', e);
+    return null;
+  }
+}
 
 function parseDevice(ua: string): { device: string; browser: string; os: string } {
   const u = ua.toLowerCase();
-  // Bot detection
   if (/(bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|discord|preview|monitor)/.test(u)) {
     return { device: 'bot', browser: 'bot', os: 'bot' };
   }
-  // Device
   let device = 'desktop';
   if (/ipad|tablet|playbook|silk/.test(u)) device = 'tablet';
   else if (/mobi|android|iphone|ipod|blackberry|iemobile|opera mini/.test(u)) device = 'mobile';
-  // Browser
   let browser = 'unknown';
   if (/edg\//.test(u)) browser = 'Edge';
   else if (/opr\/|opera/.test(u)) browser = 'Opera';
   else if (/chrome|crios/.test(u)) browser = 'Chrome';
   else if (/firefox|fxios/.test(u)) browser = 'Firefox';
   else if (/safari/.test(u)) browser = 'Safari';
-  // OS
   let os = 'unknown';
   if (/windows nt/.test(u)) os = 'Windows';
   else if (/mac os x|macintosh/.test(u)) os = 'macOS';
@@ -60,7 +87,7 @@ function parseDevice(ua: string): { device: string; browser: string; os: string 
   return { device, browser, os };
 }
 
-function stripQuery(url: string): string {
+function stripQueryHost(url: string): string {
   try {
     const u = new URL(url);
     return u.host;
@@ -70,39 +97,48 @@ function stripQuery(url: string): string {
 }
 
 export default async function middleware(req: NextRequest) {
-  // Build response first — never block the page
+  // Build response FIRST so the page is never blocked, even if logging crashes
   const res = NextResponse.next();
 
-  // Only log GET (skip preflight, POSTs, etc.)
+  // Only log GET
   if (req.method !== 'GET') return res;
 
-  const ua = req.headers.get('user-agent') || '';
-  const { device, browser, os } = parseDevice(ua);
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    req.headers.get('x-real-ip') ||
-    '0.0.0.0';
+  // Try to log, but EVERY error is caught — never break the user's page
+  try {
+    const redis = getRedis();
+    if (!redis) return res; // env not configured → silent skip
 
-  const entry: VisitorEntry = {
-    ts: Date.now(),
-    ip,
-    city: req.headers.get('x-vercel-ip-city') || '',
-    country: req.headers.get('x-vercel-ip-country') || '',
-    region: req.headers.get('x-vercel-ip-region') || '',
-    ua,
-    device,
-    browser,
-    os,
-    ref: stripQuery(req.headers.get('referer') || ''),
-    path: req.nextUrl.pathname,
-    lang: (req.headers.get('accept-language') || '').split(',')[0] || '',
-  };
+    const ua = req.headers.get('user-agent') || '';
+    const { device, browser, os } = parseDevice(ua);
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      '0.0.0.0';
 
-  // Fire-and-forget: log to KV without awaiting (don't slow down page)
-  kv
-    .lpush('visitors:log', JSON.stringify(entry))
-    .then(() => kv.ltrim('visitors:log', 0, MAX_ENTRIES - 1))
-    .catch((err) => console.error('[middleware] KV log failed:', err));
+    const entry: VisitorEntry = {
+      ts: Date.now(),
+      ip,
+      city: req.headers.get('x-vercel-ip-city') || '',
+      country: req.headers.get('x-vercel-ip-country') || '',
+      region: req.headers.get('x-vercel-ip-region') || '',
+      ua,
+      device,
+      browser,
+      os,
+      ref: stripQueryHost(req.headers.get('referer') || ''),
+      path: req.nextUrl.pathname,
+      lang: (req.headers.get('accept-language') || '').split(',')[0] || '',
+    };
+
+    // Fire-and-forget — don't await (don't slow page). Cap list at MAX_ENTRIES.
+    redis
+      .lpush('visitors:log', JSON.stringify(entry))
+      .then(() => redis.ltrim('visitors:log', 0, MAX_ENTRIES - 1))
+      .catch((err) => console.error('[middleware] Redis log failed:', err));
+  } catch (err) {
+    // Last-resort safety net — middleware must NEVER crash
+    console.error('[middleware] Unexpected error:', err);
+  }
 
   return res;
 }
