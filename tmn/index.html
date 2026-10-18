@@ -1405,38 +1405,83 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const PASSWORD_HASH = btoa('171');
 
       // ===== ASSETS (preload) =====
-      const duckSprites = {};   // duckSprites['30'] = Image, ...
+      const duckFrames = {};   // duckFrames[kg][frameIndex] = Image (3 frames per kg)
       const collectibles = [];  // 7 sprite (6 trà + 1 bún)
-      const pipeSprite = new Image();
+      const powerups = [];      // 4 sprite (sao, ớt, heart, bom)
+      const pipeTopSprite = new Image();
+      const pipeBottomSprite = new Image();
+      const bgFar = new Image();
+      const bgMid = new Image();
+      const bgNear = new Image();
 
       let assetsLoaded = 0;
       let assetsTotal = 0;
 
+      function markAssetLoaded() {
+        assetsLoaded++;
+        if (assetsLoaded === assetsTotal) {
+          if (window._allAssetsCallback) window._allAssetsCallback();
+        }
+      }
+
       function preloadAssets(onAllLoaded) {
-        const duckWeights = ['30', '45', '60', '70', '80'];
-        assetsTotal += duckWeights.length;
-        duckWeights.forEach(kg => {
-          const img = new Image();
-          img.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
-          img.onerror = () => { console.error('Failed to load duck', kg); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
-          img.src = `${ASSETS_BASE}duck-${kg}kg.png`;
-          duckSprites[kg] = img;
+        window._allAssetsCallback = onAllLoaded;
+
+        // 1) Backgrounds (3 lớp parallax)
+        ['bg-far', 'bg-mid', 'bg-near'].forEach(name => {
+          const img = name === 'bg-far' ? bgFar : (name === 'bg-mid' ? bgMid : bgNear);
+          assetsTotal++;
+          img.onload = markAssetLoaded;
+          img.onerror = () => { console.error('Failed to load bg', name); markAssetLoaded(); };
+          img.src = `${ASSETS_BASE}${name}.png`;
         });
 
+        // 2) Duck frames (5 con vịt × 3 frame bay)
+        const duckWeights = ['30', '45', '60', '70', '80'];
+        duckWeights.forEach(kg => {
+          duckFrames[kg] = [];
+          for (let f = 1; f <= 3; f++) {
+            const img = new Image();
+            assetsTotal++;
+            img.onload = markAssetLoaded;
+            img.onerror = () => { console.error(`Failed to load duck-${kg}kg-f${f}`); markAssetLoaded(); };
+            img.src = `${ASSETS_BASE}duck-${kg}kg-f${f}.png`;
+            duckFrames[kg].push(img);
+          }
+        });
+
+        // 3) Collectibles (6 trà + 1 bún)
         const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue'];
-        assetsTotal += collectibleNames.length;
         collectibleNames.forEach(name => {
           const img = new Image();
-          img.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
-          img.onerror = () => { console.error('Failed to load', name); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+          assetsTotal++;
+          img.onload = markAssetLoaded;
+          img.onerror = () => { console.error('Failed to load', name); markAssetLoaded(); };
           img.src = `${ASSETS_BASE}${name}.png`;
           collectibles.push(img);
         });
 
-        assetsTotal += 1;
-        pipeSprite.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
-        pipeSprite.onerror = () => { console.error('Failed to load pipe'); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
-        pipeSprite.src = `${ASSETS_BASE}pipe.png`;
+        // 4) Powerups (4 loại)
+        const powerupNames = ['star', 'chili', 'heart', 'bomb'];
+        powerupNames.forEach(name => {
+          const img = new Image();
+          assetsTotal++;
+          img.onload = markAssetLoaded;
+          img.onerror = () => { console.error('Failed to load', name); markAssetLoaded(); };
+          img.src = `${ASSETS_BASE}${name}.png`;
+          powerups.push(img);
+        });
+
+        // 5) Pipes (2 loại riêng: top thòng từ trên, bottom mọc từ dưới)
+        assetsTotal++;
+        pipeTopSprite.onload = markAssetLoaded;
+        pipeTopSprite.onerror = () => { console.error('Failed to load pipe-top'); markAssetLoaded(); };
+        pipeTopSprite.src = `${ASSETS_BASE}pipe-top.png`;
+
+        assetsTotal++;
+        pipeBottomSprite.onload = markAssetLoaded;
+        pipeBottomSprite.onerror = () => { console.error('Failed to load pipe-bottom'); markAssetLoaded(); };
+        pipeBottomSprite.src = `${ASSETS_BASE}pipe-bottom.png`;
       }
 
       // ===== GAME STATE =====
@@ -1458,11 +1503,14 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const gapY = minGapY + Math.random() * (maxGapY - minGapY);
         pipes.push({ x: CANVAS_W + 50, gapY, passed: false });
 
-        // Spawn 1 item ngẫu nhiên trong gap
+        // Spawn 1 item ngẫu nhiên trong gap: 75% collectible (trà/bún), 25% powerup
         const itemX = CANVAS_W + 50 + PIPE_SPACING / 2;
         const itemY = gapY + PIPE_GAP / 2 - 30;  // giữa gap, trừ 30 để căn giữa item
-        const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
-        items.push({ x: itemX, y: itemY, sprite, collected: false });
+        const isPowerup = Math.random() < 0.25;
+        const pool = isPowerup ? powerups : collectibles;
+        if (pool.length === 0) return;
+        const sprite = pool[Math.floor(Math.random() * pool.length)];
+        items.push({ x: itemX, y: itemY, sprite, collected: false, isPowerup });
       }
 
       // ===== UPDATE LOOP =====
@@ -1532,50 +1580,73 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
       // ===== RENDER =====
       function render() {
-        // Background: gradient sky
+        // Background: 3 lớp parallax (far/mid/near) + gradient fallback
+        // Lớp 1: Gradient nền (nếu bg chưa load)
         const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
         grad.addColorStop(0, '#bae6fd');  // sky-200
         grad.addColorStop(0.6, '#e0f2fe');
-        grad.addColorStop(1, '#fef3c7');  // vàng nhạt phía dưới (mặt nước)
+        grad.addColorStop(1, '#fef3c7');  // vàng nhạt phía dưới
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-        // Vẽ pipes
+        // Lớp 2: bg-far (chậm nhất)
+        if (bgFar.complete && bgFar.naturalWidth > 0) {
+          const farOffset = (frameCount * 0.3) % bgFar.naturalWidth;
+          // Tile theo chiều ngang để cuộn
+          for (let x = -farOffset; x < CANVAS_W; x += bgFar.naturalWidth) {
+            ctx.drawImage(bgFar, x, 0, bgFar.naturalWidth, CANVAS_H);
+          }
+        }
+        // Lớp 3: bg-mid (vừa)
+        if (bgMid.complete && bgMid.naturalWidth > 0) {
+          const midOffset = (frameCount * 0.8) % bgMid.naturalWidth;
+          for (let x = -midOffset; x < CANVAS_W; x += bgMid.naturalWidth) {
+            ctx.drawImage(bgMid, x, 0, bgMid.naturalWidth, CANVAS_H);
+          }
+        }
+        // Lớp 4: bg-near (nhanh nhất)
+        if (bgNear.complete && bgNear.naturalWidth > 0) {
+          const nearOffset = (frameCount * 1.5) % bgNear.naturalWidth;
+          for (let x = -nearOffset; x < CANVAS_W; x += bgNear.naturalWidth) {
+            ctx.drawImage(bgNear, x, 0, bgNear.naturalWidth, CANVAS_H);
+          }
+        }
+
+        // Vẽ pipes - dùng 2 sprite riêng (top + bottom)
         pipes.forEach(p => {
           const pipeW = 80;
           const topH = p.gapY;
           const botY = p.gapY + PIPE_GAP;
           const botH = CANVAS_H - botY;
 
-          // Top pipe
-          drawPipeSegment(p.x, 0, pipeW, topH);
-          // Bottom pipe
-          drawPipeSegment(p.x, botY, pipeW, botH);
+          // Top pipe: ống thòng từ trên xuống (vành ở dưới, kéo dài lên trần)
+          drawPipeTop(p.x, 0, pipeW, topH);
+          // Bottom pipe: ống mọc từ dưới lên (vành ở trên, kéo dài xuống đáy)
+          drawPipeBottom(p.x, botY, pipeW, botH);
         });
 
-      // Vẽ items - theo natural ratio để không méo
+      // Vẽ items - theo natural ratio
       items.forEach(it => {
         if (it.collected || !it.sprite.complete) return;
         const nw = it.sprite.naturalWidth || 60;
         const nh = it.sprite.naturalHeight || 60;
-        // Fit vào max 60x60 giữ tỉ lệ
-        const maxDim = 60;
+        // Collectible max 60x60, powerup max 50x50
+        const maxDim = it.isPowerup ? 50 : 60;
         const ratio = Math.min(maxDim / nw, maxDim / nh);
         const w = nw * ratio;
         const h = nh * ratio;
         ctx.drawImage(it.sprite, it.x - w/2, it.y - h/2, w, h);
       });
 
-      // Vẽ vịt - theo natural ratio
-      const currentSprite = duckSprites[String(currentKg)];
-      if (currentSprite && currentSprite.complete) {
+      // Vẽ vịt - dùng 3 frame animation (vỗ cánh) theo wingPhase
+      const frames = duckFrames[String(currentKg)];
+      const frameIdx = frames ? Math.floor(bird.wingPhase / 1.2) % 3 : 0;
+      const currentSprite = frames ? frames[frameIdx] : null;
+      if (currentSprite && currentSprite.complete && currentSprite.naturalWidth > 0) {
         ctx.save();
         ctx.translate(bird.x, bird.y);
         ctx.rotate(bird.rotation);
-        // Wing flap: scale Y nhẹ theo sin(wingPhase)
-        const wingScale = 1 + Math.sin(bird.wingPhase) * 0.08;
-        ctx.scale(1, wingScale);
-        // Fit vịt vào max 80x80 giữ tỉ lệ (duck sprite thường vuông ~280x280)
+        // Fit vịt vào max 80x80 giữ tỉ lệ
         const nw = currentSprite.naturalWidth || 280;
         const nh = currentSprite.naturalHeight || 280;
         const maxDim = 80;
@@ -1591,52 +1662,57 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         ctx.arc(bird.x, bird.y, BIRD_RADIUS, 0, Math.PI * 2);
         ctx.fill();
       }
-
-      // Vẽ "ground" mờ phía dưới (cho cảm giác có rơi xuống đất)
-      ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
-      ctx.fillRect(0, CANVAS_H - 8, CANVAS_W, 8);
     }
 
-      function drawPipeSegment(x, y, w, h) {
-        if (!pipeSprite.complete) {
-          // Fallback: vẽ hình chữ nhật xanh
-          ctx.fillStyle = '#86efac';
+      // Top pipe: ống thòng từ TRÊN xuống (vành ở dưới cùng, thân kéo lên trần)
+      // Sprite pipe-top.png có vành ở DƯỚI + thân kéo lên
+      // Vẽ bằng cách: flip ngược sprite (vì sprite gốc có vành ở dưới nhưng vẽ lên trần cần vành ở đáy của hình vẽ)
+      function drawPipeTop(x, y, w, h) {
+        if (!pipeTopSprite.complete || pipeTopSprite.naturalWidth === 0) {
+          ctx.fillStyle = '#f9a8d4';
           ctx.fillRect(x, y, w, h);
           return;
         }
-        // Vẽ bobbin pipe: stretch sprite theo chiều dài
-        // Sprite pipe.png là bobbin (cap trên + body + cap dưới), chiều cao gốc ~280px
-        // Strategy: tile sprite theo chiều dọc, cap ở 2 đầu
-        const spriteH = pipeSprite.naturalHeight || 280;
-        const capH = Math.min(40, spriteH * 0.15);
-        const bodyH = spriteH - 2 * capH;
-
-        // Cap đầu (ở y)
-        ctx.drawImage(pipeSprite,
-          0, 0, pipeSprite.naturalWidth, capH,  // source
-          x, y, w, capH                            // dest
+        const spriteW = pipeTopSprite.naturalWidth;
+        const spriteH = pipeTopSprite.naturalHeight;
+        // Vành thường = 15-20% chiều cao sprite
+        const capH = Math.min(h * 0.18, spriteH * 0.2);
+        const bodyH = h - capH;
+        // Body kéo lên trên (phần trên của sprite = thân)
+        const bodySrcRatio = (spriteH - spriteH * 0.2) / spriteH; // lấy 80% trên của sprite
+        ctx.drawImage(pipeTopSprite,
+          0, 0, spriteW, spriteH * bodySrcRatio,  // source: thân (80% trên)
+          x, y, w, bodyH                             // dest: kéo lên trần
         );
-        // Body: tile nhiều lần
-        const remainingH = h - capH;
-        if (remainingH > 0) {
-          const bodyStart = y + capH;
-          let drawn = 0;
-          while (drawn < remainingH - capH) {
-            const drawH = Math.min(bodyH, remainingH - capH - drawn);
-            ctx.drawImage(pipeSprite,
-              0, capH, pipeSprite.naturalWidth, bodyH,  // source: body
-              x, bodyStart + drawn, w, drawH             // dest
-            );
-            drawn += drawH;
-          }
-          // Cap cuối
-          if (remainingH > capH) {
-            ctx.drawImage(pipeSprite,
-              0, spriteH - capH, pipeSprite.naturalWidth, capH,
-              x, y + h - capH, w, capH
-            );
-          }
+        // Vành ở dưới cùng (lấy phần dưới 20% của sprite)
+        ctx.drawImage(pipeTopSprite,
+          0, spriteH * 0.8, spriteW, spriteH * 0.2,  // source: vành (20% dưới)
+          x, y + bodyH, w, capH                       // dest: ngay trên gap
+        );
+      }
+
+      // Bottom pipe: ống mọc từ DƯỚI lên (vành ở trên cùng, thân kéo xuống đáy)
+      function drawPipeBottom(x, y, w, h) {
+        if (!pipeBottomSprite.complete || pipeBottomSprite.naturalWidth === 0) {
+          ctx.fillStyle = '#f9a8d4';
+          ctx.fillRect(x, y, w, h);
+          return;
         }
+        const spriteW = pipeBottomSprite.naturalWidth;
+        const spriteH = pipeBottomSprite.naturalHeight;
+        const capH = Math.min(h * 0.18, spriteH * 0.2);
+        const bodyH = h - capH;
+        // Vành ở trên cùng (lấy phần trên 20% của sprite)
+        ctx.drawImage(pipeBottomSprite,
+          0, 0, spriteW, spriteH * 0.2,  // source: vành (20% trên)
+          x, y, w, capH                   // dest: ngay dưới gap
+        );
+        // Body kéo xuống dưới (lấy 80% dưới của sprite)
+        const bodySrcRatio = (spriteH - spriteH * 0.2) / spriteH;
+        ctx.drawImage(pipeBottomSprite,
+          0, spriteH * 0.2, spriteW, spriteH * bodySrcRatio,
+          x, y + capH, w, bodyH
+        );
       }
 
       // ===== GAME LOOP =====
