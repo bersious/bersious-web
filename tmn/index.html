@@ -1674,6 +1674,14 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
     });
 
     function drawNature() {
+      // Tối ưu cực đại: Nếu đang trong màn chơi game (letterSection chưa hiển thị),
+      // TẠM DỪNG toàn bộ render hoa cúc & hiệu ứng nền thư để nhường 100% CPU/GPU cho game 60fps!
+      const letterSec = document.getElementById('letterSection');
+      if (!letterSec || letterSec.style.display === 'none') {
+        requestAnimationFrame(drawNature);
+        return;
+      }
+
       ctx.clearRect(0, 0, w, h);
 
       if (currentVibe === 'water') {
