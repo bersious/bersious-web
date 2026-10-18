@@ -422,131 +422,7 @@
       color: #104257;
     }
 
-    /* 3 thẻ tương tác dí dỏm */
-    .interactive-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
-      margin: 32px 0 25px;
-    }
-
-    .cozy-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 20px;
-      border: 1px solid rgba(56, 178, 128, 0.25);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    body.sky-mode .cozy-card {
-      border-color: rgba(245, 186, 56, 0.3);
-    }
-
-    .cozy-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(45, 155, 110, 0.18);
-      background: #fafffc;
-    }
-
-    body.sky-mode .cozy-card:hover {
-      box-shadow: 0 10px 25px rgba(234, 179, 8, 0.2);
-      background: #fffdf5;
-    }
-
-    .cozy-card .card-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-
-    .cozy-card .card-title {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 6px;
-      color: #11573c;
-    }
-
-    body.sky-mode .cozy-card .card-title {
-      color: #155570;
-    }
-
-    .cozy-card .card-desc {
-      font-size: 0.88rem;
-      line-height: 1.5;
-      color: #436657;
-    }
-
-    body.sky-mode .cozy-card .card-desc {
-      color: #3b667a;
-    }
-
-    /* VOUCHER 20/10 */
-    .voucher-box {
-      background: linear-gradient(135deg, #e6f7ef 0%, #f0fdf7 100%);
-      border: 2px dashed #6ee7b7;
-      border-radius: 22px;
-      padding: 24px;
-      text-align: center;
-      margin-top: 25px;
-      transition: all 0.5s;
-    }
-
-    body.sky-mode .voucher-box {
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-      border-color: #fcd34d;
-    }
-
-    .voucher-title {
-      font-weight: 700;
-      font-size: 1.15rem;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: #0a4f34;
-    }
-
-    body.sky-mode .voucher-title {
-      color: #854d0e;
-    }
-
-    .voucher-pill-grid {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .voucher-item {
-      background: #ffffff;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #0d6342;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      border: 1px solid #a7f3d0;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    body.sky-mode .voucher-item {
-      color: #854d0e;
-      border-color: #fde68a;
-    }
-
-    .voucher-item:hover {
-      transform: scale(1.06);
-      background: #10b981;
-      color: #fff;
-    }
-
-    body.sky-mode .voucher-item:hover {
-      background: #eab308;
-      color: #fff;
-    }
+    /* 3 thẻ tương tác & Voucher đã được gỡ theo yêu cầu của người dùng */
 
     /* Chữ ký */
     .letter-footer {
@@ -765,22 +641,7 @@
         <span>Quạc!</span> Đang trôi rất chill... 🌿
       </div>
 
-      <!-- Các nút tương tác đã được tạm ẩn theo yêu cầu -->
-
-      <!-- Nút tương tác ẩn - gỡ tạm thời theo yêu cầu của người dùng -->
-      <!--
-      <div class="action-button-row" id="actionButtonRow">
-        <button class="action-btn btn-featured" onclick="feedBread()">
-          <span>🍞</span> Cho vịt ăn bánh mì
-        </button>
-        <button class="action-btn" onclick="pokeDuck()">
-          <span>👉</span> Chọc bụng vịt
-        </button>
-        <button class="action-btn" onclick="quackDuck()">
-          <span>🔊</span> Nghe vịt quạc
-        </button>
-      </div>
-      -->
+      <!-- Các nút tương tác (Cho vịt ăn/Chọc vịt/Quạc) đã được gỡ hoàn toàn theo yêu cầu -->
     </div>
 
     <!-- BỨC THƯ 20/10 CHỮA LÀNH -->
@@ -802,40 +663,6 @@
         <p>
           Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ thật đẫy giấc, bớt quạu và luôn luôn đáng yêu như bây giờ nhé!
         </p>
-      </div>
-
-      <!-- 3 thẻ tương tác dễ thương -->
-      <div class="interactive-grid">
-        <div class="cozy-card" onclick="popWord(this, 'Ăn ngon là chân ái! 🍜')">
-          <div class="card-icon">🥞</div>
-          <div class="card-title">Đặc Quyền Ăn Uống</div>
-          <div class="card-desc">Hôm nay thích ăn gì cứ bảo, không phải nghĩ ngợi hay đắn đo chuyện giữ dáng!</div>
-        </div>
-
-        <div class="cozy-card" onclick="popWord(this, 'Chill thôi, việc gì phải xoắn! 🌼')">
-          <div class="card-icon">✨</div>
-          <div class="card-title">Thần Chú Vô Ưu</div>
-          <div class="card-desc">Dẹp hết deadline và phiền muộn sang một bên, chỉ cần tận hưởng ngày hôm nay thôi nhé.</div>
-        </div>
-
-        <div class="cozy-card" onclick="popWord(this, 'Bảo kê 24/7! 🛡️')">
-          <div class="card-icon">🦆</div>
-          <div class="card-title">Bảo Hộ Độc Quyền</div>
-          <div class="card-desc">Có bất cứ chuyện gì ấm ức, cứ việc quạc vào mặt anh để xả giận, anh nhận hết!</div>
-        </div>
-      </div>
-
-      <!-- KHU VỰC VOUCHER 20/10 -->
-      <div class="voucher-box">
-        <div class="voucher-title">
-          <span>🎁</span> BỘ VOUCHER ĐẶC QUYỀN 20/10 CHO VỊT:
-        </div>
-        <div class="voucher-pill-grid">
-          <div class="voucher-item" onclick="claimVoucher('Voucher Trà Sữa Full Topping')">🧋 1 Ly Trà Sữa Tùy Chọn</div>
-          <div class="voucher-item" onclick="claimVoucher('Voucher Miễn Trách Nhiệm Quạu 24h')">💆 Không Quạu Trong 24h</div>
-          <div class="voucher-item" onclick="claimVoucher('Voucher Đèo Đi Dạo Hóng Gió')">🛵 1 Chuyến Đi Dạo Lộng Gió</div>
-          <div class="voucher-item" onclick="claimVoucher('Voucher Xoa Bóp Đầu / Vai Gáy')">💤 Ôm & Vỗ Về Vô Điều Kiện</div>
-        </div>
       </div>
 
       <!-- Chữ ký -->
@@ -906,34 +733,7 @@ Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ th�
       'Cười một cái cho bầu trời bừng sáng coi!'
     ];
 
-    function renderActionButtons() {
-      const container = document.getElementById('actionButtonRow');
-      if (currentVibe === 'water') {
-        container.innerHTML = `
-          <button class="action-btn btn-featured" onclick="feedBread()">
-            <span>🍞</span> Cho vịt ăn bánh mì
-          </button>
-          <button class="action-btn" onclick="pokeDuck()">
-            <span>👉</span> Chọc bụng vịt
-          </button>
-          <button class="action-btn" onclick="quackDuck()">
-            <span>🔊</span> Nghe vịt quạc
-          </button>
-        `;
-      } else {
-        container.innerHTML = `
-          <button class="action-btn btn-featured" onclick="giveFlower()">
-            <span>🌼</span> Tặng hoa cúc vàng
-          </button>
-          <button class="action-btn" onclick="tickleFluff()">
-            <span>✨</span> Cù lông tơ xù
-          </button>
-          <button class="action-btn" onclick="quackDuck()">
-            <span>👀</span> Đấu mắt ngơ ngác
-          </button>
-        `;
-      }
-    }
+    /* Action buttons đã được ẩn theo yêu cầu - hàm renderActionButtons bị loại bỏ */
 
     function switchVibe(mode) {
       currentVibe = mode;
@@ -964,12 +764,10 @@ Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ th�
           quote.innerText = '"Bầu trời có hoa vàng ngập nắng, còn anh thì có em."';
           initParticlesForSky();
         }
-        renderActionButtons();
         duckImg.style.opacity = '1';
         duckImg.style.transform = '';
       }, 250);
     }
-    renderActionButtons();
 
 
     /* ========================================================
@@ -1118,10 +916,10 @@ Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ th�
 
 
     /* ========================================================
-       3. TƯƠNG TÁC ĐẶC BIỆT CỦA VỊT THEO TỪNG VIBE
+       3. KHU VỰC VỊT — ĐÃ ẨN TƯƠNG TÁC THEO YÊU CẦU
+       (Các hàm tương tác vịt được giữ lại trong source để dễ bật lại sau)
        ======================================================== */
     function quackDuck() {
-      playQuackSound();
       const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
       const speech = document.getElementById('duckSpeech');
 
@@ -1134,47 +932,6 @@ Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ th�
         speech.innerText = skyQuotes[Math.floor(Math.random() * skyQuotes.length)];
         popWordFloating(rect.left + rect.width / 2, rect.top, 'Cưng quá! 🌼', '#eab308');
       }
-    }
-
-    function feedBread() {
-      playPlopSound();
-      const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
-      addRipple(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.8);
-      document.getElementById('duckSpeech').innerText = 'Ngon quá! Đớp 1 miếng bánh mì to! 🍞';
-      popWordFloating(rect.left + rect.width / 2, rect.top + 40, '+100 Điểm Hạnh Phúc 🍞', '#f59e0b');
-    }
-
-    function pokeDuck() {
-      playBoingSound();
-      wiggleAvatar();
-      document.getElementById('duckSpeech').innerText = 'Nhột quá nhột quá! Tha cho tuiii! 🤣';
-      const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
-      popWordFloating(rect.left + rect.width / 2, rect.top, 'Chọc chọc 👉', '#10b981');
-    }
-
-    function giveFlower() {
-      playChimeSound();
-      const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
-      burstPetals(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      document.getElementById('duckSpeech').innerText = 'Cảm ơn nha! Bông hoa vàng đẹp quá trời nè! 🌼';
-      popWordFloating(rect.left + rect.width / 2, rect.top + 30, 'Tặng Hoa Cho Nàng 🌼', '#eab308');
-    }
-
-    function tickleFluff() {
-      playBoingSound();
-      wiggleAvatar();
-      document.getElementById('duckSpeech').innerText = 'Lông tơ bay lung tung rồi nè bạn ơi! ✨';
-      const rect = document.getElementById('duckAvatarFrame').getBoundingClientRect();
-      popWordFloating(rect.left + rect.width / 2, rect.top, 'Cù lông tơ xù ✨', '#38bdf8');
-    }
-
-    function wiggleAvatar() {
-      const frame = document.getElementById('duckAvatarFrame');
-      frame.style.transform = 'scale(0.92) rotate(8deg)';
-      setTimeout(() => {
-        frame.style.transform = 'scale(1.08) rotate(-7deg)';
-        setTimeout(() => frame.style.transform = '', 300);
-      }, 150);
     }
 
     function burstPetals(x, y) {
@@ -1190,15 +947,6 @@ Chúc em một ngày 20/10 thật nhiều niềm vui, ăn thật ngon, ngủ th�
           color: '#facc15'
         });
       }
-    }
-
-    function popWord(el, message) {
-      const rect = el.getBoundingClientRect();
-      popWordFloating(rect.left + rect.width / 2, rect.top, message, currentVibe === 'water' ? '#f59e0b' : '#ca8a04');
-    }
-
-    function claimVoucher(name) {
-      alert('🎉 Đã kích hoạt: [' + name + ']!\nChụp màn hình lại gửi Nhân để được phục vụ 100% nha!');
     }
 
     function popWordFloating(x, y, text, color) {
