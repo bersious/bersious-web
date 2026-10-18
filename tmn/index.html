@@ -825,24 +825,72 @@
     }
 
     @media (max-width: 650px) {
+      .viewport {
+        padding: 60px 12px 60px;
+      }
+      .nav-bar {
+        justify-content: flex-end;
+        margin-bottom: 12px;
+        gap: 8px;
+      }
+      .tool-group {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .btn-pill {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+      .vinyl-player-container {
+        width: 250px;
+        height: 250px;
+        margin: 5px auto 10px;
+      }
+      .vinyl-record {
+        width: 220px;
+        height: 220px;
+        padding: 12px;
+      }
+      .vinyl-label-center {
+        width: 130px;
+        height: 130px;
+      }
+      .tonearm {
+        right: -8px;
+        top: 2px;
+        transform: scale(0.75);
+      }
       .letter-sheet {
-        padding: 30px 22px;
+        padding: 24px 16px;
+        border-radius: 20px;
+        margin-top: 10px;
       }
       .letter-title {
-        font-size: 1.7rem;
-      }
-      .duck-portal-frame {
-        width: 240px;
-        height: 240px;
+        font-size: 1.5rem;
+        margin-top: 8px;
       }
       .letter-body {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        line-height: 1.7;
         text-align: left;
       }
-      .speech-bubble {
-        right: 10px;
-        top: -5px;
+      .letter-footer {
+        margin-top: 25px;
+        padding-top: 18px;
+      }
+      .btn-thenkiu {
+        padding: 6px 14px;
         font-size: 0.85rem;
+      }
+      .sign-name {
+        font-size: 1.4rem;
+      }
+      .spark-bubble {
+        font-size: 13px;
+        padding: 5px 10px;
       }
     }
 
@@ -1322,6 +1370,9 @@
         <button class="btn-pill" id="btnSound">
           <span id="soundIcon">🎵</span> <span id="soundLabel">Bật Nhạc Chill</span>
         </button>
+        <button class="btn-pill" id="btnToggleFx" title="Bật/Tắt hiệu ứng hoa cúc">
+          <span id="fxIcon">✨</span> <span id="fxLabel">Tắt Hiệu Ứng</span>
+        </button>
       </div>
     </div>
 
@@ -1692,11 +1743,14 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
     });
 
+    let isFxEnabled = true;
+
     function drawNature() {
-      // Tối ưu cực đại: Nếu đang trong màn chơi game (letterSection chưa hiển thị),
-      // TẠM DỪNG toàn bộ render hoa cúc & hiệu ứng nền thư để nhường 100% CPU/GPU cho game 60fps!
+      // Tối ưu cực đại: Nếu đang trong màn chơi game (letterSection chưa hiển thị)
+      // hoặc người dùng chủ động tắt hiệu ứng thì tạm dừng render
       const letterSec = document.getElementById('letterSection');
-      if (!letterSec || letterSec.style.display === 'none') {
+      if (!letterSec || letterSec.style.display === 'none' || !isFxEnabled) {
+        if (!isFxEnabled) ctx.clearRect(0, 0, w, h);
         requestAnimationFrame(drawNature);
         return;
       }
@@ -2053,6 +2107,23 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
     }
     document.getElementById('btnSound').addEventListener('click', toggleAudio);
+
+    // Bật / Tắt hiệu ứng hoa cúc & cánh hoa rơi
+    function toggleFx() {
+      isFxEnabled = !isFxEnabled;
+      const fxLabel = document.getElementById('fxLabel');
+      const fxIcon = document.getElementById('fxIcon');
+      if (isFxEnabled) {
+        if (fxLabel) fxLabel.innerText = 'Tắt Hiệu Ứng';
+        if (fxIcon) fxIcon.innerText = '✨';
+      } else {
+        if (fxLabel) fxLabel.innerText = 'Bật Hiệu Ứng';
+        if (fxIcon) fxIcon.innerText = '💤';
+        ctx.clearRect(0, 0, w, h);
+      }
+    }
+    const btnToggleFx = document.getElementById('btnToggleFx');
+    if (btnToggleFx) btnToggleFx.addEventListener('click', toggleFx);
 
 
     /* ========================================================
