@@ -486,16 +486,6 @@
       gap: 15px;
     }
 
-    .footer-quote {
-      font-size: 0.92rem;
-      color: #557567;
-      font-style: italic;
-    }
-
-    body.sky-mode .footer-quote {
-      color: #4b6e7f;
-    }
-
     .footer-sign {
       text-align: right;
     }
@@ -725,9 +715,6 @@
 
       <!-- Chữ ký -->
       <div class="letter-footer">
-        <div class="footer-quote" id="footerQuote">
-          "Cứ thoả sức tu tiên, có anh chống lưng rồi."
-        </div>
         <div class="footer-sign">
           <div class="sign-name" id="letterSender">Nhân</div>
         </div>
@@ -804,7 +791,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       const speech = document.getElementById('duckSpeech');
       const tabWater = document.getElementById('tabWater');
       const tabSky = document.getElementById('tabSky');
-      const quote = document.getElementById('footerQuote');
 
       duckImg.style.opacity = '0';
       duckImg.style.transform = 'scale(0.8)';
@@ -816,7 +802,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           tabSky.classList.remove('active');
           duckImg.src = imgData1;
           speech.innerHTML = '<span>Quạc!</span> Đang trôi rất chill... 🌿';
-          quote.innerText = '"Cứ thoả sức tu tiên, có anh chống lưng rồi."';
           initParticlesForWater();
         } else {
           document.body.classList.add('sky-mode');
@@ -824,7 +809,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           tabSky.classList.add('active');
           duckImg.src = imgData2;
           speech.innerHTML = '<span>Ủa?</span> Ai đang nhìn trộm tui đó? 🌼';
-          quote.innerText = '"Bầu trời có hoa vàng ngập nắng, còn anh thì có em."';
           initParticlesForSky();
         }
         duckImg.style.opacity = '1';
