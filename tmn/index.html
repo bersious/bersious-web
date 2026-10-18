@@ -627,6 +627,271 @@
         font-size: 0.85rem;
       }
     }
+
+    /* ===== FLAPPY DUCK MINI-GAME ===== */
+
+    /* Nút mở game ở nav-bar */
+    .btn-game {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.18), rgba(236,72,153,0.18));
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 999px;
+      color: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      white-space: nowrap;
+    }
+    .btn-game:hover {
+      background: linear-gradient(135deg, rgba(96,165,250,0.32), rgba(236,72,153,0.32));
+      border-color: rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* Overlay fullscreen */
+    .game-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(11, 13, 18, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: fadeIn 0.3s ease;
+    }
+    .game-overlay.show {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Khung game */
+    .game-frame {
+      position: relative;
+      width: min(90vw, 480px);
+      aspect-ratio: 3 / 4;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12);
+      background: #87ceeb; /* fallback sky color */
+    }
+
+    .game-frame canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* HUD: kg, điểm, nút đóng */
+    .game-hud {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .game-hud .kg-display {
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fef3c7;
+      border: 1px solid rgba(254, 243, 199, 0.32);
+      pointer-events: auto;
+    }
+    .game-hud .score-display {
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+      pointer-events: auto;
+    }
+    .game-hud .close-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.32);
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      transition: background 0.2s ease;
+    }
+    .game-hud .close-btn:hover {
+      background: rgba(0,0,0,0.78);
+    }
+
+    /* Floating "+5kg" animation */
+    .float-kg {
+      position: absolute;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fde68a;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      pointer-events: none;
+      animation: floatUp 1.2s ease-out forwards;
+      z-index: 6;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+      20%  { transform: translateY(-20px) scale(1.1); opacity: 1; }
+      100% { transform: translateY(-100px) scale(0.9); opacity: 0; }
+    }
+
+    /* Màn hình start/win/lose */
+    .game-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: rgba(11, 13, 18, 0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10;
+      animation: fadeIn 0.3s ease;
+    }
+    .game-screen h2 {
+      font-size: 1.5rem;
+      margin: 0 0 12px;
+      color: #fef3c7;
+    }
+    .game-screen p {
+      font-size: 0.95rem;
+      margin: 0 0 20px;
+      color: rgba(255,255,255,0.85);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+    .game-screen .btn-play {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #60a5fa, #ec4899);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(96,165,250,0.4);
+      transition: transform 0.2s ease;
+    }
+    .game-screen .btn-play:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Form nhập mật khẩu (sau khi thắng) */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+      margin: 8px 0;
+    }
+    .password-form input {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.32);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-size: 0.95rem;
+      text-align: center;
+      letter-spacing: 0.1em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .password-form input:focus {
+      outline: none;
+      border-color: #60a5fa;
+      background: rgba(0,0,0,0.6);
+    }
+    .password-form input.shake {
+      animation: shake 0.4s ease;
+      border-color: #ef4444;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .password-form .btn-confirm {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #60a5fa, #ec4899);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .password-form .btn-confirm:hover {
+      transform: translateY(-2px);
+    }
+    .password-hint {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 4px;
+    }
+    .password-error {
+      color: #fca5a5;
+      font-size: 0.88rem;
+      min-height: 1.2em;
+      margin: 0;
+    }
+
+    /* Win celebration: glow duck */
+    .duck-celebration {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(254,243,199,0.35) 0%, transparent 60%);
+      animation: pulseGlow 1.5s ease-in-out infinite;
+      z-index: 4;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    @media (max-width: 640px) {
+      .game-frame {
+        width: 95vw;
+        border-radius: 16px;
+      }
+      .game-screen h2 { font-size: 1.25rem; }
+      .btn-game { padding: 6px 12px; font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
@@ -659,6 +924,9 @@
         </button>
         <button class="btn-pill" id="btnSound">
           <span id="soundIcon">🎵</span> <span id="soundLabel">Bật Nhạc Chill</span>
+        </button>
+        <button class="btn-game" id="btnOpenGame" onclick="openGame()">
+          <span>🦆</span> Mini game vịt phá
         </button>
       </div>
     </div>
@@ -721,6 +989,48 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ===== FLAPPY DUCK MINI-GAME OVERLAY ===== -->
+  <div class="game-overlay" id="gameOverlay">
+    <div class="game-frame">
+      <canvas id="gameCanvas" width="540" height="720"></canvas>
+
+      <!-- HUD -->
+      <div class="game-hud">
+        <div class="kg-display" id="kgDisplay">30 kg</div>
+        <div class="score-display" id="scoreDisplay">0 / 10</div>
+        <button class="close-btn" id="closeGameBtn" aria-label="Đóng game">×</button>
+      </div>
+
+      <!-- Start screen -->
+      <div class="game-screen" id="startScreen">
+        <h2>🦆 Vịt Phá Trà Sữa</h2>
+        <p>Click chuột / chạm / nhấn <strong>Space</strong> để vịt bay lên.<br>
+        Lụm <strong>10 món</strong> (ly trà sữa + bún bò) để vịt đạt <strong>80 kg</strong>.<br>
+        Càng mập càng khó bay, cẩn thận kẻo đâm cột nhé!</p>
+        <button class="btn-play" id="btnStartGame">Bắt đầu</button>
+      </div>
+
+      <!-- Win screen (form nhập mật khẩu) -->
+      <div class="game-screen" id="winScreen" style="display:none">
+        <h2>🎉 Vịt đã mập vĩ đại!</h2>
+        <p>Chú vịt béo của anh đã no nê rồi. Để mở khóa trái tim anh, em nhập mật khẩu anh gửi riêng nhé:</p>
+        <form class="password-form" id="passwordForm" onsubmit="submitPassword(event)">
+          <input type="password" id="passwordInput" placeholder="Mật khẩu" autocomplete="off">
+          <button type="submit" class="btn-confirm">Mở khóa</button>
+        </form>
+        <p class="password-error" id="passwordError"></p>
+        <p class="password-hint">Gợi ý: anh gửi kèm link vào ngày 20/10 nha 💌</p>
+      </div>
+
+      <!-- Lose screen -->
+      <div class="game-screen" id="loseScreen" style="display:none">
+        <h2>💥 Vịt rơi rồi!</h2>
+        <p>Chú vịt lỡ đâm cột hoặc rớt xuống đất. Thử lại nhé, cố lên!</p>
+        <button class="btn-play" id="btnRetry">Chơi lại</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Chỉnh Sửa Nhanh Lời Nhắn -->
@@ -1068,6 +1378,530 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
       closeModal();
     }
+
+    /* ========================================================
+       6. FLAPPY DUCK MINI-GAME
+       ======================================================== */
+    (function initFlappyDuck() {
+      // ===== CONFIG =====
+      const ASSETS_BASE = '../assets/game/processed/';
+      const CANVAS_W = 540;
+      const CANVAS_H = 720;
+      const GRAVITY = 0.45;
+      const FLAP_VELOCITY = -7.5;
+      const PIPE_SPEED = 2.6;        // px/frame (~60fps => ~156 px/s, chậm hơn Flappy 4-5 px/frame)
+      const PIPE_GAP = 230;          // gap giữa 2 ống (rộng hơn Flappy gốc ~120-140px)
+      const PIPE_SPACING = 320;      // khoảng cách giữa các cặp ống
+      const BIRD_X = 140;             // vị trí vịt cố định theo X
+      const BIRD_RADIUS = 28;        // hitbox vịt (dùng cho collision)
+      const TARGET_SCORE = 10;       // lụm 10 món = win
+      const BASE_KG = 30;
+      const KG_PER_ITEM = 5;
+      const MAX_KG = BASE_KG + TARGET_SCORE * KG_PER_ITEM;  // 80
+
+      // Mật khẩu (security through obscurity - base64)
+      // User sẽ tự đổi mật khẩu khi cần. Mặc định "20032007" (3/2/2007 = sinh nhật Ngọc?)
+      const PASSWORD_HASH = btoa('20032007');
+
+      // ===== ASSETS (preload) =====
+      const duckSprites = {};   // duckSprites['30'] = Image, ...
+      const collectibles = [];  // 7 sprite (6 trà + 1 bún)
+      const pipeSprite = new Image();
+
+      let assetsLoaded = 0;
+      let assetsTotal = 0;
+
+      function preloadAssets(onAllLoaded) {
+        const duckWeights = ['30', '45', '60', '70', '80'];
+        assetsTotal += duckWeights.length;
+        duckWeights.forEach(kg => {
+          const img = new Image();
+          img.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+          img.onerror = () => { console.error('Failed to load duck', kg); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+          img.src = `${ASSETS_BASE}duck-${kg}kg.png`;
+          duckSprites[kg] = img;
+        });
+
+        const collectibleNames = ['tea-brownsugar', 'tea-matcha', 'tea-strawberry', 'tea-taro', 'tea-mango', 'tea-thai', 'bun-bo-hue'];
+        assetsTotal += collectibleNames.length;
+        collectibleNames.forEach(name => {
+          const img = new Image();
+          img.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+          img.onerror = () => { console.error('Failed to load', name); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+          img.src = `${ASSETS_BASE}${name}.png`;
+          collectibles.push(img);
+        });
+
+        assetsTotal += 1;
+        pipeSprite.onload = () => { assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+        pipeSprite.onerror = () => { console.error('Failed to load pipe'); assetsLoaded++; if (assetsLoaded === assetsTotal) onAllLoaded(); };
+        pipeSprite.src = `${ASSETS_BASE}pipe.png`;
+      }
+
+      // ===== GAME STATE =====
+      let canvas, ctx;
+      let state = 'idle';   // 'idle' | 'playing' | 'won' | 'lost'
+      let bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
+      let pipes = [];       // {x, gapY, passed}
+      let items = [];       // {x, y, sprite, collected, kind}
+      let score = 0;        // số item đã lụm
+      let currentKg = BASE_KG;
+      let frameCount = 0;
+      let lastFrameTime = 0;
+      let animId = null;
+
+      // Spawn pipe mỗi PIPE_SPACING px
+      function spawnPipe() {
+        const minGapY = 150;
+        const maxGapY = CANVAS_H - 150 - PIPE_GAP;
+        const gapY = minGapY + Math.random() * (maxGapY - minGapY);
+        pipes.push({ x: CANVAS_W + 50, gapY, passed: false });
+
+        // Spawn 1 item ngẫu nhiên trong gap
+        const itemX = CANVAS_W + 50 + PIPE_SPACING / 2;
+        const itemY = gapY + PIPE_GAP / 2 - 30;  // giữa gap, trừ 30 để căn giữa item
+        const sprite = collectibles[Math.floor(Math.random() * collectibles.length)];
+        items.push({ x: itemX, y: itemY, sprite, collected: false });
+      }
+
+      // ===== UPDATE LOOP =====
+      function update() {
+        if (state !== 'playing') return;
+        frameCount++;
+
+        // Spawn pipe đầu tiên sau 60 frame (~1s warmup)
+        if (frameCount === 60) spawnPipe();
+        // Sau đó spawn mỗi PIPE_SPACING/PIPE_SPEED frames
+        else if (frameCount > 60 && (frameCount - 60) % Math.round(PIPE_SPACING / PIPE_SPEED) === 0) {
+          spawnPipe();
+        }
+
+        // Vịt gravity
+        bird.vy += GRAVITY;
+        bird.y += bird.vy;
+        // Rotation theo velocity (xoay tự nhiên)
+        bird.rotation = Math.max(-0.5, Math.min(1.2, bird.vy * 0.08));
+        // Wing animation (scale Y oscillation để giả vỗ cánh)
+        bird.wingPhase += 0.15;
+
+        // Move pipes & items
+        pipes.forEach(p => p.x -= PIPE_SPEED);
+        items.forEach(i => i.x -= PIPE_SPEED);
+        pipes = pipes.filter(p => p.x > -100);
+        items = items.filter(i => i.x > -100 && !i.collected);
+
+        // Collision: vịt với cột
+        for (const p of pipes) {
+          const pipeW = 80;
+          if (bird.x + BIRD_RADIUS > p.x && bird.x - BIRD_RADIUS < p.x + pipeW) {
+            // Check top pipe (0 -> gapY) và bottom pipe (gapY + PIPE_GAP -> CANVAS_H)
+            if (bird.y - BIRD_RADIUS < p.gapY || bird.y + BIRD_RADIUS > p.gapY + PIPE_GAP) {
+              gameOver();
+              return;
+            }
+          }
+          // Đếm điểm khi vịt qua cột (không cộng điểm ở đây, item mới +1)
+          if (!p.passed && p.x + pipeW < bird.x) p.passed = true;
+        }
+
+        // Collision: vịt với item
+        for (const it of items) {
+          if (it.collected) continue;
+          const dx = bird.x - it.x;
+          const dy = bird.y - it.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < BIRD_RADIUS + 30) {
+            it.collected = true;
+            score++;
+            currentKg = BASE_KG + score * KG_PER_ITEM;
+            spawnFloatingKg(it.x, it.y);
+            playCollectSound();
+            if (score >= TARGET_SCORE) {
+              gameWin();
+              return;
+            }
+          }
+        }
+
+        // Vịt rơi xuống đáy hoặc bay lên trên
+        if (bird.y + BIRD_RADIUS >= CANVAS_H || bird.y - BIRD_RADIUS <= 0) {
+          gameOver();
+        }
+      }
+
+      // ===== RENDER =====
+      function render() {
+        // Background: gradient sky
+        const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
+        grad.addColorStop(0, '#bae6fd');  // sky-200
+        grad.addColorStop(0.6, '#e0f2fe');
+        grad.addColorStop(1, '#fef3c7');  // vàng nhạt phía dưới (mặt nước)
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+        // Vẽ pipes
+        pipes.forEach(p => {
+          const pipeW = 80;
+          const topH = p.gapY;
+          const botY = p.gapY + PIPE_GAP;
+          const botH = CANVAS_H - botY;
+
+          // Top pipe
+          drawPipeSegment(p.x, 0, pipeW, topH);
+          // Bottom pipe
+          drawPipeSegment(p.x, botY, pipeW, botH);
+        });
+
+        // Vẽ items
+        items.forEach(it => {
+          if (it.collected || !it.sprite.complete) return;
+          const w = 60, h = 60;
+          ctx.drawImage(it.sprite, it.x - w/2, it.y - h/2, w, h);
+        });
+
+        // Vẽ vịt
+        const currentSprite = duckSprites[String(currentKg)];
+        if (currentSprite && currentSprite.complete) {
+          ctx.save();
+          ctx.translate(bird.x, bird.y);
+          ctx.rotate(bird.rotation);
+          // Wing flap: scale Y nhẹ theo sin(wingPhase)
+          const wingScale = 1 + Math.sin(bird.wingPhase) * 0.08;
+          ctx.scale(1, wingScale);
+          // Sprite kích thước hiển thị ~70px (để không quá to so với gap 230)
+          const sw = 70, sh = 70;
+          ctx.drawImage(currentSprite, -sw/2, -sh/2, sw, sh);
+          ctx.restore();
+        } else {
+          // Fallback: vẽ vòng tròn
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.arc(bird.x, bird.y, BIRD_RADIUS, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Vẽ "ground" mờ phía dưới (cho cảm giác có rơi xuống đất)
+        ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
+        ctx.fillRect(0, CANVAS_H - 8, CANVAS_W, 8);
+      }
+
+      function drawPipeSegment(x, y, w, h) {
+        if (!pipeSprite.complete) {
+          // Fallback: vẽ hình chữ nhật xanh
+          ctx.fillStyle = '#86efac';
+          ctx.fillRect(x, y, w, h);
+          return;
+        }
+        // Vẽ bobbin pipe: stretch sprite theo chiều dài
+        // Sprite pipe.png là bobbin (cap trên + body + cap dưới), chiều cao gốc ~280px
+        // Strategy: tile sprite theo chiều dọc, cap ở 2 đầu
+        const spriteH = pipeSprite.naturalHeight || 280;
+        const capH = Math.min(40, spriteH * 0.15);
+        const bodyH = spriteH - 2 * capH;
+
+        // Cap đầu (ở y)
+        ctx.drawImage(pipeSprite,
+          0, 0, pipeSprite.naturalWidth, capH,  // source
+          x, y, w, capH                            // dest
+        );
+        // Body: tile nhiều lần
+        const remainingH = h - capH;
+        if (remainingH > 0) {
+          const bodyStart = y + capH;
+          let drawn = 0;
+          while (drawn < remainingH - capH) {
+            const drawH = Math.min(bodyH, remainingH - capH - drawn);
+            ctx.drawImage(pipeSprite,
+              0, capH, pipeSprite.naturalWidth, bodyH,  // source: body
+              x, bodyStart + drawn, w, drawH             // dest
+            );
+            drawn += drawH;
+          }
+          // Cap cuối
+          if (remainingH > capH) {
+            ctx.drawImage(pipeSprite,
+              0, spriteH - capH, pipeSprite.naturalWidth, capH,
+              x, y + h - capH, w, capH
+            );
+          }
+        }
+      }
+
+      // ===== GAME LOOP =====
+      function gameLoop(timestamp) {
+        if (!lastFrameTime) lastFrameTime = timestamp;
+        const delta = timestamp - lastFrameTime;
+        lastFrameTime = timestamp;
+
+        // Cap delta để tránh giật khi tab bị ẩn
+        if (delta < 100) {
+          update();
+        }
+        render();
+        animId = requestAnimationFrame(gameLoop);
+      }
+
+      // ===== GAME EVENTS =====
+      function flap() {
+        if (state === 'playing') {
+          bird.vy = FLAP_VELOCITY;
+          // Play flap sound
+          try { playFlapSound(); } catch(e) {}
+        }
+      }
+
+      function gameOver() {
+        state = 'lost';
+        document.getElementById('loseScreen').style.display = 'flex';
+      }
+
+      function gameWin() {
+        state = 'won';
+        document.getElementById('winScreen').style.display = 'flex';
+        // Hiệu ứng glow cho vịt
+        const celebration = document.createElement('div');
+        celebration.className = 'duck-celebration';
+        document.querySelector('.game-frame').appendChild(celebration);
+        try { playWinSound(); } catch(e) {}
+      }
+
+      function resetGame() {
+        state = 'idle';
+        bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
+        pipes = [];
+        items = [];
+        score = 0;
+        currentKg = BASE_KG;
+        frameCount = 0;
+        // Xóa celebration nếu có
+        const c = document.querySelector('.duck-celebration');
+        if (c) c.remove();
+        // Ẩn tất cả screens
+        document.getElementById('startScreen').style.display = 'flex';
+        document.getElementById('winScreen').style.display = 'none';
+        document.getElementById('loseScreen').style.display = 'none';
+        updateHUD();
+        render();
+      }
+
+      function startGame() {
+        if (state === 'playing') return;
+        state = 'playing';
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('loseScreen').style.display = 'none';
+        // Reset bird nếu vừa thua
+        if (score > 0 || frameCount > 60) {
+          bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
+          pipes = [];
+          items = [];
+          score = 0;
+          currentKg = BASE_KG;
+          frameCount = 0;
+        }
+        updateHUD();
+      }
+
+      function updateHUD() {
+        document.getElementById('kgDisplay').textContent = `${currentKg} kg`;
+        document.getElementById('scoreDisplay').textContent = `${score} / ${TARGET_SCORE}`;
+      }
+
+      function spawnFloatingKg(x, y) {
+        // Convert canvas coords -> game-frame DOM coords
+        const frame = document.querySelector('.game-frame');
+        const rect = frame.getBoundingClientRect();
+        const canvas = document.getElementById('gameCanvas');
+        const canvasRect = canvas.getBoundingClientRect();
+        const scaleX = canvasRect.width / CANVAS_W;
+        const scaleY = canvasRect.height / CANVAS_H;
+        const left = (canvasRect.left - rect.left) + x * scaleX;
+        const top = (canvasRect.top - rect.top) + y * scaleY;
+
+        const float = document.createElement('div');
+        float.className = 'float-kg';
+        float.textContent = '+5kg';
+        float.style.left = (left - 20) + 'px';
+        float.style.top = (top - 20) + 'px';
+        frame.appendChild(float);
+        setTimeout(() => float.remove(), 1200);
+        updateHUD();
+      }
+
+      // ===== SOUND (Web Audio API - lightweight) =====
+      let audioCtx = null;
+      function ensureAudioCtx() {
+        if (!audioCtx) {
+          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+          catch(e) { audioCtx = null; }
+        }
+        return audioCtx;
+      }
+      function playFlapSound() {
+        const ctx = ensureAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(380, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+      }
+      function playCollectSound() {
+        const ctx = ensureAudioCtx();
+        if (!ctx) return;
+        // 2 nốt lên: C5 -> E5
+        [523.25, 659.25].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.06);
+          gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.06);
+          gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + i * 0.06 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.06 + 0.15);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.06);
+          osc.stop(ctx.currentTime + i * 0.06 + 0.15);
+        });
+      }
+      function playWinSound() {
+        const ctx = ensureAudioCtx();
+        if (!ctx) return;
+        // 4 nốt thắng: C-E-G-C
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+          gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+          gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.12 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.12);
+          osc.stop(ctx.currentTime + i * 0.12 + 0.3);
+        });
+      }
+
+      // ===== PASSWORD =====
+      window.submitPassword = function(event) {
+        event.preventDefault();
+        const input = document.getElementById('passwordInput');
+        const error = document.getElementById('passwordError');
+        const value = input.value;
+
+        if (btoa(value) === PASSWORD_HASH) {
+          // Đúng → ẩn game, hiện celebration trên duck avatar
+          input.classList.remove('shake');
+          error.textContent = '';
+          closeGame();
+
+          // Hiệu ứng glow trên duck avatar (kéo dài 3s)
+          const frame = document.getElementById('duckAvatarFrame');
+          if (frame) {
+            frame.classList.add('unlocked');
+            frame.style.transition = 'box-shadow 1.5s ease';
+            frame.style.boxShadow = '0 0 40px rgba(254, 243, 199, 0.7), 0 0 80px rgba(236, 72, 153, 0.4)';
+            setTimeout(() => {
+              frame.style.boxShadow = '';
+            }, 5000);
+          }
+        } else {
+          // Sai → shake
+          input.classList.add('shake');
+          error.textContent = 'Sai mật khẩu rồi, thử lại nhé!';
+          setTimeout(() => input.classList.remove('shake'), 400);
+          input.select();
+        }
+      };
+
+      // ===== OPEN / CLOSE GAME =====
+      window.openGame = function() {
+        document.getElementById('gameOverlay').classList.add('show');
+        resetGame();
+        // Bắt đầu animation loop
+        if (!animId) animId = requestAnimationFrame(gameLoop);
+      };
+
+      function closeGame() {
+        document.getElementById('gameOverlay').classList.remove('show');
+        // KHÔNG cancel animId - để render tiếp cho mượt khi mở lại
+        // Nhưng pause game logic
+        if (state === 'playing' || state === 'won' || state === 'lost') {
+          // Reset state để lần sau mở lại bắt đầu từ idle
+          state = 'idle';
+        }
+      }
+
+      // ===== EVENT BINDINGS =====
+      function bindEvents() {
+        // Click / touch trên canvas = flap
+        document.getElementById('gameCanvas').addEventListener('mousedown', flap);
+        document.getElementById('gameCanvas').addEventListener('touchstart', (e) => { e.preventDefault(); flap(); }, { passive: false });
+
+        // Space / ArrowUp = flap
+        document.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.code === 'ArrowUp') {
+            // Chỉ flap khi game đang mở
+            if (document.getElementById('gameOverlay').classList.contains('show')) {
+              e.preventDefault();
+              if (state === 'idle' && document.getElementById('startScreen').style.display !== 'none') {
+                startGame();
+              } else {
+                flap();
+              }
+            }
+          }
+          // ESC = đóng game
+          if (e.code === 'Escape') {
+            if (document.getElementById('gameOverlay').classList.contains('show')) {
+              closeGame();
+            }
+          }
+        });
+
+        // Buttons
+        document.getElementById('btnStartGame').addEventListener('click', startGame);
+        document.getElementById('btnRetry').addEventListener('click', () => {
+          // Reset everything
+          state = 'idle';
+          bird = { x: BIRD_X, y: CANVAS_H / 2, vy: 0, rotation: 0, wingPhase: 0 };
+          pipes = [];
+          items = [];
+          score = 0;
+          currentKg = BASE_KG;
+          frameCount = 0;
+          document.getElementById('loseScreen').style.display = 'none';
+          startGame();
+        });
+        document.getElementById('closeGameBtn').addEventListener('click', closeGame);
+
+        // Click ra ngoài overlay (vùng tối) cũng đóng
+        document.getElementById('gameOverlay').addEventListener('click', (e) => {
+          if (e.target.id === 'gameOverlay') closeGame();
+        });
+      }
+
+      // ===== INIT =====
+      function init() {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        // Disable image smoothing cho pixel-art feel
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        preloadAssets(() => {
+          // Render frame idle đầu tiên
+          render();
+        });
+        bindEvents();
+      }
+
+      // Chờ DOM ready (đã có vì script ở cuối body)
+      init();
+    })();
   </script>
 </body>
 </html>
