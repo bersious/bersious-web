@@ -101,20 +101,20 @@
       position: fixed;
       top: 22px;
       left: 24px;
-      z-index: 100;
+      z-index: 250; /* Cao hơn cả game-overlay (z-index 200) để luôn nổi ở góc ngoài màn hình chơi */
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px 18px;
-      background: rgba(0, 0, 0, 0.32);
+      background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 999px;
       text-decoration: none;
       color: inherit;
       transition: all 0.25s ease;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     }
 
     .site-header:hover {
@@ -978,17 +978,37 @@
       z-index: 5;
     }
     .game-hud .kg-display {
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 999px;
-      padding: 8px 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #fef3c7;
-      border: 1px solid rgba(254, 243, 199, 0.32);
+      padding: 10px 22px;
+      font-family: 'Comfortaa', cursive, 'JetBrains Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fef08a;
+      border: 1.5px solid rgba(254, 240, 138, 0.45);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
       pointer-events: auto;
+      transition: all 0.25s ease;
+      letter-spacing: 0.02em;
+    }
+    /* Hiệu ứng chớp chớp báo động khi cân nặng từ 75kg trở lên */
+    .game-hud .kg-display.overweight-warning {
+      color: #fecdd3;
+      border-color: rgba(244, 63, 94, 0.85);
+      background: rgba(136, 19, 55, 0.8);
+      animation: alertPulse 0.65s ease-in-out infinite alternate;
+    }
+    @keyframes alertPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(244, 63, 94, 0.45), inset 0 0 8px rgba(244, 63, 94, 0.3);
+      }
+      100% {
+        transform: scale(1.08);
+        box-shadow: 0 0 24px rgba(244, 63, 94, 0.9), inset 0 0 14px rgba(244, 63, 94, 0.6);
+      }
     }
     .game-hud .score-display {
       background: rgba(0,0,0,0.55);
@@ -1151,21 +1171,35 @@
     }
     .game-screen .btn-home {
       margin-top: 12px;
-      padding: 10px 24px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.32);
+      padding: 10px 22px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 999px;
       color: #fff;
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: inherit;
       cursor: pointer;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-screen .btn-home .btn-home-text {
+      background: linear-gradient(135deg, #93c5fd, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.01em;
     }
     .game-screen .btn-home:hover {
-      background: rgba(255,255,255,0.2);
-      transform: translateY(-1px);
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.25), 0 0 12px rgba(147, 197, 253, 0.3);
     }
 
     /* Win screen: layout 2 nút (home + replay) */
@@ -1364,7 +1398,7 @@
         border-radius: 16px;
       }
       .game-hud { padding: 10px 12px; }
-      .game-hud .kg-display { font-size: 0.95rem; padding: 6px 12px; }
+      .game-hud .kg-display { font-size: 1.15rem; padding: 7px 14px; }
       .game-hud .score-display { font-size: 0.85rem; padding: 5px 10px; }
       .game-hud .close-btn { width: 32px; height: 32px; font-size: 1rem; }
       .game-screen h2 { font-size: 1.2rem; }
@@ -1485,7 +1519,6 @@
       <div class="game-hud">
         <div class="kg-display" id="kgDisplay">30 kg</div>
         <div class="score-display" id="scoreDisplay">0 / 10</div>
-        <button class="close-btn" id="closeGameBtn" aria-label="Đóng game">×</button>
       </div>
 
       <!-- Start screen -->
@@ -1520,7 +1553,7 @@
         </form>
         <p class="password-error" id="passwordError"></p>
         <div class="win-actions">
-          <button class="btn-home" id="btnHomeWin" type="button">🏠 Về trang chủ</button>
+          <button class="btn-home" id="btnHomeWin" type="button" title="Về trang chủ bersious.io.vn"><span class="btn-home-text">bersious.</span></button>
           <button class="btn-replay" id="btnReplayWin" type="button">🔄 Chơi lại</button>
         </div>
       </div>
@@ -1531,7 +1564,7 @@
         <h2>💥 Vịt con khéo lắm!</h2>
         <p>Khéo bá =))</p>
         <button class="btn-play" id="btnRetry">Chơi lại</button>
-        <button class="btn-home" id="btnHomeLose">🏠 Về trang chủ</button>
+        <button class="btn-home" id="btnHomeLose" title="Về trang chủ bersious.io.vn"><span class="btn-home-text">bersious.</span></button>
       </div>
     </div>
   </div>
@@ -3045,7 +3078,15 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       }
 
       function updateHUD() {
-        document.getElementById('kgDisplay').textContent = `${currentKg} kg`;
+        const kgEl = document.getElementById('kgDisplay');
+        if (kgEl) {
+          kgEl.textContent = `${currentKg} kg`;
+          if (currentKg >= 75) {
+            kgEl.classList.add('overweight-warning');
+          } else {
+            kgEl.classList.remove('overweight-warning');
+          }
+        }
         document.getElementById('scoreDisplay').textContent = `${score} / ${TARGET_SCORE}`;
       }
 
@@ -3271,10 +3312,12 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           resetGame();
           startGame();
         });
-        document.getElementById('closeGameBtn').addEventListener('click', () => {
-          // Nút × ở góc → quay về trang chủ bersious.io.vn
-          window.location.href = 'https://bersious.io.vn/';
-        });
+        const btnClose = document.getElementById('closeGameBtn');
+        if (btnClose) {
+          btnClose.addEventListener('click', () => {
+            window.location.href = 'https://bersious.io.vn/';
+          });
+        }
         // Nút "Về trang chủ" trên lose screen
         const btnHomeLose = document.getElementById('btnHomeLose');
         if (btnHomeLose) {
