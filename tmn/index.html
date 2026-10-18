@@ -1944,9 +1944,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           }
         }
 
-        // Vịt rơi xuống đáy hoặc bay lên trên
+        // Vịt rơi xuống đáy hoặc chạm trần
         if (bird.y + BIRD_RADIUS >= CANVAS_H || bird.y - BIRD_RADIUS <= 0) {
-          gameOver();
+          gameOver('fall');
+          return;
         }
       }
 
@@ -2429,9 +2430,10 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         // Đổi ảnh: rớt xuống/trần → fall.png, đâm cột → duck-lose.png
         const loseImg = document.querySelector('#loseScreen .screen-art');
         if (loseImg) {
+          loseImg.style.display = 'block';
           loseImg.src = reason === 'fall'
-            ? '../assets/game/processed/fall.png'
-            : '../assets/game/processed/duck-lose.png';
+            ? '../assets/game/processed/fall.png?v=' + Date.now()
+            : '../assets/game/processed/duck-lose.png?v=' + Date.now();
         }
         document.getElementById('loseScreen').style.display = 'flex';
       }
