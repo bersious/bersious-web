@@ -1665,11 +1665,11 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
       drawDuck(bird.x, bird.y, currentKg, bird.rotation, bird.wingPhase);
     }
 
-      // ===== VẼ VỊT BẰNG CODE + LỚP MỠ =====
-      // Vịt giữ 1 size cố định, chỉ "mỡ" tăng dần theo currentKg
+      // ===== VẼ VỊT - 5 SPRITE PNG MẬP DẦN THEO KG =====
+      // Cậu đã gen 5 sprite (30/45/60/70/80kg), vịt đổi sprite theo currentKg
+      // Kích thước ảnh đã tăng dần sẵn (vẽ "mập" trong ảnh gốc)
       function drawDuck(x, y, kg, rotation, wingPhase) {
-        // Lấy sprite theo kg gần nhất (kg tăng dần: 30→45→60→70→80)
-        // nhưng sprite vẫn giữ 1 size cố định, chỉ mỡ tăng
+        // Lấy sprite theo kg gần nhất
         const kgKeys = Object.keys(duckSprites).map(Number).sort((a, b) => a - b);
         let snapKg = kgKeys[0];
         for (const k of kgKeys) { if (kg >= k) snapKg = k; }
@@ -1677,44 +1677,17 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         const frameIdx = Math.floor((Math.sin(wingPhase) + 1) * 1.5) % 3;  // 0,1,2
         const sprite = sprites[frameIdx];
 
-        // Size CỐ ĐỊNH cho sprite vịt (không scale theo kg)
-        const DUCK_SIZE = 80;
-
-        // Mỡ tăng theo kg: 30kg=0px, 80kg=30px (ellipse bụng)
-        const fatR = Math.max(0, (kg - 30) * 0.6);
-
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
-        // 1) Lớp mỡ vàng (vẽ SAU sprite nên nằm dưới, hiện ra ở 2 bên)
-        if (fatR > 2) {
-          ctx.save();
-          // Quay về góc 0 để ellipse không bị rotation kéo nghiêng
-          ctx.rotate(-rotation);
-          ctx.fillStyle = 'rgba(255, 230, 130, 0.85)';
-          ctx.strokeStyle = 'rgba(180, 100, 30, 0.6)';
-          ctx.lineWidth = 1.5;
-          // 2 ellipse: trái + phải, lệch xuống dưới bụng
-          for (const side of [-1, 1]) {
-            ctx.beginPath();
-            ctx.ellipse(side * (DUCK_SIZE * 0.32), DUCK_SIZE * 0.18, DUCK_SIZE * 0.22 + fatR * 0.3, DUCK_SIZE * 0.18 + fatR * 0.5, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          }
-          // 1 ellipse bụng chính giữa
-          ctx.beginPath();
-          ctx.ellipse(0, DUCK_SIZE * 0.22, DUCK_SIZE * 0.28 + fatR * 0.4, DUCK_SIZE * 0.20 + fatR * 0.4, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        // 2) Vẽ sprite vịt (1 size cố định)
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+          // Vẽ sprite 400x400 với size gốc (các sprite đã có sẵn kích thước mập tăng dần)
           const sw = sprite.naturalWidth;
           const sh = sprite.naturalHeight;
-          const scale = DUCK_SIZE / Math.max(sw, sh);
+          // Scale: 80px (30kg) → 110px (80kg) - phản ánh sprite to dần
+          const targetSize = 80 + (kg - 30) * 0.6;  // 80 → 110
+          const scale = targetSize / Math.max(sw, sh);
           const dw = sw * scale;
           const dh = sh * scale;
           ctx.drawImage(sprite, -dw / 2, -dh / 2, dw, dh);
@@ -1722,7 +1695,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
           // Fallback: tròn vàng
           ctx.fillStyle = '#fcd34d';
           ctx.beginPath();
-          ctx.arc(0, 0, DUCK_SIZE / 2, 0, Math.PI * 2);
+          ctx.arc(0, 0, 36, 0, Math.PI * 2);
           ctx.fill();
         }
 
