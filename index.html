@@ -570,6 +570,51 @@
       opacity: 0.5;
     }
 
+    /* ====== TMN 20/10 - "Join for food" hover effect ====== */
+    .gallery-item-tmn {
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-join {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, #fb923c 0%, #ec4899 100%);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
+      opacity: 0;
+      transform: translateX(20px) scale(0.85);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .gallery-join .join-emoji {
+      font-size: 1rem;
+      animation: joinBounce 1.6s ease-in-out infinite;
+    }
+    @keyframes joinBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(-8deg); }
+    }
+    .gallery-item-tmn:hover .gallery-join {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    .gallery-item-tmn:hover .gallery-icon {
+      animation: giftShake 0.6s ease;
+    }
+    @keyframes giftShake {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-4px) rotate(-6deg); }
+      75% { transform: translateY(-2px) rotate(6deg); }
+    }
+
     .gallery-icon {
       font-size: 1.4rem;
       margin-bottom: 14px;
@@ -778,9 +823,13 @@
           </div>
           <span class="gallery-tag" data-i18n="proj-1-tag">live</span>
         </a>
-        <a class="gallery-item" href="/tmn" data-project-slug="tmn-2010">
+        <a class="gallery-item gallery-item-tmn" href="/tmn" data-project-slug="tmn-2010">
           <div class="gallery-icon">🎁</div>
           <div class="gallery-title" data-i18n="proj-2-title">TMN 20/10</div>
+          <span class="gallery-join">
+            <span class="join-emoji">🍜</span>
+            <span class="join-text">Join for food</span>
+          </span>
         </a>
         <div class="gallery-item coming-soon">
           <div>
