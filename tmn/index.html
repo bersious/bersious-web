@@ -156,20 +156,17 @@
 
     .vibe-switcher {
       display: flex;
-      background: rgba(255, 255, 255, 0.22);
-      backdrop-filter: blur(14px);
-      padding: 5px;
-      border-radius: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      align-items: center;
     }
 
     .vibe-tab {
-      background: transparent;
-      border: none;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
       color: #fff;
       padding: 7px 18px;
-      border-radius: 30px;
+      border-radius: 40px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       font-family: inherit;
       font-weight: 700;
       font-size: 0.88rem;
@@ -1095,12 +1092,9 @@
 
     <!-- Thanh chuyển đổi vibe & công cụ -->
     <div class="nav-bar">
-      <!-- Bộ chuyển 2 không gian vibe -->
+      <!-- Chỉ giữ 1 vibe: Bầu Trời & Hoa Vàng (bỏ Hồ Nước Lững Lờ) -->
       <div class="vibe-switcher">
-        <button class="vibe-tab active" id="tabWater" onclick="switchVibe('water')">
-          <span>🌿</span> Hồ Nước Lững Lờ
-        </button>
-        <button class="vibe-tab" id="tabSky" onclick="switchVibe('sky')">
+        <button class="vibe-tab active" id="tabSky">
           <span>🌼</span> Bầu Trời & Hoa Vàng
         </button>
       </div>
@@ -1291,38 +1285,6 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
     /* Action buttons đã được ẩn theo yêu cầu - hàm renderActionButtons bị loại bỏ */
 
-    function switchVibe(mode) {
-      currentVibe = mode;
-      const duckImg = document.getElementById('duckImg');
-      const speech = document.getElementById('duckSpeech');
-      const tabWater = document.getElementById('tabWater');
-      const tabSky = document.getElementById('tabSky');
-
-      duckImg.style.opacity = '0';
-      duckImg.style.transform = 'scale(0.8)';
-
-      setTimeout(() => {
-        if (mode === 'water') {
-          document.body.classList.remove('sky-mode');
-          tabWater.classList.add('active');
-          tabSky.classList.remove('active');
-          duckImg.src = imgData1;
-          speech.innerHTML = '<span>Quạc!</span> Đang trôi rất chill... 🌿';
-          initParticlesForWater();
-        } else {
-          document.body.classList.add('sky-mode');
-          tabWater.classList.remove('active');
-          tabSky.classList.add('active');
-          duckImg.src = imgData2;
-          speech.innerHTML = '<span>Ủa?</span> Ai đang nhìn trộm tui đó? 🌼';
-          initParticlesForSky();
-        }
-        duckImg.style.opacity = '1';
-        duckImg.style.transform = '';
-      }, 250);
-    }
-
-
     /* ========================================================
        2. CANVAS ENGINE: SÓNG NƯỚC (VIBE 1) & CÁNH HOA VÀNG (VIBE 2)
        ======================================================== */
@@ -1369,7 +1331,7 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
         });
       }
     }
-    initParticlesForWater();
+    initParticlesForSky();
 
     function addRipple(x, y, power = 1) {
       ripples.push({
@@ -2425,6 +2387,23 @@ Chúc cô gái của Nhân 20/10 thật vui vẻ và bình an nhé!</textarea>
 
         // Reset game state cho lần sau (nếu user muốn chơi lại)
         state = 'idle';
+
+        // Auto play nhạc khi vừa vào thư (user vừa submit form = user gesture)
+        try {
+          if (!bgAudio) {
+            bgAudio = new Audio(AUDIO_SRC);
+            bgAudio.loop = true;
+            bgAudio.volume = 0.5;
+          }
+          if (!isAudioOn) {
+            bgAudio.play().catch(err => console.warn('Audio autoplay blocked:', err));
+            isAudioOn = true;
+            const soundLabel = document.getElementById('soundLabel');
+            const soundIcon = document.getElementById('soundIcon');
+            if (soundLabel) soundLabel.innerText = 'Tắt Nhạc';
+            if (soundIcon) soundIcon.innerText = '⏸️';
+          }
+        } catch(e) {}
 
         // Hiệu ứng glow trên duck avatar (kéo dài 5s)
         const frame = document.getElementById('duckAvatarFrame');
