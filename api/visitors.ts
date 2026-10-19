@@ -9,10 +9,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  * Talks to Upstash Redis via plain HTTP REST — no npm package needed,
  * so Vercel doesn't have to bundle/install anything. Works in any runtime.
  *
- * Auth: STATS_KEY env var. No hardcoded fallback — endpoint returns 503
- * if the env var is missing, so the key never ends up in the public repo.
+ * Auth: STATS_KEY env var, or hardcoded fallback '[REDACTED-STATS-KEY]'.
  */
-const KEY = process.env.STATS_KEY;
+const KEY = process.env.STATS_KEY || '[REDACTED-STATS-KEY]';
 const MAX_LIMIT = 2000;
 
 // Upstash REST helpers — call them via fetch
@@ -52,14 +51,6 @@ async function upstash<T = any>(
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Fail fast if env var not configured (no hardcoded fallback to avoid leaking in source)
-  if (!KEY) {
-    return res.status(503).json({
-      error: 'STATS_KEY not configured',
-      hint: 'Set STATS_KEY in Vercel Environment Variables for this project.',
-    });
-  }
-
   // Auth
   const provided = (req.query.key as string) || '';
   if (provided !== KEY) {
