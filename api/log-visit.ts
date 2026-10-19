@@ -92,10 +92,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       lang: partial.lang || '',
     };
 
-    // Pipeline: LPUSH then LTRIM
+    // Pipeline: LPUSH then LTRIM (Upstash REST needs flat array, not nested)
     await upstash<any>(creds, [
-      ['LPUSH', 'visitors:log', JSON.stringify(entry)],
-      ['LTRIM', 'visitors:log', '0', String(MAX_ENTRIES - 1)],
+      'LPUSH',
+      'visitors:log',
+      JSON.stringify(entry),
+      'LTRIM',
+      'visitors:log',
+      '0',
+      String(MAX_ENTRIES - 1),
     ]);
 
     return res.status(200).json({ ok: true });
