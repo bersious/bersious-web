@@ -60,7 +60,9 @@ function normalizeState(s: any) {
     users: Array.isArray(s.users) ? s.users : DEFAULT_STATE.users,
     artists: Array.isArray(s.artists) && s.artists.length ? s.artists : DEFAULT_STATE.artists,
     tracks: Array.isArray(s.tracks) ? s.tracks : DEFAULT_STATE.tracks,
-    requests: Array.isArray(s.requests) ? s.requests : DEFAULT_STATE.requests,
+    requests: Array.isArray(s.requests) 
+      ? s.requests.filter((r: any) => !r.trackId.startsWith('track_0'))
+      : [],
     settings: { ...DEFAULT_STATE.settings, ...(s.settings || {}) },
     session: { ...DEFAULT_STATE.session, ...(s.session || {}) },
     lastUpdated: s.lastUpdated || new Date().toISOString()
@@ -122,6 +124,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const touch = () => { state.lastUpdated = new Date().toISOString(); };
 
       switch (action) {
+        case 'SYNC_ALL':
+          if (body.tracks) state.tracks = body.tracks;
+          if (body.users) state.users = body.users;
+          if (body.requests) state.requests = body.requests;
+          touch();
+          break;
+
         case 'RESET':
           state = JSON.parse(JSON.stringify(DEFAULT_STATE));
           break;
@@ -230,6 +239,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             state.requests.forEach((r: any) => {
               if (r.trackId === trackId && r.username === username) r.status = 'DENIED';
             });
+            touch();
+          }
+          break;
+        }
+
+                case 'SET_PREVIEW_LIMIT': {
+          const { trackId, limitSeconds } = body;
+          const track = state.tracks.find((t: any) => t.id === trackId);
+          if (track) {
+            track.previewLimitSeconds = Number(limitSeconds) || 0;
             touch();
           }
           break;
