@@ -43,6 +43,10 @@ const DEFAULT_STATE = {
     { username: 'thu_producer', name: 'Thu (Giám Đốc Sản Xuất)', role: 'reviewer', did: 'tide:usr:thu_44b0' },
     { username: 'lan_soundcheck', name: 'Lan (Kiểm Âm)', role: 'reviewer', did: 'tide:usr:lan_77c8' }
   ],
+  artists: [
+    { username: 'alice_artist', name: 'Alice Nguyễn', genre: 'Indie Pop / Electronic', bio: 'Nghệ sĩ độc lập, tác giả album Midnight Cipher', artSeed: 0 },
+    { username: 'endy_producer', name: 'Endy (Thiện Nhân)', genre: 'Lo-Fi / Cinematic AI', bio: 'Nhà sản xuất âm nhạc tại UIT Studio', artSeed: 1 }
+  ],
   tracks: [
     { id: 'track_01', name: 'Lead_Single_Master_v4.flac', type: 'audio/flac', size: '42.8 MB', hash: 'b79a4e912f...', artistUsername: 'alice_artist', allowedUsers: ['minh_mastering'], artSeed: 0 },
     { id: 'track_02', name: 'Vocal_Stems_Studio_Dry.wav', type: 'audio/wav', size: '68.1 MB', hash: '82f10ac349...', artistUsername: 'alice_artist', allowedUsers: [], artSeed: 1 },
@@ -60,6 +64,7 @@ function normalizeState(s: any) {
   if (!s || typeof s !== 'object') return DEFAULT_STATE;
   return {
     users: Array.isArray(s.users) ? s.users : DEFAULT_STATE.users,
+    artists: Array.isArray(s.artists) && s.artists.length ? s.artists : DEFAULT_STATE.artists,
     tracks: Array.isArray(s.tracks) ? s.tracks : DEFAULT_STATE.tracks,
     requests: Array.isArray(s.requests) ? s.requests : DEFAULT_STATE.requests,
     settings: { ...DEFAULT_STATE.settings, ...(s.settings || {}) },
@@ -126,6 +131,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         case 'RESET':
           state = JSON.parse(JSON.stringify(DEFAULT_STATE));
           break;
+
+        case 'REGISTER_ARTIST': {
+          const newArtist = body.artist;
+          if (newArtist && !state.artists.some((a: any) => a.username === newArtist.username)) {
+            state.artists.push(newArtist);
+            touch();
+          }
+          break;
+        }
 
         case 'UPDATE_TRACKS':
           if (body.tracks) state.tracks = body.tracks;
