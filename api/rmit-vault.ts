@@ -47,14 +47,8 @@ const DEFAULT_STATE = {
     { username: 'alice_artist', name: 'Alice Nguyễn', genre: 'Indie Pop / Electronic', bio: 'Nghệ sĩ độc lập, tác giả album Midnight Cipher', artSeed: 0 },
     { username: 'endy_producer', name: 'Endy (Thiện Nhân)', genre: 'Lo-Fi / Cinematic AI', bio: 'Nhà sản xuất âm nhạc tại UIT Studio', artSeed: 1 }
   ],
-  tracks: [
-    { id: 'track_01', name: 'Lead_Single_Master_v4.flac', type: 'audio/flac', size: '42.8 MB', hash: 'b79a4e912f...', artistUsername: 'alice_artist', allowedUsers: ['minh_mastering'], artSeed: 0 },
-    { id: 'track_02', name: 'Vocal_Stems_Studio_Dry.wav', type: 'audio/wav', size: '68.1 MB', hash: '82f10ac349...', artistUsername: 'alice_artist', allowedUsers: [], artSeed: 1 },
-    { id: 'track_03', name: 'Studio_Teaser_BehindTheScenes.mp4', type: 'video/mp4', size: '115.4 MB', hash: '11ce9d40b2...', artistUsername: 'alice_artist', allowedUsers: [], artSeed: 2 }
-  ],
-  requests: [
-    { id: 'req_demo_01', trackId: 'track_02', username: 'thu_producer', status: 'PENDING', createdAt: new Date().toISOString() }
-  ],
+  tracks: [],
+  requests: [],
   settings: { autoApprove: false },
   session: { artist: null, reviewer: null },
   lastUpdated: new Date().toISOString()
