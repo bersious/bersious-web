@@ -217,15 +217,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         case 'GRANT_ACCESS': {
-          const { trackId, username } = body;
+          const { trackId, username, isSinglePlay } = body;
           const track = state.tracks.find((t: any) => t.id === trackId);
-          if (track && username && !track.allowedUsers.includes(username)) {
-            track.allowedUsers.push(username);
+          if (track && username) {
+            if (!Array.isArray(track.allowedUsers)) track.allowedUsers = [];
+            if (!Array.isArray(track.singlePlayUsers)) track.singlePlayUsers = [];
+            if (!track.allowedUsers.includes(username)) track.allowedUsers.push(username);
+            if (isSinglePlay) {
+              if (!track.singlePlayUsers.includes(username)) track.singlePlayUsers.push(username);
+            } else {
+              track.singlePlayUsers = track.singlePlayUsers.filter((u: string) => u !== username);
+            }
             state.requests.forEach((r: any) => {
               if (r.trackId === trackId && r.username === username && r.status === 'PENDING') {
                 r.status = 'APPROVED';
               }
             });
+            touch();
+          }
+          break;
+        }
+
+        case 'RECORD_PLAYBACK_FINISHED': {
+          const { trackId, username } = body;
+          const track = state.tracks.find((t: any) => t.id === trackId);
+          if (track && Array.isArray(track.singlePlayUsers) && track.singlePlayUsers.includes(username)) {
+            // Tự động thu hồi quyền sau khi nghe xong 1 lần!
+            track.allowedUsers = (track.allowedUsers || []).filter((u: string) => u !== username);
+            track.singlePlayUsers = track.singlePlayUsers.filter((u: string) => u !== username);
             touch();
           }
           break;
