@@ -766,13 +766,15 @@ function renderArtistTracks(){
     box.appendChild(card);
   });
 
-  // Tự động nạp blob hoặc stream vào các trình phát của từng bài hát
+  // Tự động nạp streamUrl hoặc blob vào các trình phát của từng bài hát
   myTracks.forEach(async t => {
     const el = document.getElementById(`player-${t.id}`);
     if(!el) return;
-    const blob = await getMediaBlob(t.id);
-    if(blob){
-      el.src = URL.createObjectURL(blob);
+    if(t.streamUrl){
+      el.src = t.streamUrl;
+    } else {
+      const blob = await getMediaBlob(t.id);
+      if(blob) el.src = URL.createObjectURL(blob);
     }
   });
 
@@ -815,13 +817,15 @@ function renderRequests(){
     box.appendChild(card);
   });
 
-  // Tự động nạp blob hoặc stream vào các trình phát của từng bài hát
+  // Tự động nạp streamUrl hoặc blob vào các trình phát của từng bài hát
   myTracks.forEach(async t => {
     const el = document.getElementById(`player-${t.id}`);
     if(!el) return;
-    const blob = await getMediaBlob(t.id);
-    if(blob){
-      el.src = URL.createObjectURL(blob);
+    if(t.streamUrl){
+      el.src = t.streamUrl;
+    } else {
+      const blob = await getMediaBlob(t.id);
+      if(blob) el.src = URL.createObjectURL(blob);
     }
   });
 
@@ -950,20 +954,22 @@ async function handleFileUpload(e){
   tracks.unshift(newTrack);
   saveTracks(tracks); // saveTracks đã gửi UPDATE_TRACKS lên cloud, không gọi thêm ADD_TRACK để tránh race condition!
 
-  // Đọc file sang Base64 qua FileReader an toàn (không bị lỗi call stack limit)
-  if(file.size <= 2000000){ // Chỉ sync cloud blob nếu file dưới 2MB
-    const reader = new FileReader();
-    reader.onload = async function(){
-      try {
-        const base64 = reader.result.split(',')[1];
-        await fetch(API_VAULT_URL, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({action: 'UPLOAD_BLOB', trackId: id, data: base64})
-        });
-      } catch(e){}
-    };
-    reader.readAsDataURL(file);
+  // Tải file trực tiếp lên Vercel Blob để mọi laptop đều phát được âm thanh/video thật
+  try {
+    const uploadRes = await fetch(`/api/upload-media?filename=${encodeURIComponent(file.name)}`, {
+      method: 'POST',
+      headers: {'Content-Type': file.type || 'application/octet-stream'},
+      body: file
+    });
+    if(uploadRes.ok){
+      const uploadJson = await uploadRes.json();
+      if(uploadJson.ok && uploadJson.url){
+        newTrack.streamUrl = uploadJson.url;
+        saveTracks(tracks);
+      }
+    }
+  } catch(uploadErr){
+    console.warn('Vercel Blob upload warning:', uploadErr);
   }
 
   stat.textContent = `> [THÀNH CÔNG] Đã tải lên và niêm phong tác phẩm "${file.name}" vào két sắt của @${activeArtistUser}!`;
