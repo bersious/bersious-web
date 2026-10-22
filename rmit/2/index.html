@@ -853,7 +853,10 @@ async function syncActiveTrackView(){
     npStatus.textContent = '● Quyền hạn tự sinh hợp lệ (Tide Emergent Authority) · RAM Playback';
     npStatus.style.color = 'var(--accent)';
     const isSingle = Array.isArray(track.singlePlayUsers) && track.singlePlayUsers.includes(currentUser);
-    npBadge.innerHTML = `<span class="badge badge-ok">Đã được duyệt</span>${isSingle?' <span class="badge badge-warn mono" style="margin-left:6px">Chỉ nghe 1 lần</span>':''}`;
+    let wmBadge = '';
+    if(track.watermarkMode === 'duck') wmBadge = ' <span class="badge badge-warn mono" style="margin-left:6px">Watermark tiếng vịt</span>';
+    else if(track.watermarkMode === 'voice') wmBadge = ' <span class="badge badge-warn mono" style="margin-left:6px">Watermark giọng AI</span>';
+    npBadge.innerHTML = `<span class="badge badge-ok">Đã được duyệt</span>${isSingle?' <span class="badge badge-warn mono" style="margin-left:6px">Chỉ nghe 1 lần</span>':''}${wmBadge}`;
     lockedPanel.classList.add('hidden');
 
     if(isVideo){
@@ -947,6 +950,55 @@ function generateDemoVideoFeed(trackName){
   return canvas.captureStream(30);
 }
 
+
+// ==================== ACOUSTIC WATERMARK ENGINE ====================
+let watermarkTimer = null;
+const duckAudio = new Audio('/rmit/tieng-vit.mp3');
+duckAudio.volume = 0.85;
+
+function startWatermarkEngine(track){
+  stopWatermarkEngine();
+  if(!track || !track.watermarkMode || track.watermarkMode === 'none') return;
+
+  const mode = track.watermarkMode;
+  const artistName = track.artistUsername || 'Nghệ Sĩ';
+  const currentUser = localStorage.getItem('tide_logged_reviewer') || 'Reviewer';
+
+  appendLog(`[WATERMARK ACTIVE] Đã kích hoạt cơ chế chống thu âm: ${mode === 'duck' ? 'Tiếng vịt kêu định kỳ' : 'Giọng nói AI bản quyền'}.`, 'var(--accent)');
+
+  // Phát định kỳ mỗi 8-10 giây
+  watermarkTimer = setInterval(() => {
+    if(!isPlaying) {
+      stopWatermarkEngine();
+      return;
+    }
+
+    if(mode === 'duck'){
+      duckAudio.currentTime = 0;
+      duckAudio.play().catch(e => console.log('Duck audio play error:', e));
+      appendLog(`[WATERMARK] Đã chèn tiếng vịt kêu để vô hiệu hóa thiết bị thu âm ngoài loa.`, 'var(--warn)');
+    } else if(mode === 'voice'){
+      if('speechSynthesis' in window){
+        const utterance = new SpeechSynthesisUtterance(`Bản quyền thuộc về Nghệ Sĩ ${artistName}. Bản nghe thử bảo mật của ${currentUser}.`);
+        utterance.lang = 'vi-VN';
+        utterance.rate = 1.05;
+        utterance.volume = 0.95;
+        window.speechSynthesis.speak(utterance);
+        appendLog(`[VOICE WATERMARK] Đã phát giọng đọc xác thực danh tính bản quyền.`, 'var(--warn)');
+      }
+    }
+  }, 9000);
+}
+
+function stopWatermarkEngine(){
+  if(watermarkTimer){
+    clearInterval(watermarkTimer);
+    watermarkTimer = null;
+  }
+  if(duckAudio) duckAudio.pause();
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
 function tone(f){
   try{
     if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1033,6 +1085,7 @@ function togglePlay(){
     playBtn.textContent='';
     disc.classList.add('spin');
     appendLog(`[PLAYBACK] Bắt đầu luồng giải mã in-memory cho "${track.name}"`, 'var(--accent)');
+    startWatermarkEngine(track);
 
     if(na && na.src && na.src.startsWith('blob:')){
       na.play().catch(e=>console.log(e));

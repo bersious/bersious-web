@@ -263,7 +263,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           break;
         }
 
-                case 'SET_PREVIEW_LIMIT': {
+                        case 'SET_WATERMARK_MODE': {
+          const { trackId, mode } = body;
+          const track = state.tracks.find((t: any) => t.id === trackId);
+          if (track) {
+            track.watermarkMode = mode || 'none';
+            touch();
+          }
+          break;
+        }
+
+        case 'SET_PREVIEW_LIMIT': {
           const { trackId, limitSeconds } = body;
           const track = state.tracks.find((t: any) => t.id === trackId);
           if (track) {
