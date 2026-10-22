@@ -49,6 +49,7 @@ const DEFAULT_STATE = {
   ],
   tracks: [],
   requests: [],
+  comments: [],
   settings: { autoApprove: false },
   session: { artist: null, reviewer: null },
   lastUpdated: new Date().toISOString()
@@ -63,6 +64,7 @@ function normalizeState(s: any) {
     requests: Array.isArray(s.requests) 
       ? s.requests.filter((r: any) => !r.trackId.startsWith('track_0'))
       : [],
+    comments: Array.isArray(s.comments) ? s.comments : [],
     settings: { ...DEFAULT_STATE.settings, ...(s.settings || {}) },
     session: { ...DEFAULT_STATE.session, ...(s.session || {}) },
     lastUpdated: s.lastUpdated || new Date().toISOString()
@@ -263,7 +265,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           break;
         }
 
-                        case 'SET_WATERMARK_MODE': {
+                                case 'ADD_COMMENT': {
+          const { trackId, username, text } = body;
+          if (trackId && username && text) {
+            if (!Array.isArray(state.comments)) state.comments = [];
+            state.comments.unshift({
+              id: `cmt_${Date.now()}_${Math.random().toString(16).slice(2, 6)}`,
+              trackId,
+              username,
+              text: String(text).trim(),
+              createdAt: new Date().toISOString()
+            });
+            touch();
+          }
+          break;
+        }
+
+        case 'SET_TAMPER_PROTECTION': {
+          const { trackId, enabled } = body;
+          const track = state.tracks.find((t: any) => t.id === trackId);
+          if (track) {
+            track.tamperProtection = !!enabled;
+            touch();
+          }
+          break;
+        }
+
+        case 'SET_WATERMARK_MODE': {
           const { trackId, mode } = body;
           const track = state.tracks.find((t: any) => t.id === trackId);
           if (track) {
