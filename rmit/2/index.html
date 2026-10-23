@@ -944,8 +944,8 @@ body{
         <div class="play-controls">
           <button class="play-btn" id="play-btn" onclick="togglePlay()">&#9654;</button>
           <div class="timebar">
-            <div class="track-line"><div class="fill" id="fill"></div></div>
-            <div class="times mono"><span id="cur">0:00</span><span id="dur">3:42</span></div>
+            <div class="track-line" id="track-line-bar" onclick="seekAudio(event)" title="Nhấp để tua thời gian"><div class="fill" id="fill"></div></div>
+            <div class="times mono"><span id="cur">0:00</span><span id="dur">--:--</span></div>
           </div>
         </div>
       </div>
@@ -1747,6 +1747,17 @@ function stopVisualizerRAF(){
   bars.forEach(function(b){ b.style.transform='scaleY(.1)'; b.classList.remove('on'); });
 }
 
+function seekAudio(e){
+  const na = document.getElementById('native-audio');
+  const bar = document.getElementById('track-line-bar');
+  if(!na || !bar || !na.duration || isNaN(na.duration)) return;
+  const rect = bar.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const pct = Math.max(0, Math.min(1, clickX / rect.width));
+  na.currentTime = pct * na.duration;
+  document.getElementById('fill').style.width = (pct * 100) + '%';
+}
+
 function togglePlay(){
   const currentUser=localStorage.getItem('tide_logged_reviewer');
   const tracks=getStoredTracks();
@@ -1780,12 +1791,23 @@ function togglePlay(){
     }
 
     if(na && na.src && (na.src.startsWith('http') || na.src.startsWith('blob:'))){
+      na.onloadedmetadata = function(){
+        const dur = Math.floor(na.duration) || 0;
+        if(dur > 0){
+          const m = Math.floor(dur / 60);
+          const s = String(dur % 60).padStart(2, '0');
+          document.getElementById('dur').textContent = m + ':' + s;
+        }
+      };
       na.play().catch(e=>console.warn('Playback error:', e));
       na.ontimeupdate=()=>{
-        const cur=Math.floor(na.currentTime), dur=Math.floor(na.duration)||222;
+        const cur=Math.floor(na.currentTime);
+        const dur=Math.floor(na.duration) || 0;
         document.getElementById('cur').textContent=Math.floor(cur/60)+':'+String(cur%60).padStart(2,'0');
-        document.getElementById('dur').textContent=Math.floor(dur/60)+':'+String(dur%60).padStart(2,'0');
-        document.getElementById('fill').style.width=((cur/dur)*100)+'%';
+        if(dur > 0){
+          document.getElementById('dur').textContent=Math.floor(dur/60)+':'+String(dur%60).padStart(2,'0');
+          document.getElementById('fill').style.width=Math.min((cur/dur)*100, 100)+'%';
+        }
 
         // Kiểm tra giới hạn thời lượng nghe thử
         if(track.previewLimitSeconds > 0 && na.currentTime >= track.previewLimitSeconds){

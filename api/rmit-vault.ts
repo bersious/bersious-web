@@ -260,12 +260,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           touch();
           break;
 
-        case 'ADD_TRACK':
+        case 'ADD_TRACK': {
+          const bytes = Number(body.bytes) || 4 * 1024 * 1024;
+          const artistUser = (body.track?.artistUsername || body.track?.artistUser || body.artist || '').toLowerCase();
+
+          // Giới hạn nghiêm ngặt mỗi ca sĩ tối đa 100MB dung lượng tải lên
+          const MAX_ARTIST_STORAGE_BYTES = 100 * 1024 * 1024;
+          const artistTracks = state.tracks.filter((t: any) => (t.artistUsername || t.artistUser || '').toLowerCase() === artistUser);
+          const currentTotalBytes = artistTracks.reduce((sum: number, t: any) => sum + (Number(t.rawBytes) || 4 * 1024 * 1024), 0);
+
+          if (currentTotalBytes + bytes > MAX_ARTIST_STORAGE_BYTES) {
+            return res.status(200).json({
+              ok: false,
+              quotaExceeded: true,
+              error: `Ca sĩ @${artistUser} đã dùng ${(currentTotalBytes / 1024 / 1024).toFixed(1)}MB / 100MB. Không thể tải thêm!`
+            });
+          }
+
           if (body.track && !state.tracks.some((t: any) => t.id === body.track.id)) {
+            body.track.rawBytes = bytes;
             state.tracks.unshift(body.track);
             touch();
           }
           break;
+        }
 
         case 'DELETE_TRACK':
           state.tracks = state.tracks.filter((t: any) => t.id !== body.trackId);
