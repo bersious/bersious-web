@@ -1296,79 +1296,84 @@
     .stalker-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(10, 10, 15, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(8, 9, 14, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 999999;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      animation: stalkerFadeIn 0.3s ease;
+      animation: stalkerFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes stalkerFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
     }
     .stalker-modal-card {
-      background: #14141d;
-      border: 1px solid rgba(236, 72, 153, 0.35);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(236, 72, 153, 0.2);
-      border-radius: 20px;
-      max-width: 460px;
+      background: linear-gradient(180deg, #181924 0%, #101118 100%);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(236, 72, 153, 0.22);
+      border-radius: 24px;
+      max-width: 440px;
       width: 100%;
-      padding: 28px 24px;
+      padding: 24px;
       text-align: center;
       color: #e8e8ee;
       position: relative;
       font-family: inherit;
     }
-    .stalker-icon {
-      font-size: 44px;
-      margin-bottom: 12px;
-      display: inline-block;
-      animation: stalkerBounce 1.5s infinite;
+    /* Square cropped meme video frame */
+    .stalker-video-wrap {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(236, 72, 153, 0.45);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 25px rgba(236, 72, 153, 0.25);
+      background: #000;
+      position: relative;
     }
-    @keyframes stalkerBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-    .stalker-title {
-      font-size: 20px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #60a5fa, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 14px;
+    .stalker-video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .stalker-desc {
-      font-size: 15px;
-      line-height: 1.6;
+      font-size: 14.5px;
+      line-height: 1.65;
       color: #d1d5db;
       margin-bottom: 22px;
+      padding: 0 6px;
     }
     .stalker-badge {
       display: inline-block;
-      background: rgba(236, 72, 153, 0.15);
+      background: rgba(236, 72, 153, 0.18);
       color: #f472b6;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 999px;
-      font-weight: 600;
+      font-weight: 700;
     }
     .stalker-close-btn {
-      background: linear-gradient(135deg, #3b82f6, #ec4899);
-      color: #ffffff;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 600;
+      background: linear-gradient(135deg, #60a5fa 0%, #c084fc 50%, #ec4899 100%);
+      color: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 32px;
+      border-radius: 9999px;
+      font-size: 14.5px;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .stalker-close-btn:hover {
-      transform: scale(1.03);
-      opacity: 0.95;
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 24px rgba(236, 72, 153, 0.5);
+    }
+    .stalker-close-btn:active {
+      transform: translateY(0) scale(0.97);
     }
   </style>
 
@@ -1428,15 +1433,27 @@
             modal.className = 'stalker-modal-backdrop';
             modal.innerHTML = 
               '<div class="stalker-modal-card">' +
-                '<div class="stalker-icon">👀 🦆</div>' +
+                '<div class="stalker-video-wrap">' +
+                  '<video src="/assets/video/its-a-trap.mp4" autoplay loop playsinline webkit-playsinline></video>' +
+                '</div>' +
                 '<div class="stalker-desc">' +
                   'Không ngờ bạn dành sự quan tâm cho Nhân nhiều như thế cơ đấy! Trong tuần này bạn đã vào web của Nhân được <span class="stalker-badge">' + visitCountThisWeek + ' lần</span> rồi.<br><br>' +
                   'Cảm ơn bạn nhé, tớ đã ghi lại IP của bạn để sau này tiện cảm ơn =)))' +
                 '</div>' +
-                '<button class="stalker-close-btn" id="stalkerClose">Dạ tớ biết rồi =)))</button>' +
+                '<button class="stalker-close-btn" id="stalkerClose">Uci.</button>' +
               '</div>';
             document.body.appendChild(modal);
+            var vid = modal.querySelector('video');
+            if (vid) {
+              vid.muted = false;
+              vid.play().catch(function () {
+                // If browser blocks unmuted autoplay, mute and play
+                vid.muted = true;
+                vid.play().catch(function(){});
+              });
+            }
             document.getElementById('stalkerClose').addEventListener('click', function () {
+              if (vid) vid.pause();
               modal.remove();
             });
           }, 800);
