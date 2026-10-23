@@ -2,9 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="/rmit/logo.png?v=3">
-<link rel="shortcut icon" type="image/png" href="/rmit/logo.png?v=3">
-<link rel="apple-touch-icon" href="/rmit/logo.png?v=3">
+<link rel="icon" type="image/png" href="/rmit/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SONARA · Studio Âm Nhạc Zero-Trust — RMIT Hackathon 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -177,41 +175,6 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 
   // Từ điển đa ngôn ngữ toàn diện
   const DICT = {
-    "c1-num": { en: "PORTAL 01 · ARTIST", vi: "CỔNG 01 · NGHỆ SĨ" },
-    "c1-title": { en: "Artist Sovereign Vault", vi: "Két Sắt Nghệ Sĩ" },
-    "c1-desc": { en: "Sign in to artist studio, upload lossless master tracks/videos, and grant granular emergent access per reviewer via TideCloak.", vi: "Đăng nhập tài khoản nghệ sĩ, tải file nhạc/video lên và phân quyền truy cập đích danh cho từng người nghe qua TideCloak." },
-    "c1-cta": { en: "Open Artist Studio (/rmit/1) ➔", vi: "Mở Trang Nghệ Sĩ (/rmit/1) ➔" },
-    "c2-num": { en: "PORTAL 02 · REVIEWER", vi: "CỔNG 02 · NGƯỜI NGHE THỬ" },
-    "c2-title": { en: "Reviewer Listening Room", vi: "Phòng Nghe Thử" },
-    "c2-desc": { en: "Sign in with BYOiD identity. Stream in-memory decrypted audio with zero client caching, auto-revoked upon tampering.", vi: "Đăng nhập hoặc tạo danh tính BYOiD mới. Nghe bản thu giải mã trên RAM nếu được cấp quyền, tự động bị ngắt khi bị thu hồi." },
-    "c2-cta": { en: "Open Listening Room (/rmit/2) ➔", vi: "Mở Phòng Nghe Thử (/rmit/2) ➔" },
-    "c3-num": { en: "PORTAL 03 · S3 HOST", vi: "CỔNG 03 · MÁY CHỦ S3" },
-    "c3-title": { en: "Cloud Infrastructure Monitor", vi: "Quản Trị Đám Mây" },
-    "c3-desc": { en: "Inspect raw S3 binary ciphertext. Simulate a rogue root admin trying to decrypt tracks and watch Quorum refuse key release.", vi: "Xem kho dữ liệu nhị phân thô trên S3. Thử đóng vai hacker dùng quyền Root để giải mã và xem kết quả bị Quorum từ chối." },
-    "c3-cta": { en: "Open S3 Inspector (/rmit/3) ➔", vi: "Mở Trình Kiểm Tra S3 (/rmit/3) ➔" },
-    "hero-desc": { en: "Zero-trust pre-release music and creative asset sharing powered by TideCloak Emergent Authority.", vi: "Hệ thống chia sẻ âm nhạc & tác phẩm sáng tạo bảo mật tuyệt đối với công nghệ TideCloak Emergent Authority." },
-    "hero-h1-1": { en: "Share unreleased masters", vi: "Chia sẻ bản thu" },
-    "hero-h1-2": { en: "without trusting anyone.", vi: "không cần tin ai cả." },
-
-    // Portal Index translations
-    "RMIT Hackathon 2026 · Challenge 2 · Team Foodseekers": { en: "RMIT Hackathon 2026 · Challenge 2 · Team Foodseekers", vi: "RMIT Hackathon 2026 · Thử Thách 2 · Đội Foodseekers" },
-    "Chia sẻ bản thu": { en: "Share unreleased masters", vi: "Chia sẻ bản thu" },
-    "không cần tin ai cả.": { en: "without trusting anyone.", vi: "không cần tin ai cả." },
-    "Hệ thống chia sẻ âm nhạc & tác phẩm sáng tạo bảo mật tuyệt đối với công nghệ TideCloak Emergent Authority.": { en: "Zero-trust pre-release music & creative asset sharing powered by TideCloak Emergent Authority.", vi: "Hệ thống chia sẻ âm nhạc & tác phẩm sáng tạo bảo mật tuyệt đối với công nghệ TideCloak Emergent Authority." },
-    "CỔNG 01 · NGHỆ SĨ": { en: "PORTAL 01 · ARTIST", vi: "CỔNG 01 · NGHỆ SĨ" },
-    "Két Sắt Nghệ Sĩ": { en: "Artist Sovereign Vault", vi: "Két Sắt Nghệ Sĩ" },
-    "Đăng nhập tài khoản nghệ sĩ, tải file nhạc/video lên và phân quyền truy cập đích danh cho từng người nghe qua TideCloak.": { en: "Sign in to artist studio, upload lossless master tracks/videos, and grant granular emergent access per reviewer.", vi: "Đăng nhập tài khoản nghệ sĩ, tải file nhạc/video lên và phân quyền truy cập đích danh cho từng người nghe qua TideCloak." },
-    "Mở Trang Nghệ Sĩ (/rmit/1) ➔": { en: "Open Artist Studio (/rmit/1) ➔", vi: "Mở Trang Nghệ Sĩ (/rmit/1) ➔" },
-    "CỔNG 02 · NGƯỜI NGHE THỬ": { en: "PORTAL 02 · REVIEWER", vi: "CỔNG 02 · NGƯỜI NGHE THỬ" },
-    "Phòng Nghe Thử": { en: "Reviewer Listening Room", vi: "Phòng Nghe Thử" },
-    "Đăng nhập hoặc tạo danh tính BYOiD mới. Nghe bản thu giải mã trên RAM nếu được cấp quyền, tự động bị ngắt khi bị thu hồi.": { en: "Sign in with BYOiD identity. Stream in-memory decrypted audio with zero client caching, auto-revoked upon tampering.", vi: "Đăng nhập hoặc tạo danh tính BYOiD mới. Nghe bản thu giải mã trên RAM nếu được cấp quyền, tự động bị ngắt khi bị thu hồi." },
-    "Mở Phòng Nghe Thử (/rmit/2) ➔": { en: "Open Listening Room (/rmit/2) ➔", vi: "Mở Phòng Nghe Thử (/rmit/2) ➔" },
-    "CỔNG 03 · MÁY CHỦ S3": { en: "PORTAL 03 · S3 HOST", vi: "CỔNG 03 · MÁY CHỦ S3" },
-    "Quản Trị Đám Mây": { en: "Cloud Infrastructure Monitor", vi: "Quản Trị Đám Mây" },
-    "Xem kho dữ liệu nhị phân thô trên S3. Thử đóng vai hacker dùng quyền Root để giải mã và xem kết quả bị Quorum từ chối.": { en: "Inspect raw S3 binary ciphertext. Simulate a rogue root admin trying to decrypt tracks and watch Quorum refuse key release.", vi: "Xem kho dữ liệu nhị phân thô trên S3. Thử đóng vai hacker dùng quyền Root để giải mã và xem kết quả bị Quorum từ chối." },
-    "Mở Trình Kiểm Tra S3 (/rmit/3) ➔": { en: "Open S3 Inspector (/rmit/3) ➔", vi: "Mở Trình Kiểm Tra S3 (/rmit/3) ➔" },
-    "SONARA · Studio Két Sắt Âm Nhạc Zero-Trust": { en: "SONARA · Zero-Trust Music Sovereign Vault", vi: "SONARA · Studio Két Sắt Âm Nhạc Zero-Trust" },
-
     // Topbar & Common
     "Nghệ Sĩ / Studio Két Sắt Mật Mã": { en: "Artist / Cryptographic Sovereign Vault", vi: "Nghệ Sĩ / Studio Két Sắt Mật Mã" },
     "Phòng nghe thử riêng tư · TideCloak BYOiD": { en: "Private Review Room · TideCloak BYOiD", vi: "Phòng nghe thử riêng tư · TideCloak BYOiD" },
@@ -329,22 +292,6 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
     localStorage.setItem('sonara_lang', lang);
     document.documentElement.lang = lang;
 
-    // Cập nhật nút active
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-    });
-
-    // Quét trực tiếp data-i18n
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const k = el.getAttribute('data-i18n');
-      if(DICT[k] && DICT[k][lang]){
-        el.textContent = DICT[k][lang];
-      }
-    });
-    currentLang = lang;
-    localStorage.setItem('sonara_lang', lang);
-    document.documentElement.lang = lang;
-
     // Cập nhật trạng thái nút bấm
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
@@ -425,8 +372,8 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 
 <section class="hero">
   <div class="kicker"><span class="pulse"></span> RMIT Hackathon 2026 · Challenge 2 · Team Foodseekers</div>
-  <h1><span data-i18n="hero-h1-1">Chia sẻ bản thu</span><br><span class="glow" data-i18n="hero-h1-2">không cần tin ai cả.</span></h1>
-  <p data-i18n="hero-desc">Zero-trust pre-release music and creative asset sharing powered by TideCloak Emergent Authority.</p>
+  <h1>Chia sẻ bản thu<br><span class="glow">không cần tin ai cả.</span></h1>
+  <p>Hệ thống chia sẻ âm nhạc & tác phẩm sáng tạo bảo mật tuyệt đối với công nghệ TideCloak Emergent Authority.</p>
 </section>
 
 <div class="grid">

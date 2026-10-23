@@ -2,9 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="/rmit/logo.png?v=3">
-<link rel="shortcut icon" type="image/png" href="/rmit/logo.png?v=3">
-<link rel="apple-touch-icon" href="/rmit/logo.png?v=3">
+<link rel="icon" type="image/png" href="/rmit/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nghệ Sĩ · SONARA Studio (TideCloak Sovereign Vault)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1006,25 +1004,10 @@ function switchArtistAuthTab(tab){
 }
 
 function loginArtist(){
-  const rawInput = document.getElementById('artist-login-user').value.trim();
-  const u = rawInput.startsWith('@') ? rawInput.slice(1).trim() : rawInput;
+  const u = document.getElementById('artist-login-user').value.trim();
   const p = document.getElementById('artist-login-pass').value.trim();
-  if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ (vd: @alice_artist).','warn'); return; }
-  if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu đăng nhập.','warn'); return; }
-
-  const artists = getStoredArtists();
-  const artist = artists.find(a => a.username.toLowerCase() === u.toLowerCase());
-  
-  // KIỂM TRA CHẶT CHẼ: CHƯA CÓ TÀI KHOẢN THÌ KHÔNG CHO ĐĂNG NHẬP!
-  if(!artist){
-    showToast('Tài khoản không tồn tại', `Không tìm thấy nghệ sĩ @${u}. Vui lòng chuyển sang tab "Tạo Profile Mới" để đăng ký!`, 'danger');
-    return;
-  }
-
-  if(artist.password && artist.password !== p){
-    showToast('Mật khẩu không đúng','Mật khẩu bạn nhập không khớp với tài khoản này.','danger');
-    return;
-  }
+  if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ.','warn'); return; }
+  if(p !== '123'){ showToast('Mật khẩu không đúng','Mật khẩu xác thực của hệ thống là 123.','danger'); return; }
 
   localStorage.setItem('tide_logged_artist', u);
   activeArtistUser = u;
@@ -1034,17 +1017,16 @@ function loginArtist(){
 
 function registerArtist(){
   const name = document.getElementById('reg-artist-name').value.trim();
-  const rawUser = document.getElementById('reg-artist-user').value.trim().toLowerCase();
-  const user = rawUser.startsWith('@') ? rawUser.slice(1).trim() : rawUser;
+  const user = document.getElementById('reg-artist-user').value.trim().toLowerCase();
   const genre = document.getElementById('reg-artist-genre').value.trim() || 'Âm nhạc đương đại';
   const p = document.getElementById('reg-artist-pass').value.trim();
 
   if(!name || !user){ showToast('Thiếu thông tin','Vui lòng điền tên nghệ sĩ và username.','warn'); return; }
-  if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu khởi tạo cho tài khoản.','warn'); return; }
+  if(p !== '123'){ showToast('Mật khẩu không hợp lệ','Mật khẩu khởi tạo là 123.','danger'); return; }
 
   const artists = getStoredArtists();
-  if(artists.some(a => a.username.toLowerCase() === user.toLowerCase())){
-    showToast('Username đã tồn tại', `Tên @${user} đã có người đăng ký, vui lòng chọn tên khác!`, 'warn');
+  if(artists.some(a => a.username === user)){
+    showToast('Username đã tồn tại','Hãy chọn một tên đăng nhập khác.','warn');
     return;
   }
 
@@ -1052,10 +1034,6 @@ function registerArtist(){
     username: user,
     name: name,
     genre: genre,
-    password: p,
-    avatar: '',
-    createdAt: new Date().toISOString(),
-    blockedUsers: [],
     bio: 'Nghệ sĩ độc lập trên hệ thống SONARA',
     artSeed: Math.floor(Math.random() * 5)
   };
@@ -1066,7 +1044,7 @@ function registerArtist(){
 
   localStorage.setItem('tide_logged_artist', user);
   activeArtistUser = user;
-  showToast('Tạo hồ sơ thành công', `Két sắt của @${user} đã sẵn sàng.`, 'ok');
+  showToast('Tạo hồ sơ thành công', `Két sắt của ${name} đã sẵn sàng.`, 'ok');
   checkArtistAuth();
 }
 

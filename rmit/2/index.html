@@ -185,7 +185,7 @@ body::before{
 }
 .play-btn:hover{transform:scale(1.06)}
 .timebar{flex:1}
-.track-line{height:8px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;cursor:pointer;position:relative;transition:height .15s}.track-line:hover{height:10px}
+.track-line{height:5px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
 .fill{height:100%;width:0%;background:var(--accent);transition:width .25s linear}
 .times{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:6px}
 
@@ -891,32 +891,7 @@ body{
     </section>
 
     <!-- THANH CHỌN NGHỆ SĨ TRỰC QUAN (CHỈ CHỌN, KHÔNG BẮT GÕ) -->
-    
-    <!-- BỘ TÌM KIẾM & LỌC NGHỆ SĨ THÔNG MINH (CHO DANH SÁCH LỚN) -->
     <div class="artist-selector-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
-        <div>
-          <span style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
-            <span>🎤</span> <span data-i18n="sel-artist-title">Khám Phá Két Sắt Nghệ Sĩ:</span>
-          </span>
-          <span style="font-size:12px;color:var(--muted)" data-i18n="sel-artist-sub">Tìm kiếm nhanh nghệ danh, lọc theo số lượng bài hát, ngày tham gia hoặc trạng thái block</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <!-- Ô tìm kiếm nghệ danh có @ -->
-          <div style="position:relative">
-            <input type="text" id="artist-search-input" class="form-input" style="width:220px;padding:6px 12px 6px 28px;font-size:12px" placeholder="Tìm kiếm @username..." oninput="filterArtistsUI()">
-            <span style="position:absolute;left:9px;top:7px;color:var(--muted);font-size:12px">🔍</span>
-          </div>
-          <!-- Dropdown sắp xếp / lọc -->
-          <select id="artist-sort-select" class="form-input" style="width:170px;padding:6px 10px;font-size:12px" onchange="filterArtistsUI()">
-            <option value="tracks_desc">Nhiều bài hát nhất</option>
-            <option value="newest">Mới tham gia gần đây</option>
-            <option value="name_asc">Tên A → Z</option>
-            <option value="all">Tất cả nghệ sĩ</option>
-          </select>
-        </div>
-      </div>
-
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <div>
           <span style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px">
@@ -969,8 +944,8 @@ body{
         <div class="play-controls">
           <button class="play-btn" id="play-btn" onclick="togglePlay()">&#9654;</button>
           <div class="timebar">
-            <div class="track-line" id="track-line-bar" onclick="seekAudio(event)" title="Nhấp để tua thời gian"><div class="fill" id="fill"></div></div>
-            <div class="times mono"><span id="cur">0:00</span><span id="dur">--:--</span></div>
+            <div class="track-line"><div class="fill" id="fill"></div></div>
+            <div class="times mono"><span id="cur">0:00</span><span id="dur">3:42</span></div>
           </div>
         </div>
       </div>
@@ -1221,26 +1196,11 @@ function switchAuthTab(tab){
 }
 
 function loginReviewer(){
-  const rawInput=document.getElementById('reviewer-login-user').value.trim();
-  const u = rawInput.startsWith('@') ? rawInput.slice(1).trim() : rawInput;
+  const u=document.getElementById('reviewer-login-user').value.trim();
   const p=document.getElementById('reviewer-login-pass').value.trim();
-  if(!u){alert('Vui lòng nhập username (vd: @minh_mastering)!');return;}
+  if(!u){alert('Vui lòng nhập username!');return;}
   if(!p){alert('Vui lòng nhập mật khẩu xác thực!');return;}
-
-  const users = getStoredUsers();
-  const user = users.find(x => x.username.toLowerCase() === u.toLowerCase());
-  
-  // CHẶT CHẼ: CHƯA CÓ TÀI KHOẢN THÌ KHÔNG CHO ĐĂNG NHẬP!
-  if(!user){
-    alert(`Không tìm thấy tài khoản @${u}! Vui lòng bấm vào tab "Tạo Danh Tính Mới" để đăng ký.`);
-    return;
-  }
-
-  if(user && user.password && user.password !== p){
-    alert('Mật khẩu không chính xác!');
-    return;
-  }
-
+  if(p !== '123'){alert('Mật khẩu xác thực không chính xác.');return;}
   localStorage.setItem('tide_logged_reviewer',u);
   pushCloudAction('SET_SESSION', {role:'reviewer', username:u});
   checkAuth();
@@ -1248,31 +1208,22 @@ function loginReviewer(){
 
 function registerReviewer(){
   const name=document.getElementById('reg-name').value.trim();
-  const rawUser=document.getElementById('reg-user').value.trim().toLowerCase();
-  const u = rawUser.startsWith('@') ? rawUser.slice(1).trim() : rawUser;
+  const u=document.getElementById('reg-user').value.trim().toLowerCase();
   const p=document.getElementById('reg-pass').value.trim();
   if(!name || !u){alert('Vui lòng điền đủ họ tên và username!');return;}
   if(!p){alert('Vui lòng nhập mật khẩu khởi tạo!');return;}
+  if(p !== '123'){alert('Mật khẩu không hợp lệ.');return;}
 
   const users=getStoredUsers();
-  if(users.some(x=>x.username.toLowerCase()===u.toLowerCase())){alert(`Username @${u} này đã tồn tại! Vui lòng chọn tên khác.`);return;}
+  if(users.some(x=>x.username===u)){alert('Username này đã tồn tại!');return;}
 
-  const newUser={
-    username: u,
-    name: name,
-    role: 'reviewer',
-    password: p,
-    avatar: '',
-    createdAt: new Date().toISOString(),
-    blockedArtists: [],
-    did: 'tide:usr:' + u + '_' + Math.random().toString(16).substring(2,6)
-  };
+  const newUser={username:u,name:name,role:'reviewer',did:'tide:usr:'+u+'_'+Math.random().toString(16).substring(2,6)};
   users.push(newUser);
   localStorage.setItem('tide_users',JSON.stringify(users));
   localStorage.setItem('tide_logged_reviewer',u);
 
   pushCloudAction('REGISTER_USER', {user:newUser});
-  alert(`Đã khởi tạo danh tính thành công cho @${u}!`);
+  alert(`Đã khởi tạo danh tính thành công: ${newUser.did}!`);
   checkAuth();
 }
 
@@ -1313,109 +1264,53 @@ function checkAuth(){
 }
 
 // ==================== CLEAN ARTIST SELECTION ====================
-
-// Hàm lọc và tìm kiếm nghệ sĩ động
-function filterArtistsUI(){
-  renderArtistChips();
-}
-
-function toggleBlockArtist(targetArtistUser, event){
-  if(event) event.stopPropagation();
-  const logged = localStorage.getItem('tide_logged_reviewer') || '';
-  if(!logged){ alert('Vui lòng đăng nhập trước!'); return; }
-  
-  const users = getStoredUsers();
-  const me = users.find(u => u.username.toLowerCase() === logged.toLowerCase());
-  if(!me) return;
-  me.blockedArtists = Array.isArray(me.blockedArtists) ? me.blockedArtists : [];
-  
-  const isBlocked = me.blockedArtists.includes(targetArtistUser);
-  if(isBlocked){
-    me.blockedArtists = me.blockedArtists.filter(a => a !== targetArtistUser);
-  } else {
-    if(!confirm()) return;
-    me.blockedArtists.push(targetArtistUser);
-  }
-  
-  localStorage.setItem('tide_users', JSON.stringify(users));
-  pushCloudAction('TOGGLE_BLOCK', { fromRole: 'reviewer', fromUsername: logged, targetUsername: targetArtistUser });
-  renderArtistChips();
-  renderAlbumGrid();
-}
-
 function renderArtistChips(){
-  let artists = getStoredArtists();
+  const artists = getStoredArtists();
   const tracks = getStoredTracks();
   const container = document.getElementById('artist-chips-container');
   const select = document.getElementById('quick-artist-select');
   if(!container) return;
 
-  const logged = localStorage.getItem('tide_logged_reviewer') || '';
-  const users = getStoredUsers();
-  const me = users.find(u => u.username.toLowerCase() === logged.toLowerCase());
-  const myBlocked = me && Array.isArray(me.blockedArtists) ? me.blockedArtists : [];
-
-  // Tìm kiếm
-  const kw = (document.getElementById('artist-search-input')?.value || '').trim().toLowerCase().replace(/^@/, '');
-  if(kw){
-    artists = artists.filter(a => (a.username||'').toLowerCase().includes(kw) || (a.name||'').toLowerCase().includes(kw));
-  }
-
-  // Sắp xếp
-  const sortType = document.getElementById('artist-sort-select')?.value || 'tracks_desc';
-  if(sortType === 'tracks_desc'){
-    artists.sort((a,b) => {
-      const ca = tracks.filter(t => (t.artistUsername||'').toLowerCase() === a.username.toLowerCase()).length;
-      const cb = tracks.filter(t => (t.artistUsername||'').toLowerCase() === b.username.toLowerCase()).length;
-      return cb - ca;
-    });
-  } else if(sortType === 'newest'){
-    artists.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-  } else if(sortType === 'name_asc'){
-    artists.sort((a,b) => (a.name||'').localeCompare(b.name||''));
-  }
-
   container.innerHTML = '';
 
-  // Chip Tất cả
+  // Thêm chip "Tất cả nghệ sĩ" để xem toàn bộ file đã upload
   const allChip = document.createElement('div');
   const isAll = selectedArtist === 'ALL';
-  allChip.className = 'artist-chip ' + (isAll ? 'active' : '');
+  allChip.className = `artist-chip ${isAll ? 'active' : ''}`;
   allChip.onclick = () => switchArtist('ALL');
-  allChip.innerHTML = '<div class="chip-avatar" style="background:var(--fg);color:#0a0b0e">✦</div>' +
-    '<div class="chip-meta">' +
-      '<div class="chip-name">Tất cả tác phẩm</div>' +
-      '<div class="chip-genre mono">' + tracks.length + ' bài đã tải lên</div>' +
-    '</div>';
+  allChip.innerHTML = `
+    <div class="chip-avatar" style="background:var(--fg);color:#0a0b0e"></div>
+    <div class="chip-meta">
+      <div class="chip-name">Tất cả tác phẩm</div>
+      <div class="chip-genre mono">${tracks.length} bài đã tải lên</div>
+    </div>
+  `;
   container.appendChild(allChip);
 
   artists.forEach(a => {
     const songCount = tracks.filter(t => (t.artistUsername||'').toLowerCase() === a.username.toLowerCase()).length;
     const isCur = a.username.toLowerCase() === selectedArtist.toLowerCase();
-    const isBlocked = myBlocked.includes(a.username);
 
     const chip = document.createElement('div');
-    chip.className = 'artist-chip ' + (isCur ? 'active' : '') + (isBlocked ? ' blocked' : '');
-    chip.style.position = 'relative';
+    chip.className = `artist-chip ${isCur ? 'active' : ''}`;
     chip.onclick = () => switchArtist(a.username);
 
-    const avatarHtml = a.avatar 
-      ? '<img src="' + a.avatar + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">'
-      : '<div class="chip-avatar">' + ((a.name||'A').charAt(0).toUpperCase()) + '</div>';
-
-    chip.innerHTML = avatarHtml +
-      '<div class="chip-meta" style="flex:1;min-width:0">' +
-        '<div class="chip-name" style="display:flex;align-items:center;gap:6px">' +
-          '<span>' + a.name + '</span>' +
-          (isBlocked ? '<span style="color:var(--danger);font-size:10px" class="mono">[ĐÃ CHẶN]</span>' : '') +
-        '</div>' +
-        '<div class="chip-genre mono">@' + a.username + ' · ' + songCount + ' bài</div>' +
-      '</div>' +
-      '<button class="btn-sm" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:' + (isBlocked ? 'var(--ok)' : 'var(--danger)') + ';border-radius:6px;font-size:10px;padding:3px 6px;margin-left:6px" onclick="toggleBlockArtist(\'' + a.username + '\', event)" title="Chặn / Bỏ chặn nghệ sĩ">' +
-        (isBlocked ? 'Bỏ chặn' : 'Chặn') +
-      '</button>';
+    chip.innerHTML = `
+      <div class="chip-avatar">${(a.name||'A').charAt(0).toUpperCase()}</div>
+      <div class="chip-meta">
+        <div class="chip-name">${a.name}</div>
+        <div class="chip-genre mono">@${a.username} · ${songCount} bài</div>
+      </div>
+    `;
     container.appendChild(chip);
   });
+
+  if(select){
+    select.innerHTML = artists.map(a => {
+      const count = tracks.filter(t => (t.artistUsername||'alice_artist').toLowerCase() === a.username.toLowerCase()).length;
+      return `<option value="${a.username}" ${a.username===selectedArtist?'selected':''}>${a.name} (@${a.username}) — ${count} bài</option>`;
+    }).join('');
+  }
 }
 
 function switchArtist(artistName){
@@ -1586,17 +1481,6 @@ async function syncActiveTrackView(){
   const audioCont = document.getElementById('audio-container');
   const lockedPanel = document.getElementById('locked-request-panel');
   const disc = document.getElementById('disc');
-  if(disc){
-    if(track && track.coverArt && track.coverArt.startsWith('http')){
-      disc.style.backgroundImage = `url('${track.coverArt}')`;
-      disc.style.backgroundSize = 'cover';
-      disc.style.backgroundPosition = 'center';
-      disc.textContent = '';
-    } else {
-      disc.style.backgroundImage = 'none';
-      disc.textContent = '💿';
-    }
-  }
 
   if(!track){
     npTitle.textContent = 'Chưa chọn tác phẩm nào';
@@ -1861,17 +1745,6 @@ function startVisualizerRAF(){
 function stopVisualizerRAF(){
   if(vizRaf){ cancelAnimationFrame(vizRaf); vizRaf = null; }
   bars.forEach(function(b){ b.style.transform='scaleY(.1)'; b.classList.remove('on'); });
-}
-
-function seekAudio(e){
-  const na = document.getElementById('native-audio');
-  const bar = document.getElementById('track-line-bar');
-  if(!na || !bar || !na.duration || isNaN(na.duration)) return;
-  const rect = bar.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const pct = Math.max(0, Math.min(1, clickX / rect.width));
-  na.currentTime = pct * na.duration;
-  document.getElementById('fill').style.width = (pct * 100) + '%';
 }
 
 function togglePlay(){
