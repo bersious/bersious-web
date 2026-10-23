@@ -1399,10 +1399,11 @@
         else if (/iphone|ipad|ipod/.test(u)) os = 'iOS';
         else if (/linux/.test(u)) os = 'Linux';
 
-        // Stalker Trap: 7 visits in 7 days
+        // Stalker Trap: 10 visits in 7 days, counted strictly after reset timestamp
         var now = Date.now();
         var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-        var STALKER_KEY = 'bn_visits_timeline';
+        var STALKER_KEY = 'bn_visits_timeline_v2';
+        var RESET_EPOCH = 1792765800000; // Reset point: 2026-10-23 21:30
         var IS_ADMIN = Boolean(sessionStorage.getItem('bersious_stats_key') || localStorage.getItem('bersious_stats_key'));
         
         var history = [];
@@ -1414,9 +1415,9 @@
           history = [];
         }
 
-        // Clean older than 7 days
+        // Clean older than 7 days AND older than reset point
         history = history.filter(function (t) {
-          return typeof t === 'number' && (now - t) < SEVEN_DAYS;
+          return typeof t === 'number' && (now - t) < SEVEN_DAYS && t >= RESET_EPOCH;
         });
         history.push(now);
         try {
