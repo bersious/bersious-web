@@ -108,12 +108,29 @@
 
     .logo {
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: baseline;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .logo .logo-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-left: 2px;
+      border-radius: 50%;
       background: linear-gradient(135deg, var(--blue), var(--pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      box-shadow: 0 0 10px var(--pink);
+      animation: logoDotPulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes logoDotPulse {
+      0%, 100% { opacity: 0.7; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 14px var(--blue); }
     }
 
     .nav-right {
@@ -608,15 +625,39 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.3s ease;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
       text-decoration: none;
       color: inherit;
+      position: relative;
     }
 
     .gallery-item:hover {
-      border-color: var(--pink);
-      transform: translateY(-3px);
+      border-color: rgba(236, 72, 153, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(236, 72, 153, 0.15);
+    }
+
+    /* ====== Card 1: bersious.io.vn (Cyber/Web vibe) ====== */
+    .gallery-item-web:hover {
+      border-color: rgba(96, 165, 250, 0.6);
+      box-shadow: 0 12px 30px -10px rgba(96, 165, 250, 0.35), inset 0 1px 0 rgba(96, 165, 250, 0.2);
+    }
+    .gallery-item-web .gallery-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(96, 165, 250, 0.08);
+      border: 1px solid rgba(96, 165, 250, 0.2);
+      transition: all 0.3s ease;
+    }
+    .gallery-item-web:hover .gallery-icon {
+      transform: scale(1.1) rotate(-8deg);
+      background: rgba(96, 165, 250, 0.18);
+      box-shadow: 0 0 16px rgba(96, 165, 250, 0.4);
     }
 
     .gallery-item.coming-soon {
@@ -793,8 +834,9 @@
     }
 
     .connect-badge:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(96, 165, 250, 0.2);
+      border-color: rgba(96, 165, 250, 0.4);
     }
 
     .connect-badge .left {
@@ -837,27 +879,82 @@
 
     /* Footer */
     footer {
-      padding: 40px 0;
-      margin-top: 40px;
+      padding: 40px 0 30px;
+      margin-top: 60px;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-sub);
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
     }
 
-    footer .status-ok {
+    footer .footer-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer .back-to-top {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    footer .back-to-top:hover {
       color: var(--blue);
+      border-color: rgba(96, 165, 250, 0.3);
+      background: rgba(96, 165, 250, 0.06);
+      transform: translateY(-2px);
     }
 
     @media (max-width: 600px) {
       .nav-links { display: none; }
-      .hero { padding: 50px 0 40px; }
+      .hero { padding: 50px 0 60px; }
       section { padding: 40px 0; }
+      .cta-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+      }
+      .cta-group .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .connect-links {
+        flex-direction: column;
+        width: 100%;
+      }
+      .connect-badge {
+        width: 100%;
+      }
+      .connect-badge .left {
+        flex: 1;
+      }
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+
+    /* Tối ưu hiệu năng: Tắt animation nặng khi người dùng bật chế độ giảm chuyển động trên máy */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
   <!-- Vercel Web Analytics -->
@@ -867,7 +964,7 @@
   <div class="container">
     <!-- Navigation -->
     <nav>
-      <div class="logo">bersious</div>
+      <a href="#" class="logo">bersious<span class="logo-dot"></span></a>
       <div class="nav-right">
         <div class="nav-links">
           <a href="#about" data-i18n="nav-about">About</a>
@@ -947,7 +1044,7 @@
       <div class="section-label" data-i18n="projects-label">02 / Projects</div>
       <h2 data-i18n="projects-title">Things I've built</h2>
       <div class="gallery">
-        <a class="gallery-item" href="https://github.com/bersious/bersious-web" target="_blank" rel="noopener">
+        <a class="gallery-item gallery-item-web" href="https://github.com/bersious/bersious-web" target="_blank" rel="noopener">
           <div>
             <div class="gallery-icon">🌐</div>
             <div class="gallery-title" data-i18n="proj-1-title">bersious.io.vn</div>
@@ -1072,7 +1169,12 @@
 
     <!-- Footer -->
     <footer>
-      <span class="status-ok">status: 200 OK</span>
+      <div class="footer-left">
+        <span>© 2026 bersious</span>
+        <span style="opacity: 0.4;">•</span>
+        <span style="font-size: 0.8rem; color: var(--text-sub);">Nguyen Thanh Thien Nhan</span>
+      </div>
+      <a href="#" class="back-to-top">Back to top ↑</a>
     </footer>
   </div>
 
