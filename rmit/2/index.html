@@ -185,7 +185,7 @@ body::before{
 }
 .play-btn:hover{transform:scale(1.06)}
 .timebar{flex:1}
-.track-line{height:5px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
+.track-line{height:8px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;cursor:pointer;position:relative;transition:height .15s}.track-line:hover{height:10px}
 .fill{height:100%;width:0%;background:var(--accent);transition:width .25s linear}
 .times{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:6px}
 
@@ -969,7 +969,7 @@ body{
         <div class="play-controls">
           <button class="play-btn" id="play-btn" onclick="togglePlay()">&#9654;</button>
           <div class="timebar">
-            <div class="track-line"><div class="fill" id="fill"></div></div>
+            <div class="track-line" id="track-line-bar" onclick="seekAudio(event)" title="Nhấp để tua thời gian"><div class="fill" id="fill"></div></div>
             <div class="times mono"><span id="cur">0:00</span><span id="dur">3:42</span></div>
           </div>
         </div>
@@ -1861,6 +1861,17 @@ function startVisualizerRAF(){
 function stopVisualizerRAF(){
   if(vizRaf){ cancelAnimationFrame(vizRaf); vizRaf = null; }
   bars.forEach(function(b){ b.style.transform='scaleY(.1)'; b.classList.remove('on'); });
+}
+
+function seekAudio(e){
+  const na = document.getElementById('native-audio');
+  const bar = document.getElementById('track-line-bar');
+  if(!na || !bar || !na.duration || isNaN(na.duration)) return;
+  const rect = bar.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const pct = Math.max(0, Math.min(1, clickX / rect.width));
+  na.currentTime = pct * na.duration;
+  document.getElementById('fill').style.width = (pct * 100) + '%';
 }
 
 function togglePlay(){
