@@ -1009,7 +1009,14 @@ function loginArtist(){
   const u = document.getElementById('artist-login-user').value.trim();
   const p = document.getElementById('artist-login-pass').value.trim();
   if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ.','warn'); return; }
-  if(p !== '123'){ showToast('Mật khẩu không đúng','Mật khẩu xác thực của hệ thống là 123.','danger'); return; }
+  if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu đăng nhập.','warn'); return; }
+
+  const artists = getStoredArtists();
+  const artist = artists.find(a => a.username.toLowerCase() === u.toLowerCase());
+  if(artist && artist.password && artist.password !== p){
+    showToast('Mật khẩu không đúng','Mật khẩu bạn nhập không khớp với tài khoản này.','danger');
+    return;
+  }
 
   localStorage.setItem('tide_logged_artist', u);
   activeArtistUser = u;
@@ -1024,7 +1031,7 @@ function registerArtist(){
   const p = document.getElementById('reg-artist-pass').value.trim();
 
   if(!name || !user){ showToast('Thiếu thông tin','Vui lòng điền tên nghệ sĩ và username.','warn'); return; }
-  if(p !== '123'){ showToast('Mật khẩu không hợp lệ','Mật khẩu khởi tạo là 123.','danger'); return; }
+  if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu khởi tạo cho tài khoản.','warn'); return; }
 
   const artists = getStoredArtists();
   if(artists.some(a => a.username === user)){
@@ -1036,6 +1043,7 @@ function registerArtist(){
     username: user,
     name: name,
     genre: genre,
+    password: p,
     bio: 'Nghệ sĩ độc lập trên hệ thống SONARA',
     artSeed: Math.floor(Math.random() * 5)
   };

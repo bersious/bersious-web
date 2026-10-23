@@ -497,7 +497,7 @@ tr:hover td {
       </div>
       <div class="form-group">
         <label>Mật Khẩu</label>
-        <input type="text" id="add-art-pass" class="form-input" placeholder="123" value="123">
+        <input type="text" id="add-art-pass" class="form-input" placeholder="Nhập mật khẩu tự chọn">
       </div>
       <button class="btn-submit" onclick="addArtist()">+ Tạo Ca Sĩ</button>
     </div>
@@ -543,7 +543,7 @@ tr:hover td {
       </div>
       <div class="form-group">
         <label>Mật Khẩu</label>
-        <input type="text" id="add-usr-pass" class="form-input" placeholder="123" value="123">
+        <input type="text" id="add-usr-pass" class="form-input" placeholder="Nhập mật khẩu tự chọn">
       </div>
       <button class="btn-submit" onclick="addUser()">+ Tạo Người Nghe</button>
     </div>
@@ -703,7 +703,7 @@ async function addArtist() {
   const name = document.getElementById('add-art-name').value.trim();
   const user = document.getElementById('add-art-user').value.trim().toLowerCase();
   const genre = document.getElementById('add-art-genre').value.trim() || 'Pop / Electronic';
-  const pass = document.getElementById('add-art-pass').value.trim() || '123';
+  const pass = document.getElementById('add-art-pass').value.trim() || 'password';
 
   if (!name || !user) return alert('Vui lòng nhập tên và username nghệ sĩ!');
   if (stateCache.artists.some(a => a.username === user)) return alert('Username ca sĩ này đã tồn tại!');
@@ -729,7 +729,7 @@ async function addUser() {
   const name = document.getElementById('add-usr-name').value.trim();
   const user = document.getElementById('add-usr-user').value.trim().toLowerCase();
   const did = document.getElementById('add-usr-did').value.trim() || `tide:usr:${user}_${Math.random().toString(16).slice(2, 6)}`;
-  const pass = document.getElementById('add-usr-pass').value.trim() || '123';
+  const pass = document.getElementById('add-usr-pass').value.trim() || 'password';
 
   if (!name || !user) return alert('Vui lòng nhập họ tên và username!');
   if (stateCache.users.some(u => u.username === user)) return alert('Username người nghe này đã tồn tại!');

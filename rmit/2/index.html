@@ -1198,9 +1198,16 @@ function switchAuthTab(tab){
 function loginReviewer(){
   const u=document.getElementById('reviewer-login-user').value.trim();
   const p=document.getElementById('reviewer-login-pass').value.trim();
-  if(!u){alert('Vui lòng nhập username!');return;}
+  if(!u){alert('Vui lòng nhập username!');return;}\
   if(!p){alert('Vui lòng nhập mật khẩu xác thực!');return;}
-  if(p !== '123'){alert('Mật khẩu xác thực không chính xác.');return;}
+
+  const users = getStoredUsers();
+  const user = users.find(x => x.username.toLowerCase() === u.toLowerCase());
+  if(user && user.password && user.password !== p){
+    alert('Mật khẩu không chính xác!');
+    return;
+  }
+
   localStorage.setItem('tide_logged_reviewer',u);
   pushCloudAction('SET_SESSION', {role:'reviewer', username:u});
   checkAuth();
@@ -1212,12 +1219,17 @@ function registerReviewer(){
   const p=document.getElementById('reg-pass').value.trim();
   if(!name || !u){alert('Vui lòng điền đủ họ tên và username!');return;}
   if(!p){alert('Vui lòng nhập mật khẩu khởi tạo!');return;}
-  if(p !== '123'){alert('Mật khẩu không hợp lệ.');return;}
 
   const users=getStoredUsers();
   if(users.some(x=>x.username===u)){alert('Username này đã tồn tại!');return;}
 
-  const newUser={username:u,name:name,role:'reviewer',did:'tide:usr:'+u+'_'+Math.random().toString(16).substring(2,6)};
+  const newUser={
+    username: u,
+    name: name,
+    role: 'reviewer',
+    password: p,
+    did: 'tide:usr:' + u + '_' + Math.random().toString(16).substring(2,6)
+  };
   users.push(newUser);
   localStorage.setItem('tide_users',JSON.stringify(users));
   localStorage.setItem('tide_logged_reviewer',u);
