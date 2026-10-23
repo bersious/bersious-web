@@ -19,8 +19,40 @@
   --ok:#3ee88f;--ok-dim:rgba(62,232,143,.12);--radius:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif;line-height:1.5;min-height:100vh}
-body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 500px at 80% -5%,rgba(212,255,63,.07),transparent 60%)}
+body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif;line-height:1.5;min-height:100vh;position:relative}
+
+/* Video Background Layer - Siêu tối ưu, GPU hardware accelerated, không gây lag */
+.video-bg-container{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:-2;
+  overflow:hidden;
+  pointer-events:none;
+  background:#07080c;
+}
+.video-bg-media{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0.28;
+  filter:brightness(0.65) contrast(1.2) saturate(1.15);
+  transform:translateZ(0);
+  will-change:transform;
+}
+.video-bg-overlay{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 30%, rgba(7,8,12,0.45) 0%, rgba(7,8,12,0.88) 75%, #07080c 100%),
+             linear-gradient(180deg, rgba(7,8,12,0.6) 0%, rgba(7,8,12,0.92) 100%);
+  pointer-events:none;
+}
+@media(max-width:768px){
+  .video-bg-media{opacity:0.22;filter:brightness(0.55);}
+}
+
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 500px at 80% -5%,rgba(212,255,63,.05),transparent 60%);pointer-events:none}
 .mono{font-family:'JetBrains Mono',monospace}
 
 /* Topbar sạch sẽ - KHÔNG CÒN 3 NÚT CHUYỂN CHẾ ĐỘ */
@@ -165,6 +197,14 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 </style>
 </head>
 <body>
+
+<!-- Background Video Layer (Cyber Blue Audio Wave Particles) -->
+<div class="video-bg-container">
+  <video class="video-bg-media" autoplay loop muted playsinline preload="auto" poster="/rmit/bg-poster.webp">
+    <source src="/rmit/bg-wave.mp4" type="video/mp4">
+  </video>
+  <div class="video-bg-overlay"></div>
+</div>
 
 <script>
 
