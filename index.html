@@ -580,6 +580,77 @@
       opacity: 0.5;
     }
 
+    /* ====== SONARA (RMIT 2026) - Cyber Lime Glow & Wave Effect ====== */
+    .gallery-item-rmit {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(184, 243, 107, 0.2);
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.8) 0%, rgba(13, 19, 33, 0.95) 100%);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .gallery-item-rmit:hover {
+      border-color: rgba(184, 243, 107, 0.65);
+      box-shadow: 0 10px 30px -10px rgba(184, 243, 107, 0.25), inset 0 1px 0 rgba(184, 243, 107, 0.3);
+      transform: translateY(-4px);
+    }
+    .gallery-item-rmit .gallery-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(184, 243, 107, 0.1);
+      border: 1px solid rgba(184, 243, 107, 0.25);
+      transition: all 0.3s ease;
+    }
+    .gallery-item-rmit:hover .gallery-icon {
+      transform: scale(1.1) rotate(5deg);
+      background: rgba(184, 243, 107, 0.2);
+      box-shadow: 0 0 16px rgba(184, 243, 107, 0.4);
+    }
+    .gallery-launch {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, #b8f36b 0%, #10b981 100%);
+      color: #061008;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(184, 243, 107, 0.4);
+      opacity: 0;
+      transform: translateX(20px) scale(0.85);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .gallery-launch .launch-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #061008;
+      animation: launchPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes launchPulse {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+    .gallery-item-rmit:hover .gallery-launch {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    .tag-cyber {
+      background: rgba(184, 243, 107, 0.12) !important;
+      color: #b8f36b !important;
+      border: 1px solid rgba(184, 243, 107, 0.35) !important;
+      font-weight: 600;
+    }
+
     /* ====== TMN 20/10 - "Join for food" hover effect ====== */
     .gallery-item-tmn {
       position: relative;
@@ -888,13 +959,23 @@
           <span class="join-text">Join for food</span>
         </span>
       </a>
-        <a class="gallery-item" href="/rmit" data-project-slug="unreleased-rmit">
+        <a class="gallery-item gallery-item-rmit" href="/rmit" data-project-slug="sonara-rmit">
           <div>
-            <div class="gallery-icon">⚡</div>
-            <div class="gallery-title" data-i18n="proj-3-title">UNRELEASED · RMIT 2026</div>
-            <div class="gallery-desc" data-i18n="proj-3-desc">Zero-trust creative audio preview studio powered by TideCloak.</div>
+            <div class="gallery-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+                <!-- Soundwave & Lock Shield Cyber -->
+                <path d="M12 2L4 6V11C4 16.55 7.41 21.74 12 23C16.59 21.74 20 16.55 20 11V6L12 2Z" stroke="#b8f36b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 11.5V13.5M12 9.5V15.5M15 11.5V13.5" stroke="#b8f36b" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="gallery-title" data-i18n="proj-3-title">SONARA · RMIT 2026</div>
+            <div class="gallery-desc" data-i18n="proj-3-desc">Zero-trust creative audio preview studio powered by TideCloak Emergent Authority.</div>
           </div>
-          <span class="gallery-tag" data-i18n="proj-3-tag">live</span>
+          <span class="gallery-tag tag-cyber" data-i18n="proj-3-tag">live</span>
+          <span class="gallery-launch">
+            <span class="launch-pulse"></span>
+            <span class="launch-text">Launch Studio</span>
+          </span>
         </a>
       </div>
     </section>
@@ -982,7 +1063,7 @@
         'proj-2-title': 'TMN 20/10',
         'proj-2-desc': 'An intangible gift accompanying the main gift on the occasion of October 20, 2026.',
         'proj-2-tag': 'live',
-        'proj-3-title': 'UNRELEASED · RMIT 2026',
+        'proj-3-title': 'SONARA · RMIT 2026',
         'proj-3-desc': 'Zero-trust creative audio preview studio powered by TideCloak Emergent Authority.',
         'proj-3-tag': 'live',
         'connect-label': '03 / Connect',
@@ -1017,8 +1098,8 @@
         'proj-2-title': 'TMN 20/10',
         'proj-2-desc': 'An intangible gift accompanying the main gift on the occasion of October 20, 2026.',
         'proj-2-tag': 'live',
-        'proj-3-title': 'UNRELEASED · RMIT 2026',
-        'proj-3-desc': 'Studio nghe thử âm thanh zero-trust tích hợp TideCloak Emergent Authority.',
+        'proj-3-title': 'SONARA · RMIT 2026',
+        'proj-3-desc': 'Studio két sắt nghe thử âm nhạc Zero-Trust tích hợp TideCloak Emergent Authority.',
         'proj-3-tag': 'trực tuyến',
         'connect-label': '03 · Liên hệ',
         'connect-title': 'Nói chuyện nha',
@@ -1121,9 +1202,11 @@
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const slug = link.getAttribute('data-project-slug');
-        // Use pretty URL for tmn-2010, fallback to project.html for others
+        // Use pretty URL for tmn-2010 and sonara-rmit, fallback to project.html for others
         if (slug === 'tmn-2010') {
           window.location.href = '/tmn';
+        } else if (slug === 'sonara-rmit') {
+          window.location.href = '/rmit';
         } else {
           window.location.href = 'project.html?slug=' + encodeURIComponent(slug);
         }
