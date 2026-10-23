@@ -693,7 +693,87 @@
     })();
   </script>
 
-  <!-- Visitor tracking (client-side) -->
+  <!-- Visitor tracking & Stalker trap (client-side) -->
+  <style>
+    .stalker-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: stalkerFadeIn 0.3s ease;
+    }
+    @keyframes stalkerFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .stalker-modal-card {
+      background: #14141d;
+      border: 1px solid rgba(236, 72, 153, 0.35);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(236, 72, 153, 0.2);
+      border-radius: 20px;
+      max-width: 460px;
+      width: 100%;
+      padding: 28px 24px;
+      text-align: center;
+      color: #e8e8ee;
+      position: relative;
+      font-family: inherit;
+    }
+    .stalker-icon {
+      font-size: 44px;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: stalkerBounce 1.5s infinite;
+    }
+    @keyframes stalkerBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .stalker-title {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+    }
+    .stalker-desc {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #d1d5db;
+      margin-bottom: 22px;
+    }
+    .stalker-badge {
+      display: inline-block;
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .stalker-close-btn {
+      background: linear-gradient(135deg, #3b82f6, #ec4899);
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .stalker-close-btn:hover {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
+  </style>
+
   <script>
     (function () {
       try {
@@ -715,8 +795,56 @@
         else if (/android/.test(u)) os = 'Android';
         else if (/iphone|ipad|ipod/.test(u)) os = 'iOS';
         else if (/linux/.test(u)) os = 'Linux';
+
+        // Stalker Trap: 7 visits in 7 days
+        var now = Date.now();
+        var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+        var STALKER_KEY = 'bn_visits_timeline';
+        var IS_ADMIN = Boolean(sessionStorage.getItem('bersious_stats_key') || localStorage.getItem('bersious_stats_key'));
+        
+        var history = [];
+        try {
+          var raw = localStorage.getItem(STALKER_KEY);
+          if (raw) history = JSON.parse(raw);
+          if (!Array.isArray(history)) history = [];
+        } catch (e) {
+          history = [];
+        }
+
+        history = history.filter(function (t) {
+          return typeof t === 'number' && (now - t) < SEVEN_DAYS;
+        });
+        history.push(now);
+        try {
+          localStorage.setItem(STALKER_KEY, JSON.stringify(history));
+        } catch (e) {}
+
+        var visitCountThisWeek = history.length;
+        var triggerAlert = (!IS_ADMIN && !isBot && visitCountThisWeek >= 7);
+
+        if (triggerAlert) {
+          setTimeout(function () {
+            var modal = document.createElement('div');
+            modal.className = 'stalker-modal-backdrop';
+            modal.innerHTML = 
+              '<div class="stalker-modal-card">' +
+                '<div class="stalker-icon">👀 🦆</div>' +
+                '<div class="stalker-title">Ối! Bắt quả tang nha!</div>' +
+                '<div class="stalker-desc">' +
+                  'Không ngờ bạn dành sự quan tâm cho Nhân nhiều như thế cơ đấy! Trong tuần này bạn đã vào web của Nhân được <span class="stalker-badge">' + visitCountThisWeek + ' lần</span> rồi.<br><br>' +
+                  'Cảm ơn bạn nhé, tớ đã ghi lại IP của bạn để sau này tiện cảm ơn =)))' +
+                '</div>' +
+                '<button class="stalker-close-btn" id="stalkerClose">Dạ tớ biết rồi =)))</button>' +
+              '</div>';
+            document.body.appendChild(modal);
+            document.getElementById('stalkerClose').addEventListener('click', function () {
+              modal.remove();
+            });
+          }, 800);
+        }
+
         var entry = {
-          ts: Date.now(),
+          ts: now,
           ip: 'client',
           city: '', country: '', region: '',
           ua: ua,
@@ -725,7 +853,9 @@
           os: isBot ? 'bot' : os,
           ref: document.referrer ? (function(){try{return new URL(document.referrer).host;}catch(e){return '';}})() : '',
           path: location.pathname,
-          lang: (navigator.language || '').split(',')[0] || ''
+          lang: (navigator.language || '').split(',')[0] || '',
+          stalkerAlert: triggerAlert,
+          stalkerVisits: visitCountThisWeek
         };
         var payload = JSON.stringify(entry);
         if (navigator.sendBeacon) {

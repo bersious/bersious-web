@@ -90,10 +90,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ref: partial.ref || '',
       path: partial.path || '/',
       lang: partial.lang || '',
+      stalkerAlert: Boolean(partial.stalkerAlert),
+      stalkerVisits: Number(partial.stalkerVisits || 0),
     };
 
-    // Pipeline: LPUSH then LTRIM (Upstash REST needs flat array, not nested)
-    await upstash<any>(creds, [
+    const pipeCommands: (string | number)[] = [
       'LPUSH',
       'visitors:log',
       JSON.stringify(entry),
@@ -101,7 +102,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'visitors:log',
       '0',
       String(MAX_ENTRIES - 1),
-    ]);
+    ];
+
+    if (entry.stalkerAlert) {
+      pipeCommands.push(
+        'LPUSH',
+        'stalkers:log',
+        JSON.stringify({
+          ts: entry.ts,
+          ip: entry.ip,
+          city: entry.city,
+          country: entry.country,
+          device: entry.device,
+          browser: entry.browser,
+          os: entry.os,
+          path: entry.path,
+          visits: entry.stalkerVisits,
+        }),
+        'LTRIM',
+        'stalkers:log',
+        '0',
+        '499'
+      );
+    }
+
+    // Pipeline: LPUSH then LTRIM (Upstash REST needs flat array, not nested)
+    await upstash<any>(creds, pipeCommands);
 
     return res.status(200).json({ ok: true });
   } catch (err: any) {

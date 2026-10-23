@@ -68,6 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'DELETE') {
       const deleted = await upstash<number>(creds, ['DEL', 'visitors:log']);
+      await upstash<number>(creds, ['DEL', 'stalkers:log']).catch(() => {});
       return res.status(200).json({ ok: true, cleared: true, deleted });
     }
 
@@ -78,6 +79,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       '0',
       String(limit - 1),
     ]);
+
+    const rawStalkers = (await upstash<(string | null)[]>(creds, [
+      'LRANGE',
+      'stalkers:log',
+      '0',
+      '99',
+    ]).catch(() => [])) as (string | null)[];
+
+    const stalkers = (rawStalkers || [])
+      .map((e) => {
+        if (!e) return null;
+        try {
+          return typeof e === 'string' ? JSON.parse(e) : e;
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
 
     // Upstash returns each entry as a JSON string (because we LPUSH'd JSON.stringify)
     const entries = (raw || [])
@@ -123,6 +142,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .slice(0, 20)
         .map(([ip, v]) => ({ ip, ...v })),
       entries,
+      stalkers,
     });
   } catch (err: any) {
     return res.status(500).json({ error: 'server error', detail: String(err?.message || err) });
