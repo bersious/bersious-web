@@ -1549,23 +1549,11 @@ async function handleFileUpload(e){
   const sizeMb = (file.size/(1024*1024)).toFixed(1) + ' MB';
 
   const tracks = getStoredTracks().filter(t => !t.id.startsWith('track_0'));
-  
-  // KIỂM TRA HẠN MỨC DUNG LƯỢNG 100MB CHO CA SĨ NÀY
-  const myTracks = tracks.filter(t => (t.artistUsername||'').toLowerCase() === (activeArtistUser||'').toLowerCase());
-  const usedBytes = myTracks.reduce((sum, t) => sum + (t.rawBytes || 4*1024*1024), 0);
-  if (usedBytes + file.size > 100 * 1024 * 1024) {
-    status.style.display = 'block';
-    status.textContent = `❌ Đã vượt quá hạn mức 100MB cho @${activeArtistUser} (hiện đã dùng ${(usedBytes/1024/1024).toFixed(1)}MB)! Vui lòng xóa bớt tác phẩm cũ.`;
-    showToast('Hạn mức dung lượng', 'Mỗi ca sĩ chỉ được lưu trữ tối đa 100MB.', 'danger');
-    return;
-  }
-
   const newTrack = {
     id: id,
     name: file.name,
     type: file.type || (file.name.endsWith('.mp4') ? 'video/mp4' : 'audio/mp3'),
     size: sizeMb,
-    rawBytes: file.size,
     hash: hashPart,
     artistUsername: activeArtistUser,
     allowedUsers: [],
