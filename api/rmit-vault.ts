@@ -39,13 +39,13 @@ const MAX_BLOB_BYTES = 1_500_000;
 
 const DEFAULT_STATE = {
   users: [
-    { username: 'minh_mastering', name: 'Minh (Kỹ Sư Hòa Âm)', role: 'reviewer', did: 'tide:usr:minh_92a1' },
-    { username: 'thu_producer', name: 'Thu (Giám Đốc Sản Xuất)', role: 'reviewer', did: 'tide:usr:thu_44b0' },
-    { username: 'lan_soundcheck', name: 'Lan (Kiểm Âm)', role: 'reviewer', did: 'tide:usr:lan_77c8' }
+    { username: 'minh_mastering', name: 'Minh (Kỹ Sư Hòa Âm)', role: 'reviewer', did: 'tide:usr:minh_92a1', avatar: '', createdAt: '2026-10-20T08:00:00Z', blockedArtists: [] },
+    { username: 'thu_producer', name: 'Thu (Giám Đốc Sản Xuất)', role: 'reviewer', did: 'tide:usr:thu_44b0', avatar: '', createdAt: '2026-10-21T09:30:00Z', blockedArtists: [] },
+    { username: 'lan_soundcheck', name: 'Lan (Kiểm Âm)', role: 'reviewer', did: 'tide:usr:lan_77c8', avatar: '', createdAt: '2026-10-22T10:15:00Z', blockedArtists: [] }
   ],
   artists: [
-    { username: 'alice_artist', name: 'Alice Nguyễn', genre: 'Indie Pop / Electronic', bio: 'Nghệ sĩ độc lập, tác giả album Midnight Cipher', artSeed: 0 },
-    { username: 'endy_producer', name: 'Endy (Thiện Nhân)', genre: 'Lo-Fi / Cinematic AI', bio: 'Nhà sản xuất âm nhạc tại UIT Studio', artSeed: 1 }
+    { username: 'alice_artist', name: 'Alice Nguyễn', genre: 'Indie Pop / Electronic', bio: 'Nghệ sĩ độc lập, tác giả album Midnight Cipher', artSeed: 0, avatar: '', createdAt: '2026-10-19T14:00:00Z', blockedUsers: [] },
+    { username: 'endy_producer', name: 'Endy (Thiện Nhân)', genre: 'Lo-Fi / Cinematic AI', bio: 'Nhà sản xuất âm nhạc tại UIT Studio', artSeed: 1, avatar: '', createdAt: '2026-10-20T16:00:00Z', blockedUsers: [] }
   ],
   tracks: [],
   requests: [],
@@ -58,9 +58,22 @@ const DEFAULT_STATE = {
 function normalizeState(s: any) {
   if (!s || typeof s !== 'object') return DEFAULT_STATE;
   return {
-    users: Array.isArray(s.users) ? s.users : DEFAULT_STATE.users,
-    artists: Array.isArray(s.artists) && s.artists.length ? s.artists : DEFAULT_STATE.artists,
-    tracks: Array.isArray(s.tracks) ? s.tracks : DEFAULT_STATE.tracks,
+    users: Array.isArray(s.users) ? s.users.map((u: any) => ({
+      ...u,
+      avatar: u.avatar || '',
+      createdAt: u.createdAt || '2026-10-22T08:00:00Z',
+      blockedArtists: Array.isArray(u.blockedArtists) ? u.blockedArtists : []
+    })) : DEFAULT_STATE.users,
+    artists: Array.isArray(s.artists) && s.artists.length ? s.artists.map((a: any) => ({
+      ...a,
+      avatar: a.avatar || '',
+      createdAt: a.createdAt || '2026-10-20T08:00:00Z',
+      blockedUsers: Array.isArray(a.blockedUsers) ? a.blockedUsers : []
+    })) : DEFAULT_STATE.artists,
+    tracks: Array.isArray(s.tracks) ? s.tracks.map((t: any) => ({
+      ...t,
+      coverArt: t.coverArt || t.cover || ''
+    })) : DEFAULT_STATE.tracks,
     requests: Array.isArray(s.requests) 
       ? s.requests.filter((r: any) => !r.trackId.startsWith('track_0'))
       : [],
@@ -136,6 +149,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         case 'RESET':
           state = JSON.parse(JSON.stringify(DEFAULT_STATE));
           break;
+
+        case 'TOGGLE_BLOCK': {
+          const { fromRole, fromUsername, targetUsername } = body;
+          if (fromRole === 'artist') {
+            const artist = state.artists.find((a: any) => a.username === fromUsername);
+            if (artist) {
+              artist.blockedUsers = Array.isArray(artist.blockedUsers) ? artist.blockedUsers : [];
+              if (artist.blockedUsers.includes(targetUsername)) {
+                artist.blockedUsers = artist.blockedUsers.filter((u: string) => u !== targetUsername);
+              } else {
+                artist.blockedUsers.push(targetUsername);
+                // revoke any active requests from this user
+                state.requests = state.requests.filter((r: any) => r.username !== targetUsername);
+              }
+              touch();
+            }
+          } else if (fromRole === 'reviewer' || fromRole === 'user') {
+            const user = state.users.find((u: any) => u.username === fromUsername);
+            if (user) {
+              user.blockedArtists = Array.isArray(user.blockedArtists) ? user.blockedArtists : [];
+              if (user.blockedArtists.includes(targetUsername)) {
+                user.blockedArtists = user.blockedArtists.filter((a: string) => a !== targetUsername);
+              } else {
+                user.blockedArtists.push(targetUsername);
+              }
+              touch();
+            }
+          }
+          break;
+        }
+
+        case 'UPDATE_PROFILE': {
+          const { role, username, avatar, bio, genre } = body;
+          if (role === 'artist') {
+            const a = state.artists.find((x: any) => x.username === username);
+            if (a) {
+              if (avatar !== undefined) a.avatar = avatar;
+              if (bio !== undefined) a.bio = bio;
+              if (genre !== undefined) a.genre = genre;
+              touch();
+            }
+          } else {
+            const u = state.users.find((x: any) => x.username === username);
+            if (u) {
+              if (avatar !== undefined) u.avatar = avatar;
+              touch();
+            }
+          }
+          break;
+        }
 
         case 'REGISTER_ARTIST': {
           const newArtist = body.artist;
@@ -224,6 +287,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const { trackId, username } = body;
           const track = state.tracks.find((t: any) => t.id === trackId);
           if (track && username && !track.allowedUsers.includes(username)) {
+            // Check if user is blocked by artist or user has blocked artist
+            const artist = state.artists.find((a: any) => a.username === (track.artistId || track.artistUser));
+            if (artist && Array.isArray(artist.blockedUsers) && artist.blockedUsers.includes(username)) {
+              return res.status(200).json({ ok: false, error: 'User is blocked by artist', blocked: true });
+            }
+            const user = state.users.find((u: any) => u.username === username);
+            if (user && Array.isArray(user.blockedArtists) && user.blockedArtists.includes(track.artistId || track.artistUser)) {
+              return res.status(200).json({ ok: false, error: 'Artist is blocked by user', blocked: true });
+            }
+
             const already = state.requests.find(
               (r: any) => r.trackId === trackId && r.username === username && r.status === 'PENDING'
             );

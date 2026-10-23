@@ -1006,14 +1006,22 @@ function switchArtistAuthTab(tab){
 }
 
 function loginArtist(){
-  const u = document.getElementById('artist-login-user').value.trim();
+  const rawInput = document.getElementById('artist-login-user').value.trim();
+  const u = rawInput.startsWith('@') ? rawInput.slice(1).trim() : rawInput;
   const p = document.getElementById('artist-login-pass').value.trim();
-  if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ.','warn'); return; }
+  if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ (vd: @alice_artist).','warn'); return; }
   if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu đăng nhập.','warn'); return; }
 
   const artists = getStoredArtists();
   const artist = artists.find(a => a.username.toLowerCase() === u.toLowerCase());
-  if(artist && artist.password && artist.password !== p){
+  
+  // KIỂM TRA CHẶT CHẼ: CHƯA CÓ TÀI KHOẢN THÌ KHÔNG CHO ĐĂNG NHẬP!
+  if(!artist){
+    showToast('Tài khoản không tồn tại', `Không tìm thấy nghệ sĩ @${u}. Vui lòng chuyển sang tab "Tạo Profile Mới" để đăng ký!`, 'danger');
+    return;
+  }
+
+  if(artist.password && artist.password !== p){
     showToast('Mật khẩu không đúng','Mật khẩu bạn nhập không khớp với tài khoản này.','danger');
     return;
   }
@@ -1026,7 +1034,8 @@ function loginArtist(){
 
 function registerArtist(){
   const name = document.getElementById('reg-artist-name').value.trim();
-  const user = document.getElementById('reg-artist-user').value.trim().toLowerCase();
+  const rawUser = document.getElementById('reg-artist-user').value.trim().toLowerCase();
+  const user = rawUser.startsWith('@') ? rawUser.slice(1).trim() : rawUser;
   const genre = document.getElementById('reg-artist-genre').value.trim() || 'Âm nhạc đương đại';
   const p = document.getElementById('reg-artist-pass').value.trim();
 
@@ -1034,8 +1043,8 @@ function registerArtist(){
   if(!p){ showToast('Thiếu mật khẩu','Vui lòng nhập mật khẩu khởi tạo cho tài khoản.','warn'); return; }
 
   const artists = getStoredArtists();
-  if(artists.some(a => a.username === user)){
-    showToast('Username đã tồn tại','Hãy chọn một tên đăng nhập khác.','warn');
+  if(artists.some(a => a.username.toLowerCase() === user.toLowerCase())){
+    showToast('Username đã tồn tại', `Tên @${user} đã có người đăng ký, vui lòng chọn tên khác!`, 'warn');
     return;
   }
 
@@ -1044,6 +1053,9 @@ function registerArtist(){
     name: name,
     genre: genre,
     password: p,
+    avatar: '',
+    createdAt: new Date().toISOString(),
+    blockedUsers: [],
     bio: 'Nghệ sĩ độc lập trên hệ thống SONARA',
     artSeed: Math.floor(Math.random() * 5)
   };
@@ -1054,7 +1066,7 @@ function registerArtist(){
 
   localStorage.setItem('tide_logged_artist', user);
   activeArtistUser = user;
-  showToast('Tạo hồ sơ thành công', `Két sắt của ${name} đã sẵn sàng.`, 'ok');
+  showToast('Tạo hồ sơ thành công', `Két sắt của @${user} đã sẵn sàng.`, 'ok');
   checkArtistAuth();
 }
 
