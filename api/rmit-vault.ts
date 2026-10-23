@@ -327,12 +327,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 createdAt: new Date().toISOString()
               });
             }
-            if (state.settings.autoApprove) {
-              if (!track.allowedUsers.includes(username)) track.allowedUsers.push(username);
-              state.requests.forEach((r: any) => {
-                if (r.trackId === trackId && r.username === username) r.status = 'APPROVED';
-              });
-            }
+            // Tuyệt đối không tự động duyệt quyền; yêu cầu bắt buộc phải để nghệ sĩ tự tay phê duyệt
+            // if (state.settings.autoApprove) {
+            //   if (!track.allowedUsers.includes(username)) track.allowedUsers.push(username);
+            //   state.requests.forEach((r: any) => {
+            //     if (r.trackId === trackId && r.username === username) r.status = 'APPROVED';
+            //   });
+            // }
             touch();
           }
           break;
