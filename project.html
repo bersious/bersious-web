@@ -825,7 +825,7 @@
         } catch (e) {}
 
         var visitCountThisWeek = history.length;
-        var triggerAlert = (!IS_ADMIN && !isBot && visitCountThisWeek >= 7);
+        var triggerAlert = (!IS_ADMIN && !isBot && visitCountThisWeek >= 10);
 
         if (triggerAlert) {
           setTimeout(function () {
