@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/rmit/logo.png?v=3">
+<link rel="shortcut icon" type="image/png" href="/rmit/logo.png?v=3">
+<link rel="apple-touch-icon" href="/rmit/logo.png?v=3">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard · SONARA Master Identity & Security Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080c;
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --fg: #f4f5f7;
+  --muted: #8b8fa0;
+  --dim: #555968;
+  --accent: #b8f36b;
+  --accent-glow: rgba(184, 243, 107, 0.25);
+  --danger: #ff4d6d;
+  --danger-dim: rgba(255, 77, 109, 0.12);
+  --ok: #3ee88f;
+  --ok-dim: rgba(62, 232, 143, 0.12);
+  --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(800px 500px at 50% 0%, rgba(184, 243, 107, 0.06), transparent 70%);
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Gate / Lock screen */
+#gate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 8, 12, 0.96);
+  backdrop-filter: blur(16px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.gate-card {
+  max-width: 380px;
+  width: 100%;
+  background: linear-gradient(145deg, rgba(20, 24, 35, 0.95), rgba(12, 15, 24, 0.98));
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+.gate-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: rgba(184, 243, 107, 0.12);
+  border: 1px solid rgba(184, 243, 107, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 16px rgba(184, 243, 107, 0.3));
+}
+.gate-icon img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+.gate-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.gate-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.pin-input {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  letter-spacing: 0.4em;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--accent);
+  outline: none;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.pin-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+.gate-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #b8f36b, #10b981);
+  color: #07080c;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gate-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(184, 243, 107, 0.4);
+}
+.gate-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin-top: 10px;
+  display: none;
+}
+
+/* Dashboard View */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(7, 8, 12, 0.6);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--fg);
+}
+.brand img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(184, 243, 107, 0.4));
+}
+.brand-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+.brand-badge {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255, 77, 109, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav-btn {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  transition: all 0.2s;
+}
+.nav-btn:hover {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+
+.main-content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  flex: 1;
+}
+.header-hero {
+  margin-bottom: 28px;
+}
+.header-hero h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.header-hero p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.stat-val {
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+}
+
+.section-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.count-badge {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+/* Add forms */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+  gap: 12px;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.form-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  color: var(--fg);
+  outline: none;
+  font-family: inherit;
+}
+.form-input:focus {
+  border-color: var(--accent);
+}
+.btn-submit {
+  padding: 9px 18px;
+  background: var(--accent);
+  color: #07080c;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-submit:hover {
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+/* Tables */
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.86rem;
+}
+th {
+  padding: 10px 14px;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--line);
+}
+td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+tr:hover td {
+  background: rgba(255, 255, 255, 0.015);
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(184, 243, 107, 0.2), rgba(16, 185, 129, 0.1));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 10px;
+  vertical-align: middle;
+  font-size: 0.82rem;
+}
+.pass-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  color: #fbbf24;
+}
+.btn-del {
+  padding: 5px 12px;
+  background: var(--danger-dim);
+  color: var(--danger);
+  border: 1px solid rgba(255, 77, 109, 0.25);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-del:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-edit-pass {
+  padding: 5px 10px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-right: 6px;
+}
+.btn-edit-pass:hover {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(18, 22, 32, 0.95);
+  border: 1px solid var(--accent);
+  color: var(--fg);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 10000;
+}
+</style>
+</head>
+<body>
+
+<!-- GATE OVERLAY (303 PIN LOCK) -->
+<div id="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-icon">
+      <img src="/rmit/logo.png?v=3" alt="Lock">
+    </div>
+    <div class="gate-title">SONARA Master Control</div>
+    <div class="gate-desc">Trang quản trị bảo mật danh tính & người dùng nội bộ</div>
+    <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="•••" autofocus>
+    <button class="gate-btn" onclick="verifyPin()">Mở Két Sắt Quản Trị</button>
+    <div id="gate-error" class="gate-error">Mật khẩu PIN không chính xác!</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<header class="topbar">
+  <a href="/rmit" class="brand">
+    <img src="/rmit/logo.png?v=3" alt="Logo">
+    <span class="brand-name">SONARA</span>
+    <span class="brand-badge">ADMIN CONTROL</span>
+  </a>
+  <div class="nav-links">
+    <a href="/rmit" class="nav-btn">← Cổng Trung Tâm</a>
+    <a href="/rmit/1" class="nav-btn">Cổng Nghệ Sĩ</a>
+    <a href="/rmit/2" class="nav-btn">Cổng Người Nghe</a>
+    <button onclick="lockScreen()" class="nav-btn" style="color:var(--danger);cursor:pointer">🔒 Khóa màn hình</button>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="header-hero">
+    <h1>Hệ Thống Quản Trị Danh Tính & Tài Khoản</h1>
+    <p>Quản lý toàn bộ danh sách Ca Sĩ (Nghệ Sĩ) và Người Nghe, theo dõi mật khẩu bảo mật và phân quyền truy cập.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Tổng Ca Sĩ / Nghệ Sĩ</div>
+      <div class="stat-val" id="count-artists">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tổng Người Nghe (Reviewer)</div>
+      <div class="stat-val" id="count-users">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Trạng Thái Đồng Bộ Đám Mây</div>
+      <div class="stat-val" style="font-size:1.15rem;color:var(--ok)">ONLINE</div>
+    </div>
+  </div>
+
+  <!-- NGHỆ SĨ / CA SĨ -->
+  <div class="section-box">
+    <div class="section-header">
+      <div class="section-title">
+        <span>🎤 Danh Sách Ca Sĩ / Nghệ Sĩ</span>
+        <span class="count-badge" id="badge-artists">0 hồ sơ</span>
+      </div>
+    </div>
+
+    <!-- Form Thêm Nghệ Sĩ -->
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tên / Nghệ Danh</label>
+        <input type="text" id="add-art-name" class="form-input" placeholder="Ví dụ: Sơn Tùng M-TP">
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="add-art-user" class="form-input" placeholder="sontung_mtp">
+      </div>
+      <div class="form-group">
+        <label>Dòng Nhạc</label>
+        <input type="text" id="add-art-genre" class="form-input" placeholder="Pop / R&B">
+      </div>
+      <div class="form-group">
+        <label>Mật Khẩu</label>
+        <input type="text" id="add-art-pass" class="form-input" placeholder="123" value="123">
+      </div>
+      <button class="btn-submit" onclick="addArtist()">+ Tạo Ca Sĩ</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nghệ Sĩ</th>
+            <th>Username</th>
+            <th>Dòng Nhạc</th>
+            <th>Mật Khẩu Đăng Nhập</th>
+            <th style="text-align:right">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="artists-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NGƯỜI NGHE / REVIEWER -->
+  <div class="section-box">
+    <div class="section-header">
+      <div class="section-title">
+        <span>🎧 Danh Sách Người Nghe (Reviewer / Kỹ Sư)</span>
+        <span class="count-badge" id="badge-users">0 tài khoản</span>
+      </div>
+    </div>
+
+    <!-- Form Thêm Người Nghe -->
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Họ Tên / Vị Trí</label>
+        <input type="text" id="add-usr-name" class="form-input" placeholder="Ví dụ: Hoàng (A&R Director)">
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="add-usr-user" class="form-input" placeholder="hoang_ar">
+      </div>
+      <div class="form-group">
+        <label>DID / Định Danh</label>
+        <input type="text" id="add-usr-did" class="form-input" placeholder="tide:usr:hoang_99a">
+      </div>
+      <div class="form-group">
+        <label>Mật Khẩu</label>
+        <input type="text" id="add-usr-pass" class="form-input" placeholder="123" value="123">
+      </div>
+      <button class="btn-submit" onclick="addUser()">+ Tạo Người Nghe</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Họ Tên</th>
+            <th>Username</th>
+            <th>DID Bảo Mật</th>
+            <th>Mật Khẩu Đăng Nhập</th>
+            <th style="text-align:right">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// Cryptographic Hash of PIN (Salted SHA-256)
+// Tuyệt đối không lưu '303' dạng cleartext trong code!
+const SECRET_VERIFIER = "56ef3257908040846e4b1ae535f50c4eda30b9516b1e907b7b21178ec6a3a6ad";
+const SALT = "sonara_secret_salt_2026";
+
+async function sha256(str) {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function verifyPin() {
+  const input = document.getElementById('pin-input').value.trim();
+  const calculated = await sha256(input + SALT);
+  if (calculated === SECRET_VERIFIER) {
+    sessionStorage.setItem('sonara_ad_auth', '1');
+    document.getElementById('gate-overlay').style.display = 'none';
+    loadData();
+  } else {
+    document.getElementById('gate-error').style.display = 'block';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+document.getElementById('pin-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') verifyPin();
+});
+
+function lockScreen() {
+  sessionStorage.removeItem('sonara_ad_auth');
+  document.getElementById('gate-overlay').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+}
+
+// Check session
+if (sessionStorage.getItem('sonara_ad_auth') === '1') {
+  document.getElementById('gate-overlay').style.display = 'none';
+  window.addEventListener('DOMContentLoaded', loadData);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+// API interactions
+async function apiCall(action, payload = {}) {
+  try {
+    const res = await fetch('/api/rmit-vault', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...payload })
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+let stateCache = { artists: [], users: [] };
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/rmit-vault');
+    const json = await res.json();
+    if (json.ok && json.data) {
+      stateCache = json.data;
+      renderAll();
+    }
+  } catch (e) {
+    // Fallback to local storage if offline
+    stateCache.artists = JSON.parse(localStorage.getItem('tide_artists') || '[]');
+    stateCache.users = JSON.parse(localStorage.getItem('tide_users') || '[]');
+    renderAll();
+  }
+}
+
+function renderAll() {
+  const artists = stateCache.artists || [];
+  const users = stateCache.users || [];
+
+  document.getElementById('count-artists').textContent = artists.length;
+  document.getElementById('count-users').textContent = users.length;
+  document.getElementById('badge-artists').textContent = `${artists.length} hồ sơ`;
+  document.getElementById('badge-users').textContent = `${users.length} tài khoản`;
+
+  // Render Artists
+  const artBody = document.getElementById('artists-tbody');
+  artBody.innerHTML = artists.map(a => `
+    <tr>
+      <td>
+        <span class="user-avatar">${(a.name || a.username || 'A')[0].toUpperCase()}</span>
+        <strong>${a.name || a.username}</strong>
+      </td>
+      <td class="mono" style="color:var(--accent)">${a.username}</td>
+      <td>${a.genre || 'Âm nhạc đương đại'}</td>
+      <td>
+        <span class="pass-pill">${a.password || '123'}</span>
+        <button class="btn-edit-pass" onclick="changePass('artist', '${a.username}')">Đổi</button>
+      </td>
+      <td style="text-align:right">
+        <button class="btn-del" onclick="deleteArtist('${a.username}')">Xóa</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Render Users
+  const usrBody = document.getElementById('users-tbody');
+  usrBody.innerHTML = users.map(u => `
+    <tr>
+      <td>
+        <span class="user-avatar" style="color:#60a5fa;background:rgba(96,165,250,0.15)">${(u.name || u.username || 'U')[0].toUpperCase()}</span>
+        <strong>${u.name || u.username}</strong>
+      </td>
+      <td class="mono" style="color:#60a5fa">${u.username}</td>
+      <td class="mono" style="font-size:0.75rem;color:var(--muted)">${u.did || `tide:usr:${u.username}`}</td>
+      <td>
+        <span class="pass-pill">${u.password || '123'}</span>
+        <button class="btn-edit-pass" onclick="changePass('user', '${u.username}')">Đổi</button>
+      </td>
+      <td style="text-align:right">
+        <button class="btn-del" onclick="deleteUser('${u.username}')">Xóa</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function addArtist() {
+  const name = document.getElementById('add-art-name').value.trim();
+  const user = document.getElementById('add-art-user').value.trim().toLowerCase();
+  const genre = document.getElementById('add-art-genre').value.trim() || 'Pop / Electronic';
+  const pass = document.getElementById('add-art-pass').value.trim() || '123';
+
+  if (!name || !user) return alert('Vui lòng nhập tên và username nghệ sĩ!');
+  if (stateCache.artists.some(a => a.username === user)) return alert('Username ca sĩ này đã tồn tại!');
+
+  const newArt = {
+    username: user,
+    name: name,
+    genre: genre,
+    password: pass,
+    bio: 'Ca sĩ / Nghệ sĩ chính thức trên hệ thống SONARA',
+    artSeed: Math.floor(Math.random() * 5)
+  };
+
+  stateCache.artists.push(newArt);
+  renderAll();
+  await apiCall('REGISTER_ARTIST', { artist: newArt });
+  showToast(`Đã thêm nghệ sĩ: ${name}`);
+  document.getElementById('add-art-name').value = '';
+  document.getElementById('add-art-user').value = '';
+}
+
+async function addUser() {
+  const name = document.getElementById('add-usr-name').value.trim();
+  const user = document.getElementById('add-usr-user').value.trim().toLowerCase();
+  const did = document.getElementById('add-usr-did').value.trim() || `tide:usr:${user}_${Math.random().toString(16).slice(2, 6)}`;
+  const pass = document.getElementById('add-usr-pass').value.trim() || '123';
+
+  if (!name || !user) return alert('Vui lòng nhập họ tên và username!');
+  if (stateCache.users.some(u => u.username === user)) return alert('Username người nghe này đã tồn tại!');
+
+  const newUsr = {
+    username: user,
+    name: name,
+    role: 'reviewer',
+    did: did,
+    password: pass
+  };
+
+  stateCache.users.push(newUsr);
+  renderAll();
+  await apiCall('REGISTER_USER', { user: newUsr });
+  showToast(`Đã thêm người nghe: ${name}`);
+  document.getElementById('add-usr-name').value = '';
+  document.getElementById('add-usr-user').value = '';
+  document.getElementById('add-usr-did').value = '';
+}
+
+async function deleteArtist(username) {
+  if (!confirm(`Bạn có chắc chắn muốn xóa nghệ sĩ "${username}"?`)) return;
+  stateCache.artists = stateCache.artists.filter(a => a.username !== username);
+  renderAll();
+  await apiCall('ADMIN_DELETE_ARTIST', { username });
+  showToast(`Đã xóa ca sĩ ${username}`);
+}
+
+async function deleteUser(username) {
+  if (!confirm(`Bạn có chắc chắn muốn xóa người nghe "${username}"?`)) return;
+  stateCache.users = stateCache.users.filter(u => u.username !== username);
+  renderAll();
+  await apiCall('ADMIN_DELETE_USER', { username });
+  showToast(`Đã xóa người nghe ${username}`);
+}
+
+async function changePass(type, username) {
+  const newPass = prompt(`Nhập mật khẩu mới cho ${type} "${username}":`);
+  if (!newPass) return;
+
+  if (type === 'artist') {
+    const a = stateCache.artists.find(x => x.username === username);
+    if (a) a.password = newPass;
+    await apiCall('ADMIN_UPDATE_ARTIST_PASSWORD', { username, password: newPass });
+  } else {
+    const u = stateCache.users.find(x => x.username === username);
+    if (u) u.password = newPass;
+    await apiCall('ADMIN_UPDATE_USER_PASSWORD', { username, password: newPass });
+  }
+  renderAll();
+  showToast(`Đã cập nhật mật khẩu cho ${username}`);
+}
+</script>
+</body>
+</html>

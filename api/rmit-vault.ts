@@ -146,6 +146,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           break;
         }
 
+        case 'ADMIN_DELETE_ARTIST': {
+          const { username } = body;
+          if (username) {
+            state.artists = state.artists.filter((a: any) => a.username !== username);
+            // Optionally also remove tracks by this artist
+            state.tracks = state.tracks.filter((t: any) => t.artistId !== username && t.artistUser !== username);
+            touch();
+          }
+          break;
+        }
+
+        case 'ADMIN_DELETE_USER': {
+          const { username } = body;
+          if (username) {
+            state.users = state.users.filter((u: any) => u.username !== username);
+            state.requests = state.requests.filter((r: any) => r.username !== username);
+            state.tracks.forEach((t: any) => {
+              if (Array.isArray(t.allowedUsers)) {
+                t.allowedUsers = t.allowedUsers.filter((u: string) => u !== username);
+              }
+            });
+            touch();
+          }
+          break;
+        }
+
+        case 'ADMIN_UPDATE_USER_PASSWORD': {
+          const { username, password } = body;
+          const u = state.users.find((x: any) => x.username === username);
+          if (u) {
+            u.password = password;
+            touch();
+          }
+          break;
+        }
+
+        case 'ADMIN_UPDATE_ARTIST_PASSWORD': {
+          const { username, password } = body;
+          const a = state.artists.find((x: any) => x.username === username);
+          if (a) {
+            a.password = password;
+            touch();
+          }
+          break;
+        }
+
         case 'UPDATE_TRACKS':
           if (body.tracks) state.tracks = body.tracks;
           touch();
