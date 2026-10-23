@@ -1240,10 +1240,10 @@
 
     initLanguage();
 
-    // Đăng ký Service Worker cho PWA GIFT FOR TMN
+    // Service Worker: chỉ đăng ký trong phạm vi /tmn/ để không nuốt cache của toàn bộ website
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js', { scope: '/tmn/' }).catch(() => {});
       });
     }
   </script>

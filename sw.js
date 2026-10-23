@@ -1,52 +1,37 @@
-// Service Worker for GIFT FOR TMN PWA
-const CACHE_NAME = 'gift-tmn-v1';
-const URLS_TO_CACHE = [
-  '/',
-  '/tmn/',
-  '/manifest.json',
-  '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png',
-  '/assets/nhac.mp3',
-  '/assets/bg.png',
-];
+// Service Worker for GIFT FOR TMN PWA - AUTO BYPASS FOR DYNAMIC / RMIT PATHS
+const CACHE_NAME = 'gift-tmn-v2-nocache';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE))
-  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
+    caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+
+  // 1. TUYỆT ĐỐI KHÔNG CACHE BẤT KỲ ĐƯỜNG DẪN NÀO LIÊN QUAN ĐẾN /rmit HOẶC /api
+  if (url.pathname.startsWith('/rmit') || url.pathname.startsWith('/api')) {
+    return; // Để trình duyệt fetch thẳng từ mạng (Network only)
+  }
+
+  // 2. Với các trang HTML chính (/, /tmn): Ưu tiên Network first để luôn thấy bản mới nhất
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 3. Với các tài sản tĩnh (ảnh, mp3 lớn của game tmn)
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(() => caches.match('/tmn/'));
+      return cached || fetch(event.request);
     })
   );
 });
