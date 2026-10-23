@@ -436,37 +436,80 @@
     }
 
     .btn {
+      position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 22px;
-      border-radius: 10px;
+      gap: 10px;
+      padding: 13px 26px;
+      border-radius: 9999px;
       text-decoration: none;
       font-size: 0.95rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      user-select: none;
+      isolation: isolate;
     }
 
+    /* Primary CTA Button: Gradient viền phát sáng + shimmer ánh kim */
     .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--pink));
+      background: linear-gradient(135deg, #60a5fa 0%, #c084fc 50%, #ec4899 100%);
+      background-size: 200% 200%;
       color: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 4px 20px rgba(96, 165, 250, 0.28), 0 2px 8px rgba(236, 72, 153, 0.2);
+      overflow: hidden;
+    }
+
+    /* Hiệu ứng tia sáng quét ngang khi hover */
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.45),
+        transparent
+      );
+      transform: skewX(-22deg);
+      transition: left 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px var(--blue-glow);
+      transform: translateY(-2px) scale(1.02);
+      background-position: 100% 100%;
+      box-shadow: 0 10px 30px rgba(96, 165, 250, 0.45), 0 4px 16px rgba(236, 72, 153, 0.35);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-primary:hover::before {
+      left: 140%;
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 4px 14px rgba(96, 165, 250, 0.3);
     }
 
     .btn-ghost {
-      background: var(--surface);
+      background: rgba(20, 24, 33, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: var(--text-main);
-      border-color: var(--border);
+      border: 1px solid var(--border);
     }
 
     .btn-ghost:hover {
       border-color: var(--blue);
       color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(96, 165, 250, 0.15);
     }
 
     /* Section */
@@ -1386,7 +1429,6 @@
             modal.innerHTML = 
               '<div class="stalker-modal-card">' +
                 '<div class="stalker-icon">👀 🦆</div>' +
-                '<div class="stalker-title">Ối! Bắt quả tang nha!</div>' +
                 '<div class="stalker-desc">' +
                   'Không ngờ bạn dành sự quan tâm cho Nhân nhiều như thế cơ đấy! Trong tuần này bạn đã vào web của Nhân được <span class="stalker-badge">' + visitCountThisWeek + ' lần</span> rồi.<br><br>' +
                   'Cảm ơn bạn nhé, tớ đã ghi lại IP của bạn để sau này tiện cảm ơn =)))' +
