@@ -110,7 +110,10 @@
       font-weight: 600;
       font-size: 1.15rem;
       letter-spacing: -0.02em;
-      color: var(--text-main);
+      background: linear-gradient(135deg, var(--blue) 0%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       display: inline-flex;
       align-items: baseline;
       text-decoration: none;
@@ -119,18 +122,19 @@
 
     .logo .logo-dot {
       display: inline-block;
-      width: 6px;
-      height: 6px;
+      width: 3.5px;
+      height: 3.5px;
       margin-left: 2px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--blue), var(--pink));
-      box-shadow: 0 0 10px var(--pink);
+      background: var(--pink);
+      -webkit-text-fill-color: initial;
+      box-shadow: 0 0 6px var(--pink);
       animation: logoDotPulse 2.8s ease-in-out infinite;
     }
 
     @keyframes logoDotPulse {
-      0%, 100% { opacity: 0.7; transform: scale(0.9); }
-      50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 14px var(--blue); }
+      0%, 100% { opacity: 0.6; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 8px var(--blue); background: var(--blue); }
     }
 
     .nav-right {
@@ -660,8 +664,43 @@
       box-shadow: 0 0 16px rgba(96, 165, 250, 0.4);
     }
 
-    .gallery-item.coming-soon {
-      opacity: 0.5;
+    /* ====== Card 4: Upcoming Project (Mystery / Coming Soon) ====== */
+    .gallery-item-mystery {
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.4) 0%, rgba(11, 13, 18, 0.8) 100%);
+      cursor: default;
+    }
+    .gallery-item-mystery:hover {
+      border-color: rgba(96, 165, 250, 0.6);
+      box-shadow: 0 12px 30px -10px rgba(96, 165, 250, 0.25), inset 0 0 20px rgba(96, 165, 250, 0.08);
+      transform: translateY(-4px);
+    }
+    .gallery-item-mystery .gallery-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--blue);
+      transition: all 0.3s ease;
+    }
+    .gallery-item-mystery:hover .gallery-icon {
+      transform: scale(1.15) rotate(10deg);
+      background: rgba(96, 165, 250, 0.15);
+      border-color: rgba(96, 165, 250, 0.4);
+      box-shadow: 0 0 16px rgba(96, 165, 250, 0.4);
+      color: #fff;
+    }
+    .tag-soon {
+      background: rgba(96, 165, 250, 0.1) !important;
+      color: var(--blue) !important;
+      border: 1px solid rgba(96, 165, 250, 0.3) !important;
+      font-weight: 600;
     }
 
     /* ====== SONARA (RMIT 2026) - Cyber Lime Glow & Wave Effect ====== */
@@ -1117,6 +1156,14 @@
             <span class="launch-text">Launch Studio</span>
           </span>
         </a>
+        <div class="gallery-item gallery-item-mystery">
+          <div>
+            <div class="gallery-icon">?</div>
+            <div class="gallery-title" data-i18n="proj-4-title">Next Project</div>
+            <div class="gallery-desc" data-i18n="proj-4-desc">Sẽ hoàn thiện và cập nhật trong tương lai gần.</div>
+          </div>
+          <span class="gallery-tag tag-soon" data-i18n="proj-4-tag">soon</span>
+        </div>
       </div>
     </section>
 
@@ -1211,6 +1258,9 @@
         'proj-3-title': 'SONARA · RMIT 2026',
         'proj-3-desc': 'Zero-trust creative audio preview studio powered by TideCloak Emergent Authority.',
         'proj-3-tag': 'live',
+        'proj-4-title': 'Next Project',
+        'proj-4-desc': 'Will be completed and updated in the near future.',
+        'proj-4-tag': 'soon',
         'connect-label': '03 / Connect',
         'connect-title': "Let's talk",
         'connect-text': "I'm always open to interesting conversations, collaborations, or just a friendly hello."
@@ -1246,6 +1296,9 @@
         'proj-3-title': 'SONARA · RMIT 2026',
         'proj-3-desc': 'Studio két sắt nghe thử âm nhạc Zero-Trust tích hợp TideCloak Emergent Authority.',
         'proj-3-tag': 'trực tuyến',
+        'proj-4-title': 'Dự án tiếp theo',
+        'proj-4-desc': 'Sẽ hoàn thiện và cập nhật trong tương lai gần.',
+        'proj-4-tag': 'sắp ra mắt',
         'connect-label': '03 · Liên hệ',
         'connect-title': 'Nói chuyện nha',
         'connect-text': 'Mình luôn sẵn lòng trò chuyện về những ý tưởng thú vị, hợp tác, hay chỉ đơn giản là một lời chào thân thiện.'
