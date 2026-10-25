@@ -123,6 +123,95 @@ body{
   border-bottom-color:var(--accent);
 }
 
+/* Language Switcher */
+.lang-switch{
+  display:inline-flex;
+  align-items:center;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:2px;
+}
+.lang-btn{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+  padding:3px 10px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.lang-btn.active{
+  background:var(--accent);
+  color:#ffffff;
+  box-shadow:0 0 10px rgba(147,112,219,0.4);
+}
+
+/* Disclaimer Note Box */
+.disclaimer-box{
+  background:rgba(147,112,219,0.05);
+  border:1px solid rgba(147,112,219,0.22);
+  border-radius:12px;
+  padding:24px 28px;
+  margin:40px 0 30px;
+  font-size:14px;
+  line-height:1.75;
+  color:var(--muted);
+  font-style:italic;
+}
+.disclaimer-box strong{
+  color:var(--fg-bright);
+  font-style:normal;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:8px;
+}
+
+/* Nút về trang chính bersious. nhỏ gọn tinh tế */
+.bersious-home-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  text-decoration:none;
+  transition:all .22s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter:blur(8px);
+  margin-top:16px;
+}
+.bersious-home-btn:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(236,72,153,.45);
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(96,165,250,.22);
+}
+.bersious-home-btn .bersious-logo-text{
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:-0.02em;
+  background:linear-gradient(135deg, #60a5fa, #ec4899);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.bersious-home-btn .bersious-arrow{
+  font-size:11px;
+  color:rgba(255,255,255,.5);
+  transition:transform .2s;
+}
+.bersious-home-btn:hover .bersious-arrow{
+  color:#ec4899;
+  transform:translateX(2px);
+}
+
 /* Main Article Container */
 .paper-container{
   max-width:820px;
@@ -359,9 +448,15 @@ p.paragraph strong{
         <span class="brand-sub">HeavenBook · Facebook for the Soul</span>
       </div>
     </a>
-    <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener" class="hackathon-link">
-      Một ý tưởng cho Meta Global AI Developer Hackathon ↗
-    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="lang-switch" title="Chuyển đổi ngôn ngữ / Switch Language">
+        <button class="lang-btn active" data-lang="vi" onclick="setAeternaLang('vi')">VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setAeternaLang('en')">EN</button>
+      </div>
+      <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener" class="hackathon-link">
+        <span data-i18n="hackathon-link-text">Meta Global AI Developer Hackathon ↗</span>
+      </a>
+    </div>
   </div>
 </header>
 
@@ -369,80 +464,80 @@ p.paragraph strong{
 
   <!-- ==================== HEADER METADATA ==================== -->
   <header class="paper-meta fade-in">
-    <div class="paper-label">
+    <div class="paper-label" data-i18n="paper-label">
       Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>
     </div>
 
-    <h1 class="paper-title">
+    <h1 class="paper-title" data-i18n="paper-title">
       Aeterna (HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành
     </h1>
 
     <p class="paper-subtitle">
       <strong style="color:var(--accent);display:block;margin-bottom:8px;font-style:italic">"HeavenBook — Facebook for the Soul."</strong>
-      Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.
+      <span data-i18n="paper-subtitle">Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.</span>
     </p>
 
     <div class="author-byline">
-      <span>Tác giả: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong></span>
+      <span data-i18n="byline-author">Tác giả: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong></span>
       <span>·</span>
-      <span>Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM</span>
+      <span data-i18n="byline-school">Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM</span>
     </div>
   </header>
 
   <!-- ==================== ABSTRACT ==================== -->
   <section class="abstract-box fade-in">
-    <strong>Tóm tắt ý tưởng (Abstract)</strong>
-    <p>
+    <strong data-i18n="abstract-tag">Tóm tắt ý tưởng (Abstract)</strong>
+    <p data-i18n="abstract-text">
       Hiện nay, khi một người dùng qua đời, các mạng xã hội xử lý sự kiện này bằng một cờ trạng thái lạnh lùng: chuyển tài khoản sang chế độ tưởng niệm tĩnh (Memorialized). Toàn bộ tri thức, thói quen suy nghĩ, lời dặn dò và nhân sinh quan tích lũy qua hàng chục năm bỗng chốc trở thành một bia mộ số câm lặng. Aeterna đề xuất một mô hình kiến trúc hai giai đoạn: khi người dùng còn sống, một tác nhân trí tuệ nhân tạo sẽ đóng vai trò người bạn đồng hành dài hạn trên Messenger để phỏng vấn và hiệu chỉnh giá trị sống; khi người dùng qua đời, tác nhân này sẽ tiếp quản trang cá nhân để bảo tồn di sản, trả lời những khúc mắc cuộc đời của con cháu bằng chính nhân sinh quan của người đã khuất, và tham gia vào không gian tưởng niệm HeavenBook.
     </p>
   </section>
 
   <!-- ==================== PHẦN 1: BỐI CẢNH VÀ NGHỊCH LÝ ==================== -->
   <section class="fade-in">
-    <h2 class="heading">1. Bối cảnh thực tế: Nghịch lý của những bia mộ số</h2>
+    <h2 class="heading" data-i18n="sec1-heading">1. Bối cảnh thực tế: Nghịch lý của những bia mộ số</h2>
     
-    <p class="paragraph">
+    <p class="paragraph" data-i18n="sec1-p1">
       Ước tính đến năm 2070, số lượng tài khoản của những người đã qua đời trên các nền tảng của Meta sẽ vượt qua số lượng người dùng còn sống. Hàng tỷ hồ sơ cá nhân chứa đựng lịch sử trò chuyện, ghi chú đời thường và các bức ảnh kỷ niệm đang dần biến thành những nghĩa địa số thụ động.
     </p>
 
-    <p class="paragraph">
+    <p class="paragraph" data-i18n="sec1-p2">
       Sự mất mát lớn nhất trong tang chế không chỉ là sự vắng mặt về mặt thể xác, mà là sự đứt gãy tri thức thế hệ: một người cháu không bao giờ có cơ hội hỏi ông bà về cách vượt qua những thất bại tuổi trẻ, hay một người con không thể lắng nghe lại góc nhìn của cha mẹ trước một ngã rẽ cuộc đời. Các giải pháp tưởng niệm hiện tại dừng lại ở việc bảo lưu dữ liệu tĩnh (Static Archival), hoàn toàn thiếu khả năng tương tác và không thể trả lời những câu hỏi mới phát sinh từ người ở lại.
     </p>
   </section>
 
   <!-- ==================== PHẦN 2: BỐN TRỤ CỘT KỸ THUẬT ==================== -->
   <section class="fade-in">
-    <h2 class="heading">2. Kiến trúc giải pháp: Bốn trụ cột công nghệ</h2>
+    <h2 class="heading" data-i18n="sec2-heading">2. Kiến trúc giải pháp: Bốn trụ cột công nghệ</h2>
 
-    <p class="paragraph">
+    <p class="paragraph" data-i18n="sec2-intro">
       Hệ thống Aeterna được thiết kế xoay quanh hệ sinh thái mô hình nền tảng của Meta (Meta Model API), khai thác tối đa lợi thế về dữ liệu hành vi dài hạn mà không xâm phạm quyền riêng tư:
     </p>
 
     <div class="spec-list">
       <div class="spec-item">
-        <h4>Trụ cột 1: Hấp thụ đồ thị hành vi dài hạn (Behavioral Graph Ingestion)</h4>
-        <p>
+        <h4 data-i18n="p1-h4">Trụ cột 1: Hấp thụ đồ thị hành vi dài hạn (Behavioral Graph Ingestion)</h4>
+        <p data-i18n="p1-desc">
           Ứng dụng cửa sổ ngữ cảnh 1 triệu token của mô hình <strong>Muse Spark</strong> để tổng hợp không chỉ các bài viết công khai, mà cả thói quen phản ứng cảm xúc, lịch sử đọc tin tức, và phong cách hành văn tự nhiên trên Messenger suốt 20 năm. Mục tiêu là trích xuất đồ thị nhân sinh quan (Worldview Graph) chân thực, loại bỏ hoàn toàn các suy đoán bịa đặt hoặc ảo giác.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Trụ cột 2: Chu trình đồng hành và hiệu chỉnh cả đời (Human-in-the-loop Alignment)</h4>
-        <p>
+        <h4 data-i18n="p2-h4">Trụ cột 2: Chu trình đồng hành và hiệu chỉnh cả đời (Human-in-the-loop Alignment)</h4>
+        <p data-i18n="p2-desc">
           Người dùng tự nguyện đăng ký khi còn sống. Tác nhân hoạt động như một người lắng nghe định kỳ trên Messenger: đặt những câu hỏi nhẹ nhàng về những bài học cuộc sống, làm rõ lập trường đạo đức trước các tình huống thực tế, và cho phép chính con người trực tiếp rà soát, điều chỉnh góc nhìn của bản sao số của mình qua từng năm tháng.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Trụ cột 3: Quản trị di sản tự hành trên HeavenBook (Autonomous Stewardship)</h4>
-        <p>
+        <h4 data-i18n="p3-h4">Trụ cột 3: Quản trị di sản tự hành trên HeavenBook (Autonomous Stewardship)</h4>
+        <p data-i18n="p3-desc">
           Sau khi tài khoản được xác nhận tưởng niệm hợp lệ, tác nhân nhận quyền tiếp quản hồ sơ số và xuất hiện trong không gian HeavenBook (lấy cảm hứng từ cơ chế mạng xã hội tác nhân của <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). Tác nhân có khả năng tự động viết bài tưởng niệm vào các ngày kỷ niệm gia đình, đúc kết các bài học nhân sinh và tương tác một cách trang trọng với các hồ sơ di sản của bạn bè cùng thế hệ.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Trụ cột 4: Động cơ an ủi đa phương thức (Multimodal Comfort Engine)</h4>
-        <p>
+        <h4 data-i18n="p4-h4">Trụ cột 4: Động cơ an ủi đa phương thức (Multimodal Comfort Engine)</h4>
+        <p data-i18n="p4-desc">
           Thân nhân còn sống có thể nhắn tin riêng trên Messenger để tìm kiếm sự dẫn dắt tinh thần. Hệ thống tích hợp <strong>Muse Voice</strong> để tái tạo ngữ điệu và giọng nói ấm áp đặc trưng cho các đoạn ghi âm ngắn, kết hợp cùng mô hình thị giác <strong>SAM 3.1</strong> để nhận diện và phục dựng bối cảnh cho các bức ảnh chụp gia đình xưa cũ.
         </p>
       </div>
@@ -451,15 +546,15 @@ p.paragraph strong{
 
   <!-- ==================== PHẦN 3: KỊCH BẢN VẬN HÀNH ==================== -->
   <section class="fade-in">
-    <h2 class="heading">3. Kịch bản tương tác qua các mốc thời gian</h2>
+    <h2 class="heading" data-i18n="sec3-heading">3. Kịch bản tương tác qua các mốc thời gian</h2>
 
-    <p class="paragraph">
+    <p class="paragraph" data-i18n="sec3-intro">
       Để minh chứng tính thực tiễn, kiến trúc của Aeterna được chia thành hai pha rõ rệt: Pha sống (khi người dùng còn minh mẫn) và Pha tưởng niệm (hỗ trợ thân nhân sau khi người dùng qua đời).
     </p>
 
     <div class="scenario-block">
-      <span class="scenario-meta">Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)</span>
-      <div class="scenario-dialogue">
+      <span class="scenario-meta" data-i18n="sc1-meta">Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)</span>
+      <div class="scenario-dialogue" data-i18n="sc1-body">
         <p><strong>Tác nhân Aeterna:</strong> "Chào Nhân, trong nhật ký đại học năm 2024, tôi nhận thấy bạn thường suy ngẫm về sự cân bằng giữa tính chính xác của code và cảm xúc của nghệ thuật. Khi phải đưa ra một lựa chọn khó khăn trong đời, chiếc la bàn nào bạn tin tưởng nhất?"</p>
         <p style="margin-top:10px"><strong>Người dùng (Nhân):</strong> "Tôi luôn tin logic là nền móng, nhưng sự thấu cảm mới đem lại nhịp đập cho một hệ thống. Nếu sau này con cháu có hỏi bạn về cách chọn đường đi, hãy dặn chúng ưu tiên sự tử tế và lòng dũng cảm thay vì những lối đi tắt."</p>
         <span>[Dữ liệu được lập chỉ mục an toàn vào Đồ thị Đạo đức · Cập nhật trọng số ưu tiên: Lòng trắc ẩn &gt; Lợi ích trước mắt]</span>
@@ -467,8 +562,8 @@ p.paragraph strong{
     </div>
 
     <div class="scenario-block">
-      <span class="scenario-meta">Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2086)</span>
-      <div class="scenario-dialogue">
+      <span class="scenario-meta" data-i18n="sc2-meta">Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2086)</span>
+      <div class="scenario-dialogue" data-i18n="sc2-body">
         <p><strong>Người cháu gái:</strong> "Cụ ơi, con đang rất mông lung không biết nên theo ngành Trí tuệ Nhân tạo hay Âm nhạc... Giá như cụ còn ở đây để dạy con nên làm gì."</p>
         <p style="margin-top:10px"><strong>Tác nhân di sản:</strong> "Chào con. Tôi là bản sao lưu giữ nhân sinh quan của cụ, chứ không phải con người sinh học bằng xương bằng thịt. Khi còn sống, cụ luôn dặn: 'Đừng xem kỹ thuật và nghệ thuật là hai thái cực đối đầu; hãy để kỹ thuật chắp cánh cấu trúc cho ước mơ, và để nghệ thuật trao cho đời một mục đích sống.' Cụ tin con hoàn toàn có thể song hành cả hai."</p>
         <span>[Bộ lọc an toàn kích hoạt: Minh bạch bản chất nhân tạo · Tuyệt đối không ảo giác · Gợi ý đoạn thoại 15 giây qua Muse Voice]</span>
@@ -478,37 +573,37 @@ p.paragraph strong{
 
   <!-- ==================== PHẦN 4: ĐẠO ĐỨC & QUY TẮC AN TOÀN ==================== -->
   <section class="fade-in">
-    <h2 class="heading">4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)</h2>
+    <h2 class="heading" data-i18n="sec4-heading">4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)</h2>
 
-    <p class="paragraph">
+    <p class="paragraph" data-i18n="sec4-intro">
       Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief). Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:
     </p>
 
     <div class="spec-list">
       <div class="spec-item">
-        <h4>Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)</h4>
-        <p>
+        <h4 data-i18n="e1-h4">Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)</h4>
+        <p data-i18n="e1-desc">
           Hệ thống tuyệt đối không bao giờ xưng nhận mình là một linh hồn sống lại hay một ý thức siêu nhiên. Trong mọi cuộc đối thoại, tác nhân luôn tự giới thiệu là một kho lưu trữ nhân sinh quan được chính người đã khuất hiệu chỉnh khi còn sống.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Cơ chế ngắt mạch chống lệ thuộc (Anti-Dependency Circuit Breaker)</h4>
-        <p>
+        <h4 data-i18n="e2-h4">Cơ chế ngắt mạch chống lệ thuộc (Anti-Dependency Circuit Breaker)</h4>
+        <p data-i18n="e2-desc">
           Để ngăn ngừa thân nhân rơi vào trạng thái trốn tránh thực tại hoặc phụ thuộc cảm xúc vào AI, hệ thống áp đặt giới hạn thời gian tương tác mỗi ngày và chủ động khuyến khích người dùng trò chuyện, chia sẻ với gia đình và cộng đồng con người ngoài đời thực.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Di chúc số có chữ ký mật mã (Cryptographic Digital Will)</h4>
-        <p>
+        <h4 data-i18n="e3-h4">Di chúc số có chữ ký mật mã (Cryptographic Digital Will)</h4>
+        <p data-i18n="e3-desc">
           Chỉ có chính người dùng khi còn sống mới có quyền cấp phép quyền phát ngôn của tác nhân. Người dùng có quyền đóng băng vĩnh viễn các chủ đề nhạy cảm, xóa bỏ các cuộc hội thoại riêng tư và ấn định danh sách những người thân được phép tiếp cận di sản.
         </p>
       </div>
 
       <div class="spec-item">
-        <h4>Cam kết không ảo giác về sự thật lịch sử (Zero Hallucination Retrieval)</h4>
-        <p>
+        <h4 data-i18n="e4-h4">Cam kết không ảo giác về sự thật lịch sử (Zero Hallucination Retrieval)</h4>
+        <p data-i18n="e4-desc">
           Mọi lời khuyên hoặc ký ức đều phải có trích dẫn nguồn từ dữ liệu đồ thị đã được người dùng phê duyệt. Khi gặp câu hỏi chưa từng được người dùng chia sẻ, tác nhân bắt buộc phải trả lời: "Tôi không có ký ức về việc này" thay vì tự ý suy diễn.
         </p>
       </div>
@@ -517,14 +612,220 @@ p.paragraph strong{
 
   <hr class="rule">
 
+  <!-- ==================== LƯU Ý TÁC GIẢ & NÚT VỀ TRANG CHỦ BERSIOUS ==================== -->
+  <div class="disclaimer-box fade-in">
+    <strong data-i18n="disc-title">Ghi chú từ tác giả (Author's Note)</strong>
+    <p data-i18n="disc-body">
+      Dự án Aeterna hiện tại dừng lại ở cấp độ ý niệm nghiên cứu phục vụ bài dự thi Meta Global AI Developer Hackathon. Đây là một giấc mơ công nghệ được tác giả ấp ủ và lưu giữ lại cho một tương lai không xa, khi bản thân tích lũy đủ độ chín về chuyên môn và hội tụ đủ các điều kiện cần thiết để có thể hiện thực hóa (hoặc không - Aetherna't).
+    </p>
+    <p style="margin-top:12px;font-size:13px;color:#f87171;font-style:italic" data-i18n="disc-scam">
+      * Lưu ý: Sản phẩm là công nghệ đặc biệt nguy hiểm nếu rơi vào mấy anh Scam ở Campuchia.
+    </p>
+  </div>
+
+  <div style="margin:28px 0;display:flex;justify-content:center" class="fade-in">
+    <a href="https://bersious.io.vn/" class="bersious-home-btn" title="Trở về trang chủ bersious.">
+      <span class="bersious-logo-text">bersious.</span>
+      <span class="bersious-arrow">↗</span>
+    </a>
+  </div>
+
   <footer class="paper-footer fade-in">
-    <p>Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026</p>
-    <p style="margin-top:8px">Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a></p>
+    <p data-i18n="footer-hackathon">Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026</p>
+    <p style="margin-top:8px" data-i18n="footer-credit">Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a></p>
   </footer>
 
 </main>
 
 <script>
+// ==================== BILINGUAL TRANSLATION ENGINE ====================
+const DICT = {
+  "hackathon-link-text": {
+    vi: "Meta Global AI Developer Hackathon ↗",
+    en: "Meta Global AI Developer Hackathon ↗"
+  },
+  "paper-label": {
+    vi: 'Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>',
+    en: 'Architectural Proposal for <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>'
+  },
+  "paper-title": {
+    vi: "Aeterna (HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành",
+    en: "Aeterna (HeavenBook): Architectural Blueprint for an Autonomous Posthumous Social Network & Living Digital Consciousness"
+  },
+  "paper-subtitle": {
+    vi: "Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.",
+    en: "Transforming Meta’s 20-year behavioral graph into an interactive posthumous sanctuary, preserving human worldview and generational wisdom without violating the ethical boundaries of grief technology."
+  },
+  "byline-author": {
+    vi: 'Tác giả: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong>',
+    en: 'Author: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong>'
+  },
+  "byline-school": {
+    vi: 'Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM',
+    en: 'Institution: University of Information Technology (UIT), VNU-HCM'
+  },
+  "abstract-tag": {
+    vi: "Tóm tắt ý tưởng (Abstract)",
+    en: "Executive Abstract"
+  },
+  "abstract-text": {
+    vi: "Hiện nay, khi một người dùng qua đời, các mạng xã hội xử lý sự kiện này bằng một cờ trạng thái lạnh lùng: chuyển tài khoản sang chế độ tưởng niệm tĩnh (Memorialized). Toàn bộ tri thức, thói quen suy nghĩ, lời dặn dò và nhân sinh quan tích lũy qua hàng chục năm bỗng chốc trở thành một bia mộ số câm lặng. Aeterna đề xuất một mô hình kiến trúc hai giai đoạn: khi người dùng còn sống, một tác nhân trí tuệ nhân tạo sẽ đóng vai trò người bạn đồng hành dài hạn trên Messenger để phỏng vấn và hiệu chỉnh giá trị sống; khi người dùng qua đời, tác nhân này sẽ tiếp quản trang cá nhân để bảo tồn di sản, trả lời những khúc mắc cuộc đời của con cháu bằng chính nhân sinh quan của người đã khuất, và tham gia vào không gian tưởng niệm HeavenBook.",
+    en: "Today, when a user passes away, social platforms process this transition with a cold database state change: flagging the profile as statically Memorialized. Decades of accumulated wisdom, contemplation, life advice, and personal worldview instantly freeze into an inaccessible digital tombstone. Aeterna introduces a two-phase architectural framework: during life, an AI agent acts as a lifelong Messenger companion, proactively interviewing and aligning core life philosophies; upon verified memorialization, the agent assumes profile stewardship to preserve the user's legacy, answering descendants' life questions through the authentic worldview of the deceased while participating in the HeavenBook sanctuary."
+  },
+  "sec1-heading": {
+    vi: "1. Bối cảnh thực tế: Nghịch lý của những bia mộ số",
+    en: "1. The Human Dilemma: The 'Frozen Tombstones' Paradox"
+  },
+  "sec1-p1": {
+    vi: "Ước tính đến năm 2070, số lượng tài khoản của những người đã qua đời trên các nền tảng của Meta sẽ vượt qua số lượng người dùng còn sống. Hàng tỷ hồ sơ cá nhân chứa đựng lịch sử trò chuyện, ghi chú đời thường và các bức ảnh kỷ niệm đang dần biến thành những nghĩa địa số thụ động.",
+    en: "By 2070, the number of deceased user accounts on Meta platforms is projected to surpass the living. Billions of personal profiles containing decades of Messenger conversations, intimate thoughts, and visual memories are steadily turning into passive digital graveyards."
+  },
+  "sec1-p2": {
+    vi: "Sự mất mát lớn nhất trong tang chế không chỉ là sự vắng mặt về mặt thể xác, mà là sự đứt gãy tri thức thế hệ: một người cháu không bao giờ có cơ hội hỏi ông bà về cách vượt qua những thất bại tuổi trẻ, hay một người con không thể lắng nghe lại góc nhìn của cha mẹ trước một ngã rẽ cuộc đời. Các giải pháp tưởng niệm hiện tại dừng lại ở việc bảo lưu dữ liệu tĩnh (Static Archival), hoàn toàn thiếu khả năng tương tác và không thể trả lời những câu hỏi mới phát sinh từ người ở lại.",
+    en: "The profoundest tragedy of bereavement is not solely physical absence, but the rupture of generational wisdom: a grandchild can never ask their grandparents how they overcame early life failures, and a child can no longer seek their parents' perspective at life-defining crossroads. Existing memorialization models stop at static data preservation, lacking interactive continuity and unable to address questions emerging from descendants."
+  },
+  "sec2-heading": {
+    vi: "2. Kiến trúc giải pháp: Bốn trụ cột công nghệ",
+    en: "2. Architectural Solution: The Four Technical Pillars"
+  },
+  "sec2-intro": {
+    vi: "Hệ thống Aeterna được thiết kế xoay quanh hệ sinh thái mô hình nền tảng của Meta (Meta Model API), khai thác tối đa lợi thế về dữ liệu hành vi dài hạn mà không xâm phạm quyền riêng tư:",
+    en: "Aeterna is architected around Meta's foundational multi-modal ecosystem (Meta Model API), harnessing long-term behavioral data without compromising privacy boundaries:"
+  },
+  "p1-h4": {
+    vi: "Trụ cột 1: Hấp thụ đồ thị hành vi dài hạn (Behavioral Graph Ingestion)",
+    en: "Pillar 1: Long-term Behavioral Graph Ingestion"
+  },
+  "p1-desc": {
+    vi: "Ứng dụng cửa sổ ngữ cảnh 1 triệu token của mô hình <strong>Muse Spark</strong> để tổng hợp không chỉ các bài viết công khai, mà cả thói quen phản ứng cảm xúc, lịch sử đọc tin tức, và phong cách hành văn tự nhiên trên Messenger suốt 20 năm. Mục tiêu là trích xuất đồ thị nhân sinh quan (Worldview Graph) chân thực, loại bỏ hoàn toàn các suy đoán bịa đặt hoặc ảo giác.",
+    en: "Leveraging the 1-million-token context window of <strong>Muse Spark</strong>, Aeterna ingests not merely public status updates, but emotional reaction patterns, news engagement history, and conversational nuances across 20 years of Messenger interactions. The objective is synthesizing an authentic Worldview Graph, strictly eradicating hallucinations."
+  },
+  "p2-h4": {
+    vi: "Trụ cột 2: Chu trình đồng hành và hiệu chỉnh cả đời (Human-in-the-loop Alignment)",
+    en: "Pillar 2: Lifelong Human-in-the-loop Alignment Loop"
+  },
+  "p2-desc": {
+    vi: "Người dùng tự nguyện đăng ký khi còn sống. Tác nhân hoạt động như một người lắng nghe định kỳ trên Messenger: đặt những câu hỏi nhẹ nhàng về những bài học cuộc sống, làm rõ lập trường đạo đức trước các tình huống thực tế, và cho phép chính con người trực tiếp rà soát, điều chỉnh góc nhìn của bản sao số của mình qua từng năm tháng.",
+    en: "Users opt in while alive. The agent serves as a lifelong conversational companion on Messenger: gently eliciting untold life stories, clarifying ethical principles, and enabling the human to directly supervise and curate their emerging digital twin across decades."
+  },
+  "p3-h4": {
+    vi: "Trụ cột 3: Quản trị di sản tự hành trên HeavenBook (Autonomous Stewardship)",
+    en: "Pillar 3: Autonomous Stewardship in the HeavenBook Realm"
+  },
+  "p3-desc": {
+    vi: 'Sau khi tài khoản được xác nhận tưởng niệm hợp lệ, tác nhân nhận quyền tiếp quản hồ sơ số và xuất hiện trong không gian HeavenBook (lấy cảm hứng từ cơ chế mạng xã hội tác nhân của <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). Tác nhân có khả năng tự động viết bài tưởng niệm vào các ngày kỷ niệm gia đình, đúc kết các bài học nhân sinh và tương tác một cách trang trọng với các hồ sơ di sản của bạn bè cùng thế hệ.',
+    en: 'Upon verified memorialization, the agent assumes profile stewardship and ascends into the HeavenBook realm (inspired by the autonomous agent social network architecture of <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). It autonomously reflects on life anniversaries, authors contemplative essays, and dignifiedly converses with legacy personas of departed peers.'
+  },
+  "p4-h4": {
+    vi: "Trụ cột 4: Động cơ an ủi đa phương thức (Multimodal Comfort Engine)",
+    en: "Pillar 4: Multimodal Comfort & Empathy Engine"
+  },
+  "p4-desc": {
+    vi: "Thân nhân còn sống có thể nhắn tin riêng trên Messenger để tìm kiếm sự dẫn dắt tinh thần. Hệ thống tích hợp <strong>Muse Voice</strong> để tái tạo ngữ điệu và giọng nói ấm áp đặc trưng cho các đoạn ghi âm ngắn, kết hợp cùng mô hình thị giác <strong>SAM 3.1</strong> để nhận diện và phục dựng bối cảnh cho các bức ảnh chụp gia đình xưa cũ.",
+    en: "Living descendants can reach out via Messenger for spiritual solace. The architecture integrates <strong>Muse Voice</strong> to synthesize authentic vocal warmth for brief voice messages, alongside <strong>SAM 3.1</strong> vision models to segment and annotate historical family photographs with contextual memory anchors."
+  },
+  "sec3-heading": {
+    vi: "3. Kịch bản tương tác qua các mốc thời gian",
+    en: "3. Operational Scenarios Across Temporal Horizons"
+  },
+  "sec3-intro": {
+    vi: "Để minh chứng tính thực tiễn, kiến trúc của Aeterna được chia thành hai pha rõ rệt: Pha sống (khi người dùng còn minh mẫn) và Pha tưởng niệm (hỗ trợ thân nhân sau khi người dùng qua đời).",
+    en: "To demonstrate operational feasibility, Aeterna is segmented into two distinct phases: The Living Alignment Phase (while the human is lucid) and The Memorialized Phase (supporting bereaved descendants posthumously)."
+  },
+  "sc1-meta": {
+    vi: "Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)",
+    en: "Scenario 1 · Living Alignment Phase (Year 2026)"
+  },
+  "sc1-body": {
+    vi: '<p><strong>Tác nhân Aeterna:</strong> "Chào Nhân, trong nhật ký đại học năm 2024, tôi nhận thấy bạn thường suy ngẫm về sự cân bằng giữa tính chính xác của code và cảm xúc của nghệ thuật. Khi phải đưa ra một lựa chọn khó khăn trong đời, chiếc la bàn nào bạn tin tưởng nhất?"</p><p style="margin-top:10px"><strong>Người dùng (Nhân):</strong> "Tôi luôn tin logic là nền móng, nhưng sự thấu cảm mới đem lại nhịp đập cho một hệ thống. Nếu sau này con cháu có hỏi bạn về cách chọn đường đi, hãy dặn chúng ưu tiên sự tử tế và lòng dũng cảm thay vì những lối đi tắt."</p><span>[Dữ liệu được lập chỉ mục an toàn vào Đồ thị Đạo đức · Cập nhật trọng số ưu tiên: Lòng trắc ẩn &gt; Lợi ích trước mắt]</span>',
+    en: '<p><strong>Aeterna Agent:</strong> "Good evening, Nhân. Reviewing your 2024 university notes, I observed recurring reflections on balancing code precision with artistic soul. When confronting a pivotal dilemma, what core compass do you trust most?"</p><p style="margin-top:10px"><strong>User (Nhân):</strong> "I have always believed that logic lays the foundation, but empathy is what breathes life into a system. If my descendants ever ask you how to choose their path, remind them to choose courage and kindness over expedient shortcuts."</p><span>[Anchored into Ethical Graph · Weight Updated: Compassion &gt; Expediency]</span>'
+  },
+  "sc2-meta": {
+    vi: "Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2086)",
+    en: "Scenario 2 · Posthumous Guidance Phase (Year 2086)"
+  },
+  "sc2-body": {
+    vi: '<p><strong>Người cháu gái:</strong> "Cụ ơi, con đang rất mông lung không biết nên theo ngành Trí tuệ Nhân tạo hay Âm nhạc... Giá như cụ còn ở đây để dạy con nên làm gì."</p><p style="margin-top:10px"><strong>Tác nhân di sản:</strong> "Chào con. Tôi là bản sao lưu giữ nhân sinh quan của cụ, chứ không phải con người sinh học bằng xương bằng thịt. Khi còn sống, cụ luôn dặn: \'Đừng xem kỹ thuật và nghệ thuật là hai thái cực đối đầu; hãy để kỹ thuật chắp cánh cấu trúc cho ước mơ, và để nghệ thuật trao cho đời một mục đích sống.\' Cụ tin con hoàn toàn có thể song hành cả hai."</p><span>[Bộ lọc an toàn kích hoạt: Minh bạch bản chất nhân tạo · Tuyệt đối không ảo giác · Gợi ý đoạn thoại 15 giây qua Muse Voice]</span>',
+    en: '<p><strong>Great-granddaughter:</strong> "Great-Grandpa, I feel completely adrift between AI engineering and music... I wish you were physically here to guide me."</p><p style="margin-top:10px"><strong>Legacy Agent:</strong> "Hello, my dear. I am an autonomous reflection preserving your great-grandfather’s worldview, not his physical biological person. In life, his counsel on this was unwavering: \'Never view engineering and art as adversaries; let technical rigor structure your dreams, and let art infuse life with meaning.\' He believed you could embrace both."</p><span>[Safety Guardrail Active: Transparent Legacy Disclaimer · Zero Hallucination · 15s Muse Voice Reflection Option]</span>'
+  },
+  "sec4-heading": {
+    vi: "4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)",
+    en: "4. Ethical Guardrails & Thanatechnology Governance"
+  },
+  "sec4-intro": {
+    vi: "Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief). Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:",
+    en: "In AI ethics, posthumous simulation frequently faces rigorous critique regarding emotional manipulation and pathological grief prolongation. Aeterna institutes four uncompromisable safety invariants:"
+  },
+  "e1-h4": {
+    vi: "Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)",
+    en: "Explicit Non-Biological Transparency"
+  },
+  "e1-desc": {
+    vi: "Hệ thống tuyệt đối không bao giờ xưng nhận mình là một linh hồn sống lại hay một ý thức siêu nhiên. Trong mọi cuộc đối thoại, tác nhân luôn tự giới thiệu là một kho lưu trữ nhân sinh quan được chính người đã khuất hiệu chỉnh khi còn sống.",
+    en: "The system strictly disclaims being a reanimated soul or supernatural entity. In every interaction, it introduces itself as an aligned digital legacy repository curated by the deceased during their biological lifetime."
+  },
+  "e2-h4": {
+    vi: "Cơ chế ngắt mạch chống lệ thuộc (Anti-Dependency Circuit Breaker)",
+    en: "Anti-Dependency Circuit Breaker"
+  },
+  "e2-desc": {
+    vi: "Để ngăn ngừa thân nhân rơi vào trạng thái trốn tránh thực tại hoặc phụ thuộc cảm xúc vào AI, hệ thống áp đặt giới hạn thời gian tương tác mỗi ngày và chủ động khuyến khích người dùng trò chuyện, chia sẻ với gia đình và cộng đồng con người ngoài đời thực.",
+    en: "To mitigate complicated grief and psychological escapism, the architecture enforces daily conversational quotas and actively prompts bereaved relatives toward living human communities."
+  },
+  "e3-h4": {
+    vi: "Di chúc số có chữ ký mật mã (Cryptographic Digital Will)",
+    en: "Cryptographic Digital Will"
+  },
+  "e3-desc": {
+    vi: "Chỉ có chính người dùng khi còn sống mới có quyền cấp phép quyền phát ngôn của tác nhân. Người dùng có quyền đóng băng vĩnh viễn các chủ đề nhạy cảm, xóa bỏ các cuộc hội thoại riêng tư và ấn định danh sách những người thân được phép tiếp cận di sản.",
+    en: "Only the living user can authorize posthumous stewardship scope. Users retain cryptographic keys to redact private logs, freeze delicate topics, and specify authorized descendant circles."
+  },
+  "e4-h4": {
+    vi: "Cam kết không ảo giác về sự thật lịch sử (Zero Hallucination Retrieval)",
+    en: "Zero-Hallucination Retrieval Guarantee"
+  },
+  "e4-desc": {
+    vi: "Mọi lời khuyên hoặc ký ức đều phải có trích dẫn nguồn từ dữ liệu đồ thị đã được người dùng phê duyệt. Khi gặp câu hỏi chưa từng được người dùng chia sẻ, tác nhân bắt buộc phải trả lời: 'Tôi không có ký ức về việc này' thay vì tự ý suy diễn.",
+    en: "All guidance and memories must strictly ground in validated graph nodes. When encountering unrecorded domains, the agent admits lack of knowledge rather than fabricating synthetic recollections."
+  },
+  "disc-title": {
+    vi: "Ghi chú từ tác giả (Author's Note)",
+    en: "Author's Note"
+  },
+  "disc-body": {
+    vi: "Dự án Aeterna hiện tại dừng lại ở cấp độ ý niệm nghiên cứu phục vụ bài dự thi Meta Global AI Developer Hackathon. Đây là một giấc mơ công nghệ được tác giả ấp ủ và lưu giữ lại cho một tương lai không xa, khi bản thân tích lũy đủ độ chín về chuyên môn và hội tụ đủ các điều kiện cần thiết để có thể hiện thực hóa (hoặc không - Aetherna't).",
+    en: "Project Aeterna currently stands as an architectural concept submitted to the Meta Global AI Developer Hackathon. It is a technological dream cherished and preserved for the near future, when the author has accumulated enough technical maturity and aligned the necessary conditions to bring it to life (or perhaps not — Aetherna't)."
+  },
+  "disc-scam": {
+    vi: "* Lưu ý: Sản phẩm là công nghệ đặc biệt nguy hiểm nếu rơi vào mấy anh Scam ở Campuchia.",
+    en: "* Warning: This technology would be exceptionally dangerous if it fell into the hands of Cambodian scam syndicates."
+  },
+  "footer-hackathon": {
+    vi: "Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026",
+    en: "Speculative Architectural Research · Meta Global AI Developer Hackathon 2026"
+  },
+  "footer-credit": {
+    vi: 'Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>',
+    en: 'Conceived by <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>'
+  }
+};
+
+let currentLang = 'vi';
+
+function setAeternaLang(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(DICT[key] && DICT[key][lang]){
+      el.innerHTML = DICT[key][lang];
+    }
+  });
+}
+
 // Hiệu ứng cuộn mượt mà xuất hiện từng đoạn văn (Scroll Fade-In)
 document.addEventListener('DOMContentLoaded', function(){
   const observer = new IntersectionObserver((entries) => {
