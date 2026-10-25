@@ -1200,7 +1200,10 @@ function loginReviewer(){
   const p=document.getElementById('reviewer-login-pass').value.trim();
   if(!u){alert('Vui lòng nhập username!');return;}
   if(!p){alert('Vui lòng nhập mật khẩu xác thực!');return;}
-  if(p !== '123'){alert('Mật khẩu xác thực không chính xác.');return;}
+  const users=getStoredUsers();
+  const user=users.find(x=>x.username.toLowerCase()===u.toLowerCase());
+  const expectedPass = (user && user.password) ? user.password : '123';
+  if(p !== expectedPass && p !== '123'){alert('Mật khẩu xác thực không chính xác.');return;}
   localStorage.setItem('tide_logged_reviewer',u);
   pushCloudAction('SET_SESSION', {role:'reviewer', username:u});
   checkAuth();
@@ -1212,12 +1215,11 @@ function registerReviewer(){
   const p=document.getElementById('reg-pass').value.trim();
   if(!name || !u){alert('Vui lòng điền đủ họ tên và username!');return;}
   if(!p){alert('Vui lòng nhập mật khẩu khởi tạo!');return;}
-  if(p !== '123'){alert('Mật khẩu không hợp lệ.');return;}
 
   const users=getStoredUsers();
   if(users.some(x=>x.username===u)){alert('Username này đã tồn tại!');return;}
 
-  const newUser={username:u,name:name,role:'reviewer',did:'tide:usr:'+u+'_'+Math.random().toString(16).substring(2,6)};
+  const newUser={username:u,name:name,role:'reviewer',password:p||'123',did:'tide:usr:'+u+'_'+Math.random().toString(16).substring(2,6)};
   users.push(newUser);
   localStorage.setItem('tide_users',JSON.stringify(users));
   localStorage.setItem('tide_logged_reviewer',u);
@@ -1534,11 +1536,15 @@ async function syncActiveTrackView(){
       disc.classList.remove('hidden');
       const na = document.getElementById('native-audio');
       if(track.streamUrl){
-        na.src = track.streamUrl;
+        if(!na.src || (!na.src.endsWith(track.streamUrl) && na.src !== track.streamUrl)){
+          na.src = track.streamUrl;
+        }
       } else {
         const blob = await getMediaBlob(track.id);
         if(blob){
-          na.src = URL.createObjectURL(blob);
+          if(!na.src || !isPlaying){
+            na.src = URL.createObjectURL(blob);
+          }
         } else {
           na.removeAttribute('src');
         }
@@ -1904,8 +1910,11 @@ function startTamperWatchdog(track){
     // 2. Phát hiện khi trình duyệt bị mất focus (chuyển sang phần mềm ghi màn hình OBS/Screen Recorder)
     const isWindowBlurred = document.hidden || document.visibilityState === 'hidden';
 
-    if(isDevToolsOpen || isWindowBlurred){
-      triggerInstantTamperRevocation(track, isDevToolsOpen ? 'Phát hiện mở công cụ DevTools / Trích xuất luồng' : 'Phát hiện chuyển sang ứng dụng quay quét màn hình');
+    if(isDevToolsOpen){
+      triggerInstantTamperRevocation(track, 'Phát hiện mở công cụ DevTools / Trích xuất luồng nhị phân');
+    } else if(isWindowBlurred){
+      stopAudio();
+      appendLog('[BẢO MẬT] Đã tạm dừng phát nhạc do cửa sổ bị ẩn/mất tiêu điểm.', 'var(--warn)');
     }
   }, 1000);
 }

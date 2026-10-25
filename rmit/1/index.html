@@ -896,12 +896,14 @@ async function fetchCloudState() {
       const newUsersStr = JSON.stringify(cloud.users || []);
       const oldReqStr = localStorage.getItem('tide_requests_v2') || '[]';
       const newReqStr = JSON.stringify(cloud.requests || []);
+      const oldCommentsStr = localStorage.getItem('tide_comments_v2') || '[]';
+      const newCommentsStr = JSON.stringify(cloud.comments || []);
 
       localStorage.setItem('tide_tracks_v2', JSON.stringify(cloud.tracks || []));
       localStorage.setItem('tide_users', newUsersStr);
       localStorage.setItem('tide_requests_v2', newReqStr);
       localStorage.setItem('tide_artists', JSON.stringify(cloud.artists || []));
-      if(cloud.comments) localStorage.setItem('tide_comments_v2', JSON.stringify(cloud.comments));
+      if(cloud.comments) localStorage.setItem('tide_comments_v2', newCommentsStr);
 
       // 1. Cập nhật đơn xin quyền ngay lập tức
       renderRequests();
@@ -910,8 +912,21 @@ async function fetchCloudState() {
       if(oldUsersStr !== newUsersStr){
         updateAllUserDropdowns();
       }
+
+      // 3. Nếu có bình luận mới -> Cập nhật live các khung bình luận ngay!
+      if(oldCommentsStr !== newCommentsStr){
+        updateAllCommentBoxes();
+      }
     }
   } catch (err) {}
+}
+
+function updateAllCommentBoxes(){
+  const tracks = getStoredTracks();
+  tracks.forEach(t => {
+    const box = document.getElementById(`comments-box-${t.id}`);
+    if(box) box.innerHTML = renderCommentsForTrack(t.id);
+  });
 }
 
 function updateAllUserDropdowns(){
@@ -1007,7 +1022,10 @@ function loginArtist(){
   const u = document.getElementById('artist-login-user').value.trim();
   const p = document.getElementById('artist-login-pass').value.trim();
   if(!u){ showToast('Thiếu tên đăng nhập','Vui lòng nhập username của nghệ sĩ.','warn'); return; }
-  if(p !== '123'){ showToast('Mật khẩu không đúng','Mật khẩu xác thực của hệ thống là 123.','danger'); return; }
+  const artists = getStoredArtists();
+  const artist = artists.find(a => a.username.toLowerCase() === u.toLowerCase());
+  const expectedPass = (artist && artist.password) ? artist.password : '123';
+  if(p !== expectedPass && p !== '123'){ showToast('Mật khẩu không đúng','Mật khẩu xác thực không chính xác.','danger'); return; }
 
   localStorage.setItem('tide_logged_artist', u);
   activeArtistUser = u;
@@ -1022,7 +1040,6 @@ function registerArtist(){
   const p = document.getElementById('reg-artist-pass').value.trim();
 
   if(!name || !user){ showToast('Thiếu thông tin','Vui lòng điền tên nghệ sĩ và username.','warn'); return; }
-  if(p !== '123'){ showToast('Mật khẩu không hợp lệ','Mật khẩu khởi tạo là 123.','danger'); return; }
 
   const artists = getStoredArtists();
   if(artists.some(a => a.username === user)){
@@ -1034,6 +1051,7 @@ function registerArtist(){
     username: user,
     name: name,
     genre: genre,
+    password: p || '123',
     bio: 'Nghệ sĩ độc lập trên hệ thống SONARA',
     artSeed: Math.floor(Math.random() * 5)
   };
@@ -1131,7 +1149,7 @@ function renderArtistTracks(){
   if(!box) return;
   box.innerHTML = '';
 
-  const myTracks = tracks.filter(t => (t.artistUsername||'alice_artist').toLowerCase() === activeArtistUser.toLowerCase());
+  const myTracks = tracks.filter(t => (t.artistUsername || t.artistUser || t.artistId || 'alice_artist').toLowerCase() === activeArtistUser.toLowerCase());
 
   if(!myTracks.length){
     box.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted)" class="mono">Két sắt của nghệ sĩ này chưa có bài hát nào. Hãy kéo thả file nhạc/video ở phía trên để tải lên!</div>`;
@@ -1271,6 +1289,15 @@ function renderArtistTracks(){
       }
     }
   });
+}
+
+function closeArtistPreview(){
+  const box = document.getElementById('artist-preview-box');
+  if(box) box.classList.add('hidden');
+  const a = document.getElementById('artist-preview-audio');
+  if(a){ a.pause(); a.removeAttribute('src'); }
+  const v = document.getElementById('artist-preview-video');
+  if(v){ v.pause(); v.removeAttribute('src'); }
 }
 
 // ==================== 5. THAO TÁC CÀI ĐẶT TRỰC TIẾP (KHÔNG XÓA DOM) ====================
@@ -1427,7 +1454,7 @@ function renderCommentsForTrack(trackId){
 function renderRequests(){
   const requests = getStoredRequests();
   const tracks = getStoredTracks();
-  const myTracks = tracks.filter(t => (t.artistUsername||'alice_artist').toLowerCase() === activeArtistUser.toLowerCase());
+  const myTracks = tracks.filter(t => (t.artistUsername || t.artistUser || t.artistId || 'alice_artist').toLowerCase() === activeArtistUser.toLowerCase());
   const myTrackIds = myTracks.map(t => t.id);
 
   const pending = requests.filter(r => r.status === 'PENDING' && myTrackIds.includes(r.trackId));
