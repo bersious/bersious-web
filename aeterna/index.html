@@ -48,6 +48,160 @@ body{
     #090a0f;
 }
 
+/* Video Background Layer - Optimized & Hardware Accelerated */
+.video-bg-container{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:-2;
+  overflow:hidden;
+  pointer-events:none;
+  background:#090a0f;
+}
+.video-bg-media{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0.32;
+  filter:brightness(0.65) contrast(1.2);
+  transform:translateZ(0);
+  will-change:transform;
+}
+.video-bg-overlay{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 20%, rgba(9,10,15,0.4) 0%, rgba(9,10,15,0.85) 75%, #090a0f 100%),
+             linear-gradient(180deg, rgba(9,10,15,0.5) 0%, rgba(9,10,15,0.95) 100%);
+  pointer-events:none;
+}
+@media(max-width:768px){
+  .video-bg-media{opacity:0.25;filter:brightness(0.55);}
+}
+
+/* Heritage Progression Quote Box */
+.heritage-quote-box{
+  background:rgba(18,22,34,0.75);
+  border:1px solid rgba(147,112,219,0.3);
+  border-radius:14px;
+  padding:24px 28px;
+  margin-bottom:36px;
+  backdrop-filter:blur(14px);
+  position:relative;
+  box-shadow:0 15px 35px -10px rgba(0,0,0,0.5);
+}
+.heritage-quote-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:16px;
+  display:block;
+}
+.heritage-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:20px;
+}
+.heritage-step{
+  border-left:2px solid var(--border);
+  padding-left:14px;
+}
+.heritage-step.active{
+  border-left-color:var(--accent);
+}
+.heritage-era{
+  display:block;
+  font-family:'Newsreader',serif;
+  font-size:17px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin-bottom:6px;
+}
+.heritage-era.highlight{
+  color:var(--accent);
+}
+.heritage-step p{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.heritage-step p.highlight-text{
+  color:var(--fg-bright);
+  font-weight:500;
+}
+
+/* Term Hover & Explanatory Tooltip Card (Like 'Endy' on bersious.io.vn) */
+.story-tooltip-wrap{
+  position:relative;
+  display:inline-block;
+}
+.term-hover{
+  cursor:help;
+  border-bottom:2px dashed var(--accent);
+  transition:all .2s;
+  color:var(--fg-bright);
+}
+.term-hover:hover{
+  color:var(--accent);
+}
+.story-tooltip{
+  position:absolute;
+  top:calc(100% + 14px);
+  left:50%;
+  transform:translateX(-50%) translateY(-6px);
+  padding:14px 18px;
+  background:rgba(14,18,28,0.96);
+  color:var(--fg);
+  font-size:13px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:400;
+  line-height:1.6;
+  white-space:normal;
+  width:max-content;
+  max-width:320px;
+  text-align:left;
+  border:1px solid rgba(147,112,219,0.35);
+  border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.7), 0 0 20px rgba(147,112,219,0.2);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:90;
+  visibility:hidden;
+  backdrop-filter:blur(16px);
+}
+.story-tooltip::before{
+  content:'';
+  position:absolute;
+  top:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-bottom:6px solid rgba(14,18,28,0.96);
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.story-tooltip-wrap:hover .story-tooltip,
+.story-tooltip-wrap:focus-within .story-tooltip{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+.story-tooltip-wrap:hover .story-tooltip::before{
+  opacity:1;
+}
+.story-tooltip strong{
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+}
+
 /* Header */
 .topbar{
   border-bottom:1px solid var(--border);
@@ -428,7 +582,13 @@ p.paragraph strong{
 </head>
 <body>
 
-<div class="ambient-glow"></div>
+<!-- Video Background Layer (Hardware Accelerated & Optimized) -->
+<div class="video-bg-container">
+  <video class="video-bg-media" autoplay loop muted playsinline preload="auto" poster="/aeterna/bg-poster.webp">
+    <source src="/aeterna/bg-aeterna.mp4" type="video/mp4">
+  </video>
+  <div class="video-bg-overlay"></div>
+</div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -462,14 +622,40 @@ p.paragraph strong{
 
 <main class="paper-container">
 
+  <!-- ==================== LỜI MỞ ĐẦU: TIẾN TRÌNH DI SẢN NHÂN LOẠI ==================== -->
+  <div class="heritage-quote-box fade-in">
+    <div class="heritage-quote-tag" data-i18n="quote-tag">Tiến trình lưu giữ di sản qua các thời kỳ</div>
+    <div class="heritage-grid">
+      <div class="heritage-step">
+        <span class="heritage-era" data-i18n="era-1-title">Thời xưa</span>
+        <p data-i18n="era-1-desc">Chúng ta tạc tượng, vẽ chân dung, viết hồi ký, khắc văn bia.</p>
+      </div>
+      <div class="heritage-step">
+        <span class="heritage-era" data-i18n="era-2-title">Thế kỷ 20</span>
+        <p data-i18n="era-2-desc">Chúng ta thu âm giọng nói vào băng cát-xét, quay video gia đình để con cháu sau này xem lại.</p>
+      </div>
+      <div class="heritage-step active">
+        <span class="heritage-era highlight" data-i18n="era-3-title">Thế kỷ 21</span>
+        <p class="highlight-text" data-i18n="era-3-desc">AI chính là hình thức lưu trữ di sản tiếp theo.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== HEADER METADATA ==================== -->
   <header class="paper-meta fade-in">
     <div class="paper-label" data-i18n="paper-label">
       Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>
     </div>
 
-    <h1 class="paper-title" data-i18n="paper-title">
-      Aeterna (HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành
+    <h1 class="paper-title">
+      <span class="story-tooltip-wrap">
+        <span class="term-hover">Aeterna</span>
+        <span class="story-tooltip" data-i18n="aeterna-tooltip">
+          <strong>/aɪˈtɜːr.nə/ · Tiếng Latinh: <em>Aeternus</em></strong><br>
+          <em>Định nghĩa:</em> Mang ý nghĩa là "Vĩnh hằng", "Bất diệt", không bị thời gian bào mòn. Trong kiến trúc dự án, đại diện cho nhân sinh quan và ý thức con người được bảo tồn trường tồn vượt qua cái chết sinh học.
+        </span>
+      </span>
+      <span data-i18n="paper-title-rest">(HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành</span>
     </h1>
 
     <p class="paper-subtitle">
@@ -478,7 +664,7 @@ p.paragraph strong{
     </p>
 
     <div class="author-byline">
-      <span data-i18n="byline-author">Tác giả: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong></span>
+      <span data-i18n="byline-author">Tác giả: <strong>bersious</strong></span>
       <span>·</span>
       <span data-i18n="byline-school">Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM</span>
     </div>
@@ -632,7 +818,7 @@ p.paragraph strong{
 
   <footer class="paper-footer fade-in">
     <p data-i18n="footer-hackathon">Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026</p>
-    <p style="margin-top:8px" data-i18n="footer-credit">Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a></p>
+    <p style="margin-top:8px" data-i18n="footer-credit">Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a></p>
   </footer>
 
 </main>
@@ -640,6 +826,42 @@ p.paragraph strong{
 <script>
 // ==================== BILINGUAL TRANSLATION ENGINE ====================
 const DICT = {
+  "quote-tag": {
+    vi: "Tiến trình lưu giữ di sản qua các thời kỳ",
+    en: "The Evolution of Human Legacy Preservation"
+  },
+  "era-1-title": {
+    vi: "Thời xưa",
+    en: "Ancient Era"
+  },
+  "era-1-desc": {
+    vi: "Chúng ta tạc tượng, vẽ chân dung, viết hồi ký, khắc văn bia.",
+    en: "Humans carved statues, painted portraits, wrote memoirs, inscribed stelae."
+  },
+  "era-2-title": {
+    vi: "Thế kỷ 20",
+    en: "20th Century"
+  },
+  "era-2-desc": {
+    vi: "Chúng ta thu âm giọng nói vào băng cát-xét, quay video gia đình để con cháu sau này xem lại.",
+    en: "Humans recorded voices on cassette tapes, filmed family home videos for descendants to look back on."
+  },
+  "era-3-title": {
+    vi: "Thế kỷ 21",
+    en: "21st Century"
+  },
+  "era-3-desc": {
+    vi: "AI chính là hình thức lưu trữ di sản tiếp theo.",
+    en: "AI is the next frontier of preserving human heritage."
+  },
+  "aeterna-tooltip": {
+    vi: '<strong>/aɪˈtɜːr.nə/ · Tiếng Latinh: <em>Aeternus</em></strong><br><em>Định nghĩa:</em> Mang ý nghĩa là "Vĩnh hằng", "Bất diệt", không bị thời gian bào mòn. Trong kiến trúc dự án, đại diện cho nhân sinh quan và ý thức con người được bảo tồn trường tồn vượt qua cái chết sinh học.',
+    en: '<strong>/aɪˈtɜːr.nə/ · Latin: <em>Aeternus</em></strong><br><em>Definition:</em> Meaning "Eternal", "Everlasting", unfading across time. In this architecture, it denotes human worldview, wisdom, and consciousness preserved beyond biological mortality.'
+  },
+  "paper-title-rest": {
+    vi: "(HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành",
+    en: "(HeavenBook): Architectural Blueprint for an Autonomous Posthumous Social Network & Living Digital Consciousness"
+  },
   "hackathon-link-text": {
     vi: "Meta Global AI Developer Hackathon ↗",
     en: "Meta Global AI Developer Hackathon ↗"
@@ -648,17 +870,13 @@ const DICT = {
     vi: 'Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>',
     en: 'Architectural Proposal for <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>'
   },
-  "paper-title": {
-    vi: "Aeterna (HeavenBook): Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành",
-    en: "Aeterna (HeavenBook): Architectural Blueprint for an Autonomous Posthumous Social Network & Living Digital Consciousness"
-  },
   "paper-subtitle": {
     vi: "Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.",
     en: "Transforming Meta’s 20-year behavioral graph into an interactive posthumous sanctuary, preserving human worldview and generational wisdom without violating the ethical boundaries of grief technology."
   },
   "byline-author": {
-    vi: 'Tác giả: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong>',
-    en: 'Author: <strong>Nguyễn Thành Thiện Nhân (@bersious)</strong>'
+    vi: 'Tác giả: <strong>bersious</strong>',
+    en: 'Author: <strong>bersious</strong>'
   },
   "byline-school": {
     vi: 'Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM',
@@ -805,8 +1023,8 @@ const DICT = {
     en: "Speculative Architectural Research · Meta Global AI Developer Hackathon 2026"
   },
   "footer-credit": {
-    vi: 'Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>',
-    en: 'Conceived by <a href="https://github.com/bersious" target="_blank" rel="noopener">Nguyễn Thành Thiện Nhân</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>'
+    vi: 'Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>',
+    en: 'Conceived by <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>'
   }
 };
 
