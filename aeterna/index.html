@@ -924,6 +924,158 @@ p.paragraph strong{
   font-family:'JetBrains Mono',monospace;
 }
 
+/* ==================== SECURITY AFFINITY GATE MODAL ==================== */
+#affinity-gate-overlay{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:99999;
+  background:rgba(4,5,8,0.88);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  transition:opacity 0.35s ease, visibility 0.35s ease;
+}
+#affinity-gate-overlay.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.gate-modal-card{
+  background:linear-gradient(145deg, rgba(20,26,42,0.96), rgba(12,15,26,0.98));
+  border:1px solid rgba(168,85,247,0.45);
+  border-radius:24px;
+  padding:36px 32px;
+  max-width:460px;
+  width:100%;
+  box-shadow:0 25px 60px -15px rgba(0,0,0,0.85), 0 0 35px rgba(147,112,219,0.3);
+  text-align:center;
+  position:relative;
+  animation:gateModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes gateModalPop{
+  from{transform:scale(0.92);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.gate-top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+.gate-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:rgba(168,85,247,0.15);
+  border:1px solid rgba(168,85,247,0.35);
+  padding:4px 10px;
+  border-radius:999px;
+}
+.gate-logo-icon{
+  width:54px;
+  height:54px;
+  margin:0 auto 16px;
+  border-radius:50%;
+  box-shadow:0 0 20px rgba(147,112,219,0.5);
+  display:block;
+}
+.gate-title{
+  font-family:'Newsreader',serif;
+  font-size:24px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin-bottom:8px;
+}
+.gate-desc{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+  margin-bottom:22px;
+}
+.gate-question-box{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:20px;
+  text-align:left;
+}
+.gate-question-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:6px;
+}
+.gate-question-text{
+  font-size:14.5px;
+  color:var(--fg-bright);
+  font-weight:600;
+}
+.gate-input-wrap{
+  position:relative;
+  margin-bottom:14px;
+}
+.gate-input{
+  width:100%;
+  padding:13px 16px;
+  background:rgba(0,0,0,0.55);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--fg-bright);
+  font-size:14px;
+  font-family:'JetBrains Mono',monospace;
+  outline:none;
+  transition:all .2s;
+  box-sizing:border-box;
+}
+.gate-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 15px rgba(147,112,219,0.3);
+}
+.gate-btn-submit{
+  width:100%;
+  padding:13px 20px;
+  background:linear-gradient(135deg, #8b5cf6, #6830af);
+  border:none;
+  border-radius:12px;
+  color:#ffffff;
+  font-weight:700;
+  font-size:13.5px;
+  font-family:'JetBrains Mono',monospace;
+  cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 4px 18px rgba(139,92,246,0.4);
+}
+.gate-btn-submit:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px rgba(139,92,246,0.6);
+}
+.gate-error-msg{
+  color:#f87171;
+  font-size:12.5px;
+  font-style:italic;
+  margin-top:12px;
+  display:none;
+}
+.gate-error-msg.show{
+  display:block;
+  animation:gateShake 0.3s ease-in-out;
+}
+@keyframes gateShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
 /* Animation on scroll - Clean and subtle */
 .fade-in{
   opacity:0;
@@ -937,6 +1089,42 @@ p.paragraph strong{
 </style>
 </head>
 <body>
+
+<!-- CỔNG BẢO MẬT & CÂU HỎI XÁC THỰC QUAN TÂM -->
+<div id="affinity-gate-overlay">
+  <div class="gate-modal-card">
+    <div class="gate-top-bar">
+      <span class="gate-badge" data-i18n="gate-badge">BẢO MẬT Ý NIỆM</span>
+      <div class="lang-switch" title="Chuyển đổi ngôn ngữ / Switch Language">
+        <button class="lang-btn active" data-lang="vi" onclick="setAeternaLang('vi')">VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setAeternaLang('en')">EN</button>
+      </div>
+    </div>
+
+    <img src="/aeterna/logo.png" alt="Aeterna Logo" class="gate-logo-icon">
+    <h3 class="gate-title" data-i18n="gate-title">Cổng Xác Thực Quan Tâm</h3>
+    <p class="gate-desc" data-i18n="gate-desc">
+      Ý tưởng Aeterna được bảo mật và chỉ chia sẻ với những ai thực sự quan tâm đến tác giả. Vui lòng trả lời câu hỏi sau để tiếp tục vào đọc:
+    </p>
+
+    <div class="gate-question-box">
+      <span class="gate-question-label" data-i18n="gate-q-label">Câu hỏi xác thực:</span>
+      <div class="gate-question-text" data-i18n="gate-q-text">
+        Ai là phản diện chính trong COD: Black Ops Cold War?
+      </div>
+    </div>
+
+    <form onsubmit="handleGateSubmit(event)">
+      <div class="gate-input-wrap">
+        <input type="text" id="gate-answer-input" class="gate-input" placeholder="Nhập câu trả lời..." autocomplete="off">
+      </div>
+      <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Mở khóa tiếp tục ➔</button>
+      <div id="gate-error" class="gate-error-msg" data-i18n="gate-err">
+        Câu trả lời chưa chính xác. Chỉ những ai thực sự quen thuộc mới biết đáp án!
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Video Background Layer (Hardware Accelerated & Optimized) -->
 <div class="video-bg-container">
@@ -1669,6 +1857,34 @@ const DICT = {
   "footer-copyright": {
     vi: "© 2026 bersious. Bảo lưu mọi quyền.",
     en: "© 2026 bersious. All rights reserved."
+  },
+  "gate-badge": {
+    vi: "BẢO MẬT Ý NIỆM",
+    en: "THOUGHT SECURITY"
+  },
+  "gate-title": {
+    vi: "Cổng Xác Thực Quan Tâm",
+    en: "Affinity Verification Gate"
+  },
+  "gate-desc": {
+    vi: "Ý tưởng Aeterna được bảo mật và chỉ chia sẻ với những ai thực sự quan tâm đến tác giả. Vui lòng trả lời câu hỏi sau để tiếp tục vào đọc:",
+    en: "Project Aeterna is private and reserved only for those who genuinely care about the author. Please answer the following question to unlock and proceed:"
+  },
+  "gate-q-label": {
+    vi: "Câu hỏi xác thực:",
+    en: "Security Question:"
+  },
+  "gate-q-text": {
+    vi: "Ai là phản diện chính trong COD: Black Ops Cold War?",
+    en: "Who is the main antagonist in Call of Duty: Black Ops Cold War?"
+  },
+  "gate-btn": {
+    vi: "Mở khóa tiếp tục ➔",
+    en: "Unlock & Proceed ➔"
+  },
+  "gate-err": {
+    vi: "Câu trả lời chưa chính xác. Chỉ những ai thực sự quen thuộc mới biết đáp án!",
+    en: "Incorrect answer. Only those who truly know the lore can enter!"
   }
 };
 
@@ -1686,10 +1902,61 @@ function setAeternaLang(lang){
       el.innerHTML = DICT[key][lang];
     }
   });
+
+  const gateInput = document.getElementById('gate-answer-input');
+  if(gateInput){
+    gateInput.placeholder = lang === 'en' ? 'Enter answer...' : 'Nhập câu trả lời...';
+  }
+}
+
+// ==================== GATE LOCK VERIFICATION SYSTEM ====================
+function checkGateLock(){
+  if(localStorage.getItem('aeterna_unlocked') === 'true'){
+    const overlay = document.getElementById('affinity-gate-overlay');
+    if(overlay) overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+  } else {
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      const input = document.getElementById('gate-answer-input');
+      if(input) input.focus();
+    }, 300);
+  }
+}
+
+function handleGateSubmit(e){
+  e.preventDefault();
+  const input = document.getElementById('gate-answer-input');
+  const errorEl = document.getElementById('gate-error');
+  if(!input) return;
+  const val = input.value.trim().toLowerCase();
+
+  // Chấp nhận "perseus" không phân biệt chữ hoa thường
+  if(val === 'perseus'){
+    localStorage.setItem('aeterna_unlocked', 'true');
+    const overlay = document.getElementById('affinity-gate-overlay');
+    if(overlay){
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 350);
+    }
+  } else {
+    if(errorEl){
+      errorEl.classList.remove('show');
+      void errorEl.offsetWidth; // ép reflow để kích hoạt lại animation shake
+      errorEl.classList.add('show');
+    }
+    input.focus();
+    input.select();
+  }
 }
 
 // Hiệu ứng cuộn mượt mà xuất hiện từng đoạn văn (Scroll Fade-In)
 document.addEventListener('DOMContentLoaded', function(){
+  checkGateLock();
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
