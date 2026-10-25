@@ -348,6 +348,18 @@ body{
   align-items:center;
   gap:10px;
 }
+.danger-blink{
+  color:#ef4444;
+  font-weight:700;
+  text-shadow:0 0 10px rgba(239,68,68,0.75);
+  animation:dangerPulseBlink 1.1s infinite alternate ease-in-out;
+  display:inline-block;
+}
+@keyframes dangerPulseBlink{
+  0%{opacity:1;filter:drop-shadow(0 0 6px rgba(239,68,68,0.85));transform:scale(1)}
+  50%{opacity:0.35;filter:drop-shadow(0 0 2px rgba(239,68,68,0.3));transform:scale(0.98)}
+  100%{opacity:1;filter:drop-shadow(0 0 10px rgba(239,68,68,1));transform:scale(1.02)}
+}
 
 /* Nút về trang chính bersious. nhỏ gọn tinh tế */
 .bersious-home-btn{
@@ -995,7 +1007,14 @@ p.paragraph strong{
 
     <p class="paper-subtitle">
       <strong style="color:var(--accent);display:block;margin-bottom:8px;font-style:italic">"HeavenBook — Facebook for the Soul."</strong>
-      <span data-i18n="paper-subtitle">Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.</span>
+      <span data-i18n="sub-prefix">Chuyển hóa</span>
+      <span class="story-tooltip-wrap">
+        <span class="term-hover" data-i18n="sub-years">20 năm</span>
+        <span class="story-tooltip" style="font-size:12px;max-width:280px" data-i18n="years-tooltip">
+          (hoặc toàn bộ thời gian bạn dùng Facebook cho đến lúc ngỏm)
+        </span>
+      </span>
+      <span data-i18n="sub-suffix">đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.</span>
     </p>
   </header>
 
@@ -1174,7 +1193,7 @@ p.paragraph strong{
     <h2 class="heading" data-i18n="sec4-heading">4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)</h2>
 
     <p class="paragraph" data-i18n="sec4-intro">
-      Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief). Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:
+      Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief) ↗</a>. Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:
     </p>
 
     <div class="spec-list">
@@ -1253,7 +1272,7 @@ p.paragraph strong{
     </p>
     <div class="disclaimer-scam-callout">
       <span style="font-size:16px">⚠️</span>
-      <span data-i18n="disc-scam">Serious Warnming: Sản phẩm là <strong>công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.</span>
+      <span data-i18n="disc-scam">Serious Warnming: Sản phẩm là <strong class="danger-blink">công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.</span>
     </div>
   </div>
 
@@ -1347,9 +1366,21 @@ const DICT = {
     vi: 'Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>',
     en: 'Architectural Proposal for <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>'
   },
-  "paper-subtitle": {
-    vi: "Chuyển hóa 20 năm đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.",
-    en: "Transforming Meta’s 20-year behavioral graph into an interactive posthumous sanctuary, preserving human worldview and generational wisdom without violating the ethical boundaries of grief technology."
+  "sub-prefix": {
+    vi: "Chuyển hóa",
+    en: "Transforming"
+  },
+  "sub-years": {
+    vi: "20 năm",
+    en: "20 years"
+  },
+  "years-tooltip": {
+    vi: "(hoặc toàn bộ thời gian bạn dùng Facebook cho đến lúc ngỏm)",
+    en: "(or the entire span of your Facebook existence until you kick the bucket)"
+  },
+  "sub-suffix": {
+    vi: "đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.",
+    en: "of Meta's behavioral graph into an interactive posthumous sanctuary, preserving human worldview and generational wisdom without violating the ethical boundaries of grief technology."
   },
   "byline-author": {
     vi: 'Tác giả: <strong>bersious</strong>',
@@ -1480,8 +1511,8 @@ const DICT = {
     en: "4. Ethical Guardrails & Thanatechnology Governance"
   },
   "sec4-intro": {
-    vi: "Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief). Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:",
-    en: "In AI ethics, posthumous simulation frequently faces rigorous critique regarding emotional manipulation and pathological grief prolongation. Aeterna institutes four uncompromisable safety invariants:"
+    vi: 'Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief) ↗</a>. Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:',
+    en: 'In AI ethics, posthumous simulation frequently faces rigorous critique regarding <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">psychological manipulation risks and pathological grief prolongation (Complicated Grief) ↗</a>. Aeterna institutes four uncompromisable safety invariants:'
   },
   "e1-h4": {
     vi: "Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)",
