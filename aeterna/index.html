@@ -1093,8 +1093,7 @@ p.paragraph strong{
 <!-- CỔNG BẢO MẬT & CÂU HỎI XÁC THỰC QUAN TÂM -->
 <div id="affinity-gate-overlay">
   <div class="gate-modal-card">
-    <div class="gate-top-bar">
-      <span class="gate-badge" data-i18n="gate-badge">BẢO MẬT Ý NIỆM</span>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
       <div class="lang-switch" title="Chuyển đổi ngôn ngữ / Switch Language">
         <button class="lang-btn active" data-lang="vi" onclick="setAeternaLang('vi')">VI</button>
         <button class="lang-btn" data-lang="en" onclick="setAeternaLang('en')">EN</button>
@@ -1102,13 +1101,8 @@ p.paragraph strong{
     </div>
 
     <img src="/aeterna/logo.png" alt="Aeterna Logo" class="gate-logo-icon">
-    <h3 class="gate-title" data-i18n="gate-title">Cổng Xác Thực Quan Tâm</h3>
-    <p class="gate-desc" data-i18n="gate-desc">
-      Ý tưởng Aeterna được bảo mật và chỉ chia sẻ với những ai thực sự quan tâm đến tác giả. Vui lòng trả lời câu hỏi sau để tiếp tục vào đọc:
-    </p>
 
     <div class="gate-question-box">
-      <span class="gate-question-label" data-i18n="gate-q-label">Câu hỏi xác thực:</span>
       <div class="gate-question-text" data-i18n="gate-q-text">
         Ai là phản diện chính trong COD: Black Ops Cold War?
       </div>
@@ -1118,9 +1112,9 @@ p.paragraph strong{
       <div class="gate-input-wrap">
         <input type="text" id="gate-answer-input" class="gate-input" placeholder="Nhập câu trả lời..." autocomplete="off">
       </div>
-      <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Mở khóa tiếp tục ➔</button>
+      <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Tiếp tục ➔</button>
       <div id="gate-error" class="gate-error-msg" data-i18n="gate-err">
-        Câu trả lời chưa chính xác. Chỉ những ai thực sự quen thuộc mới biết đáp án!
+        Câu trả lời chưa chính xác.
       </div>
     </form>
   </div>
@@ -1858,33 +1852,17 @@ const DICT = {
     vi: "© 2026 bersious. Bảo lưu mọi quyền.",
     en: "© 2026 bersious. All rights reserved."
   },
-  "gate-badge": {
-    vi: "BẢO MẬT Ý NIỆM",
-    en: "THOUGHT SECURITY"
-  },
-  "gate-title": {
-    vi: "Cổng Xác Thực Quan Tâm",
-    en: "Affinity Verification Gate"
-  },
-  "gate-desc": {
-    vi: "Ý tưởng Aeterna được bảo mật và chỉ chia sẻ với những ai thực sự quan tâm đến tác giả. Vui lòng trả lời câu hỏi sau để tiếp tục vào đọc:",
-    en: "Project Aeterna is private and reserved only for those who genuinely care about the author. Please answer the following question to unlock and proceed:"
-  },
-  "gate-q-label": {
-    vi: "Câu hỏi xác thực:",
-    en: "Security Question:"
-  },
   "gate-q-text": {
     vi: "Ai là phản diện chính trong COD: Black Ops Cold War?",
     en: "Who is the main antagonist in Call of Duty: Black Ops Cold War?"
   },
   "gate-btn": {
-    vi: "Mở khóa tiếp tục ➔",
-    en: "Unlock & Proceed ➔"
+    vi: "Tiếp tục ➔",
+    en: "Continue ➔"
   },
   "gate-err": {
-    vi: "Câu trả lời chưa chính xác. Chỉ những ai thực sự quen thuộc mới biết đáp án!",
-    en: "Incorrect answer. Only those who truly know the lore can enter!"
+    vi: "Câu trả lời chưa chính xác.",
+    en: "Incorrect answer."
   }
 };
 
