@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aeterna (HeavenBook) — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
 <meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><circle cx='18' cy='18' r='18' fill='%237c3aed'/><ellipse cx='18' cy='7.5' rx='7.5' ry='2.2' stroke='white' stroke-width='1.8' fill='none'/><path d='M10 27.5L18 11.5L26 27.5' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/><path d='M13 22H23' stroke='white' stroke-width='2.2' stroke-linecap='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -65,13 +66,46 @@ body{
   justify-content:space-between;
   align-items:center;
 }
-.brand-link{
-  color:var(--fg-bright);
+.brand-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
   text-decoration:none;
-  font-weight:600;
-  font-size:14px;
-  letter-spacing:0.02em;
+}
+.fb-style-logo{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:linear-gradient(145deg, #8b5cf6 0%, #6d28d9 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 14px rgba(139,92,246,0.35);
+  flex-shrink:0;
+  transition:transform 0.25s ease, box-shadow 0.25s ease;
+}
+.brand-wrap:hover .fb-style-logo{
+  transform:scale(1.06);
+  box-shadow:0 6px 20px rgba(139,92,246,0.5);
+}
+.brand-text-block{
+  display:flex;
+  flex-direction:column;
+}
+.brand-name{
+  color:var(--fg-bright);
+  font-weight:700;
+  font-size:14.5px;
+  letter-spacing:0.04em;
   font-family:'JetBrains Mono',monospace;
+  line-height:1.2;
+}
+.brand-sub{
+  color:var(--muted);
+  font-size:10px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
 }
 .hackathon-link{
   color:var(--muted);
@@ -309,7 +343,22 @@ p.paragraph strong{
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a href="/aeterna" class="brand-link">AETERNA · HEAVENBOOK</a>
+    <a href="/aeterna" class="brand-wrap">
+      <div class="fb-style-logo" title="HeavenBook Celestial Badge">
+        <!-- Biểu tượng Chữ A mang Vòng Hào Quang Thiên Đường phong cách ứng dụng Meta -->
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+          <!-- Vòng hào quang thiên đàng (Celestial Halo) -->
+          <ellipse cx="18" cy="7.5" rx="7.5" ry="2.2" stroke="#ffffff" stroke-width="1.8" fill="none"/>
+          <!-- Chữ A cách điệu cổng thiên đường vươn lên (Ascending Portal Arch) -->
+          <path d="M10 27.5L18 11.5L26 27.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 22H23" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text-block">
+        <span class="brand-name">AETERNA</span>
+        <span class="brand-sub">HEAVENBOOK</span>
+      </div>
+    </a>
     <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener" class="hackathon-link">
       Một ý tưởng cho Meta Global AI Developer Hackathon ↗
     </a>
