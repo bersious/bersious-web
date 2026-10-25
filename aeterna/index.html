@@ -505,7 +505,247 @@ p.paragraph strong{
   color:var(--fg-bright);
 }
 
-/* Technical Specification List */
+/* ==================== TRANSCENDENCE BRIDGE ANIMATION ==================== */
+.bridge-section{
+  margin:48px 0 56px;
+  background:rgba(14,18,30,0.6);
+  border:1px solid rgba(147,112,219,0.25);
+  border-radius:18px;
+  padding:32px 24px;
+  backdrop-filter:blur(16px);
+  position:relative;
+  overflow:hidden;
+}
+.bridge-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--accent);
+  text-align:center;
+  margin-bottom:28px;
+  display:block;
+}
+.bridge-stage{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:relative;
+  max-width:720px;
+  margin:0 auto;
+  padding:20px 10px;
+}
+.node-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  z-index:2;
+  width:120px;
+  text-align:center;
+}
+.node-circle{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  transition:transform .3s;
+}
+.node-fb .node-circle{
+  background:linear-gradient(135deg, #1877f2, #0d5cb6);
+  box-shadow:0 0 25px rgba(24,119,242,0.45);
+}
+.node-aeterna .node-circle{
+  background:linear-gradient(135deg, #8b5cf6, #6830af);
+  box-shadow:0 0 25px rgba(139,92,246,0.55);
+}
+.node-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--fg-bright);
+  font-weight:600;
+  line-height:1.3;
+}
+.node-sub{
+  font-size:10px;
+  color:var(--dim);
+  text-transform:uppercase;
+}
+
+/* Sợi dây kết nối giữa 2 logo */
+.bridge-wire-wrap{
+  flex:1;
+  position:relative;
+  height:40px;
+  margin:0 12px;
+  display:flex;
+  align-items:center;
+}
+.bridge-wire{
+  width:100%;
+  height:2px;
+  background:linear-gradient(90deg, #1877f2 0%, #a855f7 50%, #c084fc 100%);
+  position:relative;
+  box-shadow:0 0 10px rgba(168,85,247,0.5);
+}
+.bridge-wire::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  animation:wirePulse 2.8s infinite linear;
+}
+@keyframes wirePulse{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+/* Profile Capsule bay từ Facebook sang Aeterna */
+.migrating-profile{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%, -50%);
+  background:rgba(18,24,42,0.95);
+  border:1px solid #c084fc;
+  border-radius:999px;
+  padding:4px 12px 4px 6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 4px 20px rgba(168,85,247,0.6);
+  z-index:3;
+  pointer-events:none;
+  animation:profileMigrate 7s infinite ease-in-out;
+}
+.profile-pill-avatar{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#38bdf8,#a855f7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:700;
+  color:#fff;
+}
+.profile-pill-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:#f1f5f9;
+  white-space:nowrap;
+}
+@keyframes profileMigrate{
+  0%{
+    left:5%;
+    opacity:0.3;
+    border-color:#1877f2;
+    box-shadow:0 0 12px rgba(24,119,242,0.5);
+  }
+  15%{
+    opacity:1;
+  }
+  50%{
+    left:50%;
+    border-color:#a855f7;
+    box-shadow:0 0 25px rgba(168,85,247,0.8);
+    transform:translate(-50%, -50%) scale(1.08);
+  }
+  85%{
+    opacity:1;
+  }
+  100%{
+    left:95%;
+    opacity:0.3;
+    border-color:#c084fc;
+    box-shadow:0 0 15px rgba(192,132,252,0.6);
+  }
+}
+
+/* ==================== REALISTIC MESSENGER TYPING & CHAT ==================== */
+.chat-container{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  max-width:720px;
+  margin:0 auto;
+}
+.chat-row{
+  display:flex;
+  gap:12px;
+  align-items:flex-end;
+}
+.chat-row.user-row{
+  justify-content:flex-end;
+}
+.chat-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+  border:1px solid var(--border);
+}
+.chat-bubble{
+  max-width:82%;
+  padding:12px 18px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.65;
+  position:relative;
+}
+.agent-bubble{
+  background:rgba(147,112,219,0.12);
+  border:1px solid rgba(147,112,219,0.3);
+  color:#f1f5f9;
+  border-bottom-left-radius:4px;
+}
+.user-bubble{
+  background:linear-gradient(135deg, rgba(24,119,242,0.25), rgba(24,119,242,0.15));
+  border:1px solid rgba(24,119,242,0.4);
+  color:#f8fafc;
+  border-bottom-right-radius:4px;
+}
+.chat-meta{
+  font-size:10.5px;
+  color:var(--dim);
+  font-family:'JetBrains Mono',monospace;
+  margin-top:4px;
+}
+.typing-dots{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:8px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:14px;
+  width:fit-content;
+  margin-top:6px;
+}
+.typing-dots span{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:0.4;
+  animation:typingBlink 1.4s infinite ease-in-out both;
+}
+.typing-dots span:nth-child(1){animation-delay:0s}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes typingBlink{
+  0%,80%,100%{opacity:0.3;transform:scale(0.85)}
+  40%{opacity:1;transform:scale(1.2)}
+}
 .spec-list{
   margin:24px 0 32px;
   border:1px solid var(--border);
@@ -622,8 +862,8 @@ p.paragraph strong{
 }
 .footer-grid{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr;
-  gap:32px;
+  grid-template-columns:2.5fr 1fr;
+  gap:36px;
   margin-bottom:36px;
   text-align:left;
 }
@@ -780,6 +1020,40 @@ p.paragraph strong{
     </p>
   </section>
 
+  <!-- ==================== CẦU NỐI THĂNG HOA: TỪ FACEBOOK SANG AETERNA ==================== -->
+  <div class="bridge-section fade-in">
+    <span class="bridge-title" data-i18n="bridge-title">Tiến trình chuyển hóa di sản: Từ Facebook trần thế sang Aeterna cõi vĩnh hằng</span>
+    <div class="bridge-stage">
+      <div class="node-box node-fb">
+        <div class="node-circle">
+          <!-- Facebook Official Blue Icon SVG -->
+          <svg viewBox="0 0 36 36" width="38" height="38" fill="none">
+            <circle cx="18" cy="18" r="18" fill="#1877F2"/>
+            <path d="M24 18H20.2V29H15.5V18H13.2V14H15.5V11.2C15.5 9.2 16.7 7 20.6 7H24V10.9H21.5C20.6 10.9 20.2 11.4 20.2 12.3V14H24.2L24 18Z" fill="white"/>
+          </svg>
+        </div>
+        <div class="node-label">Facebook</div>
+        <div class="node-sub" data-i18n="node-fb-sub">Hồ sơ trần thế</div>
+      </div>
+
+      <div class="bridge-wire-wrap">
+        <div class="bridge-wire"></div>
+        <div class="migrating-profile" title="Digital Soul Migration Capsule">
+          <div class="profile-pill-avatar">✦</div>
+          <div class="profile-pill-text" data-i18n="pill-text">Di sản số @bersious ➔ Thăng hoa</div>
+        </div>
+      </div>
+
+      <div class="node-box node-aeterna">
+        <div class="node-circle">
+          <img src="/aeterna/logo.png" alt="Aeterna" style="width:50px;height:50px;border-radius:50%;object-fit:cover;box-shadow:0 0 20px rgba(168,85,247,0.75)">
+        </div>
+        <div class="node-label">Aeterna</div>
+        <div class="node-sub" data-i18n="node-ae-sub">Thánh đường di sản</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== PHẦN 2: BỐN TRỤ CỘT KỸ THUẬT ==================== -->
   <section class="fade-in">
     <h2 class="heading" data-i18n="sec2-heading">2. Kiến trúc giải pháp: Bốn trụ cột công nghệ</h2>
@@ -827,21 +1101,66 @@ p.paragraph strong{
       Để minh chứng tính thực tiễn, kiến trúc của Aeterna được chia thành hai pha rõ rệt: Pha sống (khi người dùng còn minh mẫn) và Pha tưởng niệm (hỗ trợ thân nhân sau khi người dùng qua đời).
     </p>
 
+    <!-- Kịch bản 1 -->
     <div class="scenario-block">
       <span class="scenario-meta" data-i18n="sc1-meta">Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)</span>
-      <div class="scenario-dialogue" data-i18n="sc1-body">
-        <p><strong>Tác nhân Aeterna:</strong> "Chào Nhân, trong nhật ký đại học năm 2024, tôi nhận thấy bạn thường suy ngẫm về sự cân bằng giữa tính chính xác của code và cảm xúc của nghệ thuật. Khi phải đưa ra một lựa chọn khó khăn trong đời, chiếc la bàn nào bạn tin tưởng nhất?"</p>
-        <p style="margin-top:10px"><strong>Người dùng (Nhân):</strong> "Tôi luôn tin logic là nền móng, nhưng sự thấu cảm mới đem lại nhịp đập cho một hệ thống. Nếu sau này con cháu có hỏi bạn về cách chọn đường đi, hãy dặn chúng ưu tiên sự tử tế và lòng dũng cảm thay vì những lối đi tắt."</p>
-        <span>[Dữ liệu được lập chỉ mục an toàn vào Đồ thị Đạo đức · Cập nhật trọng số ưu tiên: Lòng trắc ẩn &gt; Lợi ích trước mắt]</span>
+      <div class="chat-container">
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="chat-bubble agent-bubble" data-i18n="sc1-msg1">
+            "Dạo này thấy thức khuya cày code AI dữ quá nha Nhân. Nhắc trước là sau này lỡ có nằm xuống, cậu muốn để lại lời dặn dò hay cái vibe sống gì nhất cho con cháu đời sau nghe?"
+            <div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>
+          </div>
+        </div>
+
+        <div class="chat-row user-row">
+          <div class="chat-bubble user-bubble" data-i18n="sc1-msg2">
+            "Cứ bảo tụi nó sống đàng hoàng, làm gì cũng nghĩ trước nghĩ sau. Đời có lúc khó nhưng đừng chọn đi đường tắt lươn lẹo, cứ tử tế và lì lợm mà bước tiếp là được."
+            <div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>
+          </div>
+          <div class="chat-avatar" style="background:#1877f2">👨‍💻</div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div>
+            <div class="chat-bubble agent-bubble" data-i18n="sc1-msg3">
+              "Đã neo giữ vào Đồ thị Nhân sinh quan: Giá trị cốt lõi = Tử tế, kiên định, không đi đường tắt."
+            </div>
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Kịch bản 2 -->
     <div class="scenario-block">
-      <span class="scenario-meta" data-i18n="sc2-meta">Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2086)</span>
-      <div class="scenario-dialogue" data-i18n="sc2-body">
-        <p><strong>Người cháu gái:</strong> "Cụ ơi, con đang rất mông lung không biết nên theo ngành Trí tuệ Nhân tạo hay Âm nhạc... Giá như cụ còn ở đây để dạy con nên làm gì."</p>
-        <p style="margin-top:10px"><strong>Tác nhân di sản:</strong> "Chào con. Tôi là bản sao lưu giữ nhân sinh quan của cụ, chứ không phải con người sinh học bằng xương bằng thịt. Khi còn sống, cụ luôn dặn: 'Đừng xem kỹ thuật và nghệ thuật là hai thái cực đối đầu; hãy để kỹ thuật chắp cánh cấu trúc cho ước mơ, và để nghệ thuật trao cho đời một mục đích sống.' Cụ tin con hoàn toàn có thể song hành cả hai."</p>
-        <span>[Bộ lọc an toàn kích hoạt: Minh bạch bản chất nhân tạo · Tuyệt đối không ảo giác · Gợi ý đoạn thoại 15 giây qua Muse Voice]</span>
+      <span class="scenario-meta" data-i18n="sc2-meta">Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 3026 — tôi không muốn chết sớm)</span>
+      <div class="chat-container">
+        <div class="chat-row user-row">
+          <div class="chat-bubble user-bubble" data-i18n="sc2-msg1">
+            "Cụ ơi, thời đại này người ta cấy chip lượng tử vô não hết rồi, con đang tính bỏ công nghệ để học đàn tranh cổ truyền mà sợ người ta chê lập dị... Hồi xưa cụ nghĩ sao về mấy chuyện này?"
+            <div class="chat-meta" style="text-align:right">Hậu thế đời thứ 35 (Năm 3026)</div>
+          </div>
+          <div class="chat-avatar" style="background:#ec4899">👧</div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="chat-bubble agent-bubble" data-i18n="sc2-msg2">
+            "Chào con. Cụ Nhân hồi năm 2026 dặn rõ rồi: <em>'Công nghệ đổi cỡ nào thì cái tâm hồn mới giữ cho cuộc đời không bị vô tri.'</em> Con cứ làm thứ mình thấy có ý nghĩa nhất đi, cụ hồi xưa cũng toàn làm mấy trò mèo khác người không chứ đâu!"
+            <div class="chat-meta">Safety Guardrail: Minh bạch di sản số · Không ảo giác · Gợi ý voice note 15s</div>
+          </div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -899,7 +1218,7 @@ p.paragraph strong{
       </div>
       <div class="ref-item">
         <span class="ref-num">[2]</span>
-        <span>Carl Öhman & Luciano Floridi (Oxford Internet Institute). <a href="https://doi.org/10.1007/s11023-017-9445-2" target="_blank" rel="noopener">The digital afterlife industry: a contract-based approach to the morality of post-mortem digital technologies</a>. Minds and Machines.</span>
+        <span>Carl Öhman & Luciano Floridi (Oxford Internet Institute). <a href="https://link.springer.com/article/10.1007/s11023-017-9445-2" target="_blank" rel="noopener">The digital afterlife industry: a contract-based approach to the morality of post-mortem digital technologies</a>. Minds and Machines.</span>
       </div>
       <div class="ref-item">
         <span class="ref-num">[3]</span>
@@ -907,10 +1226,14 @@ p.paragraph strong{
       </div>
       <div class="ref-item">
         <span class="ref-num">[4]</span>
-        <span>Jed R. Brubaker et al. (ACM CHI). <a href="https://doi.org/10.1145/2556288.2557116" target="_blank" rel="noopener">Beyond the Grave: Facebook Photos and Post-Mortem Identity</a>. ACM Conference on Human Factors in Computing Systems.</span>
+        <span>Jed R. Brubaker et al. (ACM CHI). <a href="https://dl.acm.org/doi/10.1145/2556288.2557116" target="_blank" rel="noopener">Beyond the Grave: Facebook Photos and Post-Mortem Identity</a>. ACM Conference on Human Factors in Computing Systems.</span>
       </div>
       <div class="ref-item">
         <span class="ref-num">[5]</span>
+        <span>Nature Human Behaviour (2023). <a href="https://www.nature.com/articles/s41562-023-01648-8" target="_blank" rel="noopener">Addressing the ethical dilemmas of artificial intelligence in bereavement care</a>. Nature Publishing Group.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[6]</span>
         <span>Moltbook Core Architecture (2026). <a href="https://www.moltbook.com" target="_blank" rel="noopener">Decentralized Multi-Agent Consensus and Autonomous Persona Stewardship</a>.</span>
       </div>
     </div>
@@ -926,7 +1249,7 @@ p.paragraph strong{
     </p>
     <div class="disclaimer-scam-callout">
       <span style="font-size:16px">⚠️</span>
-      <span data-i18n="disc-scam">Cảnh báo nghiêm túc: Sản phẩm là công nghệ đặc biệt nguy hiểm nếu rơi vào tay mấy anh Scam ở Campuchia.</span>
+      <span data-i18n="disc-scam">Serious Warnming: Sản phẩm là <strong>công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.</span>
     </div>
   </div>
 
@@ -943,6 +1266,9 @@ p.paragraph strong{
         <p style="margin-top:10px;font-size:12.5px;color:var(--dim);font-family:'JetBrains Mono',monospace" data-i18n="footer-author-crew">
           Tác giả: bersious và đồng bọn
         </p>
+        <p style="margin-top:6px;font-size:12.5px;color:var(--dim);font-family:'JetBrains Mono',monospace" data-i18n="footer-work-email">
+          Liên hệ công việc: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>
+        </p>
         <div style="margin-top:14px">
           <a href="https://bersious.io.vn/" class="bersious-home-btn" title="Trở về trang chủ bersious.">
             <span class="bersious-logo-text">bersious.</span>
@@ -952,20 +1278,12 @@ p.paragraph strong{
       </div>
 
       <div class="footer-col">
-        <h5 data-i18n="footer-col-nav">Điều hướng</h5>
-        <ul class="footer-links-list">
-          <li><a href="https://bersious.io.vn">Trang chủ bersious. ↗</a></li>
-          <li><a href="/rmit">SONARA · RMIT 2026 ↗</a></li>
-          <li><a href="https://github.com/bersious" target="_blank" rel="noopener">GitHub @bersious ↗</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h5 data-i18n="footer-col-hackathon">Sự kiện</h5>
+        <h5 data-i18n="footer-col-hackathon">Sự kiện & Nền tảng</h5>
         <ul class="footer-links-list">
           <li><a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta AI Hackathon ↗</a></li>
           <li><a href="https://www.moltbook.com" target="_blank" rel="noopener">Moltbook Agent ↗</a></li>
           <li><a href="https://dev.meta.ai/" target="_blank" rel="noopener">Meta Model API ↗</a></li>
+          <li><a href="https://github.com/bersious" target="_blank" rel="noopener">GitHub @bersious ↗</a></li>
         </ul>
       </div>
     </div>
@@ -1097,6 +1415,22 @@ const DICT = {
     vi: "Thân nhân còn sống có thể nhắn tin riêng trên Messenger để tìm kiếm sự dẫn dắt tinh thần. Hệ thống tích hợp <strong>Muse Voice</strong> để tái tạo ngữ điệu và giọng nói ấm áp đặc trưng cho các đoạn ghi âm ngắn, kết hợp cùng mô hình thị giác <strong>SAM 3.1</strong> để nhận diện và phục dựng bối cảnh cho các bức ảnh chụp gia đình xưa cũ.",
     en: "Living descendants can reach out via Messenger for spiritual solace. The architecture integrates <strong>Muse Voice</strong> to synthesize authentic vocal warmth for brief voice messages, alongside <strong>SAM 3.1</strong> vision models to segment and annotate historical family photographs with contextual memory anchors."
   },
+  "bridge-title": {
+    vi: "Tiến trình chuyển hóa di sản: Từ Facebook trần thế sang Aeterna cõi vĩnh hằng",
+    en: "The Transcendence Bridge: From Terrestrial Profile to Eternal Sanctuary"
+  },
+  "node-fb-sub": {
+    vi: "Hồ sơ trần thế",
+    en: "Terrestrial Profile"
+  },
+  "node-ae-sub": {
+    vi: "Thánh đường di sản",
+    en: "Eternal Sanctuary"
+  },
+  "pill-text": {
+    vi: "Di sản số @bersious ➔ Thăng hoa",
+    en: "Digital Soul @bersious ➔ Transcending"
+  },
   "sec3-heading": {
     vi: "3. Kịch bản tương tác qua các mốc thời gian",
     en: "3. Operational Scenarios Across Temporal Horizons"
@@ -1109,17 +1443,29 @@ const DICT = {
     vi: "Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)",
     en: "Scenario 1 · Living Alignment Phase (Year 2026)"
   },
-  "sc1-body": {
-    vi: '<p><strong>Tác nhân Aeterna:</strong> "Chào Nhân, trong nhật ký đại học năm 2024, tôi nhận thấy bạn thường suy ngẫm về sự cân bằng giữa tính chính xác của code và cảm xúc của nghệ thuật. Khi phải đưa ra một lựa chọn khó khăn trong đời, chiếc la bàn nào bạn tin tưởng nhất?"</p><p style="margin-top:10px"><strong>Người dùng (Nhân):</strong> "Tôi luôn tin logic là nền móng, nhưng sự thấu cảm mới đem lại nhịp đập cho một hệ thống. Nếu sau này con cháu có hỏi bạn về cách chọn đường đi, hãy dặn chúng ưu tiên sự tử tế và lòng dũng cảm thay vì những lối đi tắt."</p><span>[Dữ liệu được lập chỉ mục an toàn vào Đồ thị Đạo đức · Cập nhật trọng số ưu tiên: Lòng trắc ẩn &gt; Lợi ích trước mắt]</span>',
-    en: '<p><strong>Aeterna Agent:</strong> "Good evening, Nhân. Reviewing your 2024 university notes, I observed recurring reflections on balancing code precision with artistic soul. When confronting a pivotal dilemma, what core compass do you trust most?"</p><p style="margin-top:10px"><strong>User (Nhân):</strong> "I have always believed that logic lays the foundation, but empathy is what breathes life into a system. If my descendants ever ask you how to choose their path, remind them to choose courage and kindness over expedient shortcuts."</p><span>[Anchored into Ethical Graph · Weight Updated: Compassion &gt; Expediency]</span>'
+  "sc1-msg1": {
+    vi: '"Dạo này thấy thức khuya cày code AI dữ quá nha Nhân. Nhắc trước là sau này lỡ có nằm xuống, cậu muốn để lại lời dặn dò hay cái vibe sống gì nhất cho con cháu đời sau nghe?"<div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>',
+    en: '"You\'ve been pulling late-night AI coding sprints lately, Nhân. Real talk: when your time eventually comes, what core advice or life philosophy do you most want preserved for future generations?"<div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>'
+  },
+  "sc1-msg2": {
+    vi: '"Cứ bảo tụi nó sống đàng hoàng, làm gì cũng nghĩ trước nghĩ sau. Đời có lúc khó nhưng đừng chọn đi đường tắt lươn lẹo, cứ tử tế và lì lợm mà bước tiếp là được."<div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>',
+    en: '"Tell them to live with integrity and think through every action. Life hits hard sometimes, but never take shady shortcuts—stay kind, stay resilient, and keep moving forward."<div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>'
+  },
+  "sc1-msg3": {
+    vi: '"Đã neo giữ vào Đồ thị Nhân sinh quan: Giá trị cốt lõi = Tử tế, kiên định, không đi đường tắt."',
+    en: '"Anchored into Worldview Graph: Core Values = Integrity, Resilience, Zero Expedient Shortcuts."'
   },
   "sc2-meta": {
-    vi: "Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2086)",
-    en: "Scenario 2 · Posthumous Guidance Phase (Year 2086)"
+    vi: "Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 3026 — tôi không muốn chết sớm)",
+    en: "Scenario 2 · Posthumous Guidance Phase (Year 3026 — I don't plan on dying anytime soon)"
   },
-  "sc2-body": {
-    vi: '<p><strong>Người cháu gái:</strong> "Cụ ơi, con đang rất mông lung không biết nên theo ngành Trí tuệ Nhân tạo hay Âm nhạc... Giá như cụ còn ở đây để dạy con nên làm gì."</p><p style="margin-top:10px"><strong>Tác nhân di sản:</strong> "Chào con. Tôi là bản sao lưu giữ nhân sinh quan của cụ, chứ không phải con người sinh học bằng xương bằng thịt. Khi còn sống, cụ luôn dặn: \'Đừng xem kỹ thuật và nghệ thuật là hai thái cực đối đầu; hãy để kỹ thuật chắp cánh cấu trúc cho ước mơ, và để nghệ thuật trao cho đời một mục đích sống.\' Cụ tin con hoàn toàn có thể song hành cả hai."</p><span>[Bộ lọc an toàn kích hoạt: Minh bạch bản chất nhân tạo · Tuyệt đối không ảo giác · Gợi ý đoạn thoại 15 giây qua Muse Voice]</span>',
-    en: '<p><strong>Great-granddaughter:</strong> "Great-Grandpa, I feel completely adrift between AI engineering and music... I wish you were physically here to guide me."</p><p style="margin-top:10px"><strong>Legacy Agent:</strong> "Hello, my dear. I am an autonomous reflection preserving your great-grandfather’s worldview, not his physical biological person. In life, his counsel on this was unwavering: \'Never view engineering and art as adversaries; let technical rigor structure your dreams, and let art infuse life with meaning.\' He believed you could embrace both."</p><span>[Safety Guardrail Active: Transparent Legacy Disclaimer · Zero Hallucination · 15s Muse Voice Reflection Option]</span>'
+  "sc2-msg1": {
+    vi: '"Cụ ơi, thời đại này người ta cấy chip lượng tử vô não hết rồi, con đang tính bỏ công nghệ để học đàn tranh cổ truyền mà sợ người ta chê lập dị... Hồi xưa cụ nghĩ sao về mấy chuyện này?"<div class="chat-meta" style="text-align:right">Hậu thế đời thứ 35 (Năm 3026)</div>',
+    en: '"Great-Grandpa, everyone in this era is implanting quantum neural chips. I\'m thinking of stepping away from tech to study classical folk instruments, but I worry people will think I\'m eccentric... How did you view things like this back in your day?"<div class="chat-meta" style="text-align:right">35th Generation Descendant (Year 3026)</div>'
+  },
+  "sc2-msg2": {
+    vi: '"Chào con. Cụ Nhân hồi năm 2026 dặn rõ rồi: <em>\'Công nghệ đổi cỡ nào thì cái tâm hồn mới giữ cho cuộc đời không bị vô tri.\'</em> Con cứ làm thứ mình thấy có ý nghĩa nhất đi, cụ hồi xưa cũng toàn làm mấy trò mèo khác người không chứ đâu!"<div class="chat-meta">Safety Guardrail: Minh bạch di sản số · Không ảo giác · Gợi ý voice note 15s</div>',
+    en: '"Hello, my dear. Great-Grandpa Nhân said it clearly back in 2026: <em>\'No matter how technology evolves, it\'s the human soul that keeps existence from becoming meaningless.\'</em> Go pursue what gives you true purpose—your great-grandpa spent his entire youth building unconventional passion projects too!"<div class="chat-meta">Safety Guardrail: Transparent Digital Legacy · Zero Hallucination · 15s Voice Note Option</div>'
   },
   "sec4-heading": {
     vi: "4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)",
@@ -1170,8 +1516,12 @@ const DICT = {
     en: "Project Aeterna currently stands as an architectural concept submitted to the Meta Global AI Developer Hackathon. It is a technological dream cherished and preserved for the near future, when the author has accumulated enough technical maturity and aligned the necessary conditions to bring it to life (or perhaps not — Aetherna't)."
   },
   "disc-scam": {
-    vi: "* Lưu ý: Sản phẩm là công nghệ đặc biệt nguy hiểm nếu rơi vào mấy anh Scam ở Campuchia.",
-    en: "* Warning: This technology would be exceptionally dangerous if it fell into the hands of Cambodian scam syndicates."
+    vi: "Serious Warnming: Sản phẩm là <strong>công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.",
+    en: "Serious Warnming: This product is an <strong>exceptionally dangerous technology</strong> if it falls into the hands of Cambodian scam syndicates."
+  },
+  "footer-work-email": {
+    vi: 'Liên hệ công việc: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>',
+    en: 'Work Inquiry: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>'
   },
   "footer-hackathon": {
     vi: "Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026",
