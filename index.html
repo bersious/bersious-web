@@ -703,7 +703,67 @@
       font-weight: 600;
     }
 
-    /* ====== SONARA (RMIT 2026) - Cyber Lime Glow & Wave Effect ====== */
+    /* ====== AETERNA (HEAVENBOOK) - Celestial Nebula Glow ====== */
+    .gallery-item-aeterna {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      background: linear-gradient(145deg, rgba(20, 15, 38, 0.85) 0%, rgba(10, 13, 26, 0.95) 100%);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      color: inherit;
+    }
+    .gallery-item-aeterna:hover {
+      border-color: rgba(168, 85, 247, 0.7);
+      box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.35), inset 0 1px 0 rgba(168, 85, 247, 0.4);
+      transform: translateY(-4px);
+    }
+    .gallery-item-aeterna .gallery-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      font-size: 24px;
+      transition: all 0.3s ease;
+    }
+    .gallery-item-aeterna:hover .gallery-icon {
+      transform: scale(1.1) rotate(-5deg);
+      background: rgba(168, 85, 247, 0.25);
+      box-shadow: 0 0 18px rgba(168, 85, 247, 0.5);
+    }
+    .gallery-item-aeterna .gallery-launch {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, #a855f7 0%, #38bdf8 100%);
+      color: #ffffff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45);
+      opacity: 0;
+      transform: translateX(20px) scale(0.85);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .gallery-item-aeterna:hover .gallery-launch {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    .tag-celestial {
+      background: rgba(168, 85, 247, 0.12) !important;
+      color: #c084fc !important;
+      border: 1px solid rgba(168, 85, 247, 0.35) !important;
+      font-weight: 600;
+    }
     .gallery-item-rmit {
       position: relative;
       overflow: hidden;
@@ -1156,14 +1216,18 @@
             <span class="launch-text">Launch Studio</span>
           </span>
         </a>
-        <div class="gallery-item gallery-item-mystery">
+        <a class="gallery-item gallery-item-aeterna" href="/aeterna" data-project-slug="aeterna">
           <div>
-            <div class="gallery-icon">?</div>
-            <div class="gallery-title" data-i18n="proj-4-title">Next Project</div>
-            <div class="gallery-desc" data-i18n="proj-4-desc">Sẽ hoàn thiện và cập nhật trong tương lai gần.</div>
+            <div class="gallery-icon">🌌</div>
+            <div class="gallery-title" data-i18n="proj-4-title">Aeterna · HeavenBook</div>
+            <div class="gallery-desc" data-i18n="proj-4-desc">Autonomous posthumous social network & living digital consciousness for Meta AI Hackathon 2026.</div>
           </div>
-          <span class="gallery-tag tag-soon" data-i18n="proj-4-tag">soon</span>
-        </div>
+          <span class="gallery-tag tag-celestial" data-i18n="proj-4-tag">concept</span>
+          <span class="gallery-launch">
+            <span class="launch-pulse" style="background:#fff"></span>
+            <span class="launch-text">Explore Cosmos</span>
+          </span>
+        </a>
       </div>
     </section>
 
@@ -1258,9 +1322,9 @@
         'proj-3-title': 'SONARA · RMIT 2026',
         'proj-3-desc': 'Zero-trust creative audio preview studio powered by TideCloak Emergent Authority.',
         'proj-3-tag': 'live',
-        'proj-4-title': 'Next Project',
-        'proj-4-desc': 'Will be completed and updated in the near future.',
-        'proj-4-tag': 'soon',
+        'proj-4-title': 'Aeterna · HeavenBook',
+        'proj-4-desc': 'Autonomous posthumous social network & living digital consciousness for Meta AI Hackathon 2026.',
+        'proj-4-tag': 'concept',
         'connect-label': '03 / Connect',
         'connect-title': "Let's talk",
         'connect-text': "I'm always open to interesting conversations, collaborations, or just a friendly hello."
@@ -1296,9 +1360,9 @@
         'proj-3-title': 'SONARA · RMIT 2026',
         'proj-3-desc': 'Studio két sắt nghe thử âm nhạc Zero-Trust tích hợp TideCloak Emergent Authority.',
         'proj-3-tag': 'trực tuyến',
-        'proj-4-title': 'Dự án tiếp theo',
-        'proj-4-desc': 'Sẽ hoàn thiện và cập nhật trong tương lai gần.',
-        'proj-4-tag': 'sắp ra mắt',
+        'proj-4-title': 'Aeterna · HeavenBook',
+        'proj-4-desc': 'Mạng xã hội cõi vĩnh hằng tự hành & ý thức số sống động tham gia Meta AI Hackathon 2026.',
+        'proj-4-tag': 'nghiên cứu',
         'connect-label': '03 · Liên hệ',
         'connect-title': 'Nói chuyện nha',
         'connect-text': 'Mình luôn sẵn lòng trò chuyện về những ý tưởng thú vị, hợp tác, hay chỉ đơn giản là một lời chào thân thiện.'
@@ -1405,6 +1469,8 @@
           window.location.href = '/tmn';
         } else if (slug === 'sonara-rmit') {
           window.location.href = '/rmit';
+        } else if (slug === 'aeterna') {
+          window.location.href = '/aeterna';
         } else {
           window.location.href = 'project.html?slug=' + encodeURIComponent(slug);
         }
