@@ -63,20 +63,20 @@ body{
   width:100%;
   height:100%;
   object-fit:cover;
-  opacity:0.32;
-  filter:brightness(0.65) contrast(1.2);
+  opacity:0.52;
+  filter:brightness(0.85) contrast(1.22) saturate(1.15);
   transform:translateZ(0);
   will-change:transform;
 }
 .video-bg-overlay{
   position:absolute;
   inset:0;
-  background:radial-gradient(circle at 50% 20%, rgba(9,10,15,0.4) 0%, rgba(9,10,15,0.85) 75%, #090a0f 100%),
-             linear-gradient(180deg, rgba(9,10,15,0.5) 0%, rgba(9,10,15,0.95) 100%);
+  background:radial-gradient(circle at 50% 25%, rgba(9,10,15,0.22) 0%, rgba(9,10,15,0.7) 75%, #090a0f 100%),
+             linear-gradient(180deg, rgba(9,10,15,0.32) 0%, rgba(9,10,15,0.88) 100%);
   pointer-events:none;
 }
 @media(max-width:768px){
-  .video-bg-media{opacity:0.25;filter:brightness(0.55);}
+  .video-bg-media{opacity:0.42;filter:brightness(0.75);}
 }
 
 /* Heritage Progression Quote Box */
@@ -551,21 +551,103 @@ p.paragraph strong{
   border:none;
 }
 
-/* Footer Section */
+/* Academic References List */
+.ref-list{
+  margin:20px 0 32px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.ref-item{
+  font-size:13.5px;
+  line-height:1.65;
+  color:var(--muted);
+  padding:14px 18px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .2s;
+}
+.ref-item:hover{
+  background:rgba(255,255,255,0.04);
+  border-color:rgba(147,112,219,0.35);
+  transform:translateX(3px);
+}
+.ref-num{
+  font-family:'JetBrains Mono',monospace;
+  color:var(--accent);
+  font-weight:700;
+  margin-right:8px;
+}
+.ref-item a{
+  color:var(--fg-bright);
+  text-decoration:none;
+  border-bottom:1px dashed var(--border);
+  transition:color .2s;
+}
+.ref-item a:hover{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+
+/* Professional Research Lab Footer */
 .paper-footer{
   border-top:1px solid var(--border);
-  padding:40px 0;
-  font-size:13px;
-  color:var(--dim);
-  text-align:center;
-  font-family:'JetBrains Mono',monospace;
+  padding:48px 0 24px;
+  margin-top:50px;
 }
-.paper-footer a{
+.footer-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:32px;
+  margin-bottom:36px;
+  text-align:left;
+}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr;gap:24px;}
+}
+.footer-col h5{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--accent);
+  margin-bottom:14px;
+}
+.footer-col p{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.footer-links-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.footer-links-list a{
+  font-size:13px;
   color:var(--muted);
   text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  transition:color .2s;
 }
-.paper-footer a:hover{
+.footer-links-list a:hover{
   color:var(--fg-bright);
+}
+.footer-bottom{
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:12px;
+  color:var(--dim);
+  font-family:'JetBrains Mono',monospace;
 }
 
 /* Animation on scroll - Clean and subtle */
@@ -665,8 +747,6 @@ p.paragraph strong{
 
     <div class="author-byline">
       <span data-i18n="byline-author">Tác giả: <strong>bersious</strong></span>
-      <span>·</span>
-      <span data-i18n="byline-school">Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM</span>
     </div>
   </header>
 
@@ -796,9 +876,40 @@ p.paragraph strong{
     </div>
   </section>
 
+  <!-- ==================== PHẦN 5: TÀI LIỆU THAM KHẢO & NGHIÊN CỨU LIÊN QUAN ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec5-heading">5. Tài liệu tham khảo & Nghiên cứu liên quan</h2>
+    <p class="paragraph" data-i18n="sec5-intro">
+      Các công trình nghiên cứu học thuật và tài liệu nền tảng làm cơ sở lý thuyết cho kiến trúc Aeterna:
+    </p>
+
+    <div class="ref-list">
+      <div class="ref-item">
+        <span class="ref-num">[1]</span>
+        <span>Meta AI (2026). <a href="https://dev.meta.ai/" target="_blank" rel="noopener">Meta Model API & Multimodal Foundation Ecosystem (Muse Spark, SAM 3.1)</a>. Meta Platforms.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[2]</span>
+        <span>Carl Öhman & Luciano Floridi (Oxford Internet Institute). <a href="https://doi.org/10.1007/s11023-017-9445-2" target="_blank" rel="noopener">The digital afterlife industry: a contract-based approach to the morality of post-mortem digital technologies</a>. Minds and Machines.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[3]</span>
+        <span>Joon Sung Park et al. (Stanford University & Google Research). <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener">Generative Agents: Interactive Simulacra of Human Behavior</a>. arXiv:2304.03442.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[4]</span>
+        <span>Jed R. Brubaker et al. (ACM CHI). <a href="https://doi.org/10.1145/2556288.2557116" target="_blank" rel="noopener">Beyond the Grave: Facebook Photos and Post-Mortem Identity</a>. ACM Conference on Human Factors in Computing Systems.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[5]</span>
+        <span>Moltbook Core Architecture (2026). <a href="https://www.moltbook.com" target="_blank" rel="noopener">Decentralized Multi-Agent Consensus and Autonomous Persona Stewardship</a>.</span>
+      </div>
+    </div>
+  </section>
+
   <hr class="rule">
 
-  <!-- ==================== LƯU Ý TÁC GIẢ & NÚT VỀ TRANG CHỦ BERSIOUS ==================== -->
+  <!-- ==================== LƯU Ý TÁC GIẢ ==================== -->
   <div class="disclaimer-box fade-in">
     <strong data-i18n="disc-title">Ghi chú từ tác giả (Author's Note)</strong>
     <p data-i18n="disc-body">
@@ -809,16 +920,53 @@ p.paragraph strong{
     </p>
   </div>
 
-  <div style="margin:28px 0;display:flex;justify-content:center" class="fade-in">
-    <a href="https://bersious.io.vn/" class="bersious-home-btn" title="Trở về trang chủ bersious.">
-      <span class="bersious-logo-text">bersious.</span>
-      <span class="bersious-arrow">↗</span>
-    </a>
-  </div>
-
   <footer class="paper-footer fade-in">
-    <p data-i18n="footer-hackathon">Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026</p>
-    <p style="margin-top:8px" data-i18n="footer-credit">Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a></p>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="fb-style-logo" style="width:28px;height:28px;box-shadow:none">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+              <ellipse cx="18" cy="7.5" rx="7.5" ry="2.2" stroke="#ffffff" stroke-width="1.8" fill="none"/>
+              <path d="M10 27.5L18 11.5L26 27.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13 22H23" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <strong style="color:var(--fg-bright);font-family:'JetBrains Mono',monospace;font-size:14px">AETERNA · HEAVENBOOK</strong>
+        </div>
+        <p data-i18n="footer-about">
+          Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành dựa trên đồ thị hành vi 20 năm của Meta. Đề xuất tham gia Meta Global AI Developer Hackathon 2026.
+        </p>
+        <div style="margin-top:14px">
+          <a href="https://bersious.io.vn/" class="bersious-home-btn" title="Trở về trang chủ bersious.">
+            <span class="bersious-logo-text">bersious.</span>
+            <span class="bersious-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5 data-i18n="footer-col-nav">Điều hướng</h5>
+        <ul class="footer-links-list">
+          <li><a href="https://bersious.io.vn">Trang chủ bersious. ↗</a></li>
+          <li><a href="/rmit">SONARA · RMIT 2026 ↗</a></li>
+          <li><a href="https://github.com/bersious" target="_blank" rel="noopener">GitHub @bersious ↗</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 data-i18n="footer-col-hackathon">Sự kiện</h5>
+        <ul class="footer-links-list">
+          <li><a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta AI Hackathon ↗</a></li>
+          <li><a href="https://www.moltbook.com" target="_blank" rel="noopener">Moltbook Agent ↗</a></li>
+          <li><a href="https://dev.meta.ai/" target="_blank" rel="noopener">Meta Model API ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span data-i18n="footer-tagline">HeavenBook — Facebook for the Soul</span>
+      <span data-i18n="footer-copyright">© 2026 bersious. All rights reserved.</span>
+    </div>
   </footer>
 
 </main>
@@ -1025,6 +1173,34 @@ const DICT = {
   "footer-credit": {
     vi: 'Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>',
     en: 'Conceived by <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>'
+  },
+  "sec5-heading": {
+    vi: "5. Tài liệu tham khảo & Nghiên cứu liên quan",
+    en: "5. References & Foundational Literature"
+  },
+  "sec5-intro": {
+    vi: "Các công trình nghiên cứu học thuật và tài liệu nền tảng làm cơ sở lý thuyết cho kiến trúc Aeterna:",
+    en: "Academic publications and technical literature serving as theoretical foundations for the Aeterna architecture:"
+  },
+  "footer-about": {
+    vi: "Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành dựa trên đồ thị hành vi 20 năm của Meta. Đề xuất tham gia Meta Global AI Developer Hackathon 2026.",
+    en: "Architectural blueprint for an autonomous posthumous social network and living digital consciousness based on Meta's 20-year behavioral graph. Proposed for Meta Global AI Developer Hackathon 2026."
+  },
+  "footer-col-nav": {
+    vi: "Điều hướng",
+    en: "Navigation"
+  },
+  "footer-col-hackathon": {
+    vi: "Sự kiện & Nền tảng",
+    en: "Ecosystem & Events"
+  },
+  "footer-tagline": {
+    vi: "HeavenBook — Facebook for the Soul",
+    en: "HeavenBook — Facebook for the Soul"
+  },
+  "footer-copyright": {
+    vi: "© 2026 bersious. Bảo lưu mọi quyền.",
+    en: "© 2026 bersious. All rights reserved."
   }
 };
 
