@@ -6,7 +6,7 @@
 <title>Aeterna — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
 <meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
 <link rel="icon" type="image/png" href="/aeterna/logo.png?v=3">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1114,15 +1114,12 @@ p.paragraph strong{
         <input type="text" id="gate-answer-input" class="gate-input" placeholder="Nhập câu trả lời..." autocomplete="off">
       </div>
 
-      <!-- Cloudflare Turnstile Official Widget -->
-      <div style="display:flex;justify-content:center;margin:16px 0;min-height:65px">
-        <div class="cf-turnstile" data-sitekey="2x00000000000000000000AB" data-theme="dark" data-callback="onTurnstileSuccess"></div>
+      <!-- Google reCAPTCHA v2 Widget -->
+      <div style="display:flex;justify-content:center;margin:16px 0;min-height:78px">
+        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-theme="dark" data-callback="onGoogleCaptchaSuccess"></div>
       </div>
 
       <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Tiếp tục ➔</button>
-      <div id="gate-error" class="gate-error-msg" data-i18n="gate-err">
-        Câu trả lời chưa chính xác.
-      </div>
     </form>
   </div>
 </div>
@@ -1903,12 +1900,10 @@ function setAeternaLang(lang){
 }
 
 // ==================== GATE LOCK VERIFICATION SYSTEM ====================
-let isTurnstileVerified = false;
+let isGoogleCaptchaVerified = false;
 
-window.onTurnstileSuccess = function(token){
-  isTurnstileVerified = true;
-  const errorEl = document.getElementById('gate-error');
-  if(errorEl) errorEl.classList.remove('show');
+window.onGoogleCaptchaSuccess = function(token){
+  isGoogleCaptchaVerified = true;
 };
 
 function checkGateLock(){
@@ -1928,24 +1923,22 @@ function checkGateLock(){
 function handleGateSubmit(e){
   e.preventDefault();
   const input = document.getElementById('gate-answer-input');
-  const errorEl = document.getElementById('gate-error');
   if(!input) return;
   const val = input.value.trim().toLowerCase();
 
-  // Bắt buộc xác thực Cloudflare Turnstile (nếu script adblock chặn thì tự bypass an toàn)
-  const isScriptLoaded = typeof turnstile !== 'undefined';
-  if(isScriptLoaded && !isTurnstileVerified){
-    if(errorEl){
-      errorEl.textContent = DICT['gate-err-captcha'][currentLang];
-      errorEl.classList.remove('show');
-      void errorEl.offsetWidth;
-      errorEl.classList.add('show');
+  // Kiểm tra g-recaptcha response nếu thư viện tải được
+  let hasCaptchaToken = isGoogleCaptchaVerified;
+  try {
+    if(typeof grecaptcha !== 'undefined' && grecaptcha.getResponse && grecaptcha.getResponse().length > 0){
+      hasCaptchaToken = true;
     }
-    return;
-  }
+  } catch(err){}
 
-  // Chấp nhận "perseus" không phân biệt chữ hoa thường
-  if(val === 'perseus'){
+  // Nếu adblock chặn google hoặc đã tick thì cho qua nếu đúng pass "perseus"
+  const isGrecaptchaBlocked = typeof grecaptcha === 'undefined';
+  const passedCaptcha = isGrecaptchaBlocked || hasCaptchaToken;
+
+  if(val === 'perseus' && passedCaptcha){
     localStorage.setItem('aeterna_unlocked', 'true');
     const overlay = document.getElementById('affinity-gate-overlay');
     if(overlay){
@@ -1956,12 +1949,6 @@ function handleGateSubmit(e){
       }, 350);
     }
   } else {
-    if(errorEl){
-      errorEl.textContent = DICT['gate-err'][currentLang];
-      errorEl.classList.remove('show');
-      void errorEl.offsetWidth; // ép reflow để kích hoạt lại animation shake
-      errorEl.classList.add('show');
-    }
     input.focus();
     input.select();
   }
