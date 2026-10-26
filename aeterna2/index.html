@@ -589,95 +589,115 @@ p.paragraph strong{
   text-transform:uppercase;
 }
 
-/* Sợi dây kết nối giữa 2 logo */
+/* Sợi dây kết nối lấp lánh giữa 2 logo */
 .bridge-wire-wrap{
   flex:1;
   position:relative;
-  height:40px;
-  margin:0 12px;
-  display:flex;
-  align-items:center;
-}
-.bridge-wire{
-  width:100%;
-  height:2px;
-  background:linear-gradient(90deg, #1877f2 0%, #a855f7 50%, #c084fc 100%);
-  position:relative;
-  box-shadow:0 0 10px rgba(168,85,247,0.5);
-}
-.bridge-wire::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-  animation:wirePulse 2.8s infinite linear;
-}
-@keyframes wirePulse{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(100%)}
-}
-
-/* Profile Capsule bay từ Facebook sang Aeterna */
-.migrating-profile{
-  position:absolute;
-  top:50%;
-  left:0;
-  transform:translate(-50%, -50%);
-  background:rgba(18,24,42,0.95);
-  border:1px solid #c084fc;
-  border-radius:999px;
-  padding:4px 12px 4px 6px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  box-shadow:0 4px 20px rgba(168,85,247,0.6);
-  z-index:3;
-  pointer-events:none;
-  animation:profileMigrate 7s infinite ease-in-out;
-}
-.profile-pill-avatar{
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#38bdf8,#a855f7);
+  height:48px;
+  margin:0 16px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:11px;
-  font-weight:700;
-  color:#fff;
 }
-.profile-pill-text{
+.bridge-wire-track{
+  width:100%;
+  position:relative;
+  height:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.bridge-wire-line{
+  width:100%;
+  position:relative;
+  border-radius:999px;
+}
+.bridge-wire-line.line-main{
+  height:2px;
+  background:linear-gradient(90deg, rgba(24,119,242,0.8) 0%, rgba(168,85,247,0.95) 50%, rgba(192,132,252,0.8) 100%);
+  box-shadow:0 0 12px rgba(168,85,247,0.65);
+}
+.bridge-wire-line.line-upper{
+  height:1px;
+  background:linear-gradient(90deg, rgba(24,119,242,0.3) 0%, rgba(168,85,247,0.6) 50%, rgba(192,132,252,0.3) 100%);
+  opacity:0.75;
+}
+.bridge-wire-line.line-lower{
+  height:1px;
+  background:linear-gradient(90deg, rgba(24,119,242,0.3) 0%, rgba(168,85,247,0.6) 50%, rgba(192,132,252,0.3) 100%);
+  opacity:0.75;
+}
+.bridge-wire-line::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%);
+  animation:sparklePass 2.4s infinite ease-in-out;
+}
+.bridge-wire-line.line-upper::after{
+  animation:sparklePass 3.1s infinite ease-in-out 0.5s;
+}
+.bridge-wire-line.line-lower::after{
+  animation:sparklePass 2.8s infinite ease-in-out 1.1s;
+}
+@keyframes sparklePass{
+  0%{transform:translateX(-100%);opacity:0.2}
+  50%{opacity:1}
+  100%{transform:translateX(100%);opacity:0.2}
+}
+
+/* Đốm sáng lấp lánh (Gleam sparkles) */
+.bridge-sparkle{
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:#ffffff;
+  box-shadow:0 0 8px #c084fc, 0 0 14px #38bdf8;
+  animation:sparkleTwinkle 1.8s infinite ease-in-out alternate;
+  pointer-events:none;
+}
+.sp1{left:22%;top:2px;animation-delay:0.2s}
+.sp2{left:48%;top:20px;animation-delay:0.8s}
+.sp3{left:76%;top:4px;animation-delay:1.3s}
+.sp4{left:62%;top:12px;animation-delay:0.4s}
+@keyframes sparkleTwinkle{
+  0%{transform:scale(0.4);opacity:0.2}
+  100%{transform:scale(1.4);opacity:1}
+}
+
+/* Meta Ecosystem Emblem ở viền dưới giữa 2 cực */
+.meta-ecosystem-tag{
+  margin:18px auto 0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:5px 14px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:999px;
+  transition:all .25s ease;
+}
+.meta-ecosystem-tag:hover{
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(168,85,247,0.35);
+  box-shadow:0 0 16px rgba(147,112,219,0.25);
+}
+.meta-logo-svg{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+}
+.meta-tag-text{
   font-family:'JetBrains Mono',monospace;
-  font-size:10px;
-  color:#f1f5f9;
-  white-space:nowrap;
+  font-size:10.5px;
+  color:var(--muted);
+  letter-spacing:0.04em;
 }
-@keyframes profileMigrate{
-  0%{
-    left:5%;
-    opacity:0.3;
-    border-color:#1877f2;
-    box-shadow:0 0 12px rgba(24,119,242,0.5);
-  }
-  15%{
-    opacity:1;
-  }
-  50%{
-    left:50%;
-    border-color:#a855f7;
-    box-shadow:0 0 25px rgba(168,85,247,0.8);
-    transform:translate(-50%, -50%) scale(1.08);
-  }
-  85%{
-    opacity:1;
-  }
-  100%{
-    left:95%;
-    opacity:0.3;
-    border-color:#c084fc;
-    box-shadow:0 0 15px rgba(192,132,252,0.6);
-  }
+.meta-tag-text strong{
+  color:var(--fg-bright);
+  font-weight:600;
 }
 
 /* ==================== REALISTIC MESSENGER TYPING & CHAT ==================== */
@@ -1223,11 +1243,15 @@ p.paragraph strong{
       </div>
 
       <div class="bridge-wire-wrap">
-        <div class="bridge-wire"></div>
-        <div class="migrating-profile" title="Digital Soul Migration Capsule">
-          <div class="profile-pill-avatar">✦</div>
-          <div class="profile-pill-text" data-i18n="pill-text">Di sản số @bersious ➔ Thăng hoa</div>
+        <div class="bridge-wire-track">
+          <div class="bridge-wire-line line-upper"></div>
+          <div class="bridge-wire-line line-main"></div>
+          <div class="bridge-wire-line line-lower"></div>
         </div>
+        <div class="bridge-sparkle sp1"></div>
+        <div class="bridge-sparkle sp2"></div>
+        <div class="bridge-sparkle sp3"></div>
+        <div class="bridge-sparkle sp4"></div>
       </div>
 
       <div class="node-box node-aeterna">
@@ -1236,6 +1260,17 @@ p.paragraph strong{
         </div>
         <div class="node-label">Aeterna</div>
         <div class="node-sub" data-i18n="node-ae-sub">Thánh đường di sản</div>
+      </div>
+    </div>
+
+    <!-- Meta Ecosystem Affinity Emblem ở viền dưới giữa 2 cực -->
+    <div style="text-align:center">
+      <div class="meta-ecosystem-tag">
+        <!-- Official Meta Infinity Loop Logo SVG -->
+        <svg class="meta-logo-svg" viewBox="0 0 40 40" fill="none">
+          <path d="M30.4 14.8C28.4 14.8 26.6 15.8 25.4 17.4C23.6 14.7 20.5 13.2 17.1 13.5C12.8 13.9 9.3 17.2 8.7 21.5C7.9 27.2 12.3 32 17.8 32C20.7 32 23.3 30.6 25 28.3C26.3 30.6 28.7 32 31.4 32C35.7 32 39.2 28.5 39.2 24.2C39.2 19 35.3 14.8 30.4 14.8ZM17.6 27.8C14.4 27.8 11.8 25 12.2 21.8C12.5 19.3 14.7 17.3 17.2 17.3C19.7 17.3 22.3 19.2 23.4 21.8C22.3 25.4 20.1 27.8 17.6 27.8ZM31.4 27.8C29.4 27.8 27.6 26.4 26.8 24.4C26.1 22.6 26.6 20.7 27.6 19.3C28.5 18.1 29.9 17.4 31.4 17.4C34.4 17.4 36.8 19.8 36.8 22.8C36.8 25.6 34.4 27.8 31.4 27.8Z" fill="#0081FB"/>
+        </svg>
+        <span class="meta-tag-text" data-i18n="meta-eco-tag">Aeterna · Khảo luận kiến trúc phát triển trên cùng <strong>Hệ sinh thái Meta</strong></span>
       </div>
     </div>
   </div>
@@ -1836,6 +1871,10 @@ const DICT = {
   "footer-copyright": {
     vi: "© 2026 bersious. Bảo lưu mọi quyền.",
     en: "© 2026 bersious. All rights reserved."
+  },
+  "meta-eco-tag": {
+    vi: 'Aeterna · Khảo luận kiến trúc phát triển trên cùng <strong>Hệ sinh thái Meta</strong>',
+    en: 'Aeterna · Architectural concept anchored within the <strong>Meta Ecosystem</strong>'
   },
   "gate-q-text": {
     vi: "Ai là phản diện chính trong COD: Black Ops Cold War?",
