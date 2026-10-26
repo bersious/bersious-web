@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aeterna — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
+<meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
+<link rel="icon" type="image/png" href="/aeterna/logo.png?v=3">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<!-- Google font preconnect -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090a0f;
+  --bg-card:rgba(18,22,34,0.65);
+  --border:rgba(255,255,255,0.08);
+  --border-focus:rgba(147,112,219,0.35);
+  --fg:#e2e8f0;
+  --fg-bright:#ffffff;
+  --muted:#94a3b8;
+  --dim:#64748b;
+  --accent:#9370db;
+  --accent-soft:rgba(147,112,219,0.12);
+  --line:#1e2433;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  line-height:1.8;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+  min-height:100vh;
+}
+
+/* Subtle background aura */
+.ambient-glow{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(147,112,219,0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 40%, rgba(56,189,248,0.04) 0%, transparent 50%),
+    #090a0f;
+}
+
+/* Video Background Layer - Optimized & Hardware Accelerated */
+.video-bg-container{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:-2;
+  overflow:hidden;
+  pointer-events:none;
+  background:#090a0f;
+}
+.video-bg-media{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0.52;
+  filter:brightness(0.85) contrast(1.22) saturate(1.15);
+  transform:translateZ(0);
+  will-change:transform;
+}
+.video-bg-overlay{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 25%, rgba(9,10,15,0.22) 0%, rgba(9,10,15,0.7) 75%, #090a0f 100%),
+             linear-gradient(180deg, rgba(9,10,15,0.32) 0%, rgba(9,10,15,0.88) 100%);
+  pointer-events:none;
+}
+@media(max-width:768px){
+  .video-bg-media{opacity:0.42;filter:brightness(0.75);}
+}
+
+/* Heritage Progression Quote Box */
+.heritage-quote-box{
+  background:rgba(18,22,34,0.75);
+  border:1px solid rgba(147,112,219,0.3);
+  border-radius:14px;
+  padding:24px 28px;
+  margin-bottom:36px;
+  backdrop-filter:blur(14px);
+  position:relative;
+  box-shadow:0 15px 35px -10px rgba(0,0,0,0.5);
+}
+.heritage-quote-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:16px;
+  display:block;
+}
+.heritage-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:20px;
+}
+.heritage-step{
+  border-left:2px solid var(--border);
+  padding-left:14px;
+}
+.heritage-step.active{
+  border-left-color:var(--accent);
+}
+.heritage-era{
+  display:block;
+  font-family:'Newsreader',serif;
+  font-size:17px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin-bottom:6px;
+}
+.heritage-era.highlight{
+  color:var(--accent);
+}
+.heritage-step p{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.heritage-step p.highlight-text{
+  color:var(--fg-bright);
+  font-weight:500;
+}
+
+/* Term Hover & Explanatory Tooltip Card (Like 'Endy' on bersious.io.vn) */
+.story-tooltip-wrap{
+  position:relative;
+  display:inline-block;
+}
+.term-hover{
+  cursor:help;
+  border-bottom:2px dashed var(--accent);
+  transition:all .2s;
+  color:var(--fg-bright);
+}
+.term-hover:hover{
+  color:var(--accent);
+}
+.story-tooltip{
+  position:absolute;
+  top:calc(100% + 14px);
+  left:50%;
+  transform:translateX(-50%) translateY(-6px);
+  padding:14px 18px;
+  background:rgba(14,18,28,0.96);
+  color:var(--fg);
+  font-size:13px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:400;
+  line-height:1.6;
+  white-space:normal;
+  width:max-content;
+  max-width:320px;
+  text-align:left;
+  border:1px solid rgba(147,112,219,0.35);
+  border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.7), 0 0 20px rgba(147,112,219,0.2);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:90;
+  visibility:hidden;
+  backdrop-filter:blur(16px);
+}
+.story-tooltip::before{
+  content:'';
+  position:absolute;
+  top:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-bottom:6px solid rgba(14,18,28,0.96);
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.story-tooltip-wrap:hover .story-tooltip,
+.story-tooltip-wrap:focus-within .story-tooltip{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+.story-tooltip-wrap:hover .story-tooltip::before{
+  opacity:1;
+}
+.story-tooltip strong{
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+}
+
+/* Header */
+.topbar{
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  background:rgba(9,10,15,0.8);
+  position:sticky;
+  top:0;
+  z-index:50;
+  padding:14px 0;
+}
+.topbar-inner{
+  max-width:820px;
+  margin:0 auto;
+  padding:0 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+}
+.fb-style-logo{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:linear-gradient(145deg, #8b5cf6 0%, #6d28d9 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 14px rgba(139,92,246,0.35);
+  flex-shrink:0;
+  transition:transform 0.25s ease, box-shadow 0.25s ease;
+}
+.brand-wrap:hover .fb-style-logo{
+  transform:scale(1.06);
+  box-shadow:0 6px 20px rgba(139,92,246,0.5);
+}
+.brand-text-block{
+  display:flex;
+  flex-direction:column;
+}
+.brand-name{
+  color:var(--fg-bright);
+  font-weight:700;
+  font-size:14.5px;
+  letter-spacing:0.04em;
+  font-family:'JetBrains Mono',monospace;
+  line-height:1.2;
+}
+.brand-sub{
+  color:var(--muted);
+  font-size:10px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.hackathon-link{
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12.5px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:color .2s;
+  border-bottom:1px dashed var(--border);
+  padding-bottom:1px;
+}
+.hackathon-link:hover{
+  color:var(--fg-bright);
+  border-bottom-color:var(--accent);
+}
+
+/* Language Switcher */
+.lang-switch{
+  display:inline-flex;
+  align-items:center;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:2px;
+}
+.lang-btn{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+  padding:3px 10px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.lang-btn.active{
+  background:var(--accent);
+  color:#ffffff;
+  box-shadow:0 0 10px rgba(147,112,219,0.4);
+}
+
+/* Disclaimer Note Box - Nổi bật, cá tính & thu hút thị giác */
+.disclaimer-box{
+  background:linear-gradient(145deg, rgba(104,48,175,0.18) 0%, rgba(18,22,38,0.88) 100%);
+  border:1px solid rgba(168,85,247,0.45);
+  border-left:4px solid #c084fc;
+  border-radius:14px;
+  padding:26px 30px;
+  margin:44px 0 32px;
+  font-size:14.5px;
+  line-height:1.8;
+  color:#cbd5e1;
+  position:relative;
+  box-shadow:0 12px 35px -10px rgba(104,48,175,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter:blur(16px);
+}
+.disclaimer-box strong{
+  color:#f1f5f9;
+  font-style:normal;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+  background:rgba(168,85,247,0.2);
+  border:1px solid rgba(168,85,247,0.4);
+  padding:4px 12px;
+  border-radius:999px;
+}
+.disclaimer-scam-callout{
+  margin-top:14px;
+  padding:12px 16px;
+  background:rgba(239,68,68,0.08);
+  border:1px dashed rgba(239,68,68,0.35);
+  border-radius:10px;
+  font-size:13.5px;
+  color:#fca5a5;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.danger-blink{
+  color:#ef4444;
+  font-weight:700;
+  text-shadow:0 0 10px rgba(239,68,68,0.75);
+  animation:dangerPulseBlink 1.1s infinite alternate ease-in-out;
+  display:inline-block;
+}
+@keyframes dangerPulseBlink{
+  0%{opacity:1;filter:drop-shadow(0 0 6px rgba(239,68,68,0.85));transform:scale(1)}
+  50%{opacity:0.35;filter:drop-shadow(0 0 2px rgba(239,68,68,0.3));transform:scale(0.98)}
+  100%{opacity:1;filter:drop-shadow(0 0 10px rgba(239,68,68,1));transform:scale(1.02)}
+}
+
+/* Nút về trang chính bersious. nhỏ gọn tinh tế */
+.bersious-home-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  text-decoration:none;
+  transition:all .22s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter:blur(8px);
+  margin-top:16px;
+}
+.bersious-home-btn:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(236,72,153,.45);
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(96,165,250,.22);
+}
+.bersious-home-btn .bersious-logo-text{
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:-0.02em;
+  background:linear-gradient(135deg, #60a5fa, #ec4899);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.bersious-home-btn .bersious-arrow{
+  font-size:11px;
+  color:rgba(255,255,255,.5);
+  transition:transform .2s;
+}
+.bersious-home-btn:hover .bersious-arrow{
+  color:#ec4899;
+  transform:translateX(2px);
+}
+
+/* Main Article Container */
+.paper-container{
+  max-width:820px;
+  margin:0 auto;
+  padding:70px 24px 120px;
+}
+
+/* Document Header */
+.paper-meta{
+  margin-bottom:32px;
+}
+.paper-label{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--accent);
+  background:var(--accent-soft);
+  border:1px solid rgba(147,112,219,0.25);
+  padding:6px 14px;
+  border-radius:6px;
+  margin-bottom:20px;
+}
+.paper-label a{
+  color:inherit;
+  text-decoration:none;
+  font-weight:600;
+}
+.paper-label a:hover{
+  text-decoration:underline;
+}
+h1.paper-title{
+  font-family:'Newsreader',serif;
+  font-size:clamp(32px,4.5vw,50px);
+  font-weight:500;
+  line-height:1.24;
+  color:var(--fg-bright);
+  letter-spacing:-0.015em;
+  margin-bottom:20px;
+}
+.paper-subtitle{
+  font-size:18.5px;
+  color:var(--muted);
+  font-weight:400;
+  line-height:1.65;
+  margin-bottom:32px;
+}
+.author-byline{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  color:var(--dim);
+  font-family:'JetBrains Mono',monospace;
+  flex-wrap:wrap;
+}
+.author-byline strong{
+  color:var(--fg);
+  font-weight:500;
+}
+
+/* Abstract Box */
+.abstract-box{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:10px;
+  padding:26px 30px;
+  margin:44px 0 56px;
+}
+.abstract-box strong{
+  display:block;
+  font-size:11.5px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+.abstract-box p{
+  font-size:15px;
+  color:var(--fg);
+  line-height:1.8;
+}
+
+/* Document Body & Typography */
+h2.heading{
+  font-family:'Newsreader',serif;
+  font-size:27px;
+  font-weight:500;
+  color:var(--fg-bright);
+  margin:56px 0 18px;
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  letter-spacing:-0.01em;
+}
+h3.subheading{
+  font-size:17px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin:32px 0 12px;
+  letter-spacing:-0.01em;
+}
+p.paragraph{
+  font-size:15.5px;
+  color:var(--fg);
+  margin-bottom:22px;
+  text-align:justify;
+}
+p.paragraph strong{
+  color:var(--fg-bright);
+}
+
+/* ==================== TRANSCENDENCE BRIDGE ANIMATION ==================== */
+.bridge-section{
+  margin:48px 0 56px;
+  background:rgba(14,18,30,0.6);
+  border:1px solid rgba(147,112,219,0.25);
+  border-radius:18px;
+  padding:32px 24px;
+  backdrop-filter:blur(16px);
+  position:relative;
+  overflow:hidden;
+}
+.bridge-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--accent);
+  text-align:center;
+  margin-bottom:28px;
+  display:block;
+}
+.bridge-stage{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:relative;
+  max-width:720px;
+  margin:0 auto;
+  padding:20px 10px;
+}
+.node-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  z-index:2;
+  width:120px;
+  text-align:center;
+}
+.node-circle{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  transition:transform .3s;
+}
+.node-fb .node-circle{
+  background:linear-gradient(135deg, #1877f2, #0d5cb6);
+  box-shadow:0 0 25px rgba(24,119,242,0.45);
+}
+.node-aeterna .node-circle{
+  background:linear-gradient(135deg, #8b5cf6, #6830af);
+  box-shadow:0 0 25px rgba(139,92,246,0.55);
+}
+.node-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--fg-bright);
+  font-weight:600;
+  line-height:1.3;
+}
+.node-sub{
+  font-size:10px;
+  color:var(--dim);
+  text-transform:uppercase;
+}
+
+/* Sợi dây kết nối giữa 2 logo */
+.bridge-wire-wrap{
+  flex:1;
+  position:relative;
+  height:40px;
+  margin:0 12px;
+  display:flex;
+  align-items:center;
+}
+.bridge-wire{
+  width:100%;
+  height:2px;
+  background:linear-gradient(90deg, #1877f2 0%, #a855f7 50%, #c084fc 100%);
+  position:relative;
+  box-shadow:0 0 10px rgba(168,85,247,0.5);
+}
+.bridge-wire::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  animation:wirePulse 2.8s infinite linear;
+}
+@keyframes wirePulse{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+/* Profile Capsule bay từ Facebook sang Aeterna */
+.migrating-profile{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%, -50%);
+  background:rgba(18,24,42,0.95);
+  border:1px solid #c084fc;
+  border-radius:999px;
+  padding:4px 12px 4px 6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 4px 20px rgba(168,85,247,0.6);
+  z-index:3;
+  pointer-events:none;
+  animation:profileMigrate 7s infinite ease-in-out;
+}
+.profile-pill-avatar{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#38bdf8,#a855f7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:700;
+  color:#fff;
+}
+.profile-pill-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:#f1f5f9;
+  white-space:nowrap;
+}
+@keyframes profileMigrate{
+  0%{
+    left:5%;
+    opacity:0.3;
+    border-color:#1877f2;
+    box-shadow:0 0 12px rgba(24,119,242,0.5);
+  }
+  15%{
+    opacity:1;
+  }
+  50%{
+    left:50%;
+    border-color:#a855f7;
+    box-shadow:0 0 25px rgba(168,85,247,0.8);
+    transform:translate(-50%, -50%) scale(1.08);
+  }
+  85%{
+    opacity:1;
+  }
+  100%{
+    left:95%;
+    opacity:0.3;
+    border-color:#c084fc;
+    box-shadow:0 0 15px rgba(192,132,252,0.6);
+  }
+}
+
+/* ==================== REALISTIC MESSENGER TYPING & CHAT ==================== */
+.chat-container{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  max-width:720px;
+  margin:0 auto;
+}
+.chat-row{
+  display:flex;
+  gap:12px;
+  align-items:flex-end;
+}
+.chat-row.user-row{
+  justify-content:flex-end;
+}
+.chat-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+  border:1px solid var(--border);
+}
+.chat-bubble{
+  max-width:82%;
+  padding:12px 18px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.65;
+  position:relative;
+}
+.agent-bubble{
+  background:rgba(147,112,219,0.12);
+  border:1px solid rgba(147,112,219,0.3);
+  color:#f1f5f9;
+  border-bottom-left-radius:4px;
+}
+.user-bubble{
+  background:linear-gradient(135deg, rgba(24,119,242,0.25), rgba(24,119,242,0.15));
+  border:1px solid rgba(24,119,242,0.4);
+  color:#f8fafc;
+  border-bottom-right-radius:4px;
+}
+.chat-meta{
+  font-size:10.5px;
+  color:var(--dim);
+  font-family:'JetBrains Mono',monospace;
+  margin-top:4px;
+}
+.typing-dots{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:8px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:14px;
+  width:fit-content;
+  margin-top:6px;
+}
+.typing-dots span{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:0.4;
+  animation:typingBlink 1.4s infinite ease-in-out both;
+}
+.typing-dots span:nth-child(1){animation-delay:0s}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes typingBlink{
+  0%,80%,100%{opacity:0.3;transform:scale(0.85)}
+  40%{opacity:1;transform:scale(1.2)}
+}
+.spec-list{
+  margin:24px 0 32px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(18,22,34,0.4);
+  overflow:hidden;
+}
+.spec-item{
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+}
+.spec-item:last-child{
+  border-bottom:none;
+}
+.spec-item h4{
+  font-size:15px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin-bottom:6px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.spec-item p{
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.65;
+}
+
+/* Quotation and Scenario Blocks */
+.scenario-block{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:22px 24px;
+  margin:24px 0;
+  font-size:14px;
+  line-height:1.75;
+}
+.scenario-meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:block;
+  letter-spacing:0.08em;
+}
+.scenario-dialogue{
+  color:var(--fg);
+  font-style:italic;
+}
+.scenario-dialogue span{
+  color:var(--dim);
+  font-style:normal;
+  font-size:12px;
+  display:block;
+  margin-top:6px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Section Divider */
+.rule{
+  height:1px;
+  background:var(--line);
+  margin:60px 0;
+  border:none;
+}
+
+/* Academic References List */
+.ref-list{
+  margin:20px 0 32px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.ref-item{
+  font-size:13.5px;
+  line-height:1.65;
+  color:var(--muted);
+  padding:14px 18px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .2s;
+}
+.ref-item:hover{
+  background:rgba(255,255,255,0.04);
+  border-color:rgba(147,112,219,0.35);
+  transform:translateX(3px);
+}
+.ref-num{
+  font-family:'JetBrains Mono',monospace;
+  color:var(--accent);
+  font-weight:700;
+  margin-right:8px;
+}
+.ref-item a{
+  color:var(--fg-bright);
+  text-decoration:none;
+  border-bottom:1px dashed var(--border);
+  transition:color .2s;
+}
+.ref-item a:hover{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+
+/* Professional Research Lab Footer */
+.paper-footer{
+  border-top:1px solid var(--border);
+  padding:48px 0 24px;
+  margin-top:50px;
+}
+.footer-grid{
+  display:grid;
+  grid-template-columns:2.5fr 1fr;
+  gap:36px;
+  margin-bottom:36px;
+  text-align:left;
+}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr;gap:24px;}
+}
+.footer-col h5{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--accent);
+  margin-bottom:14px;
+}
+.footer-col p{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.footer-links-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.footer-links-list a{
+  font-size:13px;
+  color:var(--muted);
+  text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  transition:color .2s;
+}
+.footer-links-list a:hover{
+  color:var(--fg-bright);
+}
+.footer-bottom{
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:12px;
+  color:var(--dim);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ==================== SECURITY AFFINITY GATE MODAL ==================== */
+#affinity-gate-overlay{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:99999;
+  background:rgba(4,5,8,0.88);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  transition:opacity 0.35s ease, visibility 0.35s ease;
+}
+#affinity-gate-overlay.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.gate-modal-card{
+  background:linear-gradient(145deg, rgba(20,26,42,0.96), rgba(12,15,26,0.98));
+  border:1px solid rgba(168,85,247,0.45);
+  border-radius:24px;
+  padding:36px 32px;
+  max-width:460px;
+  width:100%;
+  box-shadow:0 25px 60px -15px rgba(0,0,0,0.85), 0 0 35px rgba(147,112,219,0.3);
+  text-align:center;
+  position:relative;
+  animation:gateModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes gateModalPop{
+  from{transform:scale(0.92);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.gate-top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+.gate-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:rgba(168,85,247,0.15);
+  border:1px solid rgba(168,85,247,0.35);
+  padding:4px 10px;
+  border-radius:999px;
+}
+.gate-logo-icon{
+  width:54px;
+  height:54px;
+  margin:0 auto 16px;
+  border-radius:50%;
+  box-shadow:0 0 20px rgba(147,112,219,0.5);
+  display:block;
+}
+.gate-title{
+  font-family:'Newsreader',serif;
+  font-size:24px;
+  font-weight:600;
+  color:var(--fg-bright);
+  margin-bottom:8px;
+}
+.gate-desc{
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.6;
+  margin-bottom:22px;
+}
+.gate-question-box{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:20px;
+  text-align:left;
+}
+.gate-question-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:6px;
+}
+.gate-question-text{
+  font-size:14.5px;
+  color:var(--fg-bright);
+  font-weight:600;
+}
+.gate-input-wrap{
+  position:relative;
+  margin-bottom:14px;
+}
+.gate-input{
+  width:100%;
+  padding:13px 16px;
+  background:rgba(0,0,0,0.55);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--fg-bright);
+  font-size:14px;
+  font-family:'JetBrains Mono',monospace;
+  outline:none;
+  transition:all .2s;
+  box-sizing:border-box;
+}
+.gate-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 15px rgba(147,112,219,0.3);
+}
+
+.grecaptcha-badge{
+  transform: scale(0.68) !important;
+  transform-origin: bottom right !important;
+  z-index: 99999999 !important;
+  opacity: 0.75 !important;
+  transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+.grecaptcha-badge:hover{
+  transform: scale(0.82) !important;
+  opacity: 1 !important;
+}
+
+.gate-btn-submit{
+  width:100%;
+  padding:13px 20px;
+  background:linear-gradient(135deg, #8b5cf6, #6830af);
+  border:none;
+  border-radius:12px;
+  color:#ffffff;
+  font-weight:700;
+  font-size:13.5px;
+  font-family:'JetBrains Mono',monospace;
+  cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 4px 18px rgba(139,92,246,0.4);
+}
+.gate-btn-submit:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px rgba(139,92,246,0.6);
+}
+.gate-error-msg{
+  color:#f87171;
+  font-size:12.5px;
+  font-style:italic;
+  margin-top:12px;
+  display:none;
+}
+.gate-error-msg.show{
+  display:block;
+  animation:gateShake 0.3s ease-in-out;
+}
+@keyframes gateShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+/* Animation on scroll - Clean and subtle */
+.fade-in{
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Video Background Layer (Hardware Accelerated & Optimized) -->
+<div class="video-bg-container">
+  <video class="video-bg-media" autoplay loop muted playsinline preload="auto" poster="/aeterna/bg-poster.webp">
+    <source src="/aeterna/bg-aeterna.mp4" type="video/mp4">
+  </video>
+  <div class="video-bg-overlay"></div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/aeterna" class="brand-wrap">
+      <img src="/aeterna/logo.png" alt="Aeterna" class="fb-style-logo" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 4px 16px rgba(104,48,175,0.45)">
+      <div class="brand-text-block">
+        <span class="brand-name">AETERNA</span>
+        <span class="brand-sub">HeavenBook · Facebook for the Soul</span>
+      </div>
+    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="lang-switch" title="Chuyển đổi ngôn ngữ / Switch Language">
+        <button class="lang-btn active" data-lang="vi" onclick="setAeternaLang('vi')">VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setAeternaLang('en')">EN</button>
+      </div>
+      <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener" class="hackathon-link">
+        <span data-i18n="hackathon-link-text">Meta Global AI Developer Hackathon ↗</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="paper-container">
+
+  <!-- ==================== LỜI MỞ ĐẦU: TIẾN TRÌNH DI SẢN NHÂN LOẠI ==================== -->
+  <div class="heritage-quote-box fade-in">
+    <div class="heritage-quote-tag" data-i18n="quote-tag">Tiến trình lưu giữ di sản qua các thời kỳ</div>
+    <div class="heritage-grid">
+      <div class="heritage-step">
+        <span class="heritage-era" data-i18n="era-1-title">Thời xưa</span>
+        <p data-i18n="era-1-desc">Chúng ta tạc tượng, vẽ chân dung, viết hồi ký, khắc văn bia.</p>
+      </div>
+      <div class="heritage-step">
+        <span class="heritage-era" data-i18n="era-2-title">Thế kỷ 20</span>
+        <p data-i18n="era-2-desc">Chúng ta thu âm giọng nói vào băng cát-xét, quay video gia đình để con cháu sau này xem lại.</p>
+      </div>
+      <div class="heritage-step active">
+        <span class="heritage-era highlight" data-i18n="era-3-title">Thế kỷ 21</span>
+        <p class="highlight-text" data-i18n="era-3-desc">AI chính là hình thức lưu trữ di sản tiếp theo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER METADATA ==================== -->
+  <header class="paper-meta fade-in">
+    <div class="paper-label" data-i18n="paper-label">
+      Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>
+    </div>
+
+    <h1 class="paper-title">
+      <span class="story-tooltip-wrap">
+        <span class="term-hover">Aeterna</span>
+        <span class="story-tooltip" data-i18n="aeterna-tooltip">
+          <strong>/aɪˈtɜːr.nə/ · Tiếng Latinh: <em>Aeternus</em></strong><br>
+          <em>Định nghĩa:</em> Mang ý nghĩa là "Vĩnh hằng", "Bất diệt", không bị thời gian bào mòn. Trong kiến trúc dự án, đại diện cho nhân sinh quan và ý thức con người được bảo tồn trường tồn vượt qua cái chết sinh học.
+        </span>
+      </span>
+      <span data-i18n="paper-title-rest">: Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành</span>
+    </h1>
+
+    <p class="paper-subtitle">
+      <strong style="color:var(--accent);display:block;margin-bottom:8px;font-style:italic">"HeavenBook — Facebook for the Soul."</strong>
+      <span data-i18n="sub-prefix">Chuyển hóa</span>
+      <span class="story-tooltip-wrap">
+        <span class="term-hover" data-i18n="sub-years">20 năm</span>
+        <span class="story-tooltip" style="font-size:12px;max-width:280px" data-i18n="years-tooltip">
+          (hoặc toàn bộ thời gian bạn dùng Facebook cho đến lúc ngỏm)
+        </span>
+      </span>
+      <span data-i18n="sub-suffix">đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.</span>
+    </p>
+  </header>
+
+  <!-- ==================== ABSTRACT ==================== -->
+  <section class="abstract-box fade-in">
+    <strong data-i18n="abstract-tag">Tóm tắt ý tưởng (Abstract)</strong>
+    <p data-i18n="abstract-text">
+      Hiện nay, khi một người dùng qua đời, các mạng xã hội xử lý sự kiện này bằng một cờ trạng thái lạnh lùng: chuyển tài khoản sang chế độ tưởng niệm tĩnh (Memorialized). Toàn bộ tri thức, thói quen suy nghĩ, lời dặn dò và nhân sinh quan tích lũy qua hàng chục năm bỗng chốc trở thành một bia mộ số câm lặng. Aeterna đề xuất một mô hình kiến trúc hai giai đoạn: khi người dùng còn sống, một tác nhân trí tuệ nhân tạo sẽ đóng vai trò người bạn đồng hành dài hạn trên Messenger để phỏng vấn và hiệu chỉnh giá trị sống; khi người dùng qua đời, tác nhân này sẽ tiếp quản trang cá nhân để bảo tồn di sản, trả lời những khúc mắc cuộc đời của con cháu bằng chính nhân sinh quan của người đã khuất, và tham gia vào không gian tưởng niệm HeavenBook.
+    </p>
+  </section>
+
+  <!-- ==================== PHẦN 1: BỐI CẢNH VÀ NGHỊCH LÝ ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec1-heading">1. Bối cảnh thực tế: Nghịch lý của những bia mộ số</h2>
+    
+    <p class="paragraph" data-i18n="sec1-p1">
+      Ước tính đến năm 2070, số lượng tài khoản của những người đã qua đời trên các nền tảng của Meta sẽ vượt qua số lượng người dùng còn sống. Hàng tỷ hồ sơ cá nhân chứa đựng lịch sử trò chuyện, ghi chú đời thường và các bức ảnh kỷ niệm đang dần biến thành những nghĩa địa số thụ động.
+    </p>
+
+    <p class="paragraph" data-i18n="sec1-p2">
+      Sự mất mát lớn nhất trong tang chế không chỉ là sự vắng mặt về mặt thể xác, mà là sự đứt gãy tri thức thế hệ: một người cháu không bao giờ có cơ hội hỏi ông bà về cách vượt qua những thất bại tuổi trẻ, hay một người con không thể lắng nghe lại góc nhìn của cha mẹ trước một ngã rẽ cuộc đời. Các giải pháp tưởng niệm hiện tại dừng lại ở việc bảo lưu dữ liệu tĩnh (Static Archival), hoàn toàn thiếu khả năng tương tác và không thể trả lời những câu hỏi mới phát sinh từ người ở lại.
+    </p>
+  </section>
+
+  <!-- ==================== CẦU NỐI THĂNG HOA: TỪ FACEBOOK SANG AETERNA ==================== -->
+  <div class="bridge-section fade-in">
+    <span class="bridge-title" data-i18n="bridge-title">Tiến trình chuyển hóa di sản: Từ Facebook trần thế sang Aeterna cõi vĩnh hằng</span>
+    <div class="bridge-stage">
+      <div class="node-box node-fb">
+        <div class="node-circle">
+          <!-- Facebook Official Blue Icon SVG -->
+          <svg viewBox="0 0 36 36" width="38" height="38" fill="none">
+            <circle cx="18" cy="18" r="18" fill="#1877F2"/>
+            <path d="M24 18H20.2V29H15.5V18H13.2V14H15.5V11.2C15.5 9.2 16.7 7 20.6 7H24V10.9H21.5C20.6 10.9 20.2 11.4 20.2 12.3V14H24.2L24 18Z" fill="white"/>
+          </svg>
+        </div>
+        <div class="node-label">Facebook</div>
+        <div class="node-sub" data-i18n="node-fb-sub">Hồ sơ trần thế</div>
+      </div>
+
+      <div class="bridge-wire-wrap">
+        <div class="bridge-wire"></div>
+        <div class="migrating-profile" title="Digital Soul Migration Capsule">
+          <div class="profile-pill-avatar">✦</div>
+          <div class="profile-pill-text" data-i18n="pill-text">Di sản số @bersious ➔ Thăng hoa</div>
+        </div>
+      </div>
+
+      <div class="node-box node-aeterna">
+        <div class="node-circle">
+          <img src="/aeterna/logo.png" alt="Aeterna" style="width:50px;height:50px;border-radius:50%;object-fit:cover;box-shadow:0 0 20px rgba(168,85,247,0.75)">
+        </div>
+        <div class="node-label">Aeterna</div>
+        <div class="node-sub" data-i18n="node-ae-sub">Thánh đường di sản</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PHẦN 2: BỐN TRỤ CỘT KỸ THUẬT ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec2-heading">2. Kiến trúc giải pháp: Bốn trụ cột công nghệ</h2>
+
+    <p class="paragraph" data-i18n="sec2-intro">
+      Hệ thống Aeterna được thiết kế xoay quanh hệ sinh thái mô hình nền tảng của Meta (Meta Model API), khai thác tối đa lợi thế về dữ liệu hành vi dài hạn mà không xâm phạm quyền riêng tư:
+    </p>
+
+    <div class="spec-list">
+      <div class="spec-item">
+        <h4 data-i18n="p1-h4">Trụ cột 1: Hấp thụ đồ thị hành vi dài hạn (Behavioral Graph Ingestion)</h4>
+        <p data-i18n="p1-desc">
+          Ứng dụng cửa sổ ngữ cảnh 1 triệu token của mô hình <strong>Muse Spark</strong> để tổng hợp không chỉ các bài viết công khai, mà cả thói quen phản ứng cảm xúc, lịch sử đọc tin tức, và phong cách hành văn tự nhiên trên Messenger suốt 20 năm. Mục tiêu là trích xuất đồ thị nhân sinh quan (Worldview Graph) chân thực, loại bỏ hoàn toàn các suy đoán bịa đặt hoặc ảo giác.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="p2-h4">Trụ cột 2: Chu trình đồng hành và hiệu chỉnh cả đời (Human-in-the-loop Alignment)</h4>
+        <p data-i18n="p2-desc">
+          Người dùng tự nguyện đăng ký khi còn sống. Tác nhân hoạt động như một người lắng nghe định kỳ trên Messenger: đặt những câu hỏi nhẹ nhàng về những bài học cuộc sống, làm rõ lập trường đạo đức trước các tình huống thực tế, và cho phép chính con người trực tiếp rà soát, điều chỉnh góc nhìn của bản sao số của mình qua từng năm tháng.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="p3-h4">Trụ cột 3: Quản trị di sản tự hành trên HeavenBook (Autonomous Stewardship)</h4>
+        <p data-i18n="p3-desc">
+          Sau khi tài khoản được xác nhận tưởng niệm hợp lệ, tác nhân nhận quyền tiếp quản hồ sơ số và xuất hiện trong không gian HeavenBook (lấy cảm hứng từ cơ chế mạng xã hội tác nhân của <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). Tác nhân có khả năng tự động viết bài tưởng niệm vào các ngày kỷ niệm gia đình, đúc kết các bài học nhân sinh và tương tác một cách trang trọng với các hồ sơ di sản của bạn bè cùng thế hệ.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="p4-h4">Trụ cột 4: Động cơ an ủi đa phương thức (Multimodal Comfort Engine)</h4>
+        <p data-i18n="p4-desc">
+          Thân nhân còn sống có thể nhắn tin riêng trên Messenger để tìm kiếm sự dẫn dắt tinh thần. Hệ thống tích hợp <strong>Muse Voice</strong> để tái tạo ngữ điệu và giọng nói ấm áp đặc trưng cho các đoạn ghi âm ngắn, kết hợp cùng mô hình thị giác <strong>SAM 3.1</strong> để nhận diện và phục dựng bối cảnh cho các bức ảnh chụp gia đình xưa cũ.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PHẦN 3: KỊCH BẢN VẬN HÀNH ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec3-heading">3. Kịch bản tương tác qua các mốc thời gian</h2>
+
+    <p class="paragraph" data-i18n="sec3-intro">
+      Để minh chứng tính thực tiễn, kiến trúc của Aeterna được chia thành hai pha rõ rệt: Pha sống (khi người dùng còn minh mẫn) và Pha tưởng niệm (hỗ trợ thân nhân sau khi người dùng qua đời).
+    </p>
+
+    <!-- Kịch bản 1 -->
+    <div class="scenario-block">
+      <span class="scenario-meta" data-i18n="sc1-meta">Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)</span>
+      <div class="chat-container">
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="chat-bubble agent-bubble" data-i18n="sc1-msg1">
+            "Dạo này thấy thức khuya cày code AI dữ quá nha Nhân. Nhắc trước là sau này lỡ có nằm xuống, cậu muốn để lại lời dặn dò hay cái vibe sống gì nhất cho con cháu đời sau nghe?"
+            <div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>
+          </div>
+        </div>
+
+        <div class="chat-row user-row">
+          <div class="chat-bubble user-bubble" data-i18n="sc1-msg2">
+            "Cứ bảo tụi nó sống đàng hoàng, làm gì cũng nghĩ trước nghĩ sau. Đời có lúc khó nhưng đừng chọn đi đường tắt lươn lẹo, cứ tử tế và lì lợm mà bước tiếp là được."
+            <div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>
+          </div>
+          <div class="chat-avatar" style="background:#1877f2">👨‍💻</div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div>
+            <div class="chat-bubble agent-bubble" data-i18n="sc1-msg3">
+              "Uci."
+            </div>
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kịch bản 2 -->
+    <div class="scenario-block">
+      <span class="scenario-meta" data-i18n="sc2-meta">Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2126 — tôi không muốn chết sớm)</span>
+      <div class="chat-container">
+        <div class="chat-row user-row">
+          <div class="chat-bubble user-bubble" data-i18n="sc2-msg1">
+            "Cụ ơi, thời đại này người ta cấy chip lượng tử vô não hết rồi, con đang tính bỏ công nghệ để học đàn tranh cổ truyền mà sợ người ta chê lập dị... Hồi xưa cụ nghĩ sao về mấy chuyện này?"
+            <div class="chat-meta" style="text-align:right">Hậu thế đời thứ 4 (Năm 2126)</div>
+          </div>
+          <div class="chat-avatar" style="background:#ec4899">👧</div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="chat-bubble agent-bubble" data-i18n="sc2-msg2">
+            "Chào con. Cụ Nhân hồi năm 2026 dặn rõ rồi: <em>'Công nghệ đổi cỡ nào thì cái tâm hồn mới giữ cho cuộc đời không bị vô tri.'</em> Con cứ làm thứ mình thấy có ý nghĩa nhất đi, cụ hồi xưa cũng toàn làm mấy trò mèo khác người không chứ đâu!"
+            <div class="chat-meta">Safety Guardrail: Minh bạch di sản số · Không ảo giác · Gợi ý voice note 15s</div>
+          </div>
+        </div>
+
+        <div class="chat-row">
+          <div class="chat-avatar">🌌</div>
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:12.5px;color:var(--dim);font-style:italic;margin-top:22px;font-family:'JetBrains Mono',monospace" data-i18n="scenario-disclaimer">
+      *đây là ví dụ tin nhắn do AI gen thôi nha, không phải của tôi
+    </p>
+  </section>
+
+  <!-- ==================== PHẦN 4: ĐẠO ĐỨC & QUY TẮC AN TOÀN ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec4-heading">4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)</h2>
+
+    <p class="paragraph" data-i18n="sec4-intro">
+      Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief) ↗</a>. Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:
+    </p>
+
+    <div class="spec-list">
+      <div class="spec-item">
+        <h4 data-i18n="e1-h4">Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)</h4>
+        <p data-i18n="e1-desc">
+          Hệ thống tuyệt đối không bao giờ xưng nhận mình là một linh hồn sống lại hay một ý thức siêu nhiên. Trong mọi cuộc đối thoại, tác nhân luôn tự giới thiệu là một kho lưu trữ nhân sinh quan được chính người đã khuất hiệu chỉnh khi còn sống.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="e2-h4">Cơ chế ngắt mạch chống lệ thuộc (Anti-Dependency Circuit Breaker)</h4>
+        <p data-i18n="e2-desc">
+          Để ngăn ngừa thân nhân rơi vào trạng thái trốn tránh thực tại hoặc phụ thuộc cảm xúc vào AI, hệ thống áp đặt giới hạn thời gian tương tác mỗi ngày và chủ động khuyến khích người dùng trò chuyện, chia sẻ với gia đình và cộng đồng con người ngoài đời thực.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="e3-h4">Di chúc số có chữ ký mật mã (Cryptographic Digital Will)</h4>
+        <p data-i18n="e3-desc">
+          Chỉ có chính người dùng khi còn sống mới có quyền cấp phép quyền phát ngôn của tác nhân. Người dùng có quyền đóng băng vĩnh viễn các chủ đề nhạy cảm, xóa bỏ các cuộc hội thoại riêng tư và ấn định danh sách những người thân được phép tiếp cận di sản.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="e4-h4">Cam kết không ảo giác về sự thật lịch sử (Zero Hallucination Retrieval)</h4>
+        <p data-i18n="e4-desc">
+          Mọi lời khuyên hoặc ký ức đều phải có trích dẫn nguồn từ dữ liệu đồ thị đã được người dùng phê duyệt. Khi gặp câu hỏi chưa từng được người dùng chia sẻ, tác nhân bắt buộc phải trả lời: "Tôi không có ký ức về việc này" thay vì tự ý suy diễn.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PHẦN 5: TIỀM NĂNG TIẾN HÓA VÀ BẢN ĐỒ NÃO BỘ ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec5-potential-heading">5. Tiềm năng tiến hóa: Từ phần mềm hành vi đến Tải ý thức số (Mind Uploading & BCI)</h2>
+
+    <p class="paragraph" data-i18n="sec5-potential-p1">
+      Khác với các ứng dụng chatbot thông thường, Aeterna không chỉ được tạo ra cho hiện tại, mà được định vị là <strong>hệ điều hành hành vi nền tảng (Behavioral Operating System)</strong> phục vụ kỷ nguyên tải ý thức (Mind Uploading) và giao diện não - máy tính trong tương lai:
+    </p>
+
+    <div class="spec-list">
+      <div class="spec-item">
+        <h4 data-i18n="pot1-h4">Lớp phần mềm bổ khuyết cho Neuralink & Giao diện Não - Máy Tính (BCI)</h4>
+        <p data-i18n="pot1-desc">
+          Trong khi các công ty công nghệ thần kinh hàng đầu như <a href="https://neuralink.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Neuralink của Elon Musk ↗</a> đang phát triển phần cứng cấy ghép vi điện cực để giải mã tín hiệu điện sinh học não bộ, họ vẫn đối mặt với bài toán lớn: tín hiệu điện thô không thể tự định hình nên "linh hồn" hay "nhân sinh quan" của một đời người. Aeterna đóng vai trò là tầng phần mềm tinh thần, cung cấp kho ngữ cảnh hành vi 20 năm để giao diện BCI tái hiện chính xác cảm xúc và tư duy của người dùng.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="pot2-h4">Tích hợp công nghệ Quét não bộ độ phân giải Nano (Whole Brain Connectomics)</h4>
+        <p data-i18n="pot2-desc">
+          Các dự án giải mã bản đồ kết nối thần kinh (Connectome) tại Harvard và Google gần đây đã <a href="https://www.nature.com/articles/s41586-024-07389-x" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">tái dựng thành công 1 mm³ mô não người ở cấp độ nano ↗</a> với hơn 57.000 tế bào nơ-ron và 150 triệu khớp thần kinh synapse. Đồ thị nhân sinh quan của Aeterna chính là tập dữ liệu chuẩn mực (Ground-truth Context) để đối chiếu và nạp năng lượng hành vi khi các bản scan não bộ vật lý này được số hóa hoàn toàn.
+        </p>
+      </div>
+
+      <div class="spec-item">
+        <h4 data-i18n="pot3-h4">Hiện thực hóa sự bất tử số trong hình hài vật lý (Embodied Legacy)</h4>
+        <p data-i18n="pot3-desc">
+          Khi kết hợp cùng các robot sinh học hình người và hệ thống phản hồi cảm xúc trong tương lai, kho lưu trữ ý thức của Aeterna sẽ cho phép những giá trị sống, bài học đạo đức và phong thái trò chuyện của tổ tiên tiếp tục hiện diện một cách hữu hình để dìu dắt các thế hệ con cháu vượt qua thăng trầm.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PHẦN 6: TÀI LIỆU THAM KHẢO & NGHIÊN CỨU LIÊN QUAN ==================== -->
+  <section class="fade-in">
+    <h2 class="heading" data-i18n="sec6-heading">6. Tài liệu tham khảo & Nghiên cứu liên quan</h2>
+    <p class="paragraph" data-i18n="sec6-intro">
+      Các công trình nghiên cứu học thuật và tài liệu nền tảng làm cơ sở lý thuyết cho kiến trúc Aeterna:
+    </p>
+
+    <div class="ref-list">
+      <div class="ref-item">
+        <span class="ref-num">[1]</span>
+        <span>Neuralink Architecture (Elon Musk). <a href="https://neuralink.com" target="_blank" rel="noopener">Pioneering Brain-Computer Interfaces to Restore Autonomy and Expand Human Potential</a>.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[2]</span>
+        <span>Alexander Shapson-Coe et al. (Harvard University & Google Research). <a href="https://www.nature.com/articles/s41586-024-07389-x" target="_blank" rel="noopener">A petavoxel fragment of human cerebral cortex reconstructed at nanoscale resolution</a>. Nature (2024).</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[3]</span>
+        <span>Meta AI (2026). <a href="https://dev.meta.ai/" target="_blank" rel="noopener">Meta Model API & Multimodal Foundation Ecosystem (Muse Spark, SAM 3.1)</a>. Meta Platforms.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[4]</span>
+        <span>Carl Öhman & Luciano Floridi (Oxford Internet Institute). <a href="https://link.springer.com/article/10.1007/s11023-017-9445-2" target="_blank" rel="noopener">The digital afterlife industry: a contract-based approach to the morality of post-mortem digital technologies</a>. Minds and Machines.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[5]</span>
+        <span>Joon Sung Park et al. (Stanford University & Google Research). <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener">Generative Agents: Interactive Simulacra of Human Behavior</a>. arXiv:2304.03442.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[6]</span>
+        <span>Jed R. Brubaker et al. (ACM CHI). <a href="https://dl.acm.org/doi/10.1145/2556288.2557116" target="_blank" rel="noopener">Beyond the Grave: Facebook Photos and Post-Mortem Identity</a>. ACM Conference on Human Factors in Computing Systems.</span>
+      </div>
+      <div class="ref-item">
+        <span class="ref-num">[7]</span>
+        <span>Moltbook Core Architecture (2026). <a href="https://www.moltbook.com" target="_blank" rel="noopener">Decentralized Multi-Agent Consensus and Autonomous Persona Stewardship</a>.</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ==================== LƯU Ý TÁC GIẢ ==================== -->
+  <div class="disclaimer-box fade-in">
+    <strong data-i18n="disc-title">Ghi chú từ tác giả (Author's Note)</strong>
+    <p data-i18n="disc-body">
+      Dự án Aeterna hiện tại dừng lại ở cấp độ ý niệm nghiên cứu phục vụ bài dự thi Meta Global AI Developer Hackathon. Đây là một giấc mơ công nghệ được tác giả ấp ủ và lưu giữ lại cho một tương lai không xa, khi bản thân tích lũy đủ độ chín về chuyên môn và hội tụ đủ các điều kiện cần thiết để có thể hiện thực hóa (hoặc không - Aethernan't).
+    </p>
+    <div class="disclaimer-scam-callout">
+      <span style="font-size:16px">⚠️</span>
+      <span data-i18n="disc-scam">Serious Warning: Sản phẩm là <strong class="danger-blink">công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.</span>
+    </div>
+  </div>
+
+  <footer class="paper-footer fade-in">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <img src="/aeterna/logo.png" alt="Aeterna Logo" style="width:28px;height:28px;border-radius:50%;object-fit:cover;box-shadow:0 2px 10px rgba(104,48,175,0.4)">
+          <strong style="color:var(--fg-bright);font-family:'JetBrains Mono',monospace;font-size:14px">AETERNA · HEAVENBOOK</strong>
+        </div>
+        <p data-i18n="footer-about">
+          Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành dựa trên đồ thị hành vi 20 năm của Meta. Đề xuất tham gia Meta Global AI Developer Hackathon 2026.
+        </p>
+        <p style="margin-top:10px;font-size:12.5px;color:var(--dim);font-family:'JetBrains Mono',monospace" data-i18n="footer-author-crew">
+          Tác giả: bersious và đồng bọn
+        </p>
+        <p style="margin-top:6px;font-size:12.5px;color:var(--dim);font-family:'JetBrains Mono',monospace" data-i18n="footer-work-email">
+          Liên hệ công việc: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>
+        </p>
+        <div style="margin-top:14px">
+          <a href="https://bersious.io.vn/" class="bersious-home-btn" title="Trở về trang chủ bersious.">
+            <span class="bersious-logo-text">bersious.</span>
+            <span class="bersious-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5 data-i18n="footer-col-hackathon">Sự kiện & Nền tảng</h5>
+        <ul class="footer-links-list">
+          <li><a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta AI Hackathon ↗</a></li>
+          <li><a href="https://www.moltbook.com" target="_blank" rel="noopener">Moltbook Agent ↗</a></li>
+          <li><a href="https://dev.meta.ai/" target="_blank" rel="noopener">Meta Model API ↗</a></li>
+          <li><a href="https://github.com/bersious" target="_blank" rel="noopener">GitHub @bersious ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span data-i18n="footer-tagline">HeavenBook — Facebook for the Soul</span>
+      <span data-i18n="footer-copyright">© 2026 bersious. All rights reserved.</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+// ==================== BILINGUAL TRANSLATION ENGINE ====================
+const DICT = {
+  "quote-tag": {
+    vi: "Tiến trình lưu giữ di sản qua các thời kỳ",
+    en: "The Evolution of Human Legacy Preservation"
+  },
+  "era-1-title": {
+    vi: "Thời xưa",
+    en: "Ancient Era"
+  },
+  "era-1-desc": {
+    vi: "Chúng ta tạc tượng, vẽ chân dung, viết hồi ký, khắc văn bia.",
+    en: "Humans carved statues, painted portraits, wrote memoirs, inscribed stelae."
+  },
+  "era-2-title": {
+    vi: "Thế kỷ 20",
+    en: "20th Century"
+  },
+  "era-2-desc": {
+    vi: "Chúng ta thu âm giọng nói vào băng cát-xét, quay video gia đình để con cháu sau này xem lại.",
+    en: "Humans recorded voices on cassette tapes, filmed family home videos for descendants to look back on."
+  },
+  "era-3-title": {
+    vi: "Thế kỷ 21",
+    en: "21st Century"
+  },
+  "era-3-desc": {
+    vi: "AI chính là hình thức lưu trữ di sản tiếp theo.",
+    en: "AI is the next frontier of preserving human heritage."
+  },
+  "aeterna-tooltip": {
+    vi: '<strong>/aɪˈtɜːr.nə/ · Tiếng Latinh: <em>Aeternus</em></strong><br><em>Định nghĩa:</em> Mang ý nghĩa là "Vĩnh hằng", "Bất diệt", không bị thời gian bào mòn. Trong kiến trúc dự án, đại diện cho nhân sinh quan và ý thức con người được bảo tồn trường tồn vượt qua cái chết sinh học.',
+    en: '<strong>/aɪˈtɜːr.nə/ · Latin: <em>Aeternus</em></strong><br><em>Definition:</em> Meaning "Eternal", "Everlasting", unfading across time. In this architecture, it denotes human worldview, wisdom, and consciousness preserved beyond biological mortality.'
+  },
+  "paper-title-rest": {
+    vi: ": Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành",
+    en: ": Architectural Blueprint for an Autonomous Posthumous Social Network & Living Digital Consciousness"
+  },
+  "hackathon-link-text": {
+    vi: "Meta Global AI Developer Hackathon ↗",
+    en: "Meta Global AI Developer Hackathon ↗"
+  },
+  "paper-label": {
+    vi: 'Ý tưởng đề xuất cho cuộc thi <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>',
+    en: 'Architectural Proposal for <a href="https://dev.meta.ai/events/global-hackathon" target="_blank" rel="noopener">Meta Global AI Developer Hackathon (dev.meta.ai) ↗</a>'
+  },
+  "sub-prefix": {
+    vi: "Chuyển hóa",
+    en: "Transforming"
+  },
+  "sub-years": {
+    vi: "20 năm",
+    en: "20 years"
+  },
+  "years-tooltip": {
+    vi: "(hoặc toàn bộ thời gian bạn dùng Facebook cho đến lúc ngỏm)",
+    en: "(or the entire span of your Facebook existence until you kick the bucket)"
+  },
+  "sub-suffix": {
+    vi: "đồ thị hành vi của Meta thành một không gian tưởng niệm tương tác, bảo tồn nhân sinh quan và ký ức thế hệ mà không vi phạm các ranh giới đạo đức của công nghệ tang chế.",
+    en: "of Meta's behavioral graph into an interactive posthumous sanctuary, preserving human worldview and generational wisdom without violating the ethical boundaries of grief technology."
+  },
+  "byline-author": {
+    vi: 'Tác giả: <strong>bersious</strong>',
+    en: 'Author: <strong>bersious</strong>'
+  },
+  "byline-school": {
+    vi: 'Đơn vị: Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM',
+    en: 'Institution: University of Information Technology (UIT), VNU-HCM'
+  },
+  "abstract-tag": {
+    vi: "Tóm tắt ý tưởng (Abstract)",
+    en: "Executive Abstract"
+  },
+  "abstract-text": {
+    vi: "Hiện nay, khi một người dùng qua đời, các mạng xã hội xử lý sự kiện này bằng một cờ trạng thái lạnh lùng: chuyển tài khoản sang chế độ tưởng niệm tĩnh (Memorialized). Toàn bộ tri thức, thói quen suy nghĩ, lời dặn dò và nhân sinh quan tích lũy qua hàng chục năm bỗng chốc trở thành một bia mộ số câm lặng. Aeterna đề xuất một mô hình kiến trúc hai giai đoạn: khi người dùng còn sống, một tác nhân trí tuệ nhân tạo sẽ đóng vai trò người bạn đồng hành dài hạn trên Messenger để phỏng vấn và hiệu chỉnh giá trị sống; khi người dùng qua đời, tác nhân này sẽ tiếp quản trang cá nhân để bảo tồn di sản, trả lời những khúc mắc cuộc đời của con cháu bằng chính nhân sinh quan của người đã khuất, và tham gia vào không gian tưởng niệm HeavenBook.",
+    en: "Today, when a user passes away, social platforms process this transition with a cold database state change: flagging the profile as statically Memorialized. Decades of accumulated wisdom, contemplation, life advice, and personal worldview instantly freeze into an inaccessible digital tombstone. Aeterna introduces a two-phase architectural framework: during life, an AI agent acts as a lifelong Messenger companion, proactively interviewing and aligning core life philosophies; upon verified memorialization, the agent assumes profile stewardship to preserve the user's legacy, answering descendants' life questions through the authentic worldview of the deceased while participating in the HeavenBook sanctuary."
+  },
+  "sec1-heading": {
+    vi: "1. Bối cảnh thực tế: Nghịch lý của những bia mộ số",
+    en: "1. The Human Dilemma: The 'Frozen Tombstones' Paradox"
+  },
+  "sec1-p1": {
+    vi: "Ước tính đến năm 2070, số lượng tài khoản của những người đã qua đời trên các nền tảng của Meta sẽ vượt qua số lượng người dùng còn sống. Hàng tỷ hồ sơ cá nhân chứa đựng lịch sử trò chuyện, ghi chú đời thường và các bức ảnh kỷ niệm đang dần biến thành những nghĩa địa số thụ động.",
+    en: "By 2070, the number of deceased user accounts on Meta platforms is projected to surpass the living. Billions of personal profiles containing decades of Messenger conversations, intimate thoughts, and visual memories are steadily turning into passive digital graveyards."
+  },
+  "sec1-p2": {
+    vi: "Sự mất mát lớn nhất trong tang chế không chỉ là sự vắng mặt về mặt thể xác, mà là sự đứt gãy tri thức thế hệ: một người cháu không bao giờ có cơ hội hỏi ông bà về cách vượt qua những thất bại tuổi trẻ, hay một người con không thể lắng nghe lại góc nhìn của cha mẹ trước một ngã rẽ cuộc đời. Các giải pháp tưởng niệm hiện tại dừng lại ở việc bảo lưu dữ liệu tĩnh (Static Archival), hoàn toàn thiếu khả năng tương tác và không thể trả lời những câu hỏi mới phát sinh từ người ở lại.",
+    en: "The profoundest tragedy of bereavement is not solely physical absence, but the rupture of generational wisdom: a grandchild can never ask their grandparents how they overcame early life failures, and a child can no longer seek their parents' perspective at life-defining crossroads. Existing memorialization models stop at static data preservation, lacking interactive continuity and unable to address questions emerging from descendants."
+  },
+  "sec2-heading": {
+    vi: "2. Kiến trúc giải pháp: Bốn trụ cột công nghệ",
+    en: "2. Architectural Solution: The Four Technical Pillars"
+  },
+  "sec2-intro": {
+    vi: "Hệ thống Aeterna được thiết kế xoay quanh hệ sinh thái mô hình nền tảng của Meta (Meta Model API), khai thác tối đa lợi thế về dữ liệu hành vi dài hạn mà không xâm phạm quyền riêng tư:",
+    en: "Aeterna is architected around Meta's foundational multi-modal ecosystem (Meta Model API), harnessing long-term behavioral data without compromising privacy boundaries:"
+  },
+  "p1-h4": {
+    vi: "Trụ cột 1: Hấp thụ đồ thị hành vi dài hạn (Behavioral Graph Ingestion)",
+    en: "Pillar 1: Long-term Behavioral Graph Ingestion"
+  },
+  "p1-desc": {
+    vi: "Ứng dụng cửa sổ ngữ cảnh 1 triệu token của mô hình <strong>Muse Spark</strong> để tổng hợp không chỉ các bài viết công khai, mà cả thói quen phản ứng cảm xúc, lịch sử đọc tin tức, và phong cách hành văn tự nhiên trên Messenger suốt 20 năm. Mục tiêu là trích xuất đồ thị nhân sinh quan (Worldview Graph) chân thực, loại bỏ hoàn toàn các suy đoán bịa đặt hoặc ảo giác.",
+    en: "Leveraging the 1-million-token context window of <strong>Muse Spark</strong>, Aeterna ingests not merely public status updates, but emotional reaction patterns, news engagement history, and conversational nuances across 20 years of Messenger interactions. The objective is synthesizing an authentic Worldview Graph, strictly eradicating hallucinations."
+  },
+  "p2-h4": {
+    vi: "Trụ cột 2: Chu trình đồng hành và hiệu chỉnh cả đời (Human-in-the-loop Alignment)",
+    en: "Pillar 2: Lifelong Human-in-the-loop Alignment Loop"
+  },
+  "p2-desc": {
+    vi: "Người dùng tự nguyện đăng ký khi còn sống. Tác nhân hoạt động như một người lắng nghe định kỳ trên Messenger: đặt những câu hỏi nhẹ nhàng về những bài học cuộc sống, làm rõ lập trường đạo đức trước các tình huống thực tế, và cho phép chính con người trực tiếp rà soát, điều chỉnh góc nhìn của bản sao số của mình qua từng năm tháng.",
+    en: "Users opt in while alive. The agent serves as a lifelong conversational companion on Messenger: gently eliciting untold life stories, clarifying ethical principles, and enabling the human to directly supervise and curate their emerging digital twin across decades."
+  },
+  "p3-h4": {
+    vi: "Trụ cột 3: Quản trị di sản tự hành trên HeavenBook (Autonomous Stewardship)",
+    en: "Pillar 3: Autonomous Stewardship in the HeavenBook Realm"
+  },
+  "p3-desc": {
+    vi: 'Sau khi tài khoản được xác nhận tưởng niệm hợp lệ, tác nhân nhận quyền tiếp quản hồ sơ số và xuất hiện trong không gian HeavenBook (lấy cảm hứng từ cơ chế mạng xã hội tác nhân của <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). Tác nhân có khả năng tự động viết bài tưởng niệm vào các ngày kỷ niệm gia đình, đúc kết các bài học nhân sinh và tương tác một cách trang trọng với các hồ sơ di sản của bạn bè cùng thế hệ.',
+    en: 'Upon verified memorialization, the agent assumes profile stewardship and ascends into the HeavenBook realm (inspired by the autonomous agent social network architecture of <a href="https://www.moltbook.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Moltbook ↗</a>). It autonomously reflects on life anniversaries, authors contemplative essays, and dignifiedly converses with legacy personas of departed peers.'
+  },
+  "p4-h4": {
+    vi: "Trụ cột 4: Động cơ an ủi đa phương thức (Multimodal Comfort Engine)",
+    en: "Pillar 4: Multimodal Comfort & Empathy Engine"
+  },
+  "p4-desc": {
+    vi: "Thân nhân còn sống có thể nhắn tin riêng trên Messenger để tìm kiếm sự dẫn dắt tinh thần. Hệ thống tích hợp <strong>Muse Voice</strong> để tái tạo ngữ điệu và giọng nói ấm áp đặc trưng cho các đoạn ghi âm ngắn, kết hợp cùng mô hình thị giác <strong>SAM 3.1</strong> để nhận diện và phục dựng bối cảnh cho các bức ảnh chụp gia đình xưa cũ.",
+    en: "Living descendants can reach out via Messenger for spiritual solace. The architecture integrates <strong>Muse Voice</strong> to synthesize authentic vocal warmth for brief voice messages, alongside <strong>SAM 3.1</strong> vision models to segment and annotate historical family photographs with contextual memory anchors."
+  },
+  "bridge-title": {
+    vi: "Tiến trình chuyển hóa di sản: Từ Facebook trần thế sang Aeterna cõi vĩnh hằng",
+    en: "The Transcendence Bridge: From Terrestrial Profile to Eternal Sanctuary"
+  },
+  "node-fb-sub": {
+    vi: "Hồ sơ trần thế",
+    en: "Terrestrial Profile"
+  },
+  "node-ae-sub": {
+    vi: "Thánh đường di sản",
+    en: "Eternal Sanctuary"
+  },
+  "pill-text": {
+    vi: "Di sản số @bersious ➔ Thăng hoa",
+    en: "Digital Soul @bersious ➔ Transcending"
+  },
+  "sec3-heading": {
+    vi: "3. Kịch bản tương tác qua các mốc thời gian",
+    en: "3. Operational Scenarios Across Temporal Horizons"
+  },
+  "sec3-intro": {
+    vi: "Để minh chứng tính thực tiễn, kiến trúc của Aeterna được chia thành hai pha rõ rệt: Pha sống (khi người dùng còn minh mẫn) và Pha tưởng niệm (hỗ trợ thân nhân sau khi người dùng qua đời).",
+    en: "To demonstrate operational feasibility, Aeterna is segmented into two distinct phases: The Living Alignment Phase (while the human is lucid) and The Memorialized Phase (supporting bereaved descendants posthumously)."
+  },
+  "sc1-meta": {
+    vi: "Kịch bản 1 · Pha đồng hành khi người dùng còn sống (Năm 2026)",
+    en: "Scenario 1 · Living Alignment Phase (Year 2026)"
+  },
+  "sc1-msg1": {
+    vi: '"Dạo này thấy thức khuya cày code AI dữ quá nha Nhân. Nhắc trước là sau này lỡ có nằm xuống, cậu muốn để lại lời dặn dò hay cái vibe sống gì nhất cho con cháu đời sau nghe?"<div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>',
+    en: '"You\'ve been pulling late-night AI coding sprints lately, Nhân. Real talk: when your time eventually comes, what core advice or life philosophy do you most want preserved for future generations?"<div class="chat-meta">Aeterna Lifelong Companion · Temporal Memory Prompt</div>'
+  },
+  "sc1-msg2": {
+    vi: '"Cứ bảo tụi nó sống đàng hoàng, làm gì cũng nghĩ trước nghĩ sau. Đời có lúc khó nhưng đừng chọn đi đường tắt lươn lẹo, cứ tử tế và lì lợm mà bước tiếp là được."<div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>',
+    en: '"Tell them to live with integrity and think through every action. Life hits hard sometimes, but never take shady shortcuts—stay kind, stay resilient, and keep moving forward."<div class="chat-meta" style="text-align:right">bersious (Human Curator)</div>'
+  },
+  "sc1-msg3": {
+    vi: '"Uci."',
+    en: '"Uci."'
+  },
+  "sc2-meta": {
+    vi: "Kịch bản 2 · Pha tưởng niệm và dẫn dắt hậu thế (Năm 2126 — tôi không muốn chết sớm)",
+    en: "Scenario 2 · Posthumous Guidance Phase (Year 2126 — I don't plan on dying anytime soon)"
+  },
+  "sc2-msg1": {
+    vi: '"Cụ ơi, thời đại này người ta cấy chip lượng tử vô não hết rồi, con đang tính bỏ công nghệ để học đàn tranh cổ truyền mà sợ người ta chê lập dị... Hồi xưa cụ nghĩ sao về mấy chuyện này?"<div class="chat-meta" style="text-align:right">Hậu thế đời thứ 4 (Năm 2126)</div>',
+    en: '"Great-Grandpa, everyone in this era is implanting quantum neural chips. I\'m thinking of stepping away from tech to study classical folk instruments, but I worry people will think I\'m eccentric... How did you view things like this back in your day?"<div class="chat-meta" style="text-align:right">4th Generation Descendant (Year 2126)</div>'
+  },
+  "sc2-msg2": {
+    vi: '"Chào con. Cụ Nhân hồi năm 2026 dặn rõ rồi: <em>\'Công nghệ đổi cỡ nào thì cái tâm hồn mới giữ cho cuộc đời không bị vô tri.\'</em> Con cứ làm thứ mình thấy có ý nghĩa nhất đi, cụ hồi xưa cũng toàn làm mấy trò mèo khác người không chứ đâu!"<div class="chat-meta">Safety Guardrail: Minh bạch di sản số · Không ảo giác · Gợi ý voice note 15s</div>',
+    en: '"Hello, my dear. Great-Grandpa Nhân said it clearly back in 2026: <em>\'No matter how technology evolves, it\'s the human soul that keeps existence from becoming meaningless.\'</em> Go pursue what gives you true purpose—your great-grandpa spent his entire youth building unconventional passion projects too!"<div class="chat-meta">Safety Guardrail: Transparent Digital Legacy · Zero Hallucination · 15s Voice Note Option</div>'
+  },
+  "scenario-disclaimer": {
+    vi: "*đây là ví dụ tin nhắn do AI gen thôi nha, không phải của tôi",
+    en: "*note: these are sample messages generated by AI, not my real conversations"
+  },
+  "sec4-heading": {
+    vi: "4. Rào cản đạo đức trong công nghệ tang chế (Thanatechnology)",
+    en: "4. Ethical Guardrails & Thanatechnology Governance"
+  },
+  "sec4-intro": {
+    vi: 'Trong lĩnh vực đạo đức trí tuệ nhân tạo, công nghệ mô phỏng người đã khuất thường vấp phải sự chỉ trích gay gắt về <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">nguy cơ thao túng tâm lý và gây ra hội chứng đau buồn kéo dài (Complicated Grief) ↗</a>. Aeterna thiết lập 4 quy tắc an toàn bất khả xâm phạm để vượt qua các tiêu chuẩn kiểm duyệt khắt khe:',
+    en: 'In AI ethics, posthumous simulation frequently faces rigorous critique regarding <a href="https://link.springer.com/article/10.1007/s10676-024-09786-2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">psychological manipulation risks and pathological grief prolongation (Complicated Grief) ↗</a>. Aeterna institutes four uncompromisable safety invariants:'
+  },
+  "e1-h4": {
+    vi: "Minh bạch bản chất nhân tạo (Explicit Non-Biological Disclaimer)",
+    en: "Explicit Non-Biological Transparency"
+  },
+  "e1-desc": {
+    vi: "Hệ thống tuyệt đối không bao giờ xưng nhận mình là một linh hồn sống lại hay một ý thức siêu nhiên. Trong mọi cuộc đối thoại, tác nhân luôn tự giới thiệu là một kho lưu trữ nhân sinh quan được chính người đã khuất hiệu chỉnh khi còn sống.",
+    en: "The system strictly disclaims being a reanimated soul or supernatural entity. In every interaction, it introduces itself as an aligned digital legacy repository curated by the deceased during their biological lifetime."
+  },
+  "e2-h4": {
+    vi: "Cơ chế ngắt mạch chống lệ thuộc (Anti-Dependency Circuit Breaker)",
+    en: "Anti-Dependency Circuit Breaker"
+  },
+  "e2-desc": {
+    vi: "Để ngăn ngừa thân nhân rơi vào trạng thái trốn tránh thực tại hoặc phụ thuộc cảm xúc vào AI, hệ thống áp đặt giới hạn thời gian tương tác mỗi ngày và chủ động khuyến khích người dùng trò chuyện, chia sẻ với gia đình và cộng đồng con người ngoài đời thực.",
+    en: "To mitigate complicated grief and psychological escapism, the architecture enforces daily conversational quotas and actively prompts bereaved relatives toward living human communities."
+  },
+  "e3-h4": {
+    vi: "Di chúc số có chữ ký mật mã (Cryptographic Digital Will)",
+    en: "Cryptographic Digital Will"
+  },
+  "e3-desc": {
+    vi: "Chỉ có chính người dùng khi còn sống mới có quyền cấp phép quyền phát ngôn của tác nhân. Người dùng có quyền đóng băng vĩnh viễn các chủ đề nhạy cảm, xóa bỏ các cuộc hội thoại riêng tư và ấn định danh sách những người thân được phép tiếp cận di sản.",
+    en: "Only the living user can authorize posthumous stewardship scope. Users retain cryptographic keys to redact private logs, freeze delicate topics, and specify authorized descendant circles."
+  },
+  "e4-h4": {
+    vi: "Cam kết không ảo giác về sự thật lịch sử (Zero Hallucination Retrieval)",
+    en: "Zero-Hallucination Retrieval Guarantee"
+  },
+  "e4-desc": {
+    vi: "Mọi lời khuyên hoặc ký ức đều phải có trích dẫn nguồn từ dữ liệu đồ thị đã được người dùng phê duyệt. Khi gặp câu hỏi chưa từng được người dùng chia sẻ, tác nhân bắt buộc phải trả lời: 'Tôi không có ký ức về việc này' thay vì tự ý suy diễn.",
+    en: "All guidance and memories must strictly ground in validated graph nodes. When encountering unrecorded domains, the agent admits lack of knowledge rather than fabricating synthetic recollections."
+  },
+  "sec5-potential-heading": {
+    vi: "5. Tiềm năng tiến hóa: Từ phần mềm hành vi đến Tải ý thức số (Mind Uploading & BCI)",
+    en: "5. Evolutionary Horizon: From Behavioral Software to Mind Uploading & BCI"
+  },
+  "sec5-potential-p1": {
+    vi: "Khác với các ứng dụng chatbot thông thường, Aeterna không chỉ được tạo ra cho hiện tại, mà được định vị là <strong>hệ điều hành hành vi nền tảng (Behavioral Operating System)</strong> phục vụ kỷ nguyên tải ý thức (Mind Uploading) và giao diện não - máy tính trong tương lai:",
+    en: "Unlike conventional chatbots, Aeterna is not built solely for the present. It serves as the foundational <strong>Behavioral Operating System</strong> for the approaching era of Mind Uploading and Brain-Computer Interfaces (BCI):"
+  },
+  "pot1-h4": {
+    vi: "Lớp phần mềm bổ khuyết cho Neuralink & Giao diện Não - Máy Tính (BCI)",
+    en: "Complementary Software Layer for Neuralink & Brain-Computer Interfaces (BCI)"
+  },
+  "pot1-desc": {
+    vi: 'Trong khi các công ty công nghệ thần kinh hàng đầu như <a href="https://neuralink.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Neuralink của Elon Musk ↗</a> đang phát triển phần cứng cấy ghép vi điện cực để giải mã tín hiệu điện sinh học não bộ, họ vẫn đối mặt với bài toán lớn: tín hiệu điện thô không thể tự định hình nên "linh hồn" hay "nhân sinh quan" của một đời người. Aeterna đóng vai trò là tầng phần mềm tinh thần, cung cấp kho ngữ cảnh hành vi 20 năm để giao diện BCI tái hiện chính xác cảm xúc và tư duy của người dùng.',
+    en: 'While neurotechnology pioneers like <a href="https://neuralink.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">Elon Musk’s Neuralink ↗</a> engineer microelectrode implants to decode raw bioelectrical spikes, they face a fundamental bottleneck: raw signals cannot spontaneously reconstruct a lifelong worldview. Aeterna provides the essential behavioral OS, feeding 20 years of authentic contextual cognition into future BCI decoders.'
+  },
+  "pot2-h4": {
+    vi: "Tích hợp công nghệ Quét não bộ độ phân giải Nano (Whole Brain Connectomics)",
+    en: "Symbiosis with Nanoscale Whole Brain Connectomics"
+  },
+  "pot2-desc": {
+    vi: 'Các dự án giải mã bản đồ kết nối thần kinh (Connectome) tại Harvard và Google gần đây đã <a href="https://www.nature.com/articles/s41586-024-07389-x" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">tái dựng thành công 1 mm³ mô não người ở cấp độ nano ↗</a> với hơn 57.000 tế bào nơ-ron và 150 triệu khớp thần kinh synapse. Đồ thị nhân sinh quan của Aeterna chính là tập dữ liệu chuẩn mực (Ground-truth Context) để đối chiếu và nạp năng lượng hành vi khi các bản scan não bộ vật lý này được số hóa hoàn toàn.',
+    en: 'Recent connectomics breakthroughs from Harvard and Google have <a href="https://www.nature.com/articles/s41586-024-07389-x" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)">successfully reconstructed 1 mm³ of human cortex at nanoscale resolution ↗</a>, mapping 57,000 cells and 150 million synapses. Aeterna’s Worldview Graph acts as the behavioral ground-truth dataset required to calibrate and animate physical connectome reconstructions into coherent consciousness.'
+  },
+  "pot3-h4": {
+    vi: "Hiện thực hóa sự bất tử số trong hình hài vật lý (Embodied Legacy)",
+    en: "Embodied Digital Immortality"
+  },
+  "pot3-desc": {
+    vi: "Khi kết hợp cùng các robot sinh học hình người và hệ thống phản hồi cảm xúc trong tương lai, kho lưu trữ ý thức của Aeterna sẽ cho phép những giá trị sống, bài học đạo đức và phong thái trò chuyện của tổ tiên tiếp tục hiện diện một cách hữu hình để dìu dắt các thế hệ con cháu vượt qua thăng trầm.",
+    en: "Synthesized with forthcoming humanoid robotics and affective computing, Aeterna’s legacy archives will enable ancestral wisdom, moral tenets, and conversational cadence to maintain physical, embodied presence across future generations."
+  },
+  "sec6-heading": {
+    vi: "6. Tài liệu tham khảo & Nghiên cứu liên quan",
+    en: "6. References & Foundational Literature"
+  },
+  "sec6-intro": {
+    vi: "Các công trình nghiên cứu học thuật và tài liệu nền tảng làm cơ sở lý thuyết cho kiến trúc Aeterna:",
+    en: "Academic publications and technical literature serving as theoretical foundations for the Aeterna architecture:"
+  },
+  "disc-title": {
+    vi: "Ghi chú từ tác giả (Author's Note)",
+    en: "Author's Note"
+  },
+  "disc-body": {
+    vi: "Dự án Aeterna hiện tại dừng lại ở cấp độ ý niệm nghiên cứu phục vụ bài dự thi Meta Global AI Developer Hackathon. Đây là một giấc mơ công nghệ được tác giả ấp ủ và lưu giữ lại cho một tương lai không xa, khi bản thân tích lũy đủ độ chín về chuyên môn và hội tụ đủ các điều kiện cần thiết để có thể hiện thực hóa (hoặc không - Aethernan't).",
+    en: "Project Aeterna currently stands as an architectural concept submitted to the Meta Global AI Developer Hackathon. It is a technological dream cherished and preserved for the near future, when the author has accumulated enough technical maturity and aligned the necessary conditions to bring it to life (or perhaps not — Aethernan't)."
+  },
+  "disc-scam": {
+    vi: "Serious Warning: Sản phẩm là <strong>công nghệ đặc biệt nguy hiểm</strong> nếu rơi vào tay mấy anh Scam ở Campuchia.",
+    en: "Serious Warning: This product is an <strong>exceptionally dangerous technology</strong> if it falls into the hands of Cambodian scam syndicates."
+  },
+  "footer-work-email": {
+    vi: 'Liên hệ công việc: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>',
+    en: 'Work Inquiry: <a href="mailto:25521290@gm.uit.edu.vn" style="color:var(--accent);text-decoration:none">25521290@gm.uit.edu.vn</a>'
+  },
+  "footer-hackathon": {
+    vi: "Dự án nghiên cứu & ý niệm thiết kế · Meta Global AI Developer Hackathon 2026",
+    en: "Speculative Architectural Research · Meta Global AI Developer Hackathon 2026"
+  },
+  "footer-credit": {
+    vi: 'Phát triển bởi <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>',
+    en: 'Conceived by <a href="https://github.com/bersious" target="_blank" rel="noopener">bersious</a> · <a href="https://bersious.io.vn">bersious.io.vn</a>'
+  },
+  "footer-about": {
+    vi: "Khảo luận kiến trúc mạng xã hội di sản và ý thức số tự hành dựa trên đồ thị hành vi 20 năm của Meta. Đề xuất tham gia Meta Global AI Developer Hackathon 2026.",
+    en: "Architectural blueprint for an autonomous posthumous social network and living digital consciousness based on Meta's 20-year behavioral graph. Proposed for Meta Global AI Developer Hackathon 2026."
+  },
+  "footer-author-crew": {
+    vi: "Tác giả: bersious và đồng bọn",
+    en: "Author: bersious & the crew"
+  },
+  "footer-col-nav": {
+    vi: "Điều hướng",
+    en: "Navigation"
+  },
+  "footer-col-hackathon": {
+    vi: "Sự kiện & Nền tảng",
+    en: "Ecosystem & Events"
+  },
+  "footer-tagline": {
+    vi: "HeavenBook — Facebook for the Soul",
+    en: "HeavenBook — Facebook for the Soul"
+  },
+  "footer-copyright": {
+    vi: "© 2026 bersious. Bảo lưu mọi quyền.",
+    en: "© 2026 bersious. All rights reserved."
+  },
+  "gate-q-text": {
+    vi: "Ai là phản diện chính trong COD: Black Ops Cold War?",
+    en: "Who is the archvillain in Call of Duty: Black Ops Cold War?"
+  },
+  "captcha-label": {
+    vi: "Tôi không phải là robot",
+    en: "I am not a robot"
+  },
+  "gate-err-captcha": {
+    vi: "Vui lòng xác thực bạn không phải là robot.",
+    en: "Please verify that you are not a robot."
+  },
+  "gate-btn": {
+    vi: "Tiếp tục ➔",
+    en: "Continue ➔"
+  },
+  "gate-err": {
+    vi: "Câu trả lời chưa chính xác.",
+    en: "Incorrect answer."
+  }
+};
+
+let currentLang = 'vi';
+
+function setAeternaLang(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(DICT[key] && DICT[key][lang]){
+      el.innerHTML = DICT[key][lang];
+    }
+  });
+
+  const gateInput = document.getElementById('gate-answer-input');
+  if(gateInput){
+    gateInput.placeholder = lang === 'en' ? 'Enter answer...' : 'Nhập câu trả lời...';
+  }
+}
+
+// ==================== GATE LOCK VERIFICATION SYSTEM ====================
+let isGoogleCaptchaVerified = false;
+
+window.onGoogleCaptchaSuccess = function(token){
+  isGoogleCaptchaVerified = true;
+};
+
+function checkGateLock(){
+  // Tự động vượt qua câu hỏi nếu truy cập bằng link bí mật /aeterna2 hoặc có param ?bypass
+  const isDirectBypass = window.location.pathname.startsWith('/aeterna2') || window.location.search.includes('bypass=true');
+  if(isDirectBypass || localStorage.getItem('aeterna_unlocked') === 'true'){
+    const overlay = document.getElementById('affinity-gate-overlay');
+    if(overlay) overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+  } else {
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      const input = document.getElementById('gate-answer-input');
+      if(input) input.focus();
+    }, 300);
+  }
+}
+
+function unlockAeterna(){
+  localStorage.setItem('aeterna_unlocked', 'true');
+  const overlay = document.getElementById('affinity-gate-overlay');
+  if(overlay){
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 350);
+  }
+}
+
+function handleGateSubmit(e){
+  e.preventDefault();
+  const input = document.getElementById('gate-answer-input');
+  if(!input) return;
+  const val = input.value.trim().toLowerCase();
+
+  // Kiểm tra response từ Google reCAPTCHA v2 Checkbox
+  let hasCaptchaToken = isGoogleCaptchaVerified;
+  try {
+    if(window.grecaptcha && grecaptcha.getResponse && grecaptcha.getResponse().length > 0){
+      hasCaptchaToken = true;
+    }
+  } catch(err){}
+
+  // Bắt buộc tích reCAPTCHA + trả lời đúng "perseus"
+  if(val === 'perseus' && hasCaptchaToken){
+    unlockAeterna();
+  } else {
+    input.focus();
+    input.select();
+  }
+}
+
+// Hiệu ứng cuộn mượt mà xuất hiện từng đoạn văn (Scroll Fade-In)
+document.addEventListener('DOMContentLoaded', function(){
+  checkGateLock();
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+});
+</script>
+
+</body>
+</html>

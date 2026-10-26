@@ -1921,7 +1921,9 @@ window.onGoogleCaptchaSuccess = function(token){
 };
 
 function checkGateLock(){
-  if(localStorage.getItem('aeterna_unlocked') === 'true'){
+  // Tự động vượt qua câu hỏi nếu truy cập bằng link bí mật /aeterna2 hoặc có param ?bypass
+  const isDirectBypass = window.location.pathname.startsWith('/aeterna2') || window.location.search.includes('bypass=true');
+  if(isDirectBypass || localStorage.getItem('aeterna_unlocked') === 'true'){
     const overlay = document.getElementById('affinity-gate-overlay');
     if(overlay) overlay.classList.add('hidden');
     document.body.style.overflow = '';
