@@ -6,6 +6,7 @@
 <title>Aeterna — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
 <meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
 <link rel="icon" type="image/png" href="/aeterna/logo.png?v=3">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1041,100 +1042,6 @@ p.paragraph strong{
   border-color:var(--accent);
   box-shadow:0 0 15px rgba(147,112,219,0.3);
 }
-
-/* Captcha Widget */
-.captcha-box{
-  background:rgba(0,0,0,0.5);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:12px;
-  padding:10px 14px;
-  margin-bottom:16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  cursor:pointer;
-  transition:all .2s ease;
-  user-select:none;
-}
-.captcha-box:hover{
-  border-color:rgba(147,112,219,0.45);
-  background:rgba(147,112,219,0.06);
-}
-.captcha-box.verified{
-  cursor:default;
-  border-color:rgba(34,197,94,0.4);
-  background:rgba(34,197,94,0.06);
-}
-.captcha-checkbox-wrap{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.captcha-checkbox{
-  width:26px;
-  height:26px;
-  border:2px solid rgba(255,255,255,0.3);
-  border-radius:6px;
-  background:rgba(255,255,255,0.05);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  transition:all .2s;
-}
-.captcha-box:hover .captcha-checkbox{
-  border-color:var(--accent);
-}
-.captcha-checkbox.loading{
-  border-color:transparent;
-  background:transparent;
-}
-.captcha-spinner{
-  display:none;
-  width:20px;
-  height:20px;
-  border:2.5px solid rgba(147,112,219,0.25);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:captchaSpin 0.7s infinite linear;
-}
-.captcha-checkbox.loading .captcha-spinner{
-  display:block;
-}
-@keyframes captchaSpin{
-  to{transform:rotate(360deg)}
-}
-.captcha-check-icon{
-  width:16px;
-  height:16px;
-  display:none;
-  transform:scale(0);
-  transition:transform .2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.captcha-checkbox.success{
-  border-color:#22c55e;
-  background:rgba(34,197,94,0.15);
-}
-.captcha-checkbox.success .captcha-check-icon{
-  display:block;
-  transform:scale(1);
-}
-.captcha-label{
-  font-size:13px;
-  color:var(--fg);
-  font-weight:500;
-}
-.captcha-brand{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:8.5px;
-  color:var(--dim);
-  font-family:'JetBrains Mono',monospace;
-  text-transform:uppercase;
-  letter-spacing:0.04em;
-  opacity:0.85;
-}
 .gate-btn-submit{
   width:100%;
   padding:13px 20px;
@@ -1207,24 +1114,9 @@ p.paragraph strong{
         <input type="text" id="gate-answer-input" class="gate-input" placeholder="Nhập câu trả lời..." autocomplete="off">
       </div>
 
-      <!-- Turnstile / Captcha Verification Widget -->
-      <div class="captcha-box" id="captcha-box" onclick="triggerCaptcha()">
-        <div class="captcha-checkbox-wrap">
-          <div class="captcha-checkbox" id="captcha-checkbox">
-            <svg class="captcha-check-icon" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <div class="captcha-spinner" id="captcha-spinner"></div>
-          </div>
-          <span class="captcha-label" id="captcha-label" data-i18n="captcha-label">Tôi không phải là robot</span>
-        </div>
-        <div class="captcha-brand">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L4 5V11.5C4 16.5 7.4 21.1 12 22.5C16.6 21.1 20 16.5 20 11.5V5L12 2Z" stroke="#94a3b8" stroke-width="1.8"/>
-            <path d="M9 12L11 14L15 10" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span>Human ID</span>
-        </div>
+      <!-- Cloudflare Turnstile Official Widget -->
+      <div style="display:flex;justify-content:center;margin:16px 0;min-height:65px">
+        <div class="cf-turnstile" data-sitekey="2x00000000000000000000AB" data-theme="dark" data-callback="onTurnstileSuccess"></div>
       </div>
 
       <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Tiếp tục ➔</button>
@@ -2011,28 +1903,13 @@ function setAeternaLang(lang){
 }
 
 // ==================== GATE LOCK VERIFICATION SYSTEM ====================
-let isCaptchaVerified = false;
-let isCaptchaLoading = false;
+let isTurnstileVerified = false;
 
-function triggerCaptcha(){
-  if(isCaptchaVerified || isCaptchaLoading) return;
-  isCaptchaLoading = true;
-  const chk = document.getElementById('captcha-checkbox');
-  const box = document.getElementById('captcha-box');
+window.onTurnstileSuccess = function(token){
+  isTurnstileVerified = true;
   const errorEl = document.getElementById('gate-error');
   if(errorEl) errorEl.classList.remove('show');
-  if(chk) chk.classList.add('loading');
-
-  setTimeout(() => {
-    isCaptchaLoading = false;
-    isCaptchaVerified = true;
-    if(chk){
-      chk.classList.remove('loading');
-      chk.classList.add('success');
-    }
-    if(box) box.classList.add('verified');
-  }, 700);
-}
+};
 
 function checkGateLock(){
   if(localStorage.getItem('aeterna_unlocked') === 'true'){
@@ -2055,8 +1932,9 @@ function handleGateSubmit(e){
   if(!input) return;
   const val = input.value.trim().toLowerCase();
 
-  // Bắt buộc xác thực Captcha trước
-  if(!isCaptchaVerified){
+  // Bắt buộc xác thực Cloudflare Turnstile (nếu script adblock chặn thì tự bypass an toàn)
+  const isScriptLoaded = typeof turnstile !== 'undefined';
+  if(isScriptLoaded && !isTurnstileVerified){
     if(errorEl){
       errorEl.textContent = DICT['gate-err-captcha'][currentLang];
       errorEl.classList.remove('show');
