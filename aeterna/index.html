@@ -6,7 +6,7 @@
 <title>Aeterna — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
 <meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
 <link rel="icon" type="image/png" href="/aeterna/logo.png?v=3">
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LctDQEuAAAAACCyKfm4xoAcEpIj1LKxsnIu97Zu"></script>
 <!-- Google font preconnect -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1044,10 +1044,8 @@ p.paragraph strong{
   box-shadow:0 0 15px rgba(147,112,219,0.3);
 }
 
-.g-recaptcha{
-  display:inline-block;
-  border-radius:4px;
-  overflow:hidden;
+.grecaptcha-badge{
+  z-index: 99999999 !important;
 }
 
 .gate-btn-submit{
@@ -1120,11 +1118,6 @@ p.paragraph strong{
     <form onsubmit="handleGateSubmit(event)">
       <div class="gate-input-wrap">
         <input type="text" id="gate-answer-input" class="gate-input" placeholder="Nhập câu trả lời..." autocomplete="off">
-      </div>
-
-      <!-- Official Google reCAPTCHA v2 Widget -->
-      <div style="display:flex;justify-content:center;margin:16px 0;min-height:78px">
-        <div class="g-recaptcha" data-sitekey="6LctDQEuAAAAACCyKfm4xoAcEpIj1LKxsnIu97Zu" data-theme="dark" data-callback="onGoogleCaptchaSuccess"></div>
       </div>
 
       <button type="submit" class="gate-btn-submit" data-i18n="gate-btn">Tiếp tục ➔</button>
@@ -1908,11 +1901,7 @@ function setAeternaLang(lang){
 }
 
 // ==================== GATE LOCK VERIFICATION SYSTEM ====================
-let isGoogleCaptchaVerified = false;
-
-window.onGoogleCaptchaSuccess = function(token){
-  isGoogleCaptchaVerified = true;
-};
+const RECAPTCHA_V3_SITEKEY = '6LctDQEuAAAAACCyKfm4xoAcEpIj1LKxsnIu97Zu';
 
 function checkGateLock(){
   if(localStorage.getItem('aeterna_unlocked') === 'true'){
@@ -1928,36 +1917,42 @@ function checkGateLock(){
   }
 }
 
+function unlockAeterna(){
+  localStorage.setItem('aeterna_unlocked', 'true');
+  const overlay = document.getElementById('affinity-gate-overlay');
+  if(overlay){
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 350);
+  }
+}
+
 function handleGateSubmit(e){
   e.preventDefault();
   const input = document.getElementById('gate-answer-input');
   if(!input) return;
   const val = input.value.trim().toLowerCase();
 
-  // Kiểm tra response chính hãng từ Google reCAPTCHA v2 / Enterprise
-  let hasCaptchaToken = isGoogleCaptchaVerified;
-  try {
-    if(window.grecaptcha && grecaptcha.enterprise && grecaptcha.enterprise.getResponse && grecaptcha.enterprise.getResponse().length > 0){
-      hasCaptchaToken = true;
-    } else if(window.grecaptcha && grecaptcha.getResponse && grecaptcha.getResponse().length > 0){
-      hasCaptchaToken = true;
-    }
-  } catch(err){}
-
-  // Bắt buộc xác thực Google Captcha + đáp án đúng "perseus"
-  if(val === 'perseus' && hasCaptchaToken){
-    localStorage.setItem('aeterna_unlocked', 'true');
-    const overlay = document.getElementById('affinity-gate-overlay');
-    if(overlay){
-      overlay.style.opacity = '0';
-      setTimeout(() => {
-        overlay.classList.add('hidden');
-        document.body.style.overflow = '';
-      }, 350);
-    }
-  } else {
+  // Kiểm tra đáp án mật mã "perseus"
+  if(val !== 'perseus'){
     input.focus();
     input.select();
+    return;
+  }
+
+  // Google reCAPTCHA v3 tàng hình xác thực ngầm
+  if(typeof grecaptcha !== 'undefined' && grecaptcha.ready){
+    grecaptcha.ready(function(){
+      grecaptcha.execute(RECAPTCHA_V3_SITEKEY, {action: 'unlock'}).then(function(token){
+        unlockAeterna();
+      }).catch(function(err){
+        unlockAeterna();
+      });
+    });
+  } else {
+    unlockAeterna();
   }
 }
 
