@@ -1045,7 +1045,15 @@ p.paragraph strong{
 }
 
 .grecaptcha-badge{
+  transform: scale(0.68) !important;
+  transform-origin: bottom right !important;
   z-index: 99999999 !important;
+  opacity: 0.75 !important;
+  transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+.grecaptcha-badge:hover{
+  transform: scale(0.82) !important;
+  opacity: 1 !important;
 }
 
 .gate-btn-submit{
