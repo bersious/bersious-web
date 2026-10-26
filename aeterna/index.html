@@ -6,7 +6,7 @@
 <title>Aeterna — Khảo Luận Kiến Trúc Di Sản Số · Meta Global AI Developer Hackathon</title>
 <meta name="description" content="Đề xuất kiến trúc bảo tồn nhân sinh quan và di sản số tương tác dựa trên dấu ấn hành vi 20 năm của Meta. Một ý tưởng tham gia Meta Global AI Developer Hackathon.">
 <link rel="icon" type="image/png" href="/aeterna/logo.png?v=3">
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
 <!-- Google font preconnect -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1934,10 +1934,12 @@ function handleGateSubmit(e){
   if(!input) return;
   const val = input.value.trim().toLowerCase();
 
-  // Kiểm tra response chính hãng từ Google reCAPTCHA v2
+  // Kiểm tra response chính hãng từ Google reCAPTCHA v2 / Enterprise
   let hasCaptchaToken = isGoogleCaptchaVerified;
   try {
-    if(typeof grecaptcha !== 'undefined' && grecaptcha.getResponse && grecaptcha.getResponse().length > 0){
+    if(window.grecaptcha && grecaptcha.enterprise && grecaptcha.enterprise.getResponse && grecaptcha.enterprise.getResponse().length > 0){
+      hasCaptchaToken = true;
+    } else if(window.grecaptcha && grecaptcha.getResponse && grecaptcha.getResponse().length > 0){
       hasCaptchaToken = true;
     }
   } catch(err){}
