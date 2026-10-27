@@ -962,9 +962,11 @@ p.paragraph strong{
   background:linear-gradient(145deg, rgba(20,26,42,0.96), rgba(12,15,26,0.98));
   border:1px solid rgba(168,85,247,0.45);
   border-radius:24px;
-  padding:36px 32px;
+  padding:26px 24px;
   max-width:460px;
   width:100%;
+  max-height:92vh;
+  overflow-y:auto;
   box-shadow:0 25px 60px -15px rgba(0,0,0,0.85), 0 0 35px rgba(147,112,219,0.3);
   text-align:center;
   position:relative;
@@ -1885,9 +1887,13 @@ const DICT = {
     vi: 'Aeterna · Khảo luận kiến trúc phát triển trên cùng <strong>Hệ sinh thái Meta</strong>',
     en: 'Aeterna · Architectural concept anchored within the <strong>Meta Ecosystem</strong>'
   },
-  "gate-q-text": {
+  "gate-q1-text": {
     vi: "Ai là phản diện chính trong COD: Black Ops Cold War?",
     en: "Who is the archvillain in Call of Duty: Black Ops Cold War?"
+  },
+  "gate-q2-text": {
+    vi: "Phòng hiệu trưởng của trường UIT là phòng nào?",
+    en: "Which room is the Principal/President's Office at UIT?"
   },
   "captcha-label": {
     vi: "Tôi không phải là robot",
@@ -1907,7 +1913,7 @@ const DICT = {
   }
 };
 
-let currentLang = 'vi';
+let currentLang = 'en';
 
 function setAeternaLang(lang){
   currentLang = lang;
@@ -1922,9 +1928,13 @@ function setAeternaLang(lang){
     }
   });
 
-  const gateInput = document.getElementById('gate-answer-input');
-  if(gateInput){
-    gateInput.placeholder = lang === 'en' ? 'Enter answer...' : 'Nhập câu trả lời...';
+  const gateInput1 = document.getElementById('gate-answer-input');
+  if(gateInput1){
+    gateInput1.placeholder = lang === 'en' ? 'Enter answer...' : 'Nhập câu trả lời...';
+  }
+  const gateInput2 = document.getElementById('gate-uit-input');
+  if(gateInput2){
+    gateInput2.placeholder = lang === 'en' ? 'e.g. C316, B4.18, A205...' : 'VD: C316, B4.18, A205...';
   }
 }
 
@@ -1965,9 +1975,12 @@ function unlockAeterna(){
 
 function handleGateSubmit(e){
   e.preventDefault();
-  const input = document.getElementById('gate-answer-input');
-  if(!input) return;
-  const val = input.value.trim().toLowerCase();
+  const input1 = document.getElementById('gate-answer-input');
+  const input2 = document.getElementById('gate-uit-input');
+  if(!input1 || !input2) return;
+
+  const val1 = input1.value.trim().toLowerCase();
+  const val2 = input2.value.trim().toLowerCase().replace(/[\s\.\-_]/g, '');
 
   // Kiểm tra response từ Google reCAPTCHA v2 Checkbox
   let hasCaptchaToken = isGoogleCaptchaVerified;
@@ -1977,17 +1990,26 @@ function handleGateSubmit(e){
     }
   } catch(err){}
 
-  // Bắt buộc tích reCAPTCHA + trả lời đúng "perseus"
-  if(val === 'perseus' && hasCaptchaToken){
+  // Câu 1: Perseus | Câu 2: A115 | Và xác thực Captcha
+  const isQ1Correct = (val1 === 'perseus');
+  const isQ2Correct = (val2 === 'a115' || val2 === 'phonga115' || val2 === 'rooma115');
+
+  if(isQ1Correct && isQ2Correct && hasCaptchaToken){
     unlockAeterna();
   } else {
-    input.focus();
-    input.select();
+    if(!isQ1Correct){
+      input1.focus();
+      input1.select();
+    } else if(!isQ2Correct){
+      input2.focus();
+      input2.select();
+    }
   }
 }
 
 // Hiệu ứng cuộn mượt mà xuất hiện từng đoạn văn (Scroll Fade-In)
 document.addEventListener('DOMContentLoaded', function(){
+  setAeternaLang('en');
   checkGateLock();
 
   const observer = new IntersectionObserver((entries) => {
