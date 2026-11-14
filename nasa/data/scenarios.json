@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "version": "0.1",
+    "note": "Scenarios define the objective the player must satisfy. Objectives are checked by the engine against computed metrics.",
+    "objective_fields": {
+      "metric": "value computed by the simulation engine",
+      "operator": "min | max",
+      "target": "threshold to satisfy",
+      "weight": "relative importance within the scenario (sums to 1.0)"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "climate_watch",
+      "name": "Climate Watch",
+      "difficulty": "beginner",
+      "budget_musd": 180.0,
+      "duration_months": 36,
+      "story": "A climate agency needs continuous, comparable multispectral observations of land and ocean temperature for a 3-year climate record.",
+      "objectives": [
+        { "id": "o1", "label": "Multispectral imaging capability", "metric": "science_imaging", "operator": "min", "target": 130, "weight": 0.30,
+          "explain": "Sum of science value across imaging-category instruments." },
+        { "id": "o2", "label": "Thermal observation capability", "metric": "science_thermal", "operator": "min", "target": 60, "weight": 0.20,
+          "explain": "Thermal IR or microwave radiometry on board." },
+        { "id": "o3", "label": "Revisit time", "metric": "revisit_hours", "operator": "max", "target": 14, "weight": 0.15,
+          "explain": "How often the satellite passes over the same target." },
+        { "id": "o4", "label": "Mission lifetime", "metric": "lifetime_years", "operator": "min", "target": 3, "weight": 0.20,
+          "explain": "Propellant-limited lifetime must cover the full record." },
+        { "id": "o5", "label": "Data delivered", "metric": "data_delivered_pct", "operator": "min", "target": 90, "weight": 0.15,
+          "explain": "Percent of generated data actually downlinked." }
+      ],
+      "hints": "A medium bus, medium array, hires camera + thermal sounder in SSO 400 fits comfortably. Watch the 20 GB/day downlink problem.",
+      "designer_note": "Deliberately generous budget so the first playthrough is winnable."
+    },
+    {
+      "id": "disaster_response",
+      "name": "Disaster Response",
+      "difficulty": "intermediate",
+      "budget_musd": 120.0,
+      "duration_months": 24,
+      "story": "After a season of record floods, a regional government needs imagery within 6 hours of request — day or night, through cloud.",
+      "objectives": [
+        { "id": "o1", "label": "All-weather imaging", "metric": "science_radar", "operator": "min", "target": 80, "weight": 0.35,
+          "explain": "SAR is the only instrument that sees through cloud and darkness." },
+        { "id": "o2", "label": "Revisit time (single satellite)", "metric": "revisit_hours", "operator": "max", "target": 9, "weight": 0.30,
+          "explain": "Floods move fast; a 12-hour revisit misses the peak. Sub-6h would need a constellation — out of scope." },
+        { "id": "o3", "label": "Mission lifetime", "metric": "lifetime_years", "operator": "min", "target": 2, "weight": 0.15,
+          "explain": "Must cover two flood seasons." },
+        { "id": "o4", "label": "Data delivered", "metric": "data_delivered_pct", "operator": "min", "target": 85, "weight": 0.20,
+          "explain": "SAR generates 40 GB/day — downlink is the hard part." }
+      ],
+      "hints": "SAR (180 W) + fast revisit forces either LEO 550 or a large array. Budget is tight: the Ka-band terminal may be worth more than a second science instrument.",
+      "designer_note": "The intended lesson: sometimes the enabling hardware (comms) beats more science."
+    },
+    {
+      "id": "space_weather",
+      "name": "Space Weather Sentinel",
+      "difficulty": "advanced",
+      "budget_musd": 220.0,
+      "duration_months": 60,
+      "story": "Aviation and power-grid operators need continuous monitoring of solar-wind particles and the geomagnetic field for 5 years.",
+      "objectives": [
+        { "id": "o1", "label": "Particle measurement", "metric": "science_plasma", "operator": "min", "target": 70, "weight": 0.30,
+          "explain": "Plasma analyzer on board." },
+        { "id": "o2", "label": "Magnetic field measurement", "metric": "science_magnetometry", "operator": "min", "target": 40, "weight": 0.25,
+          "explain": "Magnetometer on board." },
+        { "id": "o3", "label": "Mission lifetime", "metric": "lifetime_years", "operator": "min", "target": 5, "weight": 0.25,
+          "explain": "Five years of continuous coverage." },
+        { "id": "o4", "label": "Comm availability", "metric": "comm_window_pct", "operator": "min", "target": 60, "weight": 0.20,
+          "explain": "Alerts must reach the ground within minutes, not hours." }
+      ],
+      "hints": "The comm requirement pushes you toward MEO or GEO — where radiation is high and lifetime is long. Plasma analyzer earns its keep here.",
+      "designer_note": "Teaches that orbit choice is driven by the objective, not by habit."
+    }
+  ]
+}

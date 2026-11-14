@@ -1,0 +1,83 @@
+{
+  "_meta": {
+    "version": "0.1",
+    "note": "Random events are seeded per simulation run so runs are reproducible and shareable.",
+    "fields": {
+      "trigger_phase": "launch | commissioning | operations | deorbit",
+      "probability": "chance the event fires in a given run, before difficulty modifiers",
+      "effect": "applied by the simulation engine"
+    }
+  },
+  "events": [
+    {
+      "id": "solar_flare",
+      "name": "Solar Flare",
+      "trigger_phase": "operations",
+      "probability": 0.30,
+      "severity": "medium",
+      "effect": { "power_gen_pct": -12, "duration_days": 5 },
+      "narrative": "An X-class flare degrades the arrays for five days. Instruments draw more than the arrays produce.",
+      "mitigation_hint": "A larger battery buys you through events like this. So does a power margin above 10%."
+    },
+    {
+      "id": "camera_anomaly",
+      "name": "Detector Anomaly",
+      "trigger_phase": "commissioning",
+      "probability": 0.22,
+      "severity": "medium",
+      "effect": { "science_pct": -18, "duration_days": 0 },
+      "narrative": "A pixel row in the main detector is dead. Science quality drops permanently.",
+      "mitigation_hint": "Redundancy costs mass; a second instrument can absorb the loss."
+    },
+    {
+      "id": "station_outage",
+      "name": "Ground Station Outage",
+      "trigger_phase": "operations",
+      "probability": 0.28,
+      "severity": "low",
+      "effect": { "downlink_pct": -45, "duration_days": 10 },
+      "narrative": "A ground station antenna is offline for scheduled maintenance that was not scheduled.",
+      "mitigation_hint": "Data backlog builds. Onboard storage and spare downlink capacity save you."
+    },
+    {
+      "id": "launch_delay",
+      "name": "Launch Delay",
+      "trigger_phase": "launch",
+      "probability": 0.35,
+      "severity": "medium",
+      "effect": { "schedule_slip_months": 3, "cost_pct": 6 },
+      "narrative": "A range conflict pushes launch by three months. Standing army of engineers still gets paid.",
+      "mitigation_hint": "Budget reserve, or a launcher with a shorter lead time."
+    },
+    {
+      "id": "debris_conjunction",
+      "name": "Debris Conjunction",
+      "trigger_phase": "operations",
+      "probability": 0.25,
+      "severity": "low",
+      "effect": { "propellant_pct": -12, "lifetime_pct": -8 },
+      "narrative": "A close approach forces avoidance manoeuvres. Propellant is a finite resource.",
+      "mitigation_hint": "Higher orbits need fewer manoeuvres but cost more to reach."
+    },
+    {
+      "id": "battery_degradation",
+      "name": "Battery Degradation",
+      "trigger_phase": "operations",
+      "probability": 0.20,
+      "severity": "high",
+      "effect": { "battery_capacity_pct": -22, "duration_days": 0 },
+      "narrative": "Cell imbalance cuts usable capacity by a fifth. Eclipse operations are now marginal.",
+      "mitigation_hint": "Sizing the battery for 35 min of eclipse with margin, not exactly 35 min."
+    },
+    {
+      "id": "thermal_excursion",
+      "name": "Thermal Excursion",
+      "trigger_phase": "operations",
+      "probability": 0.18,
+      "severity": "high",
+      "effect": { "instrument_off_days": 14, "science_pct": -10 },
+      "narrative": "A radiator runs hot and the payload must be safed for two weeks.",
+      "mitigation_hint": "Large buses have more thermal headroom than small ones."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "version": "0.1",
+    "note": "Payload capacity in kilograms including the 15% margin rule applied by the engine.",
+    "classes": {
+      "small": "can reach LEO/SSO only",
+      "medium": "can reach LEO/SSO/MEO",
+      "large": "can reach every orbit in orbits.json"
+    }
+  },
+  "launchers": [
+    {
+      "id": "electron",
+      "name": "Electron",
+      "class": "small",
+      "capacity_kg": { "leo_sso_400": 200, "leo_550": 220, "meo_20200": 0, "geo_35786": 0 },
+      "cost_musd": 7.5,
+      "lead_time_months": 6,
+      "blurb": "Cheap dedicated ride for a small satellite.",
+      "tradeoff": "200 kg ceiling — a medium bus alone will not fit."
+    },
+    {
+      "id": "falcon9_rideshare",
+      "name": "Falcon 9 Rideshare (SSO)",
+      "class": "small",
+      "capacity_kg": { "leo_sso_400": 900, "leo_550": 900, "meo_20200": 0, "geo_35786": 0 },
+      "cost_musd": 6.0,
+      "lead_time_months": 12,
+      "blurb": "Cheapest per kilogram in history.",
+      "tradeoff": "You do not choose the launch date, and you cannot pick MEO or GEO."
+    },
+    {
+      "id": "falcon9_dedicated",
+      "name": "Falcon 9 Dedicated",
+      "class": "medium",
+      "capacity_kg": { "leo_sso_400": 10000, "leo_550": 13000, "meo_20200": 6000, "geo_35786": 5000 },
+      "cost_musd": 67.0,
+      "lead_time_months": 12,
+      "blurb": "You pick the date and the orbit.",
+      "tradeoff": "67M is 1/3 of a typical mission budget."
+    },
+    {
+      "id": "ariane6",
+      "name": "Ariane 6",
+      "class": "large",
+      "capacity_kg": { "leo_sso_400": 12000, "leo_550": 18000, "meo_20200": 8000, "geo_35786": 6500 },
+      "cost_musd": 90.0,
+      "lead_time_months": 18,
+      "blurb": "Heavy lift with excellent GEO performance.",
+      "tradeoff": "18-month lead time: fine for planning, fatal for a 1-year scenario."
+    },
+    {
+      "id": "falcon_heavy",
+      "name": "Falcon Heavy",
+      "class": "large",
+      "capacity_kg": { "leo_sso_400": 25000, "leo_550": 30000, "meo_20200": 12000, "geo_35786": 12000 },
+      "cost_musd": 150.0,
+      "lead_time_months": 15,
+      "blurb": "For telescopes and anything absurdly heavy.",
+      "tradeoff": "150M before a single instrument is bought."
+    }
+  ]
+}

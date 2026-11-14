@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "version": "0.1",
+    "note": "Simplified orbit model. Numbers are plausible, not flight-qualified.",
+    "fields": {
+      "revisit_hours": "time between two passes over the same target, single satellite",
+      "comm_window_pct": "percent of each orbit with a usable ground link",
+      "downlink_mbps": "raw downlink rate when in a comm window",
+      "radiation_index": "0-1 relative dose; high values need rad-hard parts (+cost)",
+      "base_lifetime_years": "propellant-limited lifetime before station-keeping runs out",
+      "cost_multiplier": "applies to the bus cost (harder environment = pricier parts)"
+    }
+  },
+  "orbits": [
+    {
+      "id": "leo_sso_400",
+      "name": "LEO Sun-Synchronous 400 km",
+      "altitude_km": 400,
+      "inclination_deg": 97.4,
+      "revisit_hours": 12,
+      "comm_window_pct": 24,
+      "downlink_mbps": 12,
+      "radiation_index": 0.15,
+      "base_lifetime_years": 3,
+      "cost_multiplier": 1.0,
+      "delta_v_to_reach_ms": 9400,
+      "launcher_classes": ["small", "medium", "large"],
+      "blurb": "Constant lighting angle — the standard imaging orbit.",
+      "tradeoff": "Only 24% of the orbit has a ground link, and atmospheric drag limits lifetime."
+    },
+    {
+      "id": "leo_550",
+      "name": "LEO 550 km (mid-inclination)",
+      "altitude_km": 550,
+      "inclination_deg": 53.0,
+      "revisit_hours": 9,
+      "comm_window_pct": 33,
+      "downlink_mbps": 12,
+      "radiation_index": 0.18,
+      "base_lifetime_years": 4,
+      "cost_multiplier": 1.02,
+      "delta_v_to_reach_ms": 9450,
+      "launcher_classes": ["small", "medium", "large"],
+      "blurb": "Better comm coverage over populated latitudes, faster revisit.",
+      "tradeoff": "Inconsistent sun angle — harder to compare images over time."
+    },
+    {
+      "id": "meo_20200",
+      "name": "MEO 20,200 km",
+      "altitude_km": 20200,
+      "inclination_deg": 55.0,
+      "revisit_hours": 48,
+      "comm_window_pct": 62,
+      "downlink_mbps": 20,
+      "radiation_index": 0.55,
+      "base_lifetime_years": 8,
+      "cost_multiplier": 1.8,
+      "delta_v_to_reach_ms": 12000,
+      "launcher_classes": ["medium", "large"],
+      "blurb": "Wide coverage, long life, lots of comm time.",
+      "tradeoff": "Terrible revisit for a single satellite, and radiation forces expensive parts."
+    },
+    {
+      "id": "geo_35786",
+      "name": "GEO 35,786 km",
+      "altitude_km": 35786,
+      "inclination_deg": 0.0,
+      "revisit_hours": 0.02,
+      "comm_window_pct": 96,
+      "downlink_mbps": 60,
+      "radiation_index": 0.7,
+      "base_lifetime_years": 12,
+      "cost_multiplier": 2.6,
+      "delta_v_to_reach_ms": 13800,
+      "launcher_classes": ["large"],
+      "blurb": "Sits still over one spot: ideal for comms and continuous weather watching.",
+      "tradeoff": "Too far for any small imager to see detail — resolution penalty is severe."
+    }
+  ]
+}

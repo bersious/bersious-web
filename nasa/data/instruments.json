@@ -1,0 +1,219 @@
+{
+  "_meta": {
+    "version": "0.1",
+    "units": {
+      "mass_kg": "kilograms",
+      "power_w": "watts, average orbit draw",
+      "cost_musd": "million USD, development + integration",
+      "data_gb_day": "gigabytes generated per day of operations",
+      "science_value": "0-100 abstract science return",
+      "downlink_gb_day": "additional downlink capacity added (utility items only)"
+    },
+    "design_rule": "Every instrument must be a trade-off: nothing here is strictly better than another option at the same budget."
+  },
+  "instruments": [
+    {
+      "id": "cam_basic",
+      "name": "Basic Optical Camera",
+      "category": "imaging",
+      "mass_kg": 12, "power_w": 15, "cost_musd": 3.0,
+      "data_gb_day": 4, "science_value": 35,
+      "resolution_m": 30,
+      "blurb": "Cheap, light, always fits. Sees weather systems, not individual buildings.",
+      "tradeoff": "Lowest science return of any imager — fine for a first mission, not for a science objective."
+    },
+    {
+      "id": "cam_hires",
+      "name": "High-Resolution Multispectral Camera",
+      "category": "imaging",
+      "mass_kg": 45, "power_w": 60, "cost_musd": 12.0,
+      "data_gb_day": 20, "science_value": 70,
+      "resolution_m": 10,
+      "blurb": "The workhorse of Earth observation. 10 m ground sampling in 8 bands.",
+      "tradeoff": "20 GB/day forces a serious downlink budget."
+    },
+    {
+      "id": "cam_stereo",
+      "name": "Stereo / 3D Imager",
+      "category": "imaging",
+      "mass_kg": 60, "power_w": 75, "cost_musd": 18.0,
+      "data_gb_day": 35, "science_value": 75,
+      "resolution_m": 15,
+      "blurb": "Two cameras, one DEM. Measures terrain height and change.",
+      "tradeoff": "Biggest data producer per unit of science — needs Ka-band or a relay."
+    },
+    {
+      "id": "radar_sar",
+      "name": "SAR Radar Imager",
+      "category": "imaging",
+      "mass_kg": 90, "power_w": 180, "cost_musd": 28.0,
+      "data_gb_day": 40, "science_value": 85,
+      "resolution_m": 5,
+      "blurb": "Sees through cloud and darkness. Floods, subsidence, sea ice.",
+      "tradeoff": "180 W is a power plant problem, not an instrument problem."
+    },
+    {
+      "id": "lidar",
+      "name": "LiDAR Altimeter",
+      "category": "geodesy",
+      "mass_kg": 35, "power_w": 55, "cost_musd": 14.0,
+      "data_gb_day": 8, "science_value": 60,
+      "resolution_m": 2,
+      "blurb": "Centimetre-precision surface height. Ice sheets and oceans.",
+      "tradeoff": "Only useful if your orbit actually repeats its ground track."
+    },
+    {
+      "id": "spec_vnir",
+      "name": "VNIR Spectrometer",
+      "category": "spectroscopy",
+      "mass_kg": 30, "power_w": 45, "cost_musd": 11.0,
+      "data_gb_day": 10, "science_value": 72,
+      "resolution_m": 20,
+      "blurb": "Identifies materials from their reflected spectrum.",
+      "tradeoff": "Needs sunlight — useless at night or in eclipse."
+    },
+    {
+      "id": "spec_tir",
+      "name": "Thermal IR Sounder",
+      "category": "spectroscopy",
+      "mass_kg": 55, "power_w": 90, "cost_musd": 18.0,
+      "data_gb_day": 12, "science_value": 80,
+      "resolution_m": 25,
+      "blurb": "Temperature and humidity profiles. Works day and night.",
+      "tradeoff": "Detector must be cooled — power and radiator area both climb."
+    },
+    {
+      "id": "radiometer",
+      "name": "Microwave Radiometer",
+      "category": "sensing",
+      "mass_kg": 40, "power_w": 70, "cost_musd": 16.0,
+      "data_gb_day": 10, "science_value": 65,
+      "resolution_m": 40,
+      "blurb": "Soil moisture, sea-surface salinity, precipitation.",
+      "tradeoff": "Large antenna aperture — mass lives in the structure, not the sensor."
+    },
+    {
+      "id": "magnetometer",
+      "name": "Magnetometer",
+      "category": "space_physics",
+      "mass_kg": 8, "power_w": 6, "cost_musd": 2.0,
+      "data_gb_day": 0.5, "science_value": 45,
+      "resolution_m": null,
+      "blurb": "Tiny, cheap, barely drinks power. Maps the magnetic field.",
+      "tradeoff": "Almost free — but magnetic cleanliness requirements constrain the whole bus."
+    },
+    {
+      "id": "plasma",
+      "name": "Plasma Analyzer",
+      "category": "space_physics",
+      "mass_kg": 18, "power_w": 30, "cost_musd": 9.0,
+      "data_gb_day": 6, "science_value": 75,
+      "resolution_m": null,
+      "blurb": "Measures the charged particles that damage electronics.",
+      "tradeoff": "Highly valuable in MEO/GEO where radiation is the risk."
+    },
+    {
+      "id": "telescope",
+      "name": "Space Telescope (0.3 m)",
+      "category": "astronomy",
+      "mass_kg": 210, "power_w": 300, "cost_musd": 55.0,
+      "data_gb_day": 35, "science_value": 95,
+      "resolution_m": 1,
+      "blurb": "The highest science value in the catalogue.",
+      "tradeoff": "210 kg + 300 W + 55M — it defines the entire mission around itself."
+    },
+    {
+      "id": "transponder_ka",
+      "name": "Ka-band High-Gain Terminal",
+      "category": "utility",
+      "mass_kg": 22, "power_w": 35, "cost_musd": 6.0,
+      "data_gb_day": 0, "science_value": 0,
+      "downlink_gb_day": 45,
+      "blurb": "Not science — it buys you downlink capacity (+45 GB/day).",
+      "tradeoff": "Pure enabler: mass, power and money spent on moving data instead of making it."
+    }
+  ],
+
+  "bus_options": {
+    "_note": "The spacecraft platform. Pick exactly one power source and one battery.",
+    "power": [
+      {
+        "id": "solar_small",
+        "name": "Deployable Solar Array — Small (5 m²)",
+        "mass_kg": 25, "power_gen_w": 90, "cost_musd": 8.0,
+        "blurb": "Cheap and light, but 90 W total generation — leave room for eclipse.",
+        "tradeoff": "Cannot support SAR or a telescope."
+      },
+      {
+        "id": "solar_medium",
+        "name": "Deployable Solar Array — Medium (15 m²)",
+        "mass_kg": 60, "power_gen_w": 260, "cost_musd": 18.0,
+        "blurb": "The balanced choice: enough for most instrument suites.",
+        "tradeoff": "60 kg of your launch capacity gone before you pick a single instrument."
+      },
+      {
+        "id": "solar_large",
+        "name": "Deployable Solar Array — Large (30 m²)",
+        "mass_kg": 110, "power_gen_w": 520, "cost_musd": 32.0,
+        "blurb": "Powers anything in the catalogue.",
+        "tradeoff": "Dominates the mass budget; drag in LEO shortens lifetime."
+      },
+      {
+        "id": "rtg",
+        "name": "Radioisotope Generator (RTG)",
+        "mass_kg": 45, "power_gen_w": 120, "cost_musd": 45.0,
+        "blurb": "Works in eclipse and at any distance from the Sun.",
+        "tradeoff": "45M for 120 W, and it decays: -0.8% power per year."
+      }
+    ],
+    "battery": [
+      {
+        "id": "bat_small",
+        "name": "Battery Pack — 400 Wh",
+        "mass_kg": 12, "cost_musd": 2.0, "capacity_wh": 400,
+        "blurb": "Covers a 35-minute eclipse for a light spacecraft."
+      },
+      {
+        "id": "bat_medium",
+        "name": "Battery Pack — 1200 Wh",
+        "mass_kg": 32, "cost_musd": 5.0, "capacity_wh": 1200,
+        "blurb": "Standard for LEO with imaging payloads."
+      },
+      {
+        "id": "bat_large",
+        "name": "Battery Pack — 3000 Wh",
+        "mass_kg": 70, "cost_musd": 11.0, "capacity_wh": 3000,
+        "blurb": "For high-draw payloads that must run through eclipse.",
+        "tradeoff": "70 kg is two instruments' worth of mass."
+      }
+    ],
+    "bus": [
+      {
+        "id": "bus_small",
+        "name": "Small Satellite Bus (150 kg class)",
+        "dry_mass_kg": 85, "cost_musd": 14.0, "max_instruments": 2,
+        "power_overhead_w": 25, "blurb": "Structure, ADCS, OBC, thermal for a 150 kg satellite."
+      },
+      {
+        "id": "bus_medium",
+        "name": "Medium Satellite Bus (500 kg class)",
+        "dry_mass_kg": 220, "cost_musd": 38.0, "max_instruments": 4,
+        "power_overhead_w": 60, "blurb": "Room for a real instrument suite."
+      },
+      {
+        "id": "bus_large",
+        "name": "Large Satellite Bus (1500 kg class)",
+        "dry_mass_kg": 620, "cost_musd": 85.0, "max_instruments": 6,
+        "power_overhead_w": 140, "blurb": "Everything fits — and so does the bill."
+      }
+    ]
+  },
+
+  "engineering_rules": {
+    "mass_margin_pct": 15,
+    "power_margin_pct": 10,
+    "battery_eclipse_minutes": 35,
+    "ops_cost_musd_per_year": 6.5,
+    "note": "Rule of thumb used by real mission designers: dry mass + 15% margin must fit the launcher."
+  }
+}

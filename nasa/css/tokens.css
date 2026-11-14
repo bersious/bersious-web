@@ -1,0 +1,135 @@
+/* ============================================================
+   css/tokens.css — BẢNG ĐIỀU KHIỂN GIAO DIỆN
+   ------------------------------------------------------------
+   ĐÂY LÀ FILE ĐỂ CHỈNH UI/UX. Muốn đổi màu, cỡ chữ, khoảng cách,
+   bo góc, tốc độ animation — sửa ở đây, KHÔNG cần đọc file logic.
+
+   Quy ước:
+     --st-*   = màn mở đầu (story)
+     --ui-*   = phần chơi chính (dashboard) — dùng sau
+     --art-*  = tranh minh hoạ
+
+   Mọi file CSS khác chỉ ĐỌC các biến này, không tự đặt số cứng.
+   ============================================================ */
+
+:root {
+
+  /* ---------- 1. BẢNG MÀU ---------- */
+
+  /* nền màn mở đầu: nâu đất sao Hoả, tối dần về đáy */
+  --st-bg-top:      #2a1608;
+  --st-bg-mid:      #6b3413;
+  --st-bg-bottom:   #b0602a;
+
+  /* màu chữ phụ đề */
+  --st-text:        #ede2d4;
+  --st-text-em:     #f0c48a;   /* chữ in nghiêng */
+  --st-name:        #ffd79a;   /* tên người chơi */
+  --st-caption:     #fff2dd;   /* dòng chú thích góc trên */
+
+  /* màu nhấn của cả màn mở đầu */
+  --st-accent:      #f0c48a;
+  --st-accent-soft: rgba(240, 196, 138, .12);
+  --st-accent-line: rgba(255, 224, 184, .38);
+
+  /* nền thanh phụ đề dưới đáy */
+  --st-sub-bg-1:    rgba(8, 6, 4, .86);
+  --st-sub-bg-2:    rgba(8, 6, 4, .97);
+
+  /* nút điều hướng */
+  --st-btn-bg:      rgba(20, 12, 6, .72);
+  --st-btn-bg-hover:rgba(48, 28, 12, .85);
+  --st-btn-fg:      #e8d5bb;
+
+  /* ---------- 2. CHỮ ---------- */
+
+  --st-font:        "Inter", "Be Vietnam Pro", -apple-system, "Segoe UI", sans-serif;
+  --st-font-mono:   "JetBrains Mono", Consolas, monospace;
+
+  --st-size-line:   1.02rem;   /* cỡ chữ phụ đề chính */
+  --st-size-cap:    .74rem;    /* dòng chú thích */
+  --st-size-speak:  .68rem;    /* tên người nói */
+  --st-size-base:   15px;
+
+  --st-line-height: 1.72;
+  --st-measure:     58ch;      /* độ rộng tối đa của một dòng chữ */
+
+  /* ---------- 3. KHOẢNG CÁCH & KÍCH THƯỚC ---------- */
+
+  --st-pad-sub:     26px 32px 22px;   /* padding thanh phụ đề */
+  --st-pad-sub-sm:  20px 18px 18px;   /* bản mobile */
+  --st-sub-min-h:   132px;            /* chiều cao tối thiểu thanh phụ đề */
+  --st-sub-min-h-sm:168px;
+
+  --st-gap-btn:     8px;
+  --st-btn-size:    44px;
+  --st-btn-size-sm: 40px;
+  --st-nav-offset:  26px;             /* cách mép phải/dưới của cụm nút */
+  --st-nav-offset-sm: 14px;
+
+  --st-cap-pos:     26px 0 0 32px;    /* chú thích góc trên */
+  --st-pips-pos:    32px;             /* lề trái của cụm chấm tiến độ */
+
+  --st-radius-btn:  999px;
+  --st-radius-card: 10px;
+
+  /* ---------- 4. CHUYỂN ĐỘNG ---------- */
+
+  --st-dur-in:      .6s;    /* tranh hiện ra */
+  --st-dur-fade:    .5s;    /* cả màn tan đi */
+  --st-dur-move:    .16s;   /* nút nhấn / hover */
+  --st-ease:        cubic-bezier(.2, .9, .3, 1);
+
+  /* ---------- 5. TRANH MINH HOẠ ---------- */
+
+  --art-width:      min(1120px, 94vw);
+  --art-max-height: 76vh;
+  --art-vignette:   rgba(0, 0, 0, .30);   /* độ tối ở bốn góc */
+
+  /* ---------- 6. TIẾN ĐỘ ---------- */
+
+  --st-pip-w:       14px;
+  --st-pip-w-now:   24px;
+  --st-pip-h:       2px;
+  --st-pip-off:     rgba(255, 224, 184, .45);   /* chấm chưa tới */
+  --st-pip-done:    rgba(255, 224, 184, .70);   /* chấm đã qua */
+  --st-pip-now:     #f0c48a;                    /* chấm hiện tại */
+
+  /* ---------- 7. PHẦN CHƠI CHÍNH (dashboard, dùng sau) ---------- */
+
+  --ui-bg:          #06090f;
+  --ui-panel:       #0f1723;
+  --ui-line:        #1d2b3f;
+  --ui-line-hi:     #2c4361;
+  --ui-text:        #c8d6e8;
+  --ui-text-dim:    #6d829c;
+  --ui-text-hi:     #eaf2ff;
+  --ui-accent:      #4ea8ff;
+  --ui-ok:          #35d39a;
+  --ui-warn:        #f5b942;
+  --ui-fail:        #ff5c6c;
+  --ui-radius:      3px;
+}
+
+/* ---------- GHI CHÚ NHANH ----------
+
+   Muốn màn mở đầu sáng hơn?
+       --st-bg-top: #1a1208; --st-bg-bottom: #5a2c12;
+
+   Muốn chữ to hơn cho dễ đọc?
+       --st-size-line: 1.15rem;
+
+   Muốn thanh phụ đề thấp lại để tranh rộng hơn?
+       --st-sub-min-h: 130px;
+
+   Muốn tranh chiếm gần hết màn hình?
+       --art-max-height: 88vh; --art-width: 100%;
+
+   Muốn animation chậm, điện ảnh hơn?
+       --st-dur-in: 1.2s; --st-ease: ease-in-out;
+
+   Muốn đổi màu nhấn sang xanh lạnh?
+       --st-accent: #7fd4ff; --st-accent-soft: rgba(127,212,255,.12);
+
+   Tất cả các biến trên đều dùng được ngay, không phải sửa file khác.
+------------------------------------ */
