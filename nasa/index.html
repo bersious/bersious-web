@@ -13,9 +13,11 @@
 <script>
   /* CSS phải nạp bằng đường dẫn tuyệt đối: Vercel serve trang ở /nasa
      (không có dấu / cuối), nên 'css/tokens.css' sẽ bị hiểu là
-     '/css/tokens.css' và trả 404. Dựng base từ thư mục của chính file này. */
+     '/css/tokens.css' và trả 404. Dùng document.baseURI (chính là URL của
+     trang này) làm gốc — KHÔNG dùng document.currentScript.src vì script
+     inline không có src. */
   (function () {
-    var base = new URL('.', document.currentScript.src).href;
+    var base = document.baseURI.replace(/[^/]*$/, '');
     ['css/tokens.css', 'css/story.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
@@ -75,7 +77,7 @@
   /* Vercel serve trang này ở /nasa (không có dấu / cuối). Khi đó đường dẫn
      tương đối './story.js' bị trình duyệt hiểu là '/story.js' → 404.
      Vì vậy mọi import phải dùng URL tuyệt đối dựng từ thư mục hiện tại. */
-  const BASE = new URL('.', import.meta.url).href;
+  const BASE = new URL('.', location.href).href;
   const { startStory } = await import(BASE + 'story.js');
 
   const boot = document.getElementById('boot');
