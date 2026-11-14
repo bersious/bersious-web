@@ -10,8 +10,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/story.css">
+<script>
+  /* CSS phải nạp bằng đường dẫn tuyệt đối: Vercel serve trang ở /nasa
+     (không có dấu / cuối), nên 'css/tokens.css' sẽ bị hiểu là
+     '/css/tokens.css' và trả 404. Dựng base từ thư mục của chính file này. */
+  (function () {
+    var base = new URL('.', document.currentScript.src).href;
+    ['css/tokens.css', 'css/story.css'].forEach(function (href) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = base + href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
 <style>
   /* riêng cho khung khởi động — dùng lại biến trong tokens.css */
   body{
@@ -60,7 +72,11 @@
 </div>
 
 <script type="module">
-  import { startStory } from './story.js';
+  /* Vercel serve trang này ở /nasa (không có dấu / cuối). Khi đó đường dẫn
+     tương đối './story.js' bị trình duyệt hiểu là '/story.js' → 404.
+     Vì vậy mọi import phải dùng URL tuyệt đối dựng từ thư mục hiện tại. */
+  const BASE = new URL('.', import.meta.url).href;
+  const { startStory } = await import(BASE + 'story.js');
 
   const boot = document.getElementById('boot');
   const btn  = document.getElementById('start');
