@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Control · NASA Space Apps Challenge 2026</title>
+<meta name="description" content="An interactive space mission design game — design a spacecraft, manage six resources, and find out why every engineering decision costs something. NASA Space Apps Challenge 2026.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+<meta name="theme-color" content="#06090f">
+<meta name="theme-color" content="#06090f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#06090f" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06090f;
+  --bg-raise:#0c121c;
+  --bg-panel:#0f1723;
+  --line:#1d2b3f;
+  --line-hi:#2c4361;
+  --text:#c8d6e8;
+  --text-dim:#6d829c;
+  --text-hi:#eaf2ff;
+  --accent:#4ea8ff;
+  --accent-dim:#1b4a7a;
+  --ok:#35d39a;
+  --warn:#f5b942;
+  --mono:"JetBrains Mono",Consolas,monospace;
+  --sans:"Inter",-apple-system,"Segoe UI",sans-serif;
+  --r:3px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* faint starfield — the page should read as space, not as a blank screen */
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #ffffff22 50%, transparent 50%),
+    radial-gradient(1px 1px at 68% 14%, #ffffff1a 50%, transparent 50%),
+    radial-gradient(1px 1px at 84% 62%, #ffffff20 50%, transparent 50%),
+    radial-gradient(1px 1px at 34% 78%, #ffffff16 50%, transparent 50%),
+    radial-gradient(1px 1px at 52% 46%, #ffffff12 50%, transparent 50%),
+    radial-gradient(1px 1px at 22% 58%, #ffffff14 50%, transparent 50%),
+    radial-gradient(1px 1px at 92% 32%, #ffffff10 50%, transparent 50%);
+}
+
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:32px 24px 72px}
+
+/* ---------- back link ---------- */
+.back{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.13em;
+  text-transform:uppercase;text-decoration:none;
+  color:var(--text-dim);border:1px solid var(--line);
+  background:rgba(0,0,0,.4);backdrop-filter:blur(8px);
+  padding:7px 14px;border-radius:999px;margin-bottom:40px;
+  transition:all .18s;
+}
+.back:hover{color:var(--accent);border-color:var(--accent-dim);transform:translateX(-3px)}
+
+/* ---------- header ---------- */
+.eyebrow{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.eyebrow .status{
+  color:var(--warn);border:1px solid rgba(245,185,66,.35);
+  background:rgba(245,185,66,.08);border-radius:2px;
+  padding:2px 8px;letter-spacing:.1em;
+}
+
+h1{
+  font-size:clamp(1.9rem,5vw,2.9rem);
+  line-height:1.15;font-weight:600;
+  color:var(--text-hi);letter-spacing:-.02em;margin-bottom:16px;
+}
+h1 em{
+  font-style:normal;
+  background:linear-gradient(120deg,var(--accent),#8f7bff);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.lede{color:var(--text-dim);font-size:1rem;max-width:62ch;margin-bottom:8px}
+.lede strong{color:var(--text);font-weight:500}
+
+/* ---------- resource strip ---------- */
+.res-strip{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));
+  gap:8px;margin:34px 0 40px;
+}
+.res-chip{
+  border:1px solid var(--line);background:var(--bg-panel);
+  border-radius:var(--r);padding:9px 11px;
+}
+.res-chip .k{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;
+}
+.res-chip .v{font-family:var(--mono);font-size:.82rem;color:var(--text-hi)}
+
+/* ---------- sections ---------- */
+section{margin-bottom:40px}
+.sec-label{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--text-dim);
+  padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:18px;
+}
+h2{font-size:1.12rem;font-weight:600;color:var(--text-hi);margin-bottom:10px;letter-spacing:-.01em}
+p{color:var(--text-dim);margin-bottom:12px;max-width:66ch}
+p strong{color:var(--text);font-weight:500}
+p code{
+  font-family:var(--mono);font-size:.85em;
+  background:var(--bg-panel);border:1px solid var(--line);
+  padding:1px 5px;border-radius:2px;color:var(--accent);
+}
+
+ul.plain{list-style:none;max-width:66ch}
+ul.plain li{
+  position:relative;padding-left:18px;margin-bottom:9px;
+  color:var(--text-dim);font-size:.94rem;
+}
+ul.plain li::before{
+  content:"›";position:absolute;left:0;top:-1px;
+  color:var(--accent);font-weight:600;
+}
+ul.plain li strong{color:var(--text);font-weight:500}
+
+/* ---------- placeholder ---------- */
+.placeholder{
+  border:1px dashed var(--line-hi);border-radius:var(--r);
+  padding:34px 26px;text-align:center;background:rgba(15,23,35,.5);
+}
+.placeholder .mark{
+  font-family:var(--mono);font-size:1.5rem;color:var(--accent);
+  opacity:.6;margin-bottom:10px;
+}
+.placeholder .t{color:var(--text);font-weight:500;margin-bottom:6px;font-size:.96rem}
+.placeholder .s{color:var(--text-dim);font-size:.86rem;margin:0 auto;max-width:44ch}
+
+/* ---------- team ---------- */
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.person{
+  border:1px solid var(--line);background:var(--bg-panel);
+  border-radius:var(--r);padding:13px 15px;
+}
+.person .n{color:var(--text-hi);font-weight:500;font-size:.94rem;margin-bottom:3px}
+.person .r{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);letter-spacing:.04em}
+.person a{color:var(--accent);text-decoration:none}
+.person a:hover{text-decoration:underline}
+
+/* ---------- buttons ---------- */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.13em;
+  text-transform:uppercase;text-decoration:none;
+  padding:11px 20px;border-radius:var(--r);
+  border:1px solid var(--line-hi);color:var(--text);
+  background:var(--bg-panel);transition:all .16s;
+}
+.btn:hover{border-color:var(--accent-dim);color:var(--accent)}
+.btn.primary{
+  background:#123a5e;border-color:#2f6f9e;color:#d9ecff;
+}
+.btn.primary:hover{background:#17496f;color:#fff}
+
+/* ---------- footer ---------- */
+footer{
+  margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
+  color:var(--text-dim);display:flex;gap:16px;flex-wrap:wrap;
+  justify-content:space-between;
+}
+footer .ok{color:var(--ok)}
+
+@media(max-width:560px){
+  .wrap{padding:24px 18px 56px}
+  .res-strip{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+  footer{flex-direction:column;gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="/">← bersious.io.vn</a>
+
+  <div class="eyebrow">
+    <span>NASA Space Apps Challenge 2026</span>
+    <span class="status">building</span>
+  </div>
+
+  <h1>Design a mission.<br>Discover <em>what it costs</em>.</h1>
+
+  <p class="lede">
+    An interactive game where you assemble a spacecraft, choose an orbit and a launch vehicle,
+    and manage <strong>six competing resources</strong>. Every gain in one place is a loss somewhere else —
+    and the debrief tells you exactly which decision broke the mission.
+  </p>
+
+  <div class="res-strip">
+    <div class="res-chip"><div class="k">Mass</div><div class="v">kg</div></div>
+    <div class="res-chip"><div class="k">Power</div><div class="v">W</div></div>
+    <div class="res-chip"><div class="k">Budget</div><div class="v">M$</div></div>
+    <div class="res-chip"><div class="k">Data</div><div class="v">GB/day</div></div>
+    <div class="res-chip"><div class="k">Comms</div><div class="v">% orbit</div></div>
+    <div class="res-chip"><div class="k">Time</div><div class="v">years</div></div>
+  </div>
+
+  <section>
+    <div class="sec-label">01 · The idea</div>
+    <h2>Learning trade-offs by making them</h2>
+    <p>
+      Space mission design is usually taught as separate subjects — orbital mechanics here, spacecraft
+      structures there, launch vehicles somewhere else. What students rarely get is the whole system at
+      once, where adding a better instrument quietly forces a heavier spacecraft, a bigger rocket, and a
+      downlink that cannot keep up.
+    </p>
+    <p>
+      That gap is the game. You are not told the right answer, because there usually isn't one.
+      You are told the consequences.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-label">02 · How a run works</div>
+    <h2>Five screens, one mission</h2>
+    <ul class="plain">
+      <li><strong>Briefing</strong> — pick a scenario: a climate record, a disaster-response satellite, a space-weather sentinel.</li>
+      <li><strong>Design</strong> — bus, power source, instruments, orbit, launch vehicle. Resource bars respond live.</li>
+      <li><strong>Compatibility gates</strong> — mass with margin vs. launcher capacity, power draw vs. generation, data vs. downlink.</li>
+      <li><strong>Simulation</strong> — phased mission with seeded random events, so the same design can be replayed and shared.</li>
+      <li><strong>Debrief</strong> — a score, plus an itemised list of <em>why</em> it failed and what would have fixed it.</li>
+    </ul>
+    <p style="margin-top:14px">
+      That last screen is the point of the whole thing. A score tells you that you lost.
+      An explanation tells you what you misunderstood.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-label">03 · Status</div>
+    <h2>In development</h2>
+    <div class="placeholder">
+      <div class="mark">◇</div>
+      <div class="t">The playable build is not up yet.</div>
+      <p class="s">
+        Design documents, balance data and the simulation engine are being written for the
+        NASA Space Apps Challenge, 14–15 November 2026. The link will appear here when it runs.
+      </p>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="https://github.com/tranminhngoc171-bot/space-mission-design-game" target="_blank" rel="noopener">Source on GitHub ↗</a>
+      <a class="btn" href="https://www.spaceappschallenge.org/2026/challenges/space-mission-design-game/" target="_blank" rel="noopener">The challenge brief ↗</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">04 · Team</div>
+    <h2>Two people, one weekend</h2>
+    <div class="team">
+      <div class="person">
+        <div class="n"><a href="https://github.com/bersious" target="_blank" rel="noopener">Thiện Nhân</a></div>
+        <div class="r">Mission Control UI · visualisation</div>
+      </div>
+      <div class="person">
+        <div class="n"><a href="https://github.com/tranminhngoc171-bot" target="_blank" rel="noopener">Minh Ngọc</a></div>
+        <div class="r">Simulation engine · scoring · balance</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>space apps challenge 2026 · space mission design game</span>
+    <span class="ok">status: 200 OK</span>
+  </footer>
+
+</div>
+</body>
+</html>
