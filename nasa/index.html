@@ -21,7 +21,7 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
+    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
@@ -126,6 +126,7 @@
   const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
 
   const { startStory }      = await import(BASE + 'story.js');
+  const { playIntro }       = await import(BASE + 'intro-video.js');
   const { applyToDom, onLangChange } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
   const { initAudio, bindClickSounds, playClick } = await import(BASE + 'audio.js');
@@ -143,9 +144,10 @@
 
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     playClick();
     boot.style.display = 'none';
+    await playIntro();
     startStory({
       onFinish: ({ playerName, crew, playerRole }) => {
         // TODO: chuyển sang màn thiết kế sứ mệnh, chờ engine của Ngọc
