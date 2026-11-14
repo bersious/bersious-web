@@ -1,5 +1,5 @@
 /* ============================================================
-   story-data.js — toàn bộ lời kể của màn mở đầu.
+   story-data.js. Toàn bộ lời kể của màn mở đầu.
    Sửa chữ ở đây. Không cần đụng JS/CSS.
 
    Lượt (beat) có bốn loại:
@@ -8,8 +8,8 @@
      type: 'name'       → bảng hỏi tên người chơi
      type: 'dialogue'   → một nhân vật nói
 
-   Trong text: {name} = tên người chơi,  *chữ* = in nghiêng.
-   'art' là KHE ẢNH — đổi sang art khác trong art.js là xong.
+   Trong text: {name} = tên người chơi. *chữ* = in nghiêng.
+   'art' là KHE ẢNH, đổi sang art khác trong art.js là xong.
    'caption' là dòng chữ nhỏ góc trên trái của tranh.
    ============================================================ */
 
@@ -68,7 +68,7 @@ export const STORY = [
   {
     type: 'name',
     prompt: 'Nhật ký sứ mệnh cần một chữ ký.',
-    hint: 'Gõ tên của bạn rồi bấm Enter — hoặc bấm nút Tiếp.',
+    hint: 'Gõ tên của bạn rồi bấm Enter, hoặc bấm nút Tiếp.',
     placeholder: 'Tên của bạn',
   },
   {
@@ -96,7 +96,7 @@ export const STORY = [
     type: 'dialogue',
     who: 'commander',
     text:
-      'Kết thúc sớm. Ba mươi phút — chỉ mang mẫu đá và đĩa dữ liệu. Bỏ hết máy móc nặng lại. ' +
+      'Kết thúc sớm. Ba mươi phút. Chỉ mang mẫu đá và đĩa dữ liệu. Bỏ hết máy móc nặng lại. ' +
       'Không ai quay về lấy đồ.',
   },
   {
@@ -104,7 +104,7 @@ export const STORY = [
     who: 'pilot',
     text:
       'Chỉ huy, tàu chỉ chịu được gió tới một mức nhất định. Nếu nó nghiêng quá thì chúng ta ' +
-      'không cất cánh được nữa — và ở lại là hết.',
+      'không cất cánh được nữa, mà ở lại thì hết.',
   },
 
   /* --- 4. tai nạn --- */
@@ -134,7 +134,7 @@ export const STORY = [
     type: 'dialogue',
     who: 'medic',
     text:
-      'Tôi cần thêm thời gian. Cho tôi năm phút — chỉ năm phút thôi, tôi có thể ra đó.',
+      'Tôi cần thêm thời gian. Cho tôi năm phút. Chỉ năm phút thôi, tôi có thể ra đó.',
   },
   {
     type: 'dialogue',
@@ -166,7 +166,7 @@ export const STORY = [
   {
     type: 'dialogue',
     who: 'medic',
-    text: 'Tôi đã để cậu ấy lại đó. Cậu hiểu không — tôi để cậu ấy lại đó.',
+    text: 'Tôi đã để cậu ấy lại đó. Cậu hiểu không. Tôi để cậu ấy lại đó.',
   },
   {
     type: 'narration',

@@ -17,7 +17,14 @@
      trang này) làm gốc — KHÔNG dùng document.currentScript.src vì script
      inline không có src. */
   (function () {
-    var base = document.baseURI.replace(/[^/]*$/, '');
+    /* Lấy đúng thư mục của trang. Vercel serve ở /nasa (không có / cuối),
+       nên không thể cắt theo baseURI: sẽ mất luôn chữ "nasa".
+       Chỉ coi đoạn cuối là tên file khi nó có dấu chấm. */
+    var parts = location.pathname.split('/');
+    var last = parts[parts.length - 1];
+    if (last.indexOf('.') !== -1) parts[parts.length - 1] = '';
+    var base = location.origin + parts.join('/');
+    if (base.slice(-1) !== '/') base += '/';
     ['css/tokens.css', 'css/story.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
@@ -77,7 +84,9 @@
   /* Vercel serve trang này ở /nasa (không có dấu / cuối). Khi đó đường dẫn
      tương đối './story.js' bị trình duyệt hiểu là '/story.js' → 404.
      Vì vậy mọi import phải dùng URL tuyệt đối dựng từ thư mục hiện tại. */
-  const BASE = new URL('.', location.href).href;
+  const _p = location.pathname.split('/');
+  if (_p[_p.length - 1].indexOf('.') !== -1) _p[_p.length - 1] = '';
+  const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
   const { startStory } = await import(BASE + 'story.js');
 
   const boot = document.getElementById('boot');
