@@ -1,212 +1,501 @@
 /* ============================================================
-   story-data.js. Toàn bộ lời kể của màn mở đầu.
-   Sửa chữ ở đây. Không cần đụng JS/CSS.
+   story-data.js
+   Toàn bộ lời kể của màn mở đầu, viết song ngữ.
 
-   Lượt (beat) có bốn loại:
-     type: 'log'        → một dòng nhật ký kỹ thuật (số liệu, mốc thời gian)
-     type: 'narration'  → lời kể
-     type: 'name'       → bảng hỏi tên người chơi
-     type: 'dialogue'   → một nhân vật nói
+   >>> KHI THÊM LƯỢT MỚI, BẮT BUỘC ĐIỀN CẢ vi VÀ en <<<
+   Thiếu một bên là lỗi. Không để dịch sau.
 
-   Trong text: {name} = tên người chơi. *chữ* = in nghiêng.
-   'art' là KHE ẢNH, đổi sang art khác trong art.js là xong.
-   'caption' là dòng chữ nhỏ góc trên trái của tranh.
+   Bốn loại lượt:
+     type: 'log'        dòng nhật ký kỹ thuật, số liệu, mốc thời gian
+     type: 'narration'  lời kể
+     type: 'name'       bảng hỏi tên người chơi
+     type: 'dialogue'   một nhân vật nói
+
+   Trong text: {name} là tên người chơi, *chữ* là in nghiêng.
+   art là KHE ẢNH, trỏ tới key trong art.js.
+
+   Quy tắc viết, học từ skill game-narrative-design:
+   - Mỗi đoạn phải có ít nhất một hình ảnh cụ thể nhìn thấy được.
+   - Không giải thích cảm xúc sau khi đã tả hành động.
+   - Không liệt kê ba ý đối xứng.
+   - Không kết đoạn bằng câu kêu gọi hay châm ngôn.
+   - Nhân vật nói lệch câu hỏi, ngắt câu, không nói tròn trịa.
+   - Nhật ký là chỗ xả, giọng hài nhẹ dù chuyện nặng.
    ============================================================ */
 
 export const CREW = [
   {
-    id: 'commander',
-    name: 'Khoa',
-    full: 'Trần Minh Khoa',
-    role: 'Chỉ huy sứ mệnh · Địa chất',
-    color: '#e0784a',
-    short: 'CK',
+    id: 'lewis',
+    name: 'Lewis',
+    full: 'Melissa Lewis',
+    role: { vi: 'Chỉ huy', en: 'Commander' },
+    color: '#e8a33d',
+    short: 'ML',
   },
   {
-    id: 'pilot',
-    name: 'Hoàng',
-    full: 'Lê Hoàng',
-    role: 'Phi công · Kỹ sư hệ thống',
+    id: 'martinez',
+    name: 'Martinez',
+    full: 'Rick Martinez',
+    role: { vi: 'Phi công', en: 'Pilot' },
     color: '#8fb08a',
-    short: 'LH',
+    short: 'RM',
   },
   {
-    id: 'medic',
-    name: 'Hà',
-    full: 'Nguyễn Thu Hà',
-    role: 'Bác sĩ · Sinh học',
+    id: 'beck',
+    name: 'Beck',
+    full: 'Chris Beck',
+    role: { vi: 'Bác sĩ', en: 'Flight surgeon' },
     color: '#7fa3c8',
-    short: 'TH',
+    short: 'CB',
+  },
+  {
+    id: 'vogel',
+    name: 'Vogel',
+    full: 'Alex Vogel',
+    role: { vi: 'Hóa học', en: 'Chemist' },
+    color: '#b08ac8',
+    short: 'AV',
+  },
+  {
+    id: 'johanssen',
+    name: 'Johanssen',
+    full: 'Beth Johanssen',
+    role: { vi: 'Hệ thống', en: 'Systems' },
+    color: '#c98f6b',
+    short: 'BJ',
+  },
+  {
+    id: 'watney',
+    name: 'Watney',
+    full: 'Mark Watney',
+    role: { vi: 'Thực vật học', en: 'Botanist' },
+    color: '#e8a33d',
+    short: 'MW',
+  },
+  {
+    id: 'linh',
+    name: 'Linh',
+    full: 'Nguyễn Linh',
+    role: { vi: 'Vợ', en: 'His wife' },
+    color: '#c98f9e',
+    short: 'NL',
   },
 ];
 
-export const PLAYER_ROLE = 'Nhà thực vật học · Kỹ sư cơ khí';
+export const PLAYER_ROLE = {
+  vi: 'Nhà thực vật học · Kỹ sư cơ khí',
+  en: 'Botanist · Mechanical engineer',
+};
 
 export const STORY = [
-  /* --- 1. bối cảnh --- */
+  /* ═══════════ MỞ ĐẦU: TRÊN TRÁI ĐẤT ═══════════ */
+
   {
-    type: 'log',
-    text: 'SOL 018/031 · ACIDALIA PLANITIA · 46,7°N 22,3°W',
+    type: 'narration',
+    art: 'earth-home',
+    caption: { vi: 'Houston · ba tuần trước khi phóng', en: 'Houston · three weeks before launch' },
+    text: {
+      vi:
+        'Trong bếp nhà Watney có một bức ảnh chụp cả nhóm Ares 3 đứng trước tên lửa. ' +
+        'Anh dán nó lên cánh cửa tủ lạnh bằng băng dính điện, vì nam châm đã rơi mất từ đợt chuyển nhà.',
+      en:
+        'A photo of the Ares 3 crew in front of the rocket hung in Watney\'s kitchen. ' +
+        'He\'d taped it to the fridge door with electrical tape after losing the magnet in the move.',
+    },
   },
   {
     type: 'narration',
-    art: 'mars-surface',
-    caption: 'Acidalia Planitia · Sol 18',
-    text:
-      'Ngày thứ mười tám của chuyến khảo sát ba mươi mốt ngày. Bốn người, một khoang trú ẩn, ' +
-      'và một cái hố đang mở dần xuống lớp đất sét đỏ.',
+    art: 'earth-home',
+    text: {
+      vi:
+        'Đồ đạc trong nhà đã đóng thùng gần hết. Còn lại cái bàn với hai cái ghế. ' +
+        'Trên tường, tờ lịch đã gạch kín tới ngày phóng.',
+      en:
+        'Most of the apartment was already in boxes. Just the table and two chairs left out. ' +
+        'The wall calendar was crossed off all the way to launch day.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'linh',
+    text: {
+      vi: 'Cái này bỏ đâu?',
+      en: 'Where does this go?',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'watney',
+    text: {
+      vi: 'Thùng nào cơ?',
+      en: 'Which box?',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'linh',
+    text: {
+      vi: 'Thùng ghi cấm mở. Mở rồi.',
+      en: 'The one marked do not open. Opened it.',
+    },
   },
   {
     type: 'narration',
-    art: 'mars-surface',
-    text:
-      'Đến cuối tuần này cả đội phải về tàu, cất cánh, và bay vòng lên quỹ đạo để bắt chuyến về nhà. ' +
-      'Mọi thứ vẫn đúng lịch. Đó là điều cuối cùng còn đúng.',
+    art: 'farewell',
+    caption: { vi: 'Đêm cuối ở nhà', en: 'The last night at home' },
+    text: {
+      vi:
+        'Trong thùng là một hộp cà phê hòa tan và bốn quyển truyện cũ. ' +
+        'Watney ngồi xuống sàn, đặt hộp cà phê sang một bên.',
+      en:
+        'Inside was a tin of instant coffee and four worn paperbacks. ' +
+        'Watney sat on the floor and pushed the coffee aside.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'linh',
+    text: {
+      vi:
+        'Anh nói cứ như đi công tác tỉnh. Nhắn tin qua lại bình thường.',
+      en:
+        'You talk like it\'s a conference in Dallas. Like you\'ll just text.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'watney',
+    text: {
+      vi: 'Độ trễ đường truyền có hai mươi phút một chiều thôi. Vẫn ăn đứt bưu điện quận mình.',
+      en: 'Twenty-minute one-way ping. Still beats our local post office.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'linh',
+    text: {
+      vi: 'Khỏi hứa là sẽ về.',
+      en: 'Don\'t promise me you\'ll come back.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'watney',
+    text: {
+      vi: 'Thế hứa khoản nào?',
+      en: 'What\'s on the contract then?',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'linh',
+    text: {
+      vi: 'Đừng có làm trò ngu. Cái đó trong tay anh.',
+      en: 'Nothing stupid. That part\'s on you.',
+    },
+  },
+  {
+    type: 'narration',
+    art: 'farewell',
+    text: {
+      vi:
+        'Anh gật đầu. Hai người ngồi tựa lưng vào tủ bếp, nghe lốc tủ lạnh đóng ngắt, ' +
+        'cho tới khi đồng hồ nhảy sang ba giờ sáng.',
+      en:
+        'He nodded. They sat with their backs against the cabinets, listening to the fridge compressor cycle on and off ' +
+        'until the clock hit three.',
+    },
   },
 
-  /* --- 2. tên người chơi --- */
+  /* ═══════════ BỆ PHÓNG ═══════════ */
+
   {
-    type: 'name',
-    prompt: 'Nhật ký sứ mệnh cần một chữ ký.',
-    hint: 'Gõ tên của bạn rồi bấm Enter, hoặc bấm nút Tiếp.',
-    placeholder: 'Tên của bạn',
+    type: 'log',
+    text: {
+      vi: 'T−6 GIỜ · BỆ PHÓNG 39A · NHIÊN LIỆU ĐÃ NẠP · GIÓ 4 m/s',
+      en: 'T−6 HOURS · PAD 39A · PROPELLANT LOADED · WIND 4 m/s',
+    },
+  },
+  {
+    type: 'narration',
+    art: 'launchpad',
+    text: {
+      vi:
+        'Sáu giờ trước giờ G, cả nhóm sáu người đứng ngay dưới chân tầng đẩy. ' +
+        'Đứng cách nửa triệu lít nhiên liệu lạnh có ba chục mét.',
+      en:
+        'Six hours to launch, all six of them stood right under the first stage. ' +
+        'Thirty meters from half a million liters of cryo propellant.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'martinez',
+    text: {
+      vi: 'Chuyến trước đứng ngay vạch sơn này bấm một kiểu. Nay bỏ quên máy ở trạm gác... bốn trăm tấn thuốc phóng trên đầu mà không có tấm hình làm vốn.',
+      en: 'Last flight I got a shot right on this paint line. Left the camera at the gatehouse today... four hundred tons of propellant overhead and nothing to show for it.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'johanssen',
+    text: {
+      vi: 'Em bấm một tấm rồi. Anh chớp mắt đúng lúc màn trập đóng, với lại dây giày bên trái tuột kìa.',
+      en: 'I took one. You blinked right on the shutter, and your left bootlace is untied.',
+    },
+  },
+
+  /* ═══════════ HỒI I: ĐỒNG BẰNG ACIDALIA ═══════════ */
+
+  {
+    type: 'log',
+    text: {
+      vi: 'SAO HỎA · SOL 6 · ACIDALIA PLANITIA · 03:40',
+      en: 'MARS · SOL 6 · ACIDALIA PLANITIA · 03:40',
+    },
   },
   {
     type: 'narration',
     art: 'mars-surface',
-    text:
-      '{name} ghi tên mình vào nhật ký như mỗi tối. Hôm nay là mục thứ mười tám, ' +
-      'và là mục cuối cùng được ghi bằng nét chữ bình thường.',
+    caption: { vi: 'Acidalia Planitia · Sol 6', en: 'Acidalia Planitia · Sol 6' },
+    text: {
+      vi:
+        'Hôm đó Watney cắm một cái cọc đo độ ẩm xuống chỗ trũng, sâu tới đầu gối. ' +
+        'Đáy lộ ra lớp sét đỏ, lạnh như sờ vào kim loại.',
+      en:
+        'That day Watney drove a moisture probe knee-deep into a hollow. ' +
+        'It brought up a plug of red clay, cold as bare metal.',
+    },
+  },
+  {
+    type: 'narration',
+    art: 'mars-surface',
+    text: {
+      vi:
+        'Bụi sao Hỏa bám vào gioăng cổ mũ, hăng mùi gỉ sắt. Mỗi lần tháo mũ ở khoang khí là xộc lên mũi. ' +
+        'Trong tai nghe, Johanssen nhắc về ăn trước khi súp nguội.',
+      en:
+        'Martian dust clung to the neck ring, sharp with rust. It hit his nose every time he popped the seal in the airlock. ' +
+        'Over comms, Johanssen told him to come eat before the soup got cold.',
+    },
   },
 
-  /* --- 3. bão tới --- */
+  /* ═══════════ HỒI II: CƠN BÃO ═══════════ */
+
   {
     type: 'log',
-    text: '14:22 · CẢNH BÁO BÃO BỤI · HƯỚNG TÂY · TỐC ĐỘ VƯỢT NGƯỠNG AN TOÀN',
+    text: {
+      vi: '19:22 · CẢNH BÁO BÃO CÁT · GIÓ 137 km/h · VƯỢT NGƯỠNG MAV',
+      en: '19:22 · DUST STORM WARNING · WIND 137 km/h · ABOVE MAV LIMIT',
+    },
   },
   {
     type: 'narration',
     art: 'storm-coming',
-    caption: 'Một cảnh báo, rồi một quyết định',
-    text:
-      'Mười bốn giờ hai mươi hai. Đài quan trắc gửi một dòng cảnh báo: một bức tường bụi cao vài ' +
-      'nghìn mét đang cuộn tới từ phía tây, mạnh hơn dự báo ba tiếng và không có dấu hiệu yếu đi.',
+    caption: { vi: 'Bức tường bụi phía tây', en: 'The dust wall to the west' },
+    text: {
+      vi:
+        'Bức tường bụi dựng đứng, kịch trần màn hình radar. Bốn phút sau trời tối đặc.',
+      en:
+        'A wall of dust topped out the radar screen. Four minutes later the sky went pitch black.',
+    },
   },
   {
     type: 'dialogue',
-    who: 'commander',
-    text:
-      'Kết thúc sớm. Ba mươi phút. Chỉ mang mẫu đá và đĩa dữ liệu. Bỏ hết máy móc nặng lại. ' +
-      'Không ai quay về lấy đồ.',
+    who: 'lewis',
+    text: {
+      vi: 'Khóa mũ. Rút về MAV. Khoảng cách một mét.',
+      en: 'Visors down. Move to the MAV. One-meter spacing.',
+    },
   },
   {
     type: 'dialogue',
-    who: 'pilot',
-    text:
-      'Chỉ huy, tàu chỉ chịu được gió tới một mức nhất định. Nếu nó nghiêng quá thì chúng ta ' +
-      'không cất cánh được nữa, mà ở lại thì hết.',
+    who: 'watney',
+    text: {
+      vi: 'Chỉ huy, còn cái cọc đo cắm dưới hố, mất hai mươi giây rút nguồn thôi...',
+      en: 'Commander, the probe\'s still in the trench, twenty seconds to pull the battery...',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'lewis',
+    text: {
+      vi: 'Bỏ. Lên tàu.',
+      en: 'Leave it. Move.',
+    },
   },
 
-  /* --- 4. tai nạn --- */
+  /* ═══════════ HỒI III: TAI NẠN ═══════════ */
+
   {
-    type: 'narration',
-    art: 'storm-impact',
-    caption: 'Phút thứ 27',
-    text:
-      'Phút thứ hai mươi bảy. Một tấm ốp ăng-ten bị gió bốc khỏi giá đỡ, xoay hai vòng trong ' +
-      'không khí rồi đập vào lưng {name}.',
+    type: 'name',
+    prompt: { vi: 'Bạn là ai trong nhóm này?', en: 'Who are you in this crew?' },
+    hint: {
+      vi: 'Nhật ký sứ mệnh cần một cái tên. Gõ vào rồi bấm Enter.',
+      en: 'The mission log needs a name. Type it and press Enter.',
+    },
+    placeholder: { vi: 'Tên của bạn', en: 'Your name' },
   },
   {
     type: 'narration',
     art: 'storm-impact',
-    text:
-      'Bộ du hành báo thủng ở vai trái. Áp suất trong bộ đồ tụt từ một trăm lên bốn mươi kPa ' +
-      'trong chưa đầy hai giây. Rồi máy đo sinh tồn trên ngực {name} ngừng phát tín hiệu.',
-  },
-  {
-    type: 'dialogue',
-    who: 'pilot',
-    text:
-      'Không có tín hiệu. Không có nhịp tim, không có hơi thở, không có gì cả. ' +
-      'Tôi đang nhìn vào một màn hình trống.',
-  },
-  {
-    type: 'dialogue',
-    who: 'medic',
-    text:
-      'Tôi cần thêm thời gian. Cho tôi năm phút. Chỉ năm phút thôi, tôi có thể ra đó.',
-  },
-  {
-    type: 'dialogue',
-    who: 'pilot',
-    text:
-      'Năm phút nữa thì gió lật tàu. Cả bốn người chết, không phải một.',
+    caption: { vi: 'Mảnh ăng-ten', en: 'The antenna panel' },
+    text: {
+      vi:
+        'Mảnh ăng-ten bật ra khỏi giá đỡ, quay hai vòng trong gió, rồi đập vào lưng {name}. ' +
+        'Tiếng nghe như ai đó gõ mạnh vào ống thép.',
+      en:
+        'The antenna dish sheared off its mount, spun twice in the wind, and slammed into {name}\'s back. ' +
+        'It rang like a crowbar hitting a steel pipe.',
+    },
   },
   {
     type: 'narration',
     art: 'storm-impact',
-    text:
-      'Chỉ huy im lặng bốn giây. Bốn giây dài nhất trong toàn bộ chương trình sao Hỏa.',
+    text: {
+      vi:
+        'Bộ đo sinh hiệu đứt. Hơi lạnh tràn vào cổ áo qua chỗ rách. ' +
+        'Trên màn hình trong tàu, áp suất tụt từ một trăm xuống bốn mươi kPa.',
+      en:
+        'Biometrics flatlined. Freezing air poured in through the torn collar. ' +
+        'On the MAV console, suit pressure dropped from 100 to 40 kPa.',
+    },
   },
   {
     type: 'dialogue',
-    who: 'commander',
-    text: 'Cất cánh.',
+    who: 'beck',
+    text: {
+      vi: 'Kênh sinh hiệu số 4 mất sóng. Nhịp tim không đọc được, áp suất bộ đồ xuống dưới 40 kPa.',
+      en: 'Telemetry on channel 4 is gone. No heart rate trace, suit pressure under 40 kPa.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'martinez',
+    text: {
+      vi: 'Nghiêng 11,4 độ rồi. Lên 13 độ là lật... Chỉ huy, chân chống số hai đang lún.',
+      en: 'Pitch is at 11.4 degrees. We tip at 13... Commander, strut two is sinking.',
+    },
   },
 
-  /* --- 5. rời đi --- */
+  /* ═══════════ HỒI IV: QUYẾT ĐỊNH ═══════════ */
+
+  {
+    type: 'dialogue',
+    who: 'beck',
+    text: {
+      vi: 'Ở áp suất đó còn khoảng chín mươi giây trước khi ngạt. Cho tôi ra dây cáp mười lăm mét.',
+      en: 'At that pressure there\'s maybe ninety seconds before hypoxia. Give me fifteen meters of tether.',
+    },
+  },
+  {
+    type: 'dialogue',
+    who: 'martinez',
+    text: {
+      vi: 'Mười lăm mét gì, tầm nhìn bằng không, gió giật tám mươi nút... Mở nắp hầm bây giờ là bay luôn cả khoang.',
+      en: 'Fifteen meters of what, visibility is zero and gusts are hitting eighty knots... Crack that hatch now and we lose the whole rig.',
+    },
+  },
   {
     type: 'narration',
     art: 'departure',
-    caption: '14:58 · rời bề mặt',
-    text:
-      'Tàu rời bề mặt lúc mười bốn giờ năm mươi tám. Ba người trên khoang nhìn xuống qua cửa sổ ' +
-      'cho tới khi bức tường bụi nuốt mất chỗ họ vừa đứng.',
+    text: {
+      vi:
+        'Lewis lật nắp bảo vệ công tắc đốt tầng một. Ngón cái bà đặt lên mặt nhựa đỏ, ' +
+        'đốt ngón tay trắng bệch dưới ánh đèn bảng điều khiển.',
+      en:
+        'Lewis flipped the guard on the first-stage ignition switch. She rested her thumb on the red plastic, ' +
+        'knuckle white under the console lights.',
+    },
   },
   {
     type: 'dialogue',
-    who: 'medic',
-    text: 'Tôi đã để cậu ấy lại đó. Cậu hiểu không. Tôi để cậu ấy lại đó.',
+    who: 'lewis',
+    text: {
+      vi: 'Đốt tầng một.',
+      en: 'Light it.',
+    },
+  },
+
+  /* ═══════════ HỒI V: NĂM NGƯỜI RỜI ĐI ═══════════ */
+
+  {
+    type: 'narration',
+    art: 'departure',
+    caption: { vi: 'Sol 6 · 14:58', en: 'Sol 6 · 14:58' },
+    text: {
+      vi:
+        'Cát đỏ rung theo dưới sàn khoang. Martinez dán mặt vào cửa sổ cho tới khi ngoài kia chỉ còn màu cam đặc, ' +
+        'rồi vẫn giữ nguyên thêm hai phút nữa.',
+      en:
+        'Red sand rattled against the deck plates. Martinez pressed his helmet to the viewport until the outside turned solid orange, ' +
+        'then stayed there another two minutes.',
+    },
   },
   {
     type: 'narration',
     art: 'departure',
-    text:
-      'Trên hồ sơ, phi hành đoàn bốn người giờ còn ba. Trạm điều khiển ghi nhận một sự cố ' +
-      'thiết bị. Bốn năm nữa mới có chuyến tiếp theo tới Acidalia Planitia.',
+    text: {
+      vi:
+        'Không ai nói chuyện trong suốt quãng bay lên. Vogel tháo tai nghe ra rồi đeo lại, ' +
+        'hai lần liền.',
+      en:
+        'Nobody spoke on the ascent. Vogel pulled his headset off and put it back on, twice in a row.',
+    },
   },
 
-  /* --- 6. tỉnh dậy --- */
+  /* ═══════════ HỒI VI: SOL 19 ═══════════ */
+
   {
     type: 'log',
-    text: 'SOL 019 · 04:11 · ÁP SUẤT KHOANG 101,3 kPa · KHÔNG CÓ TÍN HIỆU TỪ TRẠM',
+    text: {
+      vi: 'SOL 19 · 04:11 · ÁP SUẤT KHOANG 101,3 kPa · KHÔNG CÓ TÍN HIỆU TỪ TRẠM',
+      en: 'SOL 19 · 04:11 · HAB PRESSURE 101.3 kPa · NO SIGNAL FROM EARTH',
+    },
   },
   {
     type: 'narration',
     art: 'awake',
-    caption: 'Sol 19 · 04:11',
-    text:
-      'Cơn bão đi qua sau mười một giờ. Bụi lắng xuống, trời chuyển sang màu vàng nhợt quen thuộc.',
+    caption: { vi: 'Sol 19 · 04:11', en: 'Sol 19 · 04:11' },
+    text: {
+      vi:
+        'Bão tan sau mười một tiếng. Trong Hab chỉ còn tiếng quạt lọc gió rì rì. ' +
+        'Watney mở mắt, khớp vai trái cứng đờ; lớp keo tự vá của bộ đồ đã đông lại thành một cục nhựa đen sần sùi ngang cổ.',
+      en:
+        'The storm blew itself out after eleven hours. Only the air-scrubber fan was humming in the Hab. ' +
+        'Watney opened his eyes with his left shoulder locked up; the suit\'s sealant had cured into a rough black lump across his collar.',
+    },
   },
   {
     type: 'narration',
     art: 'awake',
-    text:
-      '{name} mở mắt. Vai trái rách một đường, đã được bộ đồ tự hàn. Áp suất trong khoang ' +
-      'bình thường. Đèn khẩn cấp vẫn nhấp nháy.',
+    text: {
+      vi:
+        'Anh đi một vòng khoang trú ẩn. Sáu cái giá treo đồ. Năm cái trống, một cái còn bộ đồ của anh.',
+      en:
+        'He did one lap of the Hab. Six suit racks. Five empty, his own hanging on the sixth.',
+    },
   },
   {
     type: 'narration',
     art: 'awake',
-    text:
-      'Ngoài cửa sổ không có tàu. Trong khoang không có ai. Radio mở suốt hai mươi phút chỉ ' +
-      'trả về tiếng rè đều đều của một tần số chết.',
+    text: {
+      vi:
+        'Anh bật đài thu phát suốt hai mươi phút. Loa chỉ xè xè tiếng nhiễu tĩnh điện, đều như nước rò sau vách tôn.',
+      en:
+        'He left the transceiver open for twenty minutes. Nothing came off the speaker but static, steady as water leaking behind sheet metal.',
+    },
   },
   {
     type: 'narration',
     art: 'awake',
-    text:
-      'Bốn năm. Đó là khoảng thời gian trước khi có ai quay lại đây. ' +
-      'Và trong bốn năm, một người cần ăn khoảng bốn nghìn bữa.',
+    text: {
+      vi:
+        'Watney mở tủ đựng thức ăn, đếm số gói, rồi đếm lại. ' +
+        'Anh lấy một tờ giấy trong sổ tay ra, ghi con số lên đó, và gạch dưới nó hai lần.',
+      en:
+        'Watney opened the food locker, counted the ration packs, then counted them again. ' +
+        'He tore a sheet from his notebook, wrote the number down, and underlined it twice.',
+    },
   },
 ];

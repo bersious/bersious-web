@@ -4,28 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Space Mission Design Game · NASA Space Apps 2026</title>
-<meta name="description" content="Thiết kế một sứ mệnh không gian — và hiểu ra cái giá của từng quyết định.">
-<meta name="theme-color" content="#0a0705">
+<meta name="description" content="Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.">
+<meta name="theme-color" content="#07090d">
 <link rel="icon" type="image/png" href="/assets/nasa-logo-96.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script>
-  /* CSS phải nạp bằng đường dẫn tuyệt đối: Vercel serve trang ở /nasa
-     (không có dấu / cuối), nên 'css/tokens.css' sẽ bị hiểu là
-     '/css/tokens.css' và trả 404. Dùng document.baseURI (chính là URL của
-     trang này) làm gốc — KHÔNG dùng document.currentScript.src vì script
-     inline không có src. */
+  /* CSS phải nạp bằng đường dẫn tuyệt đối: Vercel phục vụ trang ở /nasa
+     mà không có dấu / ở cuối, nên "css/tokens.css" sẽ bị hiểu thành
+     "/css/tokens.css" và trả 404. Tự dựng thư mục gốc từ location.pathname. */
   (function () {
-    /* Lấy đúng thư mục của trang. Vercel serve ở /nasa (không có / cuối),
-       nên không thể cắt theo baseURI: sẽ mất luôn chữ "nasa".
-       Chỉ coi đoạn cuối là tên file khi nó có dấu chấm. */
     var parts = location.pathname.split('/');
     var last = parts[parts.length - 1];
     if (last.indexOf('.') !== -1) parts[parts.length - 1] = '';
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
-    ['css/tokens.css', 'css/story.css'].forEach(function (href) {
+    window.__BASE__ = base;
+    ['css/tokens.css', 'css/boot.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
@@ -34,80 +30,145 @@
   })();
 </script>
 <style>
-  /* riêng cho khung khởi động — dùng lại biến trong tokens.css */
-  body{
-    background: var(--ui-bg); color: var(--ui-text);
-    font-family: var(--st-font); font-size: var(--st-size-base);
+  /* nền tối thiểu, phần lớn giao diện khởi động nằm trong css/boot.css */
+  body {
+    background: var(--bg-void, #06090f);
+    color: var(--tx, #b9c7d6);
+    font-family: var(--st-font-body, "Be Vietnam Pro", sans-serif);
+    font-size: var(--st-size-base, 15px);
     -webkit-font-smoothing: antialiased;
+    margin: 0;
     overflow: hidden;
+    overflow-x: hidden;
   }
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
-    background-image:
-      radial-gradient(1px 1px at 12% 22%, #ffffff22 50%, transparent 50%),
-      radial-gradient(1px 1px at 68% 14%, #ffffff1a 50%, transparent 50%),
-      radial-gradient(1px 1px at 84% 62%, #ffffff20 50%, transparent 50%),
-      radial-gradient(1px 1px at 34% 78%, #ffffff16 50%, transparent 50%),
-      radial-gradient(1px 1px at 52% 46%, #ffffff12 50%, transparent 50%);
-  }
-  .boot{
-    position:relative; z-index:1; height:100dvh;
-    display:grid; place-items:center; text-align:center; padding:24px;
-  }
-  .boot .lbl{
-    font-family:var(--st-font-mono); font-size:.7rem; letter-spacing:.24em;
-    text-transform:uppercase; color:var(--ui-accent); margin-bottom:18px;
-  }
-  .boot h1{font-size:clamp(1.4rem,4vw,2rem); font-weight:600; color:var(--ui-text-hi); margin-bottom:12px; line-height:1.25}
-  .boot p{color:var(--ui-text-dim); font-size:.9rem; max-width:46ch; margin:0 auto 28px; line-height:1.65}
-  .boot button{
-    font-family:var(--st-font-mono); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
-    padding:13px 30px; border-radius:999px; cursor:pointer;
-    border:1px solid #2f6f9e; background:#123a5e; color:#d9ecff;
-    transition:all .18s;
-  }
-  .boot button:hover{background:#17496f; color:#fff}
 </style>
 </head>
 <body>
 
+<!-- nút mở cài đặt, luôn hiện ở góc trên phải -->
+<button class="settings-btn" id="settings-btn" title="Cài đặt" aria-label="Cài đặt">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+       stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
+
 <div class="boot" id="boot">
-  <div>
-    <div class="lbl">NASA Space Apps Challenge 2026</div>
-    <h1>Space Mission Design Game</h1>
-    <p>Thiết kế một sứ mệnh không gian — và hiểu ra cái giá của từng quyết định.</p>
-    <button id="start">Bắt đầu</button>
+
+  <!-- nền: bầu trời sao Hoả, vầng sáng mặt trời xa, núi đồi, nhiễu hạt -->
+  <div class="boot-sky" aria-hidden="true"></div>
+
+  <svg class="boot-terrain" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="ridge-far" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8a4a20" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#401c0a" stop-opacity=".85"/>
+      </linearGradient>
+      <linearGradient id="ridge-mid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#5c2b12" stop-opacity=".85"/>
+        <stop offset="100%" stop-color="#1d0d05" stop-opacity="1"/>
+      </linearGradient>
+      <linearGradient id="ridge-near" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2a1207"/>
+        <stop offset="100%" stop-color="#08060a"/>
+      </linearGradient>
+    </defs>
+    <path fill="url(#ridge-far)"
+          d="M0 210 L90 186 L170 200 L250 158 L330 178 L420 140 L500 168 L580 150 L660 176 L740 138 L820 164 L900 142 L980 172 L1070 146 L1150 176 L1240 152 L1320 180 L1440 160 L1440 320 L0 320 Z"/>
+    <path fill="url(#ridge-mid)"
+          d="M0 248 L80 232 L150 250 L240 214 L320 240 L400 220 L470 246 L560 216 L640 244 L720 212 L790 238 L880 218 L960 248 L1050 222 L1130 250 L1220 226 L1310 252 L1440 232 L1440 320 L0 320 Z"/>
+    <path fill="url(#ridge-near)"
+          d="M0 288 L100 272 L190 292 L280 266 L380 290 L470 270 L560 294 L660 272 L750 296 L850 274 L940 298 L1040 278 L1130 300 L1240 282 L1340 302 L1440 286 L1440 320 L0 320 Z"/>
+  </svg>
+
+  <div class="boot-grain" aria-hidden="true"></div>
+  <div class="boot-vignette" aria-hidden="true"></div>
+
+  <!-- cột trái: nhãn, tiêu đề, mô tả, nút. Cột phải: hồ sơ sứ mệnh -->
+  <div class="boot-shell">
+    <div class="boot-main">
+      <div class="lbl">NASA Space Apps Challenge 2026</div>
+      <h1 data-i18n="app.title">Space Mission Design Game</h1>
+      <p data-i18n="app.tagline">Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.</p>
+      <button class="btn-start" id="start" data-i18n="app.start">Bắt đầu</button>
+    </div>
+
+    <aside class="boot-brief">
+      <h2>Hồ sơ sứ mệnh</h2>
+      <dl>
+        <dt>Mã</dt><dd>Ares III</dd>
+        <dt>Địa điểm</dt><dd>Acidalia Planitia</dd>
+        <dt>Thời gian</dt><dd>Sol 1 tới Sol 19</dd>
+        <dt>Phi hành đoàn</dt><dd>Một người chơi</dd>
+        <dt>Chế độ</dt><dd>Kể chuyện tương tác</dd>
+        <dt>Dự kiến</dt><dd>15 tới 20 phút</dd>
+      </dl>
+    </aside>
   </div>
+
+  <!-- hàng thông tin nhỏ phía dưới -->
+  <div class="boot-foot">
+    <span>Phiên bản 0.9</span>
+    <span>Chế độ một người</span>
+    <span>Tiếng Việt / English</span>
+    <span>NASA Space Apps 2026</span>
+  </div>
+
 </div>
 
 <script type="module">
-  /* Vercel serve trang này ở /nasa (không có dấu / cuối). Khi đó đường dẫn
-     tương đối './story.js' bị trình duyệt hiểu là '/story.js' → 404.
+  /* Vercel phục vụ trang ở /nasa không có dấu / cuối. Khi đó đường dẫn
+     tương đối "./story.js" bị hiểu thành "/story.js" và trả 404.
      Vì vậy mọi import phải dùng URL tuyệt đối dựng từ thư mục hiện tại. */
   const _p = location.pathname.split('/');
   if (_p[_p.length - 1].indexOf('.') !== -1) _p[_p.length - 1] = '';
   const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
-  const { startStory } = await import(BASE + 'story.js');
+
+  const { startStory }      = await import(BASE + 'story.js');
+  const { applyToDom, onLangChange } = await import(BASE + 'i18n.js');
+  const { loadSettings }    = await import(BASE + 'settings.js');
+  const { initAudio, bindClickSounds, playClick } = await import(BASE + 'audio.js');
+  const { openSettings }    = await import(BASE + 'settings-ui.js');
+
+  /* cài đặt và âm thanh nạp trước khi người chơi bấm Bắt đầu,
+     để nhạc nền và cỡ chữ đúng ngay từ khung đầu */
+  loadSettings();
+  initAudio();
+  applyToDom();
 
   const boot = document.getElementById('boot');
   const btn  = document.getElementById('start');
+  const gear = document.getElementById('settings-btn');
 
-  // Chạy thẳng màn mở đầu khi bấm nút. Giữ màn boot phía sau làm nền
-  // cho tới khi phần chơi chính (engine + dashboard) được nối vào.
+  gear.addEventListener('click', () => { playClick(); openSettings(); });
+
   btn.addEventListener('click', () => {
+    playClick();
     boot.style.display = 'none';
     startStory({
       onFinish: ({ playerName, crew, playerRole }) => {
-        // TODO: chuyển sang màn thiết kế sứ mệnh (đang chờ engine của Ngọc)
+        // TODO: chuyển sang màn thiết kế sứ mệnh, chờ engine của Ngọc
         console.log('story done', { playerName, crew, playerRole });
-        boot.style.display = 'grid';
-        boot.querySelector('h1').textContent = `Chào ${playerName}.`;
-        boot.querySelector('p').textContent =
-          'Phần thiết kế sứ mệnh đang được dựng. Màn chơi tiếp theo sẽ nối vào đây.';
+        boot.style.display = '';
+        const title = boot.querySelector('[data-i18n="app.title"]');
+        const tag = boot.querySelector('[data-i18n="app.tagline"]');
+        if (title) title.textContent = playerName ? `Chào ${playerName}.` : title.textContent;
+        if (tag) {
+          tag.textContent = 'Phần thiết kế sứ mệnh đang được dựng. Màn chơi tiếp theo sẽ nối vào đây.';
+          tag.removeAttribute('data-i18n');
+        }
+        if (title) title.removeAttribute('data-i18n');
         btn.textContent = 'Xem lại mở đầu';
+        btn.removeAttribute('data-i18n');
       },
     });
   });
+
+  bindClickSounds();
+
+  /* đổi ngôn ngữ thì cập nhật cả khung khởi động */
+  onLangChange(() => applyToDom());
 </script>
 </body>
 </html>
