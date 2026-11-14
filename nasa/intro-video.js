@@ -94,6 +94,8 @@ export function playIntro(options = {}) {
     let skipTimer = null;
     let safetyTimer = null;
     let fadeTimer = null;
+    let blobUrl = null;
+    const abortCtrl = new AbortController();
 
     /* ---------- dựng DOM overlay ---------- */
     const el = document.createElement('div');
@@ -219,14 +221,19 @@ export function playIntro(options = {}) {
       clearTimeout(skipTimer);
       clearTimeout(safetyTimer);
       clearTimeout(fadeTimer);
+      abortCtrl.abort();
       window.removeEventListener('keydown', onKeyDown, true);
       offLang();
       try {
         video.pause();
         video.removeAttribute('src');
-        video.load();
+        video.remove();
       } catch {
         /* bỏ qua */
+      }
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        blobUrl = null;
       }
     }
 
@@ -278,10 +285,11 @@ export function playIntro(options = {}) {
       skipBtn.classList.add('is-visible');
     }, 1000);
 
-    /* Chốt an toàn tối đa (8.5 giây): không bao giờ để treo màn hình đen */
+    /* Chuẩn thời lượng cinematic ~6.4 giây: khi video kết thúc tự nhiên
+       hoặc hết thời lượng cinematic CSS+SVG thì chuyển mượt vào truyện. */
     safetyTimer = setTimeout(() => {
       finish();
-    }, 8500);
+    }, 6400);
 
     /* ---------- nạp và phát video ---------- */
     video.addEventListener('playing', () => {
@@ -293,19 +301,32 @@ export function playIntro(options = {}) {
       finish();
     });
 
-    /* Nếu file video không tải được (404, mạng lỗi, bị chặn) →
-       tự động bỏ qua ngay lập tức và vào thẳng màn kể chuyện. */
-    video.addEventListener('error', () => {
-      finish({ immediate: true });
-    });
-
-    video.src = videoUrl;
-    const playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(() => {
-        /* Khi fetch video lỗi hoặc trình duyệt từ chối phát → vào thẳng truyện */
+    /* Tải và kiểm tra file video qua fetch:
+       Nếu file video bị chặn hoặc trả về lỗi (404 / network error)
+       → tự động bỏ qua ngay lập tức và vào thẳng màn kể chuyện,
+       tuyệt đối không treo màn hình đen. */
+    fetch(videoUrl, { signal: abortCtrl.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (finished) return;
+        if (!blob || blob.size === 0) throw new Error('Empty video');
+        blobUrl = URL.createObjectURL(blob);
+        video.src = blobUrl;
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {
+            /* Nếu trình duyệt chặn hoặc không có bộ giải mã video phần cứng,
+               lớp cinematic CSS + SVG (.intro-cosmos) vẫn đang chạy mượt
+               và sẽ tự động chuyển cảnh khi hết 6.4s hoặc bấm Bỏ qua. */
+          });
+        }
+      })
+      .catch((err) => {
+        if (err && err.name === 'AbortError') return;
         finish({ immediate: true });
       });
-    }
   });
 }

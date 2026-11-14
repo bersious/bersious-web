@@ -27,7 +27,9 @@ function pick(value) {
 
 export function startStory({ onFinish } = {}) {
   let i = 0;
-  let playerName = localStorage.getItem(KEY_NAME) || '';
+  /* trim để tên toàn khoảng trắng không lọt qua, tránh trường hợp nút
+     Tiếp sáng lên nhưng bấm vào không chạy gì. */
+  let playerName = (localStorage.getItem(KEY_NAME) || '').trim();
   let busy = false;
   let transitionToken = 0;
   let watchdog = null;
@@ -39,21 +41,20 @@ export function startStory({ onFinish } = {}) {
   el.innerHTML = `
     <div class="story-stage">
       <div class="story-caption"></div>
-      <div class="story-act"></div>
       <div class="story-art-slot"></div>
     </div>
     <div class="story-sub">
-      <div class="story-body"><span class="story-next-hint"></span></div>
+      <div class="story-body" aria-live="polite" aria-atomic="false"><span class="story-next-hint"></span></div>
       <div class="story-nav">
-        <button class="story-btn" data-dir="-1">
+        <button class="story-btn" data-dir="-1" aria-label="Lùi lại">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
           <span class="story-btn-label"></span>
         </button>
-        <button class="story-btn story-btn-next" data-dir="1">
+        <button class="story-btn story-btn-next" data-dir="1" aria-label="Tiếp theo">
           <span class="story-btn-label"></span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
         </button>
       </div>
     </div>`;
@@ -61,7 +62,6 @@ export function startStory({ onFinish } = {}) {
 
   const stageArt = el.querySelector('.story-art-slot');
   const caption  = el.querySelector('.story-caption');
-  const actLabel = el.querySelector('.story-act');
   const body     = el.querySelector('.story-body');
   const btnPrev  = el.querySelector('[data-dir="-1"]');
   const btnNext  = el.querySelector('[data-dir="1"]');
@@ -70,7 +70,16 @@ export function startStory({ onFinish } = {}) {
 
   /* ---------- tiện ích ---------- */
 
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  /* Thoát ký tự nguy hiểm. Phải thoát CẢ dấu nháy kép và nháy đơn,
+     vì tên người chơi được chèn vào thuộc tính value="..." của ô nhập.
+     Thiếu hai ký tự này thì tên kiểu  a" onfocus="..."  sẽ chèn được
+     thuộc tính lạ vào thẻ, tức là lỗ hổng chèn mã. */
+  const esc = (s) => String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
   function fmt(text) {
     return esc(text)
@@ -97,28 +106,14 @@ export function startStory({ onFinish } = {}) {
     playSceneSfx(key);
   }
 
-  /* Số hồi chia theo cảnh, để người chơi biết mình đang ở đâu
-     mà không cần thanh tiến độ. */
-  const ACTS = [
-    { key: 'earth-home',   label: 'act.0' },
-    { key: 'farewell',     label: 'act.0' },
-    { key: 'launchpad',    label: 'act.0' },
-    { key: 'mars-surface', label: 'act.1' },
-    { key: 'storm-coming', label: 'act.2' },
-    { key: 'storm-impact', label: 'act.2' },
-    { key: 'departure',    label: 'act.2' },
-    { key: 'awake',        label: 'act.3' },
-  ];
+  /* Nhãn hồi đã bỏ theo yêu cầu. Người chơi chỉ cần nhãn bối cảnh
+     ở góc trái, không cần biết mình đang ở hồi mấy. */
 
   function updateChrome() {
     btnPrevLabel.textContent = t('nav.prev');
     btnNextLabel.textContent = t('nav.next');
 
     const artKey = artKeyFor(i);
-    if (artKey) {
-      const actKey = ACTS.find((a) => a.key === artKey)?.label;
-      actLabel.textContent = actKey ? t(actKey) : '';
-    }
 
     const beat = STORY[i];
     if (beat?.caption) caption.textContent = pick(beat.caption);
@@ -249,12 +244,22 @@ export function startStory({ onFinish } = {}) {
   function commitName() {
     const inp = body.querySelector('.inp');
     const v = (inp?.value || '').trim();
-    if (!v) return;
+
+    /* Không có tên thì vẽ lại để nút Tiếp trở về trạng thái mờ.
+       Trước đây hàm thoát im lặng, người chơi bấm mà không hiểu vì sao
+       không chạy. */
+    if (!v) { render(); return; }
+
     playerName = v;
     localStorage.setItem(KEY_NAME, v);
     btnNext.disabled = false;
+
+    /* Đặt cờ bận NGAY, trước khi vẽ lại. Nếu không, nút Tiếp vừa được
+       bật và người chơi bấm trong khoảng chờ sẽ chạy next() hai lần,
+       mất một lượt kể. */
+    busy = true;
     render();
-    setTimeout(next, 220);
+    setTimeout(() => { busy = false; next(); }, 220);
   }
 
   /* ---------- điều hướng ---------- */

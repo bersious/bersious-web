@@ -32,8 +32,11 @@
 
 .story-stage {
   position: relative;
+  /* flex: 1 1 auto cho phép khung tranh co lại. Nhưng co quá tay thì
+     ảnh 16:9 chỉ còn một dải mỏng. Vì vậy đặt cả chiều cao tối thiểu
+     để khung tranh luôn đủ chỗ hiển thị ảnh tử tế. */
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: var(--art-min-h, 38dvh);
   overflow: hidden;
   background: linear-gradient(180deg,
     var(--bg-void) 0%,
@@ -310,6 +313,9 @@
 .name-card .inp {
   display: block;
   width: 100%;
+  /* Thiếu dòng này thì width 100% cộng thêm padding và viền, ô nhập
+     rộng hơn thẻ chứa 28px và tràn ra ngoài mép màn hình trên điện thoại. */
+  box-sizing: border-box;
   font-family: var(--st-font-body);
   font-size: 1.05rem;
   padding: 11px 13px;
@@ -384,13 +390,30 @@
   .story-sub {
     padding: var(--st-pad-sub-sm);
     min-height: var(--st-sub-min-h-sm);
+    /* Trên điện thoại, nút điều hướng chuyển thành hàng tĩnh bên dưới
+       thay vì nổi tuyệt đối. Trước đây nút nổi đè lên dòng chữ cuối,
+       làm 42% số lượt bị che mất vài chữ. */
+    position: relative;
+    display: flex;
+    flex-direction: column;
   }
-  .story-line { font-size: .95rem; padding-right: 22px; }
-  .story-nav { right: var(--st-nav-offset-sm); bottom: var(--st-nav-offset-sm); }
-  .story-btn { height: var(--st-btn-h-sm); padding: 0 12px; font-size: .74rem; }
+  .story-line { font-size: .95rem; padding-right: 0; }
+  .story-nav {
+    position: static;
+    margin-top: var(--st-gap-sm);
+    padding-top: var(--st-gap-xs);
+    justify-content: flex-end;
+    border-top: 1px solid var(--line-hair);
+  }
+  .story-btn { height: var(--st-btn-h-sm); padding: 0 14px; font-size: .74rem; flex: 0 0 auto; }
   .story-caption { top: 14px; left: 14px; font-size: .6rem; }
-  .story-act { top: 14px; right: 14px; font-size: .7rem; }
   .story-speaker { margin-bottom: 7px; }
+}
+
+/* Bảng nhập tên phải nằm gọn, không bị nút điều hướng đè lên. */
+@media (max-width: 680px) {
+  .name-card { max-width: 100%; }
+  .name-card .go { width: 100%; min-height: 44px; }
 }
 
 @media (max-height: 660px) {

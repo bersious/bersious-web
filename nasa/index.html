@@ -126,6 +126,7 @@
   const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
 
   const { startStory }      = await import(BASE + 'story.js');
+  const { startBase }       = await import(BASE + 'base.js');
   const { playIntro }       = await import(BASE + 'intro-video.js');
   const { applyToDom, onLangChange } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
@@ -142,27 +143,44 @@
   const btn  = document.getElementById('start');
   const gear = document.getElementById('settings-btn');
 
+  /* Cờ đặt ở phạm vi ngoài, không đặt trong callback. Nếu đặt trong
+     callback thì mỗi lần onFinish được gọi lại tạo một cờ mới, và cờ
+     đó luôn là false, nên không chặn được gì. */
+  let baseStarted = false;
+
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
   btn.addEventListener('click', async () => {
+    /* Chặn bấm hai lần. Không có cờ này, double-click tạo ra hai màn
+       truyện chồng nhau và hai listener bàn phím cùng chạy. */
+    if (btn.dataset.started === '1') return;
+    btn.dataset.started = '1';
+
     playClick();
     boot.style.display = 'none';
     await playIntro();
     startStory({
-      onFinish: ({ playerName, crew, playerRole }) => {
-        // TODO: chuyển sang màn thiết kế sứ mệnh, chờ engine của Ngọc
-        console.log('story done', { playerName, crew, playerRole });
-        boot.style.display = '';
-        const title = boot.querySelector('[data-i18n="app.title"]');
-        const tag = boot.querySelector('[data-i18n="app.tagline"]');
-        if (title) title.textContent = playerName ? `Chào ${playerName}.` : title.textContent;
-        if (tag) {
-          tag.textContent = 'Phần thiết kế sứ mệnh đang được dựng. Màn chơi tiếp theo sẽ nối vào đây.';
-          tag.removeAttribute('data-i18n');
-        }
-        if (title) title.removeAttribute('data-i18n');
-        btn.textContent = 'Xem lại mở đầu';
-        btn.removeAttribute('data-i18n');
+      onFinish: ({ playerName }) => {
+        /* Màn mở đầu xong thì vào thẳng căn cứ. Không quay lại màn
+           khởi động, vì người chơi đã bắt đầu chơi rồi.
+           Cờ baseStarted ở phạm vi ngoài chặn trường hợp onFinish bị
+           gọi hai lần, tránh hai màn căn cứ chồng lên nhau. */
+        if (baseStarted) return;
+        baseStarted = true;
+
+        const host = document.createElement('div');
+        host.className = 'base-host';
+        document.body.appendChild(host);
+        startBase({
+          container: host,
+          playerName,
+          onExit: () => {
+            host.remove();
+            baseStarted = false;
+            boot.style.display = '';
+            delete btn.dataset.started;
+          },
+        });
       },
     });
   });

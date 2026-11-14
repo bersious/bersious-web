@@ -82,6 +82,38 @@ export const STRINGS = {
     /* ---------- giá trị bật tắt ---------- */
     'on': 'Bật',
     'off': 'Tắt',
+
+    /* ---------- màn căn cứ ---------- */
+    'base.who': 'Phi hành gia',
+    'base.whoFallback': 'Chưa đặt tên',
+    'base.heading': 'Chọn việc cho hôm nay',
+    'base.day': 'Ngày {n}',
+    'base.night': 'Ban đêm',
+    'base.daytime': 'Ban ngày',
+    'base.close': 'Đóng',
+
+    'base.farm': 'Nông trại',
+    'base.farm.desc': 'Khoang trồng rau trong nhà kính. Chưa có gì để gieo.',
+    'base.farm.locked': 'Cần hạt giống. Kho hạt giống nằm ngoài căn cứ.',
+
+    'base.bag': 'Túi đồ',
+    'base.bag.desc': 'Mọi thứ bạn còn lại sau cơn bão.',
+    'base.bag.title': 'Túi đồ của bạn',
+
+    'base.explore': 'Đi thám hiểm',
+    'base.explore.desc': 'Ra ngoài khảo sát địa hình quanh căn cứ.',
+    'base.explore.locked': 'Khu vực này chưa dựng xong. Bản đồ còn đang vẽ.',
+
+    'base.sleep': 'Đi ngủ',
+    'base.sleep.desc': 'Ngủ qua đêm, thức dậy lúc 07:00 sáng hôm sau.',
+
+    'base.footer.survived': 'Đã sống sót {n} ngày',
+    'base.footer.items': '{n} vật phẩm',
+
+    'base.item.toolkit': 'Hộp dụng cụ',
+    'base.item.oxygen': 'Bình oxy',
+    'base.item.ration': 'Khẩu phần ăn',
+    'base.item.radio': 'Máy liên lạc hỏng',
   },
 
   en: {
@@ -148,6 +180,38 @@ export const STRINGS = {
     /* ---------- toggles ---------- */
     'on': 'On',
     'off': 'Off',
+
+    /* ---------- base screen ---------- */
+    'base.who': 'Astronaut',
+    'base.whoFallback': 'Unnamed',
+    'base.heading': 'Pick today\'s work',
+    'base.day': 'Day {n}',
+    'base.night': 'Night',
+    'base.daytime': 'Daylight',
+    'base.close': 'Close',
+
+    'base.farm': 'Greenhouse',
+    'base.farm.desc': 'The indoor grow bay. Nothing to sow yet.',
+    'base.farm.locked': 'Seeds needed. The seed locker is outside the base.',
+
+    'base.bag': 'Pack',
+    'base.bag.desc': 'Everything you have left after the storm.',
+    'base.bag.title': 'Your pack',
+
+    'base.explore': 'Explore',
+    'base.explore.desc': 'Head outside and survey the ground around the base.',
+    'base.explore.locked': 'This area is not built yet. The map is still being drawn.',
+
+    'base.sleep': 'Sleep',
+    'base.sleep.desc': 'Sleep through the night, wake at 07:00 next morning.',
+
+    'base.footer.survived': 'Survived {n} days',
+    'base.footer.items': '{n} items',
+
+    'base.item.toolkit': 'Tool kit',
+    'base.item.oxygen': 'Oxygen tank',
+    'base.item.ration': 'Ration pack',
+    'base.item.radio': 'Broken radio',
   },
 };
 

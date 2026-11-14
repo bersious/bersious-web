@@ -144,6 +144,10 @@
   /* ---------- vùng tranh ---------- */
   --art-h-max:      56dvh;
   --art-h-min:      280px;
+  /* Chiều cao tối thiểu của khung tranh. Không có số này thì những
+     lượt có nội dung dài, ví dụ bảng nhập tên, sẽ đẩy khung tranh
+     xuống còn một dải mỏng và ảnh 16:9 bị cắt mất hơn nửa. */
+  --art-min-h:      38dvh;
 
   /* ---------- lớp phủ ---------- */
   --st-overlay:     rgba(7, 10, 14, .82);
