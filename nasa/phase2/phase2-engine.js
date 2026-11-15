@@ -32,7 +32,7 @@ import {
   solToEarthDays,
   earthDaysToSol,
   formatVi,
-} from '../src/nasa-data.js';
+} from '../nasa-data.js';
 
 /* ============================================================
    1. HẰNG SỐ CỦA GIAI ĐOẠN 2

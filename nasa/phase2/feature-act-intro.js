@@ -13,7 +13,7 @@
    src/i18n.js. Màu đọc từ tokens.css qua biến CSS.
    ============================================================ */
 
-import { getLang, onLangChange } from '../src/i18n.js';
+import { getLang, onLangChange } from '../i18n.js';
 
 /* Đường dẫn tuyệt đối tính từ chính file này. */
 const BASE = new URL('.', import.meta.url).href;

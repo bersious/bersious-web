@@ -773,6 +773,13 @@ export function openFarm({ container, clock, stats, playerName = '', onClose, on
       const isBlocked = plot.state === 'empty' && Boolean(blocked);
       cells[i].classList.toggle('is-blocked', isBlocked);
       cells[i].setAttribute('aria-disabled', isBlocked ? 'true' : 'false');
+      /* Tooltip và nhãn aria phải theo cùng trạng thái: khi nước vừa
+         về đủ, "Bấm để gieo" phải quay lại ngay chứ không đợi lần
+         vẽ lại khay kế tiếp. */
+      const act = actionFor(plot);
+      const aria = s('aria.plot', { n: i + 1, state: tagFor(plot, today()) }) + (act ? '. ' + act : '');
+      if (cells[i].getAttribute('aria-label') !== aria) cells[i].setAttribute('aria-label', aria);
+      cells[i].title = aria;
     }
   }
 

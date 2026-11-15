@@ -82,7 +82,18 @@
   color: var(--tx-dim);
 }
 
-.mviz-title .is-primary {
+/* Hai tiêu đề song ngữ luôn cùng hiện, nhưng tiêu đề của ngôn ngữ đang
+   chọn phải nổi hơn hẳn bản kia. Thiếu hai quy tắc làm mờ dưới đây thì
+   bản tiếng Việt vẫn giữ cỡ chữ lớn và màu sáng ở chế độ EN, nên người
+   chấm đọc tiếng Anh vẫn thấy tiếng Việt là dòng chính. */
+.mviz-title-vi:not(.is-primary) {
+  font-size: .74em;
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: var(--tx-dim);
+}
+
+.mviz-title .mviz-title-vi.is-primary {
   color: var(--tx-bright);
 }
 

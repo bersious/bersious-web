@@ -18,10 +18,10 @@
    Đường dẫn: base lấy bằng new URL('.', import.meta.url).href.
    ============================================================ */
 
-import { getLang, onLangChange } from '../src/i18n.js';
+import { getLang, onLangChange } from '../i18n.js';
 
 const BASE = new URL('.', import.meta.url).href;
-const DATA_URL = new URL('../src/data/nasa/rescue_modules.json', import.meta.url).href;
+const DATA_URL = new URL('../data/nasa/rescue_modules.json', import.meta.url).href;
 
 /* ============================================================
    CHUỖI SONG NGỮ CỦA RIÊNG MÀN NÀY

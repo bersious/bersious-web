@@ -53,7 +53,7 @@
      - tôn trọng prefers-reduced-motion và html.motion-off
    ============================================================ */
 
-import { REQUIRED_DELTA_V_MS, deltaVLegs } from '../src/nasa-data.js';
+import { REQUIRED_DELTA_V_MS, deltaVLegs } from '../nasa-data.js';
 
 const BASE = new URL('.', import.meta.url).href;
 const CSS_URL = new URL('css-trajectory.css', import.meta.url).href;

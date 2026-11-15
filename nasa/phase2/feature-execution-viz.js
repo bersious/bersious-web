@@ -771,7 +771,7 @@ export function mountExecution({ container, engine, onDone } = {}) {
   function startCruise() {
     /* Thử nạp module bản đồ thật. Nạp động để trang vẫn chạy được
        khi file chưa có, và để lỗi mạng không làm hỏng cả bước. */
-    import('../src/mission-viz.js')
+    import('../mission-viz.js')
       .then((mod) => {
         if (destroyed || !mod || typeof mod.createMissionViz !== 'function') {
           throw new Error('mission-viz không xuất createMissionViz');

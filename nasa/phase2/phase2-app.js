@@ -1015,7 +1015,7 @@ export async function mountPhase2(options) {
 
   /* ---------- i18n của dự án, nạp mềm ---------- */
   try {
-    const mod = await import(new URL('../src/i18n.js', BASE).href);
+    const mod = await import(new URL('../i18n.js', BASE).href);
     if (mod && typeof mod.getLang === 'function') {
       i18n = mod;
       lang = mod.getLang() || lang;

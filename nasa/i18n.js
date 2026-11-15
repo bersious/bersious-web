@@ -47,6 +47,8 @@ export const STRINGS = {
 
     /* ---------- bảng cài đặt ---------- */
     'settings.open': 'Cài đặt',
+    'repo.open': 'Mở kho mã nguồn trên GitHub',
+    'repo.title': 'Mã nguồn trên GitHub',
     'base.sleep.forecastTitle': 'Dự báo sáng mai',
     'base.sleep.forecastSub': 'Chỉ số lúc 07:00 nếu bạn đi ngủ bây giờ.',
     'base.sleep.forecastDeath': 'Cảnh báo: bạn sẽ không tỉnh lại. Hãy ăn uống trước khi ngủ.',
@@ -725,6 +727,8 @@ export const STRINGS = {
     'base.sleep.confirmYes': 'Sleep',
     'base.sleep.confirmNo': 'Not yet',
     'settings.open': 'Settings',
+    'repo.open': 'Open the source repository on GitHub',
+    'repo.title': 'Source code on GitHub',
     'hud.crew': 'Crew',
     'hud.station': 'Station',
     'hud.stamina': 'Stamina',
@@ -1396,6 +1400,18 @@ export function applyToDom(root = document) {
     const key = el.getAttribute('data-i18n-placeholder');
     const val = t(key);
     if (val) el.setAttribute('placeholder', val);
+  });
+  /* Nhãn trợ năng: nút chỉ có icon (bánh răng, GitHub) không có chữ nào
+     để dịch qua data-i18n, nên aria-label và title vẫn nằm tiếng Việt
+     khi người chơi chọn EN. Trình đọc màn hình đọc đúng thuộc tính này,
+     nên nó phải theo ngôn ngữ đang bật. */
+  root.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria');
+    const val = t(key);
+    if (val) {
+      el.setAttribute('aria-label', val);
+      if (el.hasAttribute('title')) el.setAttribute('title', val);
+    }
   });
 }
 

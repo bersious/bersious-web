@@ -23,7 +23,7 @@
      Colors come from tokens through css-assembly-ui.css.
    ============================================================ */
 
-import { getLang, onLangChange } from '../src/i18n.js';
+import { getLang, onLangChange } from '../i18n.js';
 
 const BASE = new URL('.', import.meta.url).href;
 const CSS_URL = new URL('css-assembly-ui.css', import.meta.url).href;

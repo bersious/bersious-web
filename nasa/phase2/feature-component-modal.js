@@ -22,10 +22,10 @@
    location.href. Mọi màu đọc từ ../src/css/tokens.css.
    ============================================================ */
 
-import { getLang, onLangChange } from '../src/i18n.js';
+import { getLang, onLangChange } from '../i18n.js';
 
 const BASE = new URL('.', import.meta.url).href;
-const DATA_URL = new URL('../src/data/nasa/rescue_modules.json', import.meta.url).href;
+const DATA_URL = new URL('../data/nasa/rescue_modules.json', import.meta.url).href;
 const CSS_URL = new URL('css-component-modal.css', import.meta.url).href;
 
 /* ============================================================

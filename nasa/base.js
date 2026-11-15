@@ -19,11 +19,12 @@ import { createBaseScene, pickCharState } from './base-scene.js';
 import { createClockUi } from './clock-ui.js';
 import { t, onLangChange, getLang } from './i18n.js';
 import { getSettings } from './settings.js';
+import { openSettings } from './settings-ui.js';
 import { playClick } from './audio.js';
 import { playMemory } from './memories.js';
 import {
   loadQuest, tickQuest, markExcavated, canOpenRepair,
-  showProbeNotice, daysUntilTransmit, noticeLines,
+  showProbeNotice, daysUntilTransmit, noticeLines, PROBE_NOTICE_DAY,
 } from './probe-quest.js';
 import { openRepairBay, isAllRepaired, repairedCount, REPAIR_PARTS } from './repair.js';
 import { openBeaconScene } from './beacon.js';
@@ -573,11 +574,15 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
       setScene(sceneEl, sceneCap, 'radio');
       /* Chuỗi mở khoá: phải đào được máy phát từ xác tàu thăm dò trước
          đã, rồi sửa ba món, rồi mới phát được tín hiệu. Không có máy
-         phát thì cái ăng-ten gãy ngoài kia không nối vào đâu cả. */
+         phát thì cái ăng-ten gãy ngoài kia không nối vào đâu cả.
+
+         Chưa tới ngày 6 thì người chơi CHƯA biết tới xác tàu: nhắc
+         "nhớ ra tàu thăm dò" là lộ truyện trước lúc nó xảy ra. Hai
+         câu khác nhau cho hai mốc. */
       if (!canOpenRepair(quest)) {
-        const need = daysUntilTransmit(clock.state().day);
-        showToast(need > 0
-          ? t('probe.log.noticed')
+        const day = clock.state().day;
+        showToast(day < PROBE_NOTICE_DAY
+          ? t('base.radio.locked')
           : t('probe.need'));
         return;
       }
@@ -1138,7 +1143,7 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     const ov = document.createElement('div');
     ov.className = 'sleep-confirm';
     ov.innerHTML = `
-      <div class="sleep-confirm-panel" role="dialog" aria-modal="true" aria-label="Dự báo sáng mai">
+      <div class="sleep-confirm-panel" role="dialog" aria-modal="true">
         <h3 class="sleep-confirm-title"></h3>
         <p class="sleep-confirm-sub"></p>
         <div class="sleep-confirm-grid"></div>
@@ -1151,6 +1156,7 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     el.appendChild(ov);
 
     ov.querySelector('.sleep-confirm-title').textContent = t('base.sleep.forecastTitle');
+    ov.querySelector('.sleep-confirm-panel').setAttribute('aria-label', t('base.sleep.forecastTitle'));
     ov.querySelector('.sleep-confirm-sub').textContent = t('base.sleep.forecastSub');
 
     /* Dùng đúng key hud.* đã có bản dịch, không tự đặt key mới.
