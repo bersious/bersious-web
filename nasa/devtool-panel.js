@@ -383,6 +383,7 @@ export const WATER_TOOLS = [
    ------------------------------------------------------------ */
 
 export const GUIDE_TOOLS = [
+  { id: 'guide:escape', nameKey: 'tool.guideEscape', descKey: 'tool.guideEscape.d' },
   { id: 'guide:reset', nameKey: 'tool.guide', descKey: 'tool.guide.d' },
 ];
 

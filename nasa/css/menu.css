@@ -89,11 +89,14 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  /* Ảnh nền mới đã tự có vignette và bố cục sáng tối rõ, nên scrim chỉ
+     cần làm tối nhẹ ở đáy (chỗ đặt cụm nút) và hai mép, không phủ đều
+     như bản cũ vì sẽ làm mất chi tiết tàu và phi hành gia. */
   background:
-    linear-gradient(180deg, rgba(6, 7, 10, .62) 0%, rgba(6, 7, 10, .22) 20%, transparent 42%,
-      rgba(6, 7, 10, .18) 60%, rgba(5, 6, 9, .82) 100%),
-    linear-gradient(90deg, rgba(5, 6, 9, .74) 0%, rgba(5, 6, 9, .34) 24%, transparent 52%),
-    linear-gradient(270deg, rgba(5, 6, 9, .46) 0%, transparent 32%);
+    linear-gradient(180deg, rgba(6, 7, 10, .34) 0%, transparent 22%,
+      transparent 52%, rgba(5, 6, 9, .72) 100%),
+    linear-gradient(90deg, rgba(5, 6, 9, .28) 0%, transparent 26%,
+      transparent 74%, rgba(5, 6, 9, .34) 100%);
 }
 
 /* nhiễu hạt mịn, cho ảnh không phẳng lì */
@@ -195,9 +198,12 @@
 
 .menu-ship-anchor {
   position: absolute;
-  left: 4%;
-  bottom: 7%;
-  height: 48%;
+  /* Neo vào đúng chân tàu trong ảnh nền: đo trên menu-mars-hero.webp
+     thấy ba chân đáp chụm quanh 25 tới 28 phần trăm bề rộng và đáy
+     khoảng 71 phần trăm chiều cao. Lửa phụt ra từ đây mới khớp cảnh. */
+  left: 21%;
+  bottom: 26%;
+  height: 18%;
   z-index: 5;
   pointer-events: none;
 }
@@ -210,8 +216,9 @@
   aspect-ratio: 240 / 300;
   transform-origin: 50% 100%;
   transform: translate3d(0, 0, 0);
-  animation: menu-ship-idle 4.8s ease-in-out infinite;
-  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .55));
+  /* Không còn sprite tàu để rung, nên nhịp thở chuyển sang rất nhẹ,
+     chỉ để vùng lửa không đứng im tuyệt đối khi chờ. */
+  animation: menu-ship-idle 5.6s ease-in-out infinite;
 }
 
 /* rung 0,3px khi chờ, như máy đang giữ nhiệt */
@@ -385,12 +392,19 @@
 
 .menu-title-wrap {
   position: absolute;
-  top: 9%;
+  top: 13%;
   left: 50%;
+  /* Căn giữa tuyệt đối: translateX(-50%) đặt tâm khối đúng trục dọc
+     giữa màn hình, không phụ thuộc bề rộng chữ. Giãn chữ của tiêu đề
+     làm mép phải hụt một khoảng, nên bù lại bằng margin-right âm ở
+     .menu-title để quang học vẫn cân. */
   transform: translateX(-50%);
   z-index: 10;
-  padding: 0 clamp(12px, 3vw, 40px);
-  /* chữ mờ dần khi bấm phóng, dịch lên 8px */
+  padding: 0;
+  width: max-content;
+  max-width: 94vw;
+  text-align: center;
+  pointer-events: none;
   transition: opacity .4s ease, transform .4s ease;
 }
 
@@ -407,25 +421,26 @@
 #boot .menu-title {
   position: relative;
   margin: 0;
+  /* Không dùng margin âm để bù giãn chữ nữa: khung cha đã căn giữa
+     tuyệt đối, thêm margin âm sẽ đẩy cả khối lệch sang phải đúng bằng
+     nửa khoảng giãn. Chấp nhận mép phải hụt một khoảng giãn chữ, mắt
+     gần như không thấy vì chữ giãn đều hai bên. */
   font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
   font-weight: 700;
   font-size: clamp(2.6rem, 7vw, 6rem);
   line-height: 1;
   letter-spacing: .28em;
-  /* chữ có giãn cách nên mép phải luôn hụt một khoảng; bù lại cho cân */
-  margin-right: -.28em;
   text-transform: uppercase;
   white-space: nowrap;
   max-width: none;
-  text-wrap: balance;
-  background-image: linear-gradient(177deg, #f0b455 0%, #e8a33d 42%, #c96a2a 100%);
+  background-image: linear-gradient(177deg, #f6c887 0%, #eda94b 42%, #cf7430 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  /* Chỉ giữ bóng đổ sâu để chữ tách khỏi trời. Bỏ quầng cam phía sau:
-     nó cộng với dải sáng cũ thành một mảng mờ trông như hộp. */
-  filter: drop-shadow(0 3px 14px rgba(0, 0, 0, .82)) drop-shadow(0 1px 2px rgba(0, 0, 0, .6));
+  /* Bóng đổ sâu giúp chữ tách khỏi trời. Quầng cam đã bỏ. */
+  filter: drop-shadow(0 3px 14px rgba(0, 0, 0, .88)) drop-shadow(0 1px 2px rgba(0, 0, 0, .7));
+  text-align: center;
 }
 
 /* bụi đỏ lướt ngang qua mặt chữ */
@@ -454,18 +469,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(8px, 1.4vw, 16px);
-  margin: clamp(6px, 1vh, 12px) 0 0;
+  gap: clamp(8px, 1.4vw, 18px);
+  margin: clamp(10px, 1.4vh, 16px) 0 0;
   font-family: var(--st-font-mono, monospace);
-  font-size: clamp(.52rem, .44rem + .28vw, .68rem);
+  font-size: clamp(.58rem, .48rem + .34vw, .78rem);
   font-weight: 500;
-  letter-spacing: .15em;
-  line-height: 1.4;
+  letter-spacing: .18em;
+  line-height: 1.5;
   text-transform: uppercase;
+  /* Căn giữa tuyệt đối, cùng trục với tiêu đề và cụm nút. Trước đây
+     dòng này bị căn trái nên cả khối phụ đề trôi lệch sang trái. */
   text-align: center;
-  color: rgba(246, 226, 200, .74);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .7);
-  /* dòng phụ đề mờ dần cùng tiêu đề lúc bấm phóng */
+  justify-content: center;
+  color: rgba(250, 232, 208, .86);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .92), 0 1px 2px rgba(0, 0, 0, .8);
   transition: opacity .4s ease, transform .4s ease;
 }
 
@@ -549,15 +566,18 @@
 
 .menu-actions {
   position: absolute;
-  left: 32%;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  bottom: 16%;
+  /* Cụm nút căn giữa theo trục dọc và neo xuống gần đáy, để không đè
+     lên tàu ở bên trái hay phi hành gia bên phải trong ảnh nền. */
+  transform: translateX(-50%);
   z-index: 12;
-  width: min(280px, 34vw);
+  width: min(340px, 78vw);
   display: flex;
   flex-direction: column;
   gap: 12px;
   align-items: stretch;
+  pointer-events: auto;
   transition: opacity .4s ease, transform .4s ease;
 }
 
@@ -687,6 +707,27 @@
    lưu. Dòng chú thích bên dưới nói rõ vì sao. */
 .menu-actions .mbtn-resume[hidden] { display: inline-flex; }
 
+/* Nền mờ sau cụm nút: ảnh mới có đường chân trời chạy ngang đúng tầm
+   nút thứ hai nên chữ dễ chìm. Một tấm tối bán trong suốt bo góc đặt
+   sau cả cụm giữ được độ đọc mà không cần phủ tối cả màn hình. */
+.menu-actions::before {
+  content: "";
+  position: absolute;
+  inset: -18px -20px -20px;
+  z-index: -1;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(8, 11, 16, .58), rgba(6, 8, 12, .72));
+  backdrop-filter: blur(7px) saturate(1.05);
+  -webkit-backdrop-filter: blur(7px) saturate(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .05),
+    0 18px 50px rgba(0, 0, 0, .45);
+  pointer-events: none;
+}
+
+
+
 .mbtn-resume[data-nosave="1"] {
   /* 0,55 chứ không phải 0,4: ở 0,4 chữ trên nền kính mờ xuống dưới
      ngưỡng đọc được của AA. Vẫn đủ khác biệt để đọc ra là đang khoá. */
@@ -721,12 +762,13 @@
 }
 
 .mbtn-start:disabled {
-  background-color: rgba(120, 110, 96, .16);
-  border-color: rgba(160, 150, 132, .28);
-  border-left-color: rgba(160, 150, 132, .5);
-  color: rgba(226, 216, 200, .52);
+  background-color: rgba(96, 88, 76, .22);
+  border-color: rgba(150, 140, 124, .26);
+  border-left-color: rgba(150, 140, 124, .46);
+  color: rgba(226, 216, 200, .46);
   box-shadow: none;
   cursor: not-allowed;
+  transform: none;
 }
 
 .mbtn-spin {
