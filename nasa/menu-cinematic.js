@@ -740,10 +740,18 @@ export function playLaunch() {
   const myToken = ++launchToken;
 
   return new Promise((resolve) => {
+    /* Lần chạy cũ bị lần mới vượt qua thì phải resolve ngay: nếu để
+       treo, runFlow() của lần bấm trước không bao giờ tiếp tục, nút
+       kẹt ở "Đang chuẩn bị..." vĩnh viễn. resolve() của Promise cũ
+       không làm gì cả vì luồng cũ đã bị busy chặn từ trước. */
+    let superseded = false;
+    const resolveSuperseded = () => { if (!superseded) { superseded = true; resolve(); } };
+    if (myToken !== launchToken) resolveSuperseded();
+
     const timers = [];
     const at = (ms, fn) => timers.push(setTimeout(() => {
       /* Một hoạt cảnh mới đã bắt đầu thì mọi nhịp của lần cũ phải im. */
-      if (myToken !== launchToken) return;
+      if (myToken !== launchToken) { resolveSuperseded(); return; }
       fn();
     }, ms));
 

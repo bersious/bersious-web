@@ -415,6 +415,25 @@
   </div>
 </div>
 <script>window.__pbParsedAt = performance.now();</script>
+<script>
+  /* Dịch dòng chữ của màn chờ nhúng theo ngôn ngữ đã lưu. Script này
+     nằm NGAY SAU khung #pb nên phần tử đã dựng xong: đổi được chữ ngay,
+     không phải chờ DOMContentLoaded như bản trong <head> (bản đó vẫn
+     giữ lại làm dự phòng). */
+  (function () {
+    try {
+      var lang = 'vi';
+      try { lang = localStorage.getItem('smdg.lang') || 'vi'; } catch (e1) { /* riêng tư chặn đọc */ }
+      var en = lang === 'en';
+      var m = document.querySelector('.pb-mission');
+      var s = document.getElementById('pb-status');
+      var r = document.getElementById('pb');
+      if (m) m.textContent = en ? 'ARES III · Preparing the control room' : 'ARES III · Chuẩn bị phòng điều khiển';
+      if (s) s.textContent = en ? 'Loading images' : 'Đang nạp hình ảnh';
+      if (r) r.setAttribute('aria-label', en ? 'Loading resources' : 'Đang tải tài nguyên');
+    } catch (e) { /* thiếu phần tử thì để nguyên chữ mặc định */ }
+  })();
+</script>
 
 <script>
   /* Bộ đếm của màn chờ nhúng. Viết bằng ES5, không import gì: nó
@@ -448,6 +467,19 @@
       return p;
     }
 
+    /* Chữ song ngữ cho hai dòng trạng thái. Đọc thẳng localStorage thay
+       vì chỉ trông vào window.__pbText: bản trong <head> có thể không
+       chạy (bị chặn lưu trữ, hoặc script head bị bỏ), và khi đó chuỗi
+       tiếng Việt viết cứng sẽ hiện với người chơi chọn EN. */
+    function txt(key) {
+      var en = false;
+      try { en = localStorage.getItem('smdg.lang') === 'en'; } catch (e) { /* chặn đọc: dùng VI */ }
+      var t = window.__pbText;
+      if (t && t[key]) return t[key];
+      if (key === 'almost') return en ? 'Almost there' : 'Sắp xong';
+      return en ? 'Loading images' : 'Đang nạp hình ảnh';
+    }
+
     /* Lớp cuối, không điều kiện: 3 giây là gỡ. Đặt TRƯỚC mọi việc có
        thể ném lỗi để nó luôn được cài. */
     setTimeout(hide, 3000);
@@ -479,7 +511,7 @@
         var p = paint(done, total);
         if (p >= 100 && !settledOnce) {
           settledOnce = true;
-          if (status) status.textContent = (window.__pbText && window.__pbText.almost) || 'Sắp xong';
+          if (status) status.textContent = txt('almost');
         }
       }
 
@@ -508,8 +540,8 @@
       try {
         if (!totalCount) return;
         var p = paint(settledCount, totalCount);
-        if (p >= 100 && status) status.textContent = (window.__pbText && window.__pbText.almost) || 'Sắp xong';
-        else if (status && settledCount < totalCount) status.textContent = (window.__pbText && window.__pbText.images) || 'Đang nạp hình ảnh';
+        if (p >= 100 && status) status.textContent = txt('almost');
+        else if (status && settledCount < totalCount) status.textContent = txt('images');
       } catch (err) { /* bỏ qua */ }
     };
 

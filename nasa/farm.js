@@ -560,8 +560,10 @@ export function openFarm({ container, clock, stats, playerName = '', onClose, on
       if (cell.getAttribute('aria-label') !== aria) cell.setAttribute('aria-label', aria);
       cell.setAttribute('aria-disabled', (plot.state === 'empty' && blocked) ? 'true' : 'false');
 
-      const tip = act ? (aria + '. ' + act) : aria;
-      cell.title = tip;
+      /* Tooltip chỉ nhắc lại hành động khi khay còn bấm được. Khi bị
+         chặn (thiếu nước/hạt) act rỗng nên aria đã là câu đầy đủ; ghép
+         thêm lần nữa sẽ lặp "Bấm để gieo" hai lần liền nhau. */
+      cell.title = aria;
     }
 
     const w = waterNow();

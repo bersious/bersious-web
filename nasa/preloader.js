@@ -88,7 +88,7 @@ const TEXT = {
     mission: 'ARES III · Preparing the control room',
     images: 'Loading images',
     audio: 'Loading audio',
-    almost: 'Almost ready',
+    almost: 'Almost there',
     fail: (n) => `${n} file could not be loaded, you can still play`,
     label: 'Loading resources',
   },
@@ -605,6 +605,10 @@ function gateHide() {
      ngang, và nếu màn mới là video mở đầu thì đúng lúc đó video hiện ra
      sau một tấm màn xám. */
   setTimeout(() => { try { root.remove(); } catch (_) {} }, 220);
+  /* Trả về một Promise chờ lớp cổng GỠ XONG. gate() dùng nó để không
+     resolve trước khi lớp đục (z240) rời khỏi video mở đầu (z95):
+     resolve sớm là video bị che bởi tấm màn xám suốt 200ms mờ dần. */
+  return new Promise((done) => setTimeout(done, 230));
 }
 
 /* Chạy một việc trong lúc lớp phủ chặn màn hình. Trả về kết quả của
@@ -635,7 +639,10 @@ export async function gate(job, opts = {}) {
     return await work;
   } finally {
     clearTimeout(gateTimer);
-    gateHide();
+    /* Chờ lớp cổng mờ dần và gỡ xong rồi mới trả quyền cho người gọi.
+       Không có bước này thì màn mới (video mở đầu, z95) hiện ra dưới
+       một tấm cổng còn đục (z240) suốt 200ms mờ dần. */
+    await gateHide();
   }
 }
 

@@ -9,7 +9,7 @@
    var(), nên mọi màu của con tàu được gán bằng lớp CSS ở đây.
    ============================================================ */
 
-@import url('../src/css/tokens.css');
+@import url('../css/tokens.css');
 
 .cml3-root {
   --cml3-radius: var(--st-radius-lg);

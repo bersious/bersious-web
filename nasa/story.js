@@ -17,6 +17,11 @@ import { applyBeatFx, resetFx, fxMotionOn } from './story-fx.js';
 
 const KEY_NAME = 'smdg.playerName';
 
+/* Tên mặc định khi người chơi bấm Bỏ qua trước lúc đặt tên. Dùng tên
+   mà chính phần kể chuyện đã dùng làm tên tạm cho {name} từ lượt 0,
+   để câu thoại và màn căn cứ không lệch nhau. */
+const DEFAULT_NAME = 'Reid';
+
 /* Lấy chuỗi theo ngôn ngữ hiện tại. Nếu dữ liệu là chuỗi thuần
    thì trả về luôn, để không vỡ khi ai đó lỡ viết tắt. */
 function pick(value) {
@@ -45,7 +50,6 @@ export function startStory({ onFinish } = {}) {
   const el = document.createElement('div');
   el.className = 'story-screen';
   el.innerHTML = `
-    <button class="story-skip" type="button"></button>
     <div class="story-stage">
       <div class="story-caption"></div>
       <div class="story-art-slot"></div>
@@ -63,6 +67,7 @@ export function startStory({ onFinish } = {}) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
         </button>
+        <button class="story-skip" type="button"></button>
       </div>
     </div>`;
   document.body.appendChild(el);
@@ -71,11 +76,18 @@ export function startStory({ onFinish } = {}) {
   const caption  = el.querySelector('.story-caption');
   const body     = el.querySelector('.story-body');
   const btnSkip  = el.querySelector('.story-skip');
-  btnSkip.textContent = pick({ vi: 'Bỏ qua', en: 'Skip' });
-  btnSkip.setAttribute('aria-label', pick({
-    vi: 'Bỏ qua phần kể chuyện và vào thẳng trò chơi',
-    en: 'Skip the story and go straight into the game',
-  }));
+
+  /* Nhãn nút Bỏ qua phải theo ngôn ngữ hiện tại và đổi ngay khi người
+     chơi chuyển VI/EN giữa chừng. Gán một lần lúc dựng thì nút đứng
+     nguyên ở ngôn ngữ lúc mở màn. */
+  function paintSkipLabel() {
+    btnSkip.textContent = pick({ vi: 'Bỏ qua', en: 'Skip' });
+    btnSkip.setAttribute('aria-label', pick({
+      vi: 'Bỏ qua phần kể chuyện và vào thẳng trò chơi',
+      en: 'Skip the story and go straight into the game',
+    }));
+  }
+  paintSkipLabel();
   const btnPrev  = el.querySelector('[data-dir="-1"]');
   const btnNext  = el.querySelector('[data-dir="1"]');
   const btnPrevLabel = btnPrev.querySelector('.story-btn-label');
@@ -404,15 +416,39 @@ export function startStory({ onFinish } = {}) {
 
   /* Nút bỏ qua toàn bộ phần kể chuyện. Trước đây nút có trong DOM
      nhưng không gắn sự kiện, không có CSS, nên vô hình và bấm không
-     ăn. Giám khảo phải đọc hết hai mươi lượt thoại mới vào game. */
+     ăn. Giám khảo phải đọc hết hai mươi lượt thoại mới vào game.
+     Bấm Bỏ qua ở đúng lượt nhập tên cũng phải thoát được: lúc đó chưa
+     có tên, nên lấy tên mặc định và ghi vào bản lưu. Không có bước này
+     thì màn căn cứ mở ra với tên rỗng, và bản lưu mang tên trống. */
   btnSkip.addEventListener('click', (e) => {
     e.stopPropagation();
     playClick();
+    if (!playerName) {
+      playerName = pick({ vi: DEFAULT_NAME, en: DEFAULT_NAME });
+      try { localStorage.setItem(KEY_NAME, playerName); } catch (err) { /* chặn ghi thì vẫn chơi tiếp */ }
+    }
     finish();
   });
 
   function onKey(e) {
+    /* Ô nhập tên tự xử lý Enter (ký tên). Không chặn ở đây thì vừa ký
+       tên vừa nhảy thêm một lượt. */
     if (document.activeElement?.classList?.contains('inp')) return;
+
+    /* Nút Bỏ qua đang được chọn: Space/Enter phải kích hoạt CHÍNH NÚT
+       ĐÓ, không phải nút Tiếp. Trước đây Enter ở đây rơi xuống nhánh
+       btnNext.click(), nên người dùng bàn phím bấm "Bỏ qua" lại đi
+       tiếp một lượt và không bao giờ thoát được. Gọi click() thẳng
+       thay vì trông vào hành vi mặc định của trình duyệt: cách đó phụ
+       thuộc nền tảng và đã có lần không kích hoạt được nút. */
+    if (document.activeElement === btnSkip) {
+      if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+        e.preventDefault();
+        btnSkip.click();
+        return;
+      }
+    }
+
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
       btnNext.click();
@@ -425,6 +461,7 @@ export function startStory({ onFinish } = {}) {
 
   /* đổi ngôn ngữ giữa chừng thì vẽ lại lượt hiện tại, không mất vị trí */
   const offLang = onLangChange(() => {
+    paintSkipLabel();
     if (!busy) render();
   });
 

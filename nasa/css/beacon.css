@@ -55,7 +55,11 @@
   animation: beacon-in .5s ease;
 }
 
-/* khung chờ khi chưa có ảnh */
+/* khung chờ khi chưa có ảnh.
+   Người chơi thường thấy một khung tối trơn, không chữ, không hoa văn —
+   trông như một khung tranh đang tối chứ không như ô báo lỗi. Chỉ chế độ
+   nhà phát triển mới thêm nền sọc chéo và chữ mô tả cảnh (class
+   --dev, do beacon.js gắn khi localStorage smdg.devUnlocked === '1'). */
 .beacon-img-missing {
   position: absolute;
   inset: 0;
@@ -66,6 +70,10 @@
   gap: 12px;
   padding: 24px;
   text-align: center;
+  background: linear-gradient(160deg, #10151d, #070a0e);
+}
+
+.beacon-img-missing--dev {
   background:
     repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 10px, transparent 10px 20px),
     linear-gradient(160deg, #141b25, #0a0e14);

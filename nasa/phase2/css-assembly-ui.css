@@ -12,7 +12,7 @@
    from tokens.css.
    ============================================================ */
 
-@import url('../src/css/tokens.css');
+@import url('../css/tokens.css');
 
 .asm-ui {
   position: absolute;

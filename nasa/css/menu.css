@@ -475,7 +475,13 @@
   align-items: center;
   justify-content: center;
   gap: clamp(8px, 1.4vw, 18px);
-  margin: clamp(10px, 1.4vh, 16px) 0 0;
+  margin: clamp(10px, 1.4vh, 16px) auto 0;
+  /* boot.css quy định `.boot p { max-width: 44ch }` cho khung khởi động
+     cũ, và menu-tagline nằm trong #boot nên bị rò quy tắc đó: dòng phụ
+     đề bị bó 346px rồi trôi lệch trái dưới tiêu đề 590px. Ghi đè lại
+     để dòng này co theo nội dung và căn giữa cùng trục với tiêu đề. */
+  max-width: none;
+  width: max-content;
   font-family: var(--st-font-mono, monospace);
   font-size: clamp(.66rem, .52rem + .36vw, .82rem);
   font-weight: 500;
@@ -1055,6 +1061,12 @@ html.motion-off .menu-astro-img { transform: scaleX(-1); }
     transform: translate(-50%, -50%);
     width: min(280px, 80vw);
     gap: 10px;
+  }
+  /* Khung kính sau cụm nút: trên màn hẹp thu đệm dọc xuống 9px mỗi
+     bên. Đệm 18/20 như bản desktop cộng thêm 38px vào chiều cao khung,
+     đủ để hộp tối cao hơn hẳn cụm nút và trông rỗng ở đáy. */
+  .menu-actions::before {
+    inset: -9px -16px -9px;
   }
   .menu-stage.is-launching ~ .menu-actions {
     transform: translate(-50%, calc(-50% - 8px));

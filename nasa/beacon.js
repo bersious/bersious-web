@@ -105,6 +105,12 @@ export function openBeaconScene({ onDone } = {}) {
     const f = BEACON_FRAMES[idx];
     const line = LINES[idx];
     const langKey = lang();
+    /* Ghi chú nội bộ (mô tả cảnh cần vẽ) chỉ hiện khi bật chế độ nhà phát
+       triển. Người chơi thường thấy khung tối trơn, không có chữ hướng
+       dẫn nào — trước đây note_vi hiện thẳng ra màn hình người chơi và
+       đó là lỗi: ghi chú đó viết cho người vẽ, không phải cho người
+       chơi. */
+    const devMode = localStorage.getItem('smdg.devUnlocked') === '1';
 
     stage.innerHTML = `
       <figure class="beacon-frame">
@@ -112,19 +118,22 @@ export function openBeaconScene({ onDone } = {}) {
           <img class="beacon-img" alt="" src="${BASE_URL}assets/art/beacon/${f.file}.webp"
                data-fallbacks="assets/art/beacon/${f.file}.jpg;assets/art/beacon/${f.file}.png">
           <div class="beacon-img-missing" hidden>
-            <span class="mono">${String(idx + 1).padStart(2, '0')} / ${String(BEACON_FRAMES.length).padStart(2, '0')}</span>
-            <span class="beacon-img-note">${f['note_' + langKey]}</span>
+            ${devMode
+              ? `<span class="mono">${String(idx + 1).padStart(2, '0')} / ${String(BEACON_FRAMES.length).padStart(2, '0')}</span>
+                 <span class="beacon-img-note">${f['note_' + langKey]}</span>`
+              : ''}
           </div>
         </div>
         <figcaption class="beacon-line">${line[langKey]}</figcaption>
       </figure>
     `;
 
-    /* Ảnh chưa có thì hiện khung ghi chú, để bên vẽ biết còn thiếu
-       khung nào và cần vẽ gì. Không chặn luồng chơi. */
+    /* Ảnh chưa có thì hiện khung tối trung tính, không chặn luồng chơi.
+       Chỉ ở chế độ nhà phát triển khung đó mới mang số thứ tự và ghi chú
+       cảnh, để bên vẽ biết còn thiếu khung nào và cần vẽ gì. */
     const img = stage.querySelector('.beacon-img');
     const missing = stage.querySelector('.beacon-img-missing');
-    const fb = stage.querySelector('.beacon-img');
+    if (missing && devMode) missing.classList.add('beacon-img-missing--dev');
     img.addEventListener('error', function tryNext() {
       const chain = (img.dataset.fallbacks || '').split(';').filter(Boolean);
       if (!chain.length) {
@@ -133,8 +142,13 @@ export function openBeaconScene({ onDone } = {}) {
         img.removeEventListener('error', tryNext);
         return;
       }
+      /* Lấy phần tử đầu rồi mới ghi lại danh sách còn lại. Bản trước ghi
+         dataset TRƯỚC khi shift nên danh sách không bao giờ ngắn đi: mỗi
+         lần lỗi lại thử đúng file đầu tiên, vòng lặp vô hạn, và khung
+         thiếu ảnh không bao giờ hiện ra. */
+      const nextSrc = chain.shift();
       img.dataset.fallbacks = chain.join(';');
-      img.src = BASE_URL + chain.shift();
+      img.src = BASE_URL + nextSrc;
     });
 
     fill.style.width = (100 * (idx + 1) / BEACON_FRAMES.length) + '%';

@@ -1451,18 +1451,32 @@ export function mountExecution({ container, engine, onDone } = {}) {
     btnBeacon.disabled = true;
     out.ack.hidden = false;
     out.ack.textContent = t('landNoBeaconWarn');
+    /* Đi qua requestLanding(), không phải failMission: failMission là
+       hàm nội bộ của engine, không nằm trên API công khai, nên gọi
+       engine.failMission luôn trả về false và nút này rơi vào nhánh
+       "hạ cánh bình thường", tức là bấm khi chưa cắm đèn hiệu vẫn
+       được hạ cánh thành công. requestLanding() thấy state chưa có
+       groundPrepDone thì tự gọi land(), mà land() chặn ở beaconMissing
+       và phát đúng kết thúc edl_crash.
+       Go through requestLanding(): failMission is engine-private, so
+       calling engine.failMission always missed and this button landed
+       cleanly without a beacon. requestLanding() routes through
+       land(), which fails with edl_crash when the beacon is missing. */
     const ok = (() => {
-      if (!engine || typeof engine.failMission !== 'function') return false;
+      if (!engine || typeof engine.requestLanding !== 'function') return false;
       try {
-        engine.failMission('edl_crash');
+        const res = engine.requestLanding();
+        /* requestLanding trả ok=false khi tàu đã thua. Thua vì thiếu
+           đèn hiệu chính là kết quả mong muốn ở đây. */
+        if (res && res.ok === false && !res.failed) return false;
         return true;
       } catch {
         return false;
       }
     })();
     if (!ok) {
-      /* Engine chưa có hàm thua thì vẫn cho vào EDL bình thường, không
-         để người chơi kẹt ở màn không có gì xảy ra. */
+      /* Engine chưa có hàm hạ cánh thì vẫn cho vào EDL bình thường,
+         không để người chơi kẹt ở màn không có gì xảy ra. */
       const id = setTimeout(() => { if (!destroyed) enterEdl(); }, motionOn ? 900 : 120);
       stageTimers.push(() => clearTimeout(id));
     }

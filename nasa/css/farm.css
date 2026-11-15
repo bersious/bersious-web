@@ -440,7 +440,11 @@
   text-align: center;
 }
 
-.farm-foot-sep { color: var(--tx-ghost); }
+/* Dấu chấm ngăn cách là ký tự thuần trang trí: dùng --tx-soft thay cho
+   --tx-ghost. --tx-ghost (#3c4a5a) chỉ đạt 1,2:1 trên nền panel — dưới
+   ngưỡng AA 3:1 kể cả với ký tự lớn; người chơi còn dùng dòng này để
+   phân tách phím tắt, không phải chữ vô nghĩa. */
+.farm-foot-sep { color: var(--tx-soft); }
 
 .farm-foot-ripe { color: var(--amber); }
 

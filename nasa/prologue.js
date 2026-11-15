@@ -622,6 +622,13 @@ export function startPrologue({ container, onDone } = {}) {
     /* Nút Bỏ qua đang được chọn: để trình duyệt tự kích hoạt nút, không
        preventDefault rồi đi tiếp nhầm nhịp. */
     if (document.activeElement === skip) return;
+    if (e.key === 'Escape') {
+      /* Esc cũng phải thoát được: một lớp phủ chặn mà Esc không đóng là
+         bẫy người chơi khi nút bấm hoặc chuột không dùng được. */
+      e.preventDefault();
+      finish();
+      return;
+    }
     if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter' || e.key === 'ArrowRight') {
       e.preventDefault();
       advance();

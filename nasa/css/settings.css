@@ -326,6 +326,20 @@
   .settings-btn { top: 12px; right: 12px; }
 }
 
+/* Nút gear toàn cục này chỉ có việc ở màn menu: trong màn chơi, HUD
+   compact (hud-compact.js) đã có nút Cài đặt riêng ở cùng vị trí và
+   nút thu gọn HUD nằm ngay dưới nó. Hai nút đè nhau 4px khiến cú bấm
+   vào nút thu gọn rơi vào gear (z-index 250 cao hơn HUD), nút thu gọn
+   bấm không được bằng chuột. Ẩn gear khi màn căn cứ đang mở. */
+body:has(.base-host:not([hidden])) .settings-btn,
+body:has(.p2-host:not([hidden])) .settings-btn,
+body:has(.flight-screen:not([hidden])) .settings-btn,
+body:has(.comms-host:not([hidden])) .settings-btn,
+body:has(.rescue-host:not([hidden])) .settings-btn,
+body:has(.rescue-modal-panel:not([hidden])) .settings-btn {
+  display: none;
+}
+
 /* ---------- cài đặt ảnh hưởng lên giao diện ---------- */
 
 /* giảm chuyển động: tắt mọi animation và chuyển cảnh */

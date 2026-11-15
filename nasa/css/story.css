@@ -451,13 +451,11 @@
    Vì sao phải có: phần kể chuyện dài hai mươi lượt thoại, giám khảo chỉ
    có vài phút chấm bài. Không có nút này thì họ phải bấm Tiếp hai mươi
    lần mới tới được phần chơi thật, và rất dễ bỏ cuộc giữa chừng.
-   Đặt góc dưới phải, cùng vị trí và kiểu với nút Bỏ qua của comic và
-   phân cảnh kết thúc để người chơi thấy quen mắt. */
+   Nút nằm TRONG hàng .story-nav, sau nút Tiếp: cùng hàng, không chồng
+   lên nút nào (bản cũ đè tuyệt đối góc dưới phải và phủ kín nút Tiếp —
+   bấm "Tiếp" lại ra "Bỏ qua"). Góc dưới phải vẫn giữ nguyên vì hàng
+   nav tự căn phải. */
 .story-skip {
-  position: absolute;
-  right: 18px;
-  bottom: 16px;
-  z-index: 12;
   min-height: 44px;
   padding: 0 20px;
   border: 1px solid rgba(232, 163, 61, .34);
@@ -485,10 +483,9 @@
 
 @media (max-width: 620px) {
   .story-skip {
-    right: 12px;
-    bottom: 12px;
-    padding: 0 16px;
+    padding: 0 14px;
     font-size: 12px;
+    letter-spacing: .12em;
   }
 }
 
