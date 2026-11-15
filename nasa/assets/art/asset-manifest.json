@@ -1,40 +1,40 @@
 {
-  "generated": "2026-11-15T07:56:46",
+  "generated": "2026-11-15T08:32:02",
   "scenes": [
     {
       "id": "bg-airlock",
       "path": "assets/art/bg-airlock.jpg",
       "width": 1600,
       "height": 900,
-      "bytes": 173453
+      "bytes": 160708
     },
     {
       "id": "bg-farm",
       "path": "assets/art/bg-farm.jpg",
       "width": 1600,
       "height": 900,
-      "bytes": 241830
+      "bytes": 231304
     },
     {
       "id": "bg-hab",
       "path": "assets/art/bg-hab.jpg",
       "width": 1600,
       "height": 900,
-      "bytes": 182145
+      "bytes": 178862
     },
     {
       "id": "bg-radio",
       "path": "assets/art/bg-radio.jpg",
       "width": 1600,
       "height": 900,
-      "bytes": 178497
+      "bytes": 173276
     },
     {
       "id": "bg-workbench",
       "path": "assets/art/bg-workbench.jpg",
       "width": 1600,
       "height": 900,
-      "bytes": 157210
+      "bytes": 148043
     }
   ],
   "icons": [
@@ -43,28 +43,28 @@
       "path": "assets/art/icon-cable.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1162
+      "bytes": 1252
     },
     {
       "id": "icon-electronics",
       "path": "assets/art/icon-electronics.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2744
+      "bytes": 3070
     },
     {
       "id": "icon-filter",
       "path": "assets/art/icon-filter.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1426
+      "bytes": 1550
     },
     {
       "id": "icon-hydrazine",
       "path": "assets/art/icon-hydrazine.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1640
+      "bytes": 1630
     },
     {
       "id": "icon-media",
@@ -85,14 +85,14 @@
       "path": "assets/art/icon-ration.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2118
+      "bytes": 2264
     },
     {
       "id": "icon-seed",
       "path": "assets/art/icon-seed.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1696
+      "bytes": 1812
     },
     {
       "id": "icon-solar",
@@ -106,21 +106,21 @@
       "path": "assets/art/icon-tape.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1816
+      "bytes": 1812
     },
     {
       "id": "icon-toolbox",
       "path": "assets/art/icon-toolbox.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2412
+      "bytes": 2458
     },
     {
       "id": "icon-water",
       "path": "assets/art/icon-water.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1394
+      "bytes": 1338
     }
   ]
 }
