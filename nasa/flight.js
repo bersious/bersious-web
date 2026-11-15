@@ -50,8 +50,8 @@ const PHASE_ORDER = ['cruise', 'approach', 'descent', 'surface'];
 const PHASE_BANDS = {
   cruise: [10, 145],
   approach: [152, 236],
-  descent: [240, 252],
-  surface: [253, TRANSFER_DAYS - 1.2],
+  descent: [239, 249],
+  surface: [251, TRANSFER_DAYS - 3],
 };
 
 let cssInjected = false;
@@ -224,6 +224,10 @@ const SHELL = `
       <div class="flt-idle" hidden>
         <b class="flt-idle-title"></b>
         <p class="flt-idle-text"></p>
+        <div class="flt-log" hidden>
+          <span class="flt-log-title"></span>
+          <ol class="flt-log-list"></ol>
+        </div>
       </div>
 
       <div class="flt-event" hidden>
@@ -330,6 +334,9 @@ export function startFlight({ container, design, onDone } = {}) {
   const elIdle = q('.flt-idle');
   const elIdleTitle = q('.flt-idle-title');
   const elIdleText = q('.flt-idle-text');
+  const elLog = q('.flt-log');
+  const elLogTitle = q('.flt-log-title');
+  const elLogList = q('.flt-log-list');
   const elEvent = q('.flt-event');
   const elEvPhase = q('.flt-ev-phase');
   const elEvTitle = q('.flt-ev-title');
@@ -385,6 +392,9 @@ export function startFlight({ container, design, onDone } = {}) {
   let speed = SPEEDS[0];
   let lastFrame = null;
   let currentEvent = null;
+  /* Ngày bay tại từng lượt, để nhật ký ghi đúng mốc thời gian. Lõi đàm
+     phán không biết gì về ngày bay nên chỉ lớp này mới có con số đó. */
+  const dayByTurn = {};
   const teleCache = { au: '', km: '', delay: '', day: '', tcm: '', phase: '' };
   const timers = new Set();
 
@@ -420,7 +430,9 @@ export function startFlight({ container, design, onDone } = {}) {
     q('.flt-tele [data-k="tcm"]').textContent = t('flight.tele.tcm');
     q('.flt-u-km').textContent = 'km';
     q('.flt-u-min').textContent = t('flight.unit.min');
-    q('.flt-u-of').textContent = t('flight.unit.of');
+    /* Đơn vị của ô ngày bay phải kèm tổng, nếu không nó chỉ còn chữ
+       "trên" lơ lửng và người chơi không biết đang trên bao nhiêu. */
+    q('.flt-u-of').textContent = `${t('flight.unit.of')} ${nf(TRANSFER_DAYS, 1)}`;
 
     elLoading.textContent = t('flight.loading');
     elErrorText.textContent = t('flight.loadError');
@@ -440,7 +452,7 @@ export function startFlight({ container, design, onDone } = {}) {
     q('.flt-modal [data-k="tcmH"]').textContent = t('flight.info.tcmH');
     q('.flt-modal [data-k="tcm"]').textContent = t('flight.info.tcmBody');
 
-    elPhaseDay.textContent = `${t('flight.dayWord')} ${nf(TRANSFER_DAYS, 1)}`;
+    elPhaseDay.textContent = tr('flight.totalDays', { n: nf(TRANSFER_DAYS, 1) });
 
     for (const role of Object.keys((neg && neg.roles) || {})) {
       const row = elBarsRoles.querySelector(`[data-role="${role}"] .flt-bar-name`);
@@ -517,6 +529,45 @@ export function startFlight({ container, design, onDone } = {}) {
     elIdleText.textContent = slot
       ? tr('flight.idle.next', { day: nf(slot.day, 1) })
       : t('flight.idle.end');
+    renderLog();
+  }
+
+  /* Nhật ký quyết định. Panel bên phải còn trống suốt những chặng bay
+     dài, và chỗ trống đó đúng là chỗ cần nhất: người chơi vừa đánh đổi
+     ba thứ, họ phải đọc lại được mình đã đổi cái gì. */
+  function renderLog() {
+    const log = (neg && neg.log) || [];
+    elLog.hidden = log.length === 0;
+    elLogTitle.textContent = t('flight.log.title');
+    if (!log.length) {
+      elLogList.innerHTML = '';
+      return;
+    }
+    const lang = getLang();
+    elLogList.innerHTML = '';
+    for (const entry of log.slice().reverse()) {
+      const li = document.createElement('li');
+      const ev = neg.byId[entry.eventId];
+      const opt = ev && (ev.options || []).find((o) => o.id === entry.optionId);
+      const title = ev ? pick(ev, 'title') : entry.eventId;
+      const label = opt ? pick(opt, 'label') : entry.optionId;
+      li.dataset.sign = entry.cohesionDelta < 0 ? 'neg' : entry.cohesionDelta > 0 ? 'pos' : 'flat';
+      li.innerHTML = `
+        <span class="flt-log-day"></span>
+        <span class="flt-log-body">
+          <span class="flt-log-ev"></span>
+          <span class="flt-log-opt"></span>
+        </span>
+        <span class="flt-log-delta"></span>
+      `;
+      li.querySelector('.flt-log-day').textContent = 'D+' + nf(dayByTurn[entry.turn] || 0, 0);
+      li.querySelector('.flt-log-ev').textContent = title;
+      li.querySelector('.flt-log-opt').textContent = label;
+      li.querySelector('.flt-log-delta').textContent =
+        (entry.cohesionDelta > 0 ? '+' : '') + nf(entry.cohesionDelta, 0);
+      if (lang === 'en') li.title = title;
+      elLogList.appendChild(li);
+    }
   }
 
   /* ---------- sự kiện ---------- */
@@ -539,6 +590,9 @@ export function startFlight({ container, design, onDone } = {}) {
       btn.type = 'button';
       btn.className = 'flt-opt';
       btn.dataset.option = opt.id;
+      /* Mức đổi đồng thuận để lớp ngoài (test tự động, bảng phân tích
+         sau này) đọc được mà không phải dò chữ trong chip. */
+      btn.dataset.cohesion = String((opt.effects && opt.effects.cohesion_pct) || 0);
       const favors = opt.favors && neg && neg.roles[opt.favors]
         ? (getLang() === 'en' ? neg.roles[opt.favors].name_en : neg.roles[opt.favors].name_vi)
         : '';
@@ -569,7 +623,14 @@ export function startFlight({ container, design, onDone } = {}) {
     if (!ev) return false;
     currentEvent = ev;
     eventOpen = true;
-    if (viz) viz.pause();
+    if (viz) {
+      viz.pause();
+      /* Ở 50x một khung hình nhảy tới mười mấy ngày, nên có thể đã lố
+         qua mốc trước khi kịp dừng. Kéo đồng hồ về đúng mốc để người
+         chơi thấy sự kiện xảy ra ở ngày ghi trong kế hoạch, không phải
+         ở ngày tàu tình cờ dừng. */
+      if (lastFrame && lastFrame.day > slot.day + 0.05) viz.setDay(slot.day);
+    }
     renderEvent(ev);
     renderIdle();
     playOneShotSfx('warning-chime');
@@ -589,12 +650,14 @@ export function startFlight({ container, design, onDone } = {}) {
     } catch {
       return;
     }
+    dayByTurn[result.turn] = lastFrame ? lastFrame.day : 0;
     playOneShotSfx('terminal-blip');
 
     qa('.flt-opt').forEach((b) => { b.disabled = true; });
 
     renderBars();
     renderResult(result, opt);
+    renderLog();
     elContinue.hidden = false;
     elContinue.focus({ preventScroll: true });
 
@@ -850,7 +913,14 @@ export function startFlight({ container, design, onDone } = {}) {
         if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
       }
     } else if (e.key === 'Enter' || e.key === ' ') {
-      if (document.activeElement === elContinue) return;
+      /* Phím nằm trên một nút khác (nút tốc độ, nút thông tin) thì để
+         trình duyệt lo, đừng cướp phím của họ. Chỉ khi không có nút nào
+         đang giữ tiêu điểm, hoặc chính nút bay tiếp đang giữ, mới coi
+         Enter hay Space là bay tiếp. */
+      const active = document.activeElement;
+      const onOtherButton = active && active !== elContinue
+        && active.tagName === 'BUTTON';
+      if (onOtherButton) return;
       e.preventDefault();
       continueFlight();
     }
@@ -895,6 +965,7 @@ export function startFlight({ container, design, onDone } = {}) {
     const list = Array.isArray(eventsData) ? eventsData : eventsData.events;
     neg = createNegotiation({ events: list, startCohesion: START_COHESION });
     slotIndex = 0;
+    for (const k of Object.keys(dayByTurn)) delete dayByTurn[k];
     eventOpen = false;
     finished = false;
     failed = false;
@@ -911,7 +982,7 @@ export function startFlight({ container, design, onDone } = {}) {
     elError.hidden = true;
 
     elPhaseName.textContent = phaseLabel(PHASE_ORDER[0]);
-    elPhaseDay.textContent = `${t('flight.dayWord')} ${nf(TRANSFER_DAYS, 1)}`;
+    elPhaseDay.textContent = tr('flight.totalDays', { n: nf(TRANSFER_DAYS, 1) });
 
     started = true;
     applyLang();

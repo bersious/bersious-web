@@ -20,6 +20,10 @@ import { getSettings } from './settings.js';
 import { playClick } from './audio.js';
 import { playMemory } from './memories.js';
 import {
+  applySave, loadGame, hasSave, saveGame,
+  takePendingClock, initSaveWatchers, bindClockAutoSave, showSaveChip,
+} from './save-game.js';
+import {
   DAY_LOG, IDLE_LINES, SLEEP_LINES, MORNING_LINES, NOTIFY,
 } from './base-flavor.js';
 
@@ -37,16 +41,35 @@ function injectCss() {
   document.head.appendChild(link);
 }
 
+/* CSS của hệ thống lưu. Nút lưu nằm trong thanh trên của màn căn cứ
+   nhưng kiểu dáng thuộc save-game.css, nên file này nạp hộ: quy tắc
+   chỉ cho sửa save-game.css nghĩa là mọi thứ liên quan tới lưu phải
+   nằm trong đó, không rải sang base.css. */
+function injectSaveCss() {
+  if (document.querySelector('link[data-save-css]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = BASE_URL + 'css/save-game.css';
+  link.dataset.saveCss = '1';
+  document.head.appendChild(link);
+}
+
 
 /* Ảnh cảnh căn cứ. Mỗi hành động đổi một cảnh để khung hình có
    chuyển động, và ban đêm dùng ảnh khác ban ngày. */
 const SCENES = {
-  day:   { src: 'assets/art/bg-hab.jpg',        cap: 'Bên trong trạm Hab, ban ngày' },
-  night: { src: 'assets/art/bg-hab.jpg',        cap: 'Trạm Hab, đêm xuống' },
-  farm:  { src: 'assets/art/bg-farm.jpg',       cap: 'Khu nhà kính trồng khoai' },
-  work:  { src: 'assets/art/bg-workbench.jpg',  cap: 'Bàn chế tạo' },
-  radio: { src: 'assets/art/bg-radio.jpg',      cap: 'Góc liên lạc' },
-  air:   { src: 'assets/art/bg-airlock.jpg',    cap: 'Cửa khí chuyển tiếp' },
+  day:   { src: 'assets/art/bg-hab.webp',
+           cap: { vi: 'Bên trong trạm Hab, ban ngày', en: 'Inside the Hab module, daylight' } },
+  night: { src: 'assets/art/bg-hab.webp',
+           cap: { vi: 'Trạm Hab, đêm xuống', en: 'Hab module, night' } },
+  farm:  { src: 'assets/art/bg-farm.webp',
+           cap: { vi: 'Khu nhà kính trồng khoai', en: 'The greenhouse' } },
+  work:  { src: 'assets/art/bg-workbench.webp',
+           cap: { vi: 'Bàn chế tạo', en: 'The workbench' } },
+  radio: { src: 'assets/art/bg-radio.webp',
+           cap: { vi: 'Góc liên lạc', en: 'The comms corner' } },
+  air:   { src: 'assets/art/bg-airlock.webp',
+           cap: { vi: 'Cửa khí chuyển tiếp', en: 'The airlock' } },
 };
 
 function setScene(sceneEl, capEl, key) {
@@ -59,7 +82,7 @@ function setScene(sceneEl, capEl, key) {
     sceneEl.classList.add('is-swap');
     window.setTimeout(() => sceneEl.classList.remove('is-swap'), 380);
   }
-  if (capEl) capEl.textContent = sc.cap;
+  if (capEl) capEl.textContent = sc.cap[getLang()] || sc.cap.vi || '';
 }
 
 /* ---------- kho vật phẩm khởi đầu ---------- */
@@ -182,13 +205,21 @@ const ITEM_ICONS = {
 
 export function startBase({ container, playerName = '', onExit } = {}) {
   injectCss();
+  injectSaveCss();
 
   const inventory = makeInventory();
   /* Ngày bắt đầu lúc 08:00 chứ không phải 06:00. Màn căn cứ mở ra khi
      người chơi đã thức, nên nếu để 06:00 thì lần ngủ đầu chỉ nhảy được
      một tiếng trong cùng ngày, không sang ngày mới. 08:00 cũng cho
-     người chơi một ngày đủ dài trước khi trời tối. */
-  const clock = createClock({ startMinute: 8 * 60, day: 1 });
+     người chơi một ngày đủ dài trước khi trời tối.
+
+     Nếu vừa khôi phục một bản lưu thì lấy đúng giờ/ngày đã ghi, không
+     quay về 08:00 ngày 1 trong khi chỉ số đã ở ngày 7. */
+  const restoredClock = takePendingClock();
+  const clock = createClock({
+    startMinute: restoredClock ? restoredClock.minutes : 8 * 60,
+    day: restoredClock ? restoredClock.day : 1,
+  });
 
   /* Bộ chỉ số sinh tồn, tách khỏi giao diện. Chỉ số tự lưu vào
      localStorage nên đóng tab mở lại vẫn còn nguyên tiến độ. */
@@ -210,6 +241,17 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
       <div class="base-top-right">
         <span class="base-phase"></span>
+        <!-- Nút lưu tay. Tự động lưu chạy nền, nhưng người chơi vẫn
+             cần một chỗ bấm chắc chắn trước khi đóng tab. -->
+        <button type="button" class="base-save" data-action="save">
+          <span class="base-save-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
+            </svg>
+          </span>
+          <span class="base-save-label"></span>
+        </button>
       </div>
     </header>
 
@@ -278,10 +320,16 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   const idleLine  = q('.base-idle');
   const sleepLine = q('.base-sleep-line');
   const replayBtn = q('.base-replay');
+  const saveBtn   = q('.base-save');
+  const saveLabel = q('.base-save-label');
 
   /* ---------- lưới hành động ---------- */
 
   const ACTIONS = [
+    /* locked ở đây chỉ là giá trị khởi điểm. Trạng thái thật lấy từ
+       stats.getUnlocks() và phải cập nhật lại mỗi lần chỉ số đổi, nếu
+       không thì nút nông trại hiện ổ khoá vĩnh viễn dù đã đủ điều kiện
+       mở, người chơi tưởng bị chặn nên không bấm. */
     { id: 'farm',    locked: true },
     { id: 'bag',     locked: false },
     { id: 'explore', locked: false },
@@ -297,20 +345,39 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       btn.type = 'button';
       btn.className = 'base-card' + (act.locked ? ' is-locked' : '');
       btn.dataset.action = act.id;
+      /* Ổ khoá luôn có mặt trong DOM, ẩn hiện bằng class. Trước đây nó
+         chỉ được chèn lúc dựng nên muốn gỡ khoá phải dựng lại cả lưới. */
       btn.innerHTML = `
         <span class="base-card-icon">${ICONS[act.id]}</span>
         <span class="base-card-name"></span>
         <span class="base-card-desc"></span>
-        ${act.locked ? `<span class="base-card-lock" aria-hidden="true">
+        <span class="base-card-lock" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
             stroke-linecap="round" stroke-linejoin="round">
             <rect x="5" y="11" width="14" height="9" rx="2"/>
             <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
-          </svg></span>` : ''}`;
+          </svg></span>`;
       btn.addEventListener('click', () => onAction(act.id));
       grid.appendChild(btn);
     }
     applyTexts();
+    refreshLocks();
+  }
+
+  /* Cập nhật trạng thái khoá theo điều kiện thật. Gọi sau mỗi lần chỉ số
+     hoặc kho đổi, vì nông trại mở khoá khi đã có đủ hạt, nước và băng
+     keo. Nếu không gọi lại, nút hiện ổ khoá vĩnh viễn dù bấm vẫn mở
+     được, người chơi tưởng bị chặn nên không bấm. */
+  function refreshLocks() {
+    const u = stats.getUnlocks();
+    const want = { farm: !!u.farm };
+    grid.querySelectorAll('.base-card').forEach((btn) => {
+      const id = btn.dataset.action;
+      if (!(id in want)) return;
+      const locked = !want[id];
+      btn.classList.toggle('is-locked', locked);
+      btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    });
   }
 
   /* ---------- hành vi từng nút ---------- */
@@ -422,6 +489,13 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       openRadioScreen();
       return;
     }
+    if (id === 'save') {
+      /* Lưu tay: ghi rồi hiện chip. Hàm hiện chip nằm trong
+         save-game.js để mọi nơi gọi lưu đều báo cùng một kiểu. */
+      const ok = saveGame({ reason: 'manual' });
+      showSaveChip({ ok, day: clock.state().day });
+      return;
+    }
     if (id === 'comms') {
       /* Chơi lại Giai đoạn 1. Phải xoá cờ trước khi mở, nếu không
          index.html thấy cờ còn thì sẽ bỏ qua màn. Việc mở bảng viễn
@@ -435,6 +509,28 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
   if (replayBtn) {
     replayBtn.addEventListener('click', () => onAction('comms'));
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => onAction('save'));
+  }
+
+  /* ---------- tự động lưu ----------
+     Ba nguồn mốc, cùng gộp qua autoSave() với cửa sổ 800ms:
+       1. đồng hồ nhảy sang giờ mới hoặc sang ngày mới
+       2. mở/đóng màn con (nông trại, thám hiểm, chế tạo, liên lạc)
+       3. vào lại màn căn cứ, và mốc ở màn truyện / màn viễn thông do
+          MutationObserver bám qua data-beat và thuộc tính hidden
+
+     Đồng hồ gọi listener 60 lần một giây, nên tuyệt đối không ghi
+     localStorage ở đây: ghi mỗi khung hình là giật cả màn hình. */
+  const unClockSave = bindClockAutoSave(clock);
+  const unWatchers = initSaveWatchers();
+
+  /* Vừa vào căn cứ là một mốc đáng lưu: người chơi có thể đóng tab
+     ngay sau khi màn hiện ra. */
+  autoSaveOnEnter();
+  function autoSaveOnEnter() {
+    saveGame({ reason: 'auto' });
   }
 
   /* ---------- màn con: nông trại và thám hiểm ---------- */
@@ -779,7 +875,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
     el.classList.toggle('is-night', s.isNight);
     phase.textContent = s.isNight ? t('base.night') : t('base.daytime');
-    footDays.textContent = t('base.footer.survived').replace('{n}', String(s.day));
+    footDays.textContent = t(s.day === 1 ? 'base.footer.survived.one' : 'base.footer.survived').replace('{n}', String(s.day));
     if (s.day !== shownDay) renderDayLog(s.day);
   });
 
@@ -813,7 +909,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     whoName.textContent = playerName || t('base.whoFallback');
     heading.textContent = t('base.heading');
     phase.textContent = clock.state().isNight ? t('base.night') : t('base.daytime');
-    footDays.textContent = t('base.footer.survived').replace('{n}', String(clock.state().day));
+    footDays.textContent = t(clock.state().day === 1 ? 'base.footer.survived.one' : 'base.footer.survived').replace('{n}', String(clock.state().day));
 
     for (const act of ACTIONS) {
       const btn = grid.querySelector(`[data-action="${act.id}"]`);
@@ -827,6 +923,11 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       replayBtn.title = t('base.replayComms.hint');
       replayBtn.setAttribute('aria-label', t('base.replayComms'));
     }
+    if (saveBtn) {
+      saveBtn.title = t('save.now.hint');
+      saveBtn.setAttribute('aria-label', t('save.now'));
+    }
+    if (saveLabel) saveLabel.textContent = t('save.now');
     if (!bag.hidden) renderBag();
     if (shownDay) renderDayLog(shownDay);
     if (idleEntry) idleLine.textContent = localized(idleEntry);
@@ -848,9 +949,14 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     unTick();
     unLang();
     unVisibility();
+    unClockSave();
+    unWatchers();
     clock.stop();
     if (hud && typeof hud.destroy === 'function') hud.destroy();
     stats.save();
+    /* Ghi bản lưu tổng lần cuối trước khi tháo màn, để chỉ số và giờ
+       vừa đổi ở giây cuối không bị mất. */
+    saveGame({ reason: 'auto' });
     clearTimeout(toastTimer);
     stopIdle();
     clearSleepTimers();
@@ -866,3 +972,34 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
   return { destroy, stats, clock };
 }
+
+/* ============================================================
+   TIẾP TỤC VÁN ĐÃ LƯU
+   Gọi khi người chơi bấm nút "Tiếp tục" ở màn khởi động.
+
+   Hàm này không tự dựng màn: nó đổ bản lưu về chín khoá cũ, rồi trả
+   về thông tin để nơi gọi quyết định mở màn nào. Lý do: màn khởi động
+   và luồng chuyển màn nằm ở index.html, mà file đó do sub-agent khác
+   giữ. Cách này cho phép nối vào chỉ bằng một dòng ở index.html.
+
+   @returns {{ok:boolean, playerName:string, phase:string, day:number}|{ok:false}}
+   ============================================================ */
+export function resumeFromSave() {
+  const save = loadGame();
+  if (!save) return { ok: false };
+
+  applySave(save);
+  const info = getSaveInfo();
+
+  return {
+    ok: true,
+    playerName: (info && info.playerName) || '',
+    phase: (info && info.phase) || 'base',
+    day: (info && info.day) || 1,
+    savedAt: (info && info.savedAt) || '',
+  };
+}
+
+/* Cho nơi khác hỏi nhanh mà không phải import save-game.js. */
+export { hasSave };
+

@@ -6,8 +6,8 @@
    File này chỉ quyết định BỐ CỤC và CHUYỂN ĐỘNG.
 
    Bố cục: lớp phủ toàn màn. Panel rộng chia hai cột, trái là danh
-   sách module, phải là bảng tổng hợp dính tại chỗ. Dưới 1080px hai
-   cột xếp dọc.
+   sách module, phải là bảng tổng hợp dính tại chỗ. Dưới 960px hai
+   cột xếp dọc, và dưới 640px panel tràn viền.
    ============================================================ */
 
 .rescue-root {
@@ -52,7 +52,7 @@
   background: var(--bg-deep);
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--bg-void) 72%, transparent);
   overflow: hidden;
 }
 
@@ -156,6 +156,7 @@
 /* ---------- thanh tiến trình ---------- */
 
 .rescue-progress {
+  position: relative;
   padding: 10px clamp(16px, 2vw, 30px) 12px;
   border-bottom: 1px solid var(--line-hair);
   background: var(--bg-inset);
@@ -208,7 +209,7 @@
 
 .rescue-cols {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 410px);
   min-height: 0;
   flex: 1 1 auto;
 }
@@ -227,8 +228,26 @@
 }
 
 .rescue-right {
-  padding: clamp(12px, 1.6vw, 20px) clamp(14px, 1.8vw, 24px) clamp(20px, 2vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
   background: var(--bg-inset);
+  overflow: hidden;
+}
+
+/* Phần cuộn của cột phải. Tách khỏi khối nút để nút không bao giờ đè
+   lên bảng số liệu: trước đây khối nút dính đáy cắt ngang dòng cuối.
+   The scrolling body is separate from the action block so the buttons
+   can never sit on top of the last summary row. */
+.rescue-right-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(12px, 1.6vw, 20px) clamp(14px, 1.8vw, 24px) 16px;
+  background: var(--bg-inset);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
 }
 
 .rescue-col-h {
@@ -577,6 +596,13 @@
   border-color: color-mix(in srgb, var(--fail) 40%, var(--line));
 }
 
+.rescue-bar.is-spare {
+  border-left-color: var(--cyan);
+}
+
+.rescue-bar.is-spare .rescue-bar-fill { background: var(--cyan); }
+.rescue-bar.is-spare .rescue-bar-note { color: var(--tx-soft); }
+
 .rescue-bar.is-over .rescue-bar-fill { background: var(--fail); }
 .rescue-bar.is-over .rescue-bar-note { color: var(--fail); }
 .rescue-bar.is-over .rescue-bar-value { color: var(--fail); }
@@ -623,11 +649,7 @@
 /* ---------- kết quả kiểm tra ---------- */
 
 .rescue-validation {
-  margin-bottom: 14px;
-  max-height: 40vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
+  margin-bottom: 4px;
 }
 
 .rescue-val-idle {
@@ -644,8 +666,9 @@
 .rescue-val-head {
   margin: 0 0 8px;
   padding: 9px 12px;
-  font-size: .86rem;
+  font-size: .88rem;
   font-weight: 600;
+  line-height: 1.4;
   border-radius: var(--st-radius);
 }
 
@@ -723,10 +746,11 @@
 .rescue-actions {
   display: grid;
   gap: 8px;
-  position: sticky;
-  bottom: 0;
-  padding-top: 4px;
-  background: linear-gradient(180deg, transparent, var(--bg-inset) 40%);
+  flex: 0 0 auto;
+  padding: 12px clamp(14px, 1.8vw, 24px) clamp(14px, 1.8vw, 22px);
+  background: var(--bg-inset);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -10px 20px color-mix(in srgb, var(--bg-void) 45%, transparent);
 }
 
 .rescue-btn {
@@ -759,7 +783,12 @@
 }
 
 .rescue-btn-launch {
-  color: var(--tx-ghost);
+  /* Màu chữ của nút bị khoá dùng --tx-dim chứ không --tx-ghost: cặp
+     --tx-ghost trên --bg-panel chỉ đạt khoảng 2:1, dưới mức 4,5:1 của
+     WCAG AA. Nút khoá vẫn phải đọc được.
+     --tx-ghost on --bg-panel is about 2:1, under WCAG AA. A disabled
+     button still has to be readable, so --tx-dim is used. */
+  color: var(--tx-dim);
   background: var(--bg-panel);
   border-color: var(--line-strong);
   cursor: not-allowed;
@@ -792,7 +821,11 @@
 }
 
 .rescue-hint {
-  margin: 10px 0 0;
+  margin: 0;
+  padding: 0 clamp(14px, 1.8vw, 24px) clamp(10px, 1.4vw, 16px);
+  background: var(--bg-inset);
+  font-size: .8rem;
+  color: var(--tx-soft);
   font-size: .76rem;
   line-height: 1.5;
   color: var(--tx-dim);
@@ -816,7 +849,7 @@
 .rescue-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(3, 5, 8, .76);
+  background: color-mix(in srgb, var(--bg-void) 78%, transparent);
 }
 
 .rescue-modal-panel {
@@ -828,7 +861,7 @@
   background: var(--bg-panel);
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, .6);
+  box-shadow: 0 20px 50px color-mix(in srgb, var(--bg-void) 76%, transparent);
   animation: rescue-modal-in var(--st-dur-move) var(--st-ease-out) both;
 }
 
@@ -964,40 +997,54 @@
 
 /* ---------- toast ---------- */
 
+/* Thông báo ngắn hiện đè lên dải tiến trình. Đây là dải trạng thái
+   duy nhất không chứa nội dung người chơi đang đọc, nên thông báo
+   không bao giờ che chữ hay che nút.
+   The short notice covers the progress strip. That is the one status
+   band with no content being read, so the notice never hides text or
+   a button. */
 .rescue-toast {
   position: absolute;
-  left: 50%;
-  bottom: clamp(16px, 3vh, 34px);
-  transform: translate(-50%, 10px);
-  z-index: 8;
-  padding: 10px 16px;
-  font-size: .82rem;
-  color: var(--tx-bright);
-  background: var(--bg-raise);
-  border: 1px solid var(--line-strong);
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(16px, 2vw, 30px);
+  font-family: var(--st-font-mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--amber);
+  background: var(--bg-inset);
   border-left: 3px solid var(--amber);
-  border-radius: var(--st-radius);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
   opacity: 0;
-  transition: opacity var(--st-dur-move) var(--st-ease-out),
-              transform var(--st-dur-move) var(--st-ease-out);
+  transition: opacity var(--st-dur-move) var(--st-ease-out);
   pointer-events: none;
 }
 
 .rescue-toast.is-on {
   opacity: 1;
-  transform: translate(-50%, 0);
 }
+
+.rescue-toast[hidden] { display: none; }
 
 /* ============================================================
    MÀN HẸP / NARROW SCREENS
    ============================================================ */
 
-@media (max-width: 1080px) {
+@media (max-width: 960px) {
   .rescue-panel { width: 100%; }
 
+  /* Một cột: hàng phải co theo nội dung. Nếu để auto thì hàng đầu bị
+     ép xuống 37px trong khung cao cố định, nội dung tràn ra ngoài và
+     đè lên cột phải.
+     Single column: rows must size to content. With plain auto rows the
+     first row collapses to a few pixels inside the fixed height box and
+     its content spills over the summary column. */
   .rescue-cols {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: max-content max-content;
+    grid-auto-rows: max-content;
+    align-content: start;
     overflow-y: auto;
   }
 
@@ -1012,16 +1059,18 @@
   }
 
   .rescue-right {
-    padding-bottom: 28px;
+    overflow: visible;
+    min-height: auto;
+  }
+
+  .rescue-right-body {
+    overflow-y: visible;
+    padding-bottom: 8px;
   }
 
   .rescue-actions {
-    position: static;
-    background: none;
-    padding-top: 0;
+    box-shadow: none;
   }
-
-  .rescue-validation { max-height: none; }
 }
 
 @media (max-width: 640px) {
@@ -1045,16 +1094,23 @@
   }
 
   .rescue-presets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
+    gap: 6px;
   }
 
   .rescue-presets-label {
-    width: 100%;
+    grid-column: 1 / -1;
   }
 
   .rescue-chip {
-    flex: 1 1 auto;
-    padding: 0 10px;
+    padding: 0 6px;
+    font-size: .78rem;
+  }
+
+  .rescue-head-actions > .rescue-btn-ghost {
+    width: 100%;
   }
 
   .rescue-left,
@@ -1097,7 +1153,7 @@ html.motion-off .rescue-btn {
 }
 
 html.motion-off .rescue-toast {
-  transform: translate(-50%, 0);
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

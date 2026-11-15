@@ -143,7 +143,12 @@
 
 .mem-stage {
   position: relative;
-  min-height: 0;
+  /* min-height: 0 làm khung ảnh cao đúng 0px, vì .mem-art bên trong là
+     position: absolute nên không đóng góp chiều cao nào. Hậu quả: đoạn
+     hồi tưởng mở ra chỉ có chữ, không có ảnh. Đo thật ở 1440x900,
+     1024x768 và 390x844 đều ra stageH = 0. Nay đặt chiều cao tối thiểu
+     theo màn hình để ảnh luôn có chỗ hiện. */
+  min-height: clamp(150px, 30vh, 320px);
   border-radius: 2px;
   overflow: hidden;
   background: #0a0b0d;
@@ -271,10 +276,18 @@
 .mem-dot.is-past { background: rgba(196, 158, 106, .55); }
 .mem-dot.is-on   { background: #e8c896; }
 
+/* Ngưỡng chạm 44px cho toàn bộ nút trong khung hồi tưởng. Đo thật
+   trước khi sửa: nút quay lại và nút tiếp cao 34px, nút bỏ qua cao
+   30px, đều dưới ngưỡng. */
 .mem-nav {
   display: flex;
   gap: 8px;
   flex: none;
+}
+
+.mem-nav > button,
+.mem-skip {
+  min-height: 44px;
 }
 
 .mem-back,

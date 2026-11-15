@@ -197,7 +197,11 @@
   width: 100%;
 }
 
-.clock-speed-btn { flex: 1 1 0; }
+/* flex: 1 1 0 từng bóp ba nút tốc độ xuống còn 19px và 23px ở màn
+   390px, dưới ngưỡng chạm 44px. Đổi sang flex: 0 0 auto để nút giữ
+   đúng bề rộng tối thiểu của nó, và cho phép xuống hàng nếu thiếu chỗ
+   thay vì co lại. */
+.clock-speed-btn { flex: 0 0 auto; }
 
 /* Nút nổi khối: viền dưới dày hơn viền trên để có cảm giác bấm được,
    và lún xuống khi đang chọn. */

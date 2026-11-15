@@ -1,0 +1,336 @@
+/* ============================================================
+   css/save-game.css
+   Chip thông báo lưu và khối lưu trong bảng cài đặt.
+
+   Màu, cỡ chữ, bo góc, thời lượng đều lấy từ css/tokens.css.
+   Không hardcode màu ở đây: đổi bảng màu là đổi một chỗ.
+   ============================================================ */
+
+/* ============================================================
+   CHIP THÔNG BÁO
+   Góc dưới trái. Chọn góc này vì góc dưới phải đã có nút tốc độ
+   đồng hồ và góc trên phải có nút cài đặt; đặt chip ở đó sẽ đè.
+   z-index 320 nằm trên bảng cài đặt (300) để bấm "Lưu ngay" trong
+   cài đặt vẫn thấy chip.
+   ============================================================ */
+
+.save-chip {
+  position: fixed;
+  left: clamp(12px, 2vw, 24px);
+  bottom: clamp(12px, 2vh, 24px);
+  z-index: 320;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  min-height: 36px;
+  padding: 8px 14px;
+
+  background-color: var(--bg-raise);
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--st-radius);
+
+  color: var(--tx-bright);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-cap);
+  line-height: 1.4;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55);
+
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .24s var(--st-ease-out), transform .24s var(--st-ease-out);
+  pointer-events: none;
+}
+
+.save-chip[hidden] { display: none; }
+
+.save-chip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.save-chip.is-leaving {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.save-chip-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ok);
+}
+
+.save-chip-icon svg { width: 16px; height: 16px; }
+
+.save-chip-text { min-width: 0; }
+
+/* Ghi hỏng: viền trái và icon đổi sang màu cảnh báo, chữ vẫn đủ
+   tương phản trên nền tối. */
+.save-chip.is-fail { border-left-color: var(--fail); }
+.save-chip.is-fail .save-chip-icon { color: var(--fail); }
+
+/* Tắt chuyển động: chip hiện ngay bằng mờ dần, không trượt lên. */
+html.motion-off .save-chip,
+html[data-motion="off"] .save-chip {
+  transform: none;
+  transition: opacity .2s linear;
+}
+html.motion-off .save-chip.is-leaving,
+html[data-motion="off"] .save-chip.is-leaving {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-chip {
+    transform: none;
+    transition: opacity .2s linear;
+  }
+  .save-chip.is-leaving { transform: none; }
+}
+
+@media (max-width: 480px) {
+  .save-chip {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    max-width: none;
+    justify-content: flex-start;
+  }
+}
+
+/* ============================================================
+   KHỐI LƯU TRONG BẢNG CÀI ĐẶT
+   Nằm trong nhóm "Dữ liệu", ngay trên nút xoá dữ liệu cũ.
+   ============================================================ */
+
+.save-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid rgba(38, 49, 63, .45);
+}
+
+.save-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--st-font-body);
+  font-size: .92rem;
+  color: var(--tx);
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.save-status-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.save-status-label {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.save-status-value { color: var(--tx); }
+.save-status-value.is-empty { color: var(--tx-dim); }
+
+.save-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+}
+
+.save-meta span { display: inline-flex; align-items: baseline; gap: 5px; }
+.save-meta b {
+  font-weight: 500;
+  color: var(--tx-soft);
+}
+
+.save-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Nút trong khối lưu. Vùng bấm 44px đúng chuẩn cảm ứng, chữ theo
+   kiểu nhãn kỹ thuật của bảng cài đặt. */
+.save-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  font-family: var(--st-font-body);
+  font-size: .85rem;
+  letter-spacing: .02em;
+  color: var(--tx);
+
+  background-color: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+  transition: color var(--st-dur-move), border-color var(--st-dur-move),
+              background-color var(--st-dur-move);
+}
+
+.save-btn svg { width: 15px; height: 15px; flex: 0 0 auto; }
+
+.save-btn:hover,
+.save-btn:focus-visible {
+  color: var(--tx-bright);
+  border-color: var(--amber-dim);
+  background-color: var(--bg-raise);
+  outline: none;
+}
+
+.save-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+.save-btn.is-primary {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+.save-btn.is-primary:hover,
+.save-btn.is-primary:focus-visible {
+  color: var(--bg-void);
+  background-color: var(--amber);
+  border-color: var(--amber);
+}
+
+.save-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* Nút xoá: màu cảnh báo, tương phản đủ trên nền tối. */
+.save-btn.is-danger {
+  color: var(--fail);
+  border-color: rgba(217, 105, 79, .45);
+}
+
+.save-btn.is-danger:hover,
+.save-btn.is-danger:focus-visible {
+  color: var(--bg-void);
+  background-color: var(--fail);
+  border-color: var(--fail);
+}
+
+/* Hàng xác nhận: chỉ hiện sau khi bấm xoá lần đầu. */
+.save-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid rgba(217, 105, 79, .45);
+  border-left: 3px solid var(--fail);
+  border-radius: var(--st-radius);
+  background-color: var(--fail-glow);
+}
+
+.save-confirm[hidden] { display: none; }
+
+.save-confirm-text {
+  font-family: var(--st-font-body);
+  font-size: .85rem;
+  line-height: 1.55;
+  color: var(--tx);
+}
+
+.save-confirm .save-actions { gap: 8px; }
+
+.save-confirm .save-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+html.motion-off .save-btn { transition: none; }
+
+/* ============================================================
+   NÚT LƯU TRONG THANH TRÊN CỦA MÀN CĂN CỨ
+   Nằm cạnh nhãn ngày/đêm. Kiểu dáng đặt ở đây chứ không ở base.css
+   để toàn bộ phần lưu gom một chỗ.
+   ============================================================ */
+
+.base-top-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.base-save {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-soft);
+
+  background-color: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+  transition: color var(--st-dur-move), border-color var(--st-dur-move),
+              background-color var(--st-dur-move);
+}
+
+.base-save-icon { width: 13px; height: 13px; display: inline-flex; }
+.base-save-icon svg { width: 13px; height: 13px; }
+
+.base-save:hover,
+.base-save:focus-visible {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+  background-color: var(--bg-raise);
+  outline: none;
+}
+
+.base-save:focus-visible { box-shadow: 0 0 0 2px var(--amber-glow); }
+
+.base-save:active { background-color: var(--amber-glow); }
+
+/* Màn hẹp: chỉ giữ icon, nhãn chữ ẩn đi để thanh trên không bị tràn.
+   Nút vẫn đủ 44px nên bấm được trên cảm ứng. */
+@media (max-width: 720px) {
+  .base-save { padding: 0 11px; }
+  .base-save-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .base-save { position: relative; }
+}
+
+html.motion-off .base-save { transition: none; }

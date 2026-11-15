@@ -9,7 +9,7 @@
      2. Không có ảnh thì quay về tranh SVG vẽ tay.
 
    Thêm ảnh thật: để file vào src/assets/ rồi khai báo vào PHOTOS:
-        'mars-surface': 'assets/mars-surface.jpg',
+        'mars-surface': 'assets/mars-surface.webp',
 
    Ảnh phải là public domain. Nguồn hợp lệ: images.nasa.gov,
    mars.nasa.gov, Wikimedia Commons với file của NASA.
@@ -41,12 +41,12 @@ export const PHOTOS = {
   'bg-fall-buried':  'assets/art/bg-fall-buried.webp',
   'bg-mars-orbit':   'assets/art/bg-mars-orbit.webp',
   'bg-waking-eyes':  'assets/art/bg-waking-eyes.webp',
-  'bg-entering-hab': 'assets/art/bg-entering-hab.jpg',
+  'bg-entering-hab': 'assets/art/bg-entering-hab.webp',
 
   /* cảnh hồi tưởng gia đình, mở từ túi đồ trong màn căn cứ */
-  'bg-houston-kitchen': 'assets/art/bg-houston-kitchen.jpg',
-  'bg-moving-boxes':    'assets/art/bg-moving-boxes.jpg',
-  'bg-farewell-door':   'assets/art/bg-farewell-door.jpg',
+  'bg-houston-kitchen': 'assets/art/bg-houston-kitchen.webp',
+  'bg-moving-boxes':    'assets/art/bg-moving-boxes.webp',
+  'bg-farewell-door':   'assets/art/bg-farewell-door.webp',
 };
 
 /* ---------- SVG VẼ TAY, PHƯƠNG ÁN DỰ PHÒNG ---------- */
@@ -962,7 +962,7 @@ const SVG_ART = {
 
 /* Base URL của thư mục chứa module này, tính theo vị trí file thật.
    Phải có tiền tố này vì Vercel serve trang ở /nasa mà không có dấu
-   gạch chéo cuối. Khai báo "assets/mars-surface.jpg" trần thì trình
+   gạch chéo cuối. Khai báo "assets/mars-surface.webp" trần thì trình
    duyệt phân giải thành https://site/assets/... và 404, làm 5 ảnh cảnh
    Sao Hỏa biến mất, chỉ còn nền đen. */
 export const BASE_URL = new URL('.', import.meta.url).href;

@@ -33,7 +33,7 @@ export function openRadio({ container, stats, onClose, onContact } = {}) {
         <button type="button" class="radio-close" aria-label="${t('base.close')}">×</button>
       </header>
       <div class="radio-body">
-        <img class="radio-art" src="${BASE_URL}assets/art/bg-radio.jpg" alt="">
+        <img class="radio-art" src="${BASE_URL}assets/art/bg-radio.webp" alt="">
         <div class="radio-feed" aria-live="polite"></div>
       </div>
       <footer class="radio-foot">

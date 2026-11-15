@@ -1137,12 +1137,13 @@ export function startComms({ container, onDone } = {}) {
     showSummary(s);
   }
 
-  function showSummary(station) {
-    const flight = q('.comms-flight');
-    const box = document.createElement('div');
-    box.className = 'comms-summary';
-    const T = DATA.telemetry_packets;
+  let ackStation = null;
 
+  /* Vẽ lại ruột bảng tóm tắt theo ngôn ngữ đang bật. Tách riêng khỏi
+     showSummary để đổi ngôn ngữ lúc bảng đang hiện thì chỉ cần gọi lại
+     hàm này, không sinh thêm một bảng thứ hai. */
+  function fillSummary(box) {
+    const T = DATA.telemetry_packets;
     const rows = [];
     st.picked.forEach((id) => {
       const p = T.packets.find((x) => x.id === id);
@@ -1155,14 +1156,26 @@ export function startComms({ container, onDone } = {}) {
       <ul class="comms-summary-list">${rows.join('')}</ul>
       <dl class="comms-summary-meta">
         <div><dt>${tr('comms.s3.sumBytes')}</dt><dd class="mono">${fmt(totalBytes())} B</dd></div>
-        <div><dt>${tr('comms.s3.sumStation')}</dt><dd>${pick(station, 'name')}</dd></div>
+        <div><dt>${tr('comms.s3.sumStation')}</dt><dd>${pick(ackStation, 'name')}</dd></div>
         <div><dt>${tr('comms.s3.sumDelay')}</dt><dd class="mono">${fmt(DATA.signal_timing.one_way_light_time_min, 1)} min</dd></div>
       </dl>
       <button type="button" class="comms-summary-go"></button>
     `;
-    box.querySelector('.comms-summary-go').textContent = tr('comms.s3.continue');
-    box.querySelector('.comms-summary-go').addEventListener('click', finish);
-    flight.appendChild(box);
+    const go = box.querySelector('.comms-summary-go');
+    go.textContent = tr('comms.s3.continue');
+    go.addEventListener('click', finish);
+  }
+
+  function showSummary(station) {
+    ackStation = station;
+    const flight = q('.comms-flight');
+    let box = flight.querySelector('.comms-summary');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'comms-summary';
+      flight.appendChild(box);
+    }
+    fillSummary(box);
 
     later(() => box.classList.add('is-open'), 16);
     later(finish, 3600);
@@ -1418,6 +1431,12 @@ export function startComms({ container, onDone } = {}) {
     renderSnr();
     renderBudget();
     paintTimer();
+    if (ackStation) {
+      const box = q('.comms-summary');
+      if (box) fillSummary(box);
+      const at = q('.comms-ack-text');
+      if (at && !at.hidden) at.textContent = tr('comms.s3.ackText', { station: pick(ackStation, 'name') });
+    }
     if (st.step === 2) {
       q('.comms-radar-state').textContent =
         tr(st.passPhase === 'wait' ? 'comms.s2.expired' : 'comms.s2.inWindow');

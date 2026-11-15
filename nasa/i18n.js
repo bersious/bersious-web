@@ -119,6 +119,31 @@ export const STRINGS = {
     'settings.reset.confirm': 'Xoá hết?',
     'settings.credits': 'Ghi nguồn',
 
+    /* ---------- lưu tiến trình ---------- */
+    'save.chip.saved': 'Đã lưu · Ngày {n}',
+    'save.chip.failed': 'Không lưu được, trình duyệt đang chặn',
+    'save.status.label': 'Bản lưu',
+    'save.status.savedAt': 'Đã lưu lúc {time}',
+    'save.status.none': 'Chưa có bản lưu',
+    'save.status.hint': 'Trình duyệt giữ bản lưu riêng cho từng máy và từng trình duyệt. Xoá dữ liệu trang là mất bản lưu.',
+    'save.meta.day': 'Ngày',
+    'save.meta.phase': 'Đang ở',
+    'save.meta.size': 'Dung lượng',
+    'save.phase.comms': 'Liên lạc',
+    'save.phase.base': 'Căn cứ',
+    'save.phase.flight': 'Chuyến bay',
+    'save.now': 'Lưu ngay',
+    'save.now.hint': 'Ghi lại toàn bộ tiến trình ngay bây giờ.',
+    'save.clear': 'Xoá tiến trình',
+    'save.clear.hint': 'Xoá bản lưu và mọi dữ liệu ván đang chơi. Không lấy lại được.',
+    'save.clear.title': 'Chắc chắn xoá?',
+    'save.clear.body': 'Toàn bộ tiến trình, chỉ số sinh tồn, nông trại và thám hiểm sẽ mất. Trang sẽ tải lại về màn khởi động.',
+    'save.clear.confirm': 'Xác nhận xoá',
+    'save.clear.cancel': 'Huỷ',
+    'save.cleared': 'Đã xoá tiến trình',
+    'save.continue': 'Tiếp tục ván đã lưu',
+    'save.continue.desc': 'Có bản lưu trên máy này. Tiếp tục từ chỗ đã dừng.',
+
     /* ---------- giá trị bật tắt ---------- */
     'on': 'Bật',
     'off': 'Tắt',
@@ -157,6 +182,7 @@ export const STRINGS = {
     'base.radio.desc': 'Gọi về Trái Đất qua đĩa sóng.',
 
     'base.footer.survived': 'Đã sống sót {n} ngày',
+    'base.footer.survived.one': 'Đã sống sót {n} ngày',
     'base.footer.items': '{n} vật phẩm',
     'base.replayComms': 'Chơi lại màn liên lạc',
     'base.replayComms.hint': 'Mở lại bảng viễn thông của Giai đoạn 1.',
@@ -177,6 +203,7 @@ export const STRINGS = {
 
     'mem.error.title': 'Không mở được',
     'mem.error.body': 'Tệp hồi tưởng chưa nạp được. Đóng lại rồi thử lần nữa.',
+    'mem.back': 'Quay lại',
     'mem.close': 'Đóng',
 
     /* ---------- Giai đoạn 1: bảng điều khiển viễn thông ---------- */
@@ -289,7 +316,7 @@ export const STRINGS = {
     /* ---------- Rescue ship designer (Mission Design Lab) ---------- */
     'rescue.eyebrow': 'Giai đoạn 3 · Phòng thiết kế',
     'rescue.title': 'Thiết kế tàu cứu hộ',
-    'rescue.sub': 'Mỗi nhóm chọn một module. Ba thanh bên phải là ba thứ không được vượt: tiền, tải trọng tên lửa, và delta-v.',
+    'rescue.sub': 'Mỗi nhóm chọn một module. Có ba thanh giới hạn không được vượt: tiền, tải trọng tên lửa, và delta-v.',
     'rescue.col.modules': 'Module theo nhóm hệ thống',
     'rescue.col.summary': 'Bảng tổng hợp thời gian thực',
 
@@ -395,6 +422,7 @@ export const STRINGS = {
     'rescue.fix.thin_power_margin': 'Cách sửa: thêm một nguồn điện nhỏ để có biên dự phòng.',
     'rescue.fix.supplies_for_fewer': 'Cách sửa: khoang nhu yếu phẩm phải tính cho đủ ba người.',
     'rescue.fix.no_radiation_shield': 'Cách sửa: lắp lá chắn bức xạ nếu còn ngân sách và tải trọng.',
+    'rescue.fix.over_budget': 'Cách sửa: bỏ một module tùy chọn, hoặc đổi động cơ hạt nhân 420 triệu sang động cơ hóa học.',
 
     'rescue.hint.pick': 'Chọn module cho từng nhóm, rồi bấm Kiểm tra thiết kế.',
     'rescue.hint.noEngine': 'Chưa có động cơ. Bắt đầu từ nhóm Động cơ.',
@@ -432,7 +460,7 @@ export const STRINGS = {
     'flight.speeds': 'Tốc độ',
     'flight.infoBtn': 'Vì sao phải đánh đổi',
     'flight.cohesion': 'Đồng thuận',
-    'flight.dayWord': 'ngày',
+    'flight.totalDays': '{n} ngày',
     'flight.continue': 'Bay tiếp',
     'flight.choosePrompt': 'Chọn một phương án',
     'flight.favors': 'nghiêng về',
@@ -457,6 +485,7 @@ export const STRINGS = {
     'flight.idle.title': 'Tàu đang bay',
     'flight.idle.next': 'Sự kiện kế tiếp ước tính ở ngày {day}. Không có gì để làm ngoài việc theo dõi quỹ đạo và giữ đội trong một khung.',
     'flight.idle.end': 'Đã qua hết các mốc tranh luận. Tàu đang vào quỹ đạo Sao Hỏa.',
+    'flight.log.title': 'Nhật ký đánh đổi',
 
     'flight.after.title': 'Quyết định đã áp dụng',
     'flight.after.veto': '{role} phản đối · tin cậy còn {trust}',
@@ -583,6 +612,31 @@ export const STRINGS = {
     'settings.reset.confirm': 'Clear everything?',
     'settings.credits': 'Credits',
 
+    /* ---------- progress save ---------- */
+    'save.chip.saved': 'Saved · Day {n}',
+    'save.chip.failed': 'Could not save, the browser is blocking storage',
+    'save.status.label': 'Save slot',
+    'save.status.savedAt': 'Saved at {time}',
+    'save.status.none': 'No save yet',
+    'save.status.hint': 'The browser keeps this save per machine and per browser. Clearing site data removes it.',
+    'save.meta.day': 'Day',
+    'save.meta.phase': 'Stage',
+    'save.meta.size': 'Size',
+    'save.phase.comms': 'Comms',
+    'save.phase.base': 'Hab',
+    'save.phase.flight': 'Flight',
+    'save.now': 'Save now',
+    'save.now.hint': 'Write the whole run to storage right now.',
+    'save.clear': 'Delete progress',
+    'save.clear.hint': 'Deletes the save and every bit of the current run. This cannot be undone.',
+    'save.clear.title': 'Delete for sure?',
+    'save.clear.body': 'All progress, survival stats, the greenhouse and every survey will be lost. The page reloads to the start screen.',
+    'save.clear.confirm': 'Yes, delete it',
+    'save.clear.cancel': 'Cancel',
+    'save.cleared': 'Progress deleted',
+    'save.continue': 'Continue saved run',
+    'save.continue.desc': 'This machine has a save. Pick up where you stopped.',
+
     /* ---------- toggles ---------- */
     'on': 'On',
     'off': 'Off',
@@ -621,6 +675,7 @@ export const STRINGS = {
     'base.radio.desc': 'Call Earth through the dish.',
 
     'base.footer.survived': 'Survived {n} days',
+    'base.footer.survived.one': 'Survived {n} day',
     'base.footer.items': '{n} items',
     'base.replayComms': 'Replay the comms console',
     'base.replayComms.hint': 'Open the Phase 1 comms console again.',
@@ -641,6 +696,7 @@ export const STRINGS = {
 
     'mem.error.title': 'Could not open',
     'mem.error.body': 'The memory file did not load. Close this and try again.',
+    'mem.back': 'Back',
     'mem.close': 'Close',
 
     /* ---------- Phase 1: comms console ---------- */
@@ -753,7 +809,7 @@ export const STRINGS = {
     /* ---------- Rescue ship designer (Mission Design Lab) ---------- */
     'rescue.eyebrow': 'Phase 3 · Design lab',
     'rescue.title': 'Design the rescue ship',
-    'rescue.sub': 'Pick one module per group. The three bars on the right are the three limits you cannot cross: money, launch payload, and delta-v.',
+    'rescue.sub': 'Pick one module per group. There are three limit bars you cannot cross: money, launch payload, and delta-v.',
     'rescue.col.modules': 'Modules by system group',
     'rescue.col.summary': 'Live summary',
 
@@ -859,6 +915,7 @@ export const STRINGS = {
     'rescue.fix.thin_power_margin': 'Fix: add a small power source to keep a reserve margin.',
     'rescue.fix.supplies_for_fewer': 'Fix: the consumables bay has to be sized for the full crew of three.',
     'rescue.fix.no_radiation_shield': 'Fix: fit the radiation shield if budget and payload allow.',
+    'rescue.fix.over_budget': 'Fix: drop an optional module, or trade the 420 million USD nuclear engine for a chemical one.',
 
     'rescue.hint.pick': 'Pick a module in each group, then press Check the design.',
     'rescue.hint.noEngine': 'No engine yet. Start with the Propulsion group.',
@@ -896,7 +953,7 @@ export const STRINGS = {
     'flight.speeds': 'Speed',
     'flight.infoBtn': 'Why trade off',
     'flight.cohesion': 'Cohesion',
-    'flight.dayWord': 'day',
+    'flight.totalDays': '{n} days',
     'flight.continue': 'Fly on',
     'flight.choosePrompt': 'Pick one option',
     'flight.favors': 'favours',
@@ -921,6 +978,7 @@ export const STRINGS = {
     'flight.idle.title': 'Under way',
     'flight.idle.next': 'Next argument expected around day {day}. Nothing to do but watch the orbit and keep the crew in one frame.',
     'flight.idle.end': 'Every argument marker is behind us. The ship is entering Mars orbit.',
+    'flight.log.title': 'Trade log',
 
     'flight.after.title': 'Decision applied',
     'flight.after.veto': '{role} objects · trust now {trust}',

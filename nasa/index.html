@@ -228,6 +228,8 @@
   const { startStory }      = await import(BASE + 'story.js');
   const { startBase }       = await import(BASE + 'base.js');
   const { startComms }      = await import(BASE + 'comms.js');
+  const { startRescueDesigner } = await import(BASE + 'rescue-designer.js');
+  const { startFlight }     = await import(BASE + 'flight.js');
   const { playIntro }       = await import(BASE + 'intro-video.js');
   const { applyToDom, onLangChange, t } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
@@ -274,14 +276,20 @@
     skip.textContent = t('comms.skip');
     host.appendChild(skip);
 
+    /* Cả hai đường ra đều đánh dấu đã qua Giai đoạn 1. Nếu chỉ đánh
+       dấu ở đường hoàn thành thì người bấm "Bỏ qua" sẽ bị hỏi lại màn
+       này ở lần vào game sau. */
+    function markDone() {
+      try { localStorage.setItem(STAGE1_KEY, '1'); } catch (e) { /* trình duyệt chặn ghi thì vẫn đi tiếp */ }
+    }
+
     let closed = false;
     const comms = startComms({
       container: host,
       onDone: () => {
         if (closed) return;
         closed = true;
-        /* Ghi cờ trước khi dọn, để lần tải lại trang sau không hỏi lại. */
-        try { localStorage.setItem(STAGE1_KEY, '1'); } catch (e) { /* trình duyệt chặn ghi thì vẫn đi tiếp */ }
+        markDone();
         if (comms && typeof comms.destroy === 'function') comms.destroy();
         host.remove();
         if (typeof onDone === 'function') onDone();
@@ -292,6 +300,7 @@
       playClick();
       if (closed) return;
       closed = true;
+      markDone();
       if (comms && typeof comms.destroy === 'function') comms.destroy();
       host.remove();
       if (typeof onSkip === 'function') onSkip();
@@ -325,20 +334,58 @@
         boot.style.display = '';
         delete btn.dataset.started;
       },
+      /* Sau khi gửi được tín hiệu cầu cứu và lo xong căn cứ, người chơi
+         bước sang nửa còn lại của game: thiết kế tàu cứu hộ từ Trái Đất
+         rồi bay 258,9 ngày. Đây là phần chiếm phần lớn điểm số. */
+      onLaunchRescue: () => openRescueDesigner(playerName),
     });
+  }
+
+  /* Màn thiết kế tàu cứu hộ. Xong thì vào màn bay. */
+  function openRescueDesigner(playerName) {
+    const host = document.createElement('div');
+    host.className = 'rescue-host';
+    document.body.appendChild(host);
+    startRescueDesigner({
+      container: host,
+      onDone: (design) => {
+        host.remove();
+        openFlight(playerName, design);
+      },
+    });
+    return { destroy: () => host.remove() };
+  }
+
+  /* Màn bay: bản đồ quỹ đạo ghép đàm phán vai trò. Xong thì về căn cứ
+     kèm kết quả, để người chơi thấy mình đã cứu được hay chưa. */
+  function openFlight(playerName, design) {
+    const host = document.createElement('div');
+    host.className = 'flight-host';
+    document.body.appendChild(host);
+    startFlight({
+      container: host,
+      design,
+      onDone: (result) => {
+        host.remove();
+        try {
+          localStorage.setItem('smdg.lastFlight', JSON.stringify({
+            success: !!(result && result.success),
+            days: (result && result.elapsedDays) || 0,
+          }));
+        } catch (e) { /* chặn ghi thì bỏ qua, không ảnh hưởng chơi */ }
+      },
+    });
+    return { destroy: () => host.remove() };
   }
 
   /* Sau màn mở đầu: Giai đoạn 1 trước, căn cứ sau. */
   function afterStory(playerName) {
     if (stage1Done()) { enterBase(playerName); return; }
+    /* Cả hai đường ra khỏi bảng viễn thông đều đã ghi cờ trong
+       openStage1, nên ở đây chỉ cần vào căn cứ. */
     openStage1({
       onDone: () => enterBase(playerName),
-      onSkip: () => {
-        /* Bỏ qua vẫn đánh dấu đã qua, để lần sau không bị chặn ở đây
-           nữa. Ai muốn xem lại thì bấm nút trong màn căn cứ. */
-        try { localStorage.setItem(STAGE1_KEY, '1'); } catch (e) { /* bỏ qua */ }
-        enterBase(playerName);
-      },
+      onSkip: () => enterBase(playerName),
     });
   }
 

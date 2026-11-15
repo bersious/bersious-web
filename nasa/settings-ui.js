@@ -10,6 +10,23 @@ import { t, getLang, setLang, onLangChange } from './i18n.js';
 import { getSettings, setSetting, resetSettings } from './settings.js';
 import { bindClickSounds } from './audio.js';
 import { isFullscreen, toggleFullscreen, onFullscreenChange, isSupported } from './fullscreen.js';
+import {
+  getSaveInfo, saveNow, clearSave, currentDay,
+} from './save-game.js';
+
+/* Đường dẫn CSS tuyệt đối, cùng lý do với các module khác: Vercel
+   phục vụ trang ở /nasa không có dấu / cuối nên đường dẫn tương đối
+   sẽ 404. */
+const SAVE_CSS = new URL('.', import.meta.url).href + 'css/save-game.css';
+
+function ensureSaveCss() {
+  if (document.querySelector('link[data-save-css]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = SAVE_CSS;
+  link.dataset.saveCss = '1';
+  document.head.appendChild(link);
+}
 
 let panel = null;
 
@@ -110,6 +127,54 @@ export function openSettings() {
 
         <section class="settings-group">
           <h3 data-i18n="settings.data"></h3>
+
+          <!-- Khối lưu tiến trình. Trạng thái và dung lượng do
+               renderSaveBlock() điền, vì chúng đổi sau mỗi lần lưu. -->
+          <div class="save-block">
+            <div class="save-status">
+              <div class="save-status-line">
+                <span class="save-status-label" data-i18n="save.status.label"></span>
+                <span class="save-status-value" data-save-status></span>
+              </div>
+              <div class="save-meta" data-save-meta hidden>
+                <span><b data-i18n="save.meta.day"></b><i data-save-day></i></span>
+                <span><b data-i18n="save.meta.phase"></b><i data-save-phase></i></span>
+                <span><b data-i18n="save.meta.size"></b><i data-save-size></i></span>
+              </div>
+              <small data-i18n="save.status.hint"></small>
+            </div>
+
+            <div class="save-actions">
+              <button type="button" class="save-btn is-primary" data-act="save-now">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
+                </svg>
+                <span data-i18n="save.now"></span>
+              </button>
+              <button type="button" class="save-btn is-danger" data-act="save-clear">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 7h16"/><path d="M9 7V4h6v3"/>
+                  <path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>
+                </svg>
+                <span data-i18n="save.clear"></span>
+              </button>
+            </div>
+
+            <!-- Hàng xác nhận: ẩn cho tới khi bấm nút xoá lần đầu, để
+                 một cú bấm nhầm không xoá mất cả ván. -->
+            <div class="save-confirm" data-save-confirm hidden>
+              <p class="save-confirm-text" data-i18n="save.clear.body"></p>
+              <div class="save-actions">
+                <button type="button" class="save-btn is-danger" data-act="save-clear-yes"
+                        data-i18n="save.clear.confirm"></button>
+                <button type="button" class="save-btn" data-act="save-clear-no"
+                        data-i18n="save.clear.cancel"></button>
+              </div>
+            </div>
+          </div>
+
           <div class="settings-row">
             <span class="settings-label"><small data-i18n="settings.reset.desc"></small></span>
             <button class="danger" data-act="reset" data-i18n="settings.reset"></button>
@@ -120,7 +185,9 @@ export function openSettings() {
     </div>`;
 
   document.body.appendChild(panel);
+  ensureSaveCss();
   refresh();
+  renderSaveBlock();
 
   /* ---------- đóng ---------- */
   const close = () => {
@@ -206,11 +273,109 @@ export function openSettings() {
     close();
   });
 
+  /* ---------- khối lưu tiến trình ---------- */
+
+  const confirmBox = panel.querySelector('[data-save-confirm]');
+  const clearBtn = panel.querySelector('[data-act="save-clear"]');
+
+  panel.querySelector('[data-act="save-now"]').addEventListener('click', () => {
+    saveNow({ reason: 'manual', day: currentDay() });
+    renderSaveBlock();
+  });
+
+  /* Bấm lần đầu chỉ mở hàng xác nhận, chưa xoá gì. Cách này chắc
+     chắn hơn kiểu "bấm hai lần liên tiếp": hàng xác nhận có nút Huỷ
+     rõ ràng, người dùng thấy được mình đang xoá cái gì. */
+  clearBtn.addEventListener('click', () => {
+    confirmBox.hidden = false;
+    clearBtn.setAttribute('aria-expanded', 'true');
+    const yes = confirmBox.querySelector('[data-act="save-clear-yes"]');
+    if (yes) yes.focus();
+  });
+
+  confirmBox.querySelector('[data-act="save-clear-no"]').addEventListener('click', () => {
+    confirmBox.hidden = true;
+    clearBtn.setAttribute('aria-expanded', 'false');
+    clearBtn.focus();
+  });
+
+  confirmBox.querySelector('[data-act="save-clear-yes"]').addEventListener('click', () => {
+    /* Phải dừng màn căn cứ TRƯỚC khi xoá. Đồng hồ trong màn căn cứ
+       vẫn gọi stats.save() mỗi lần kim chạy, nên nếu xoá trước rồi mới
+       tải lại thì khoá 'smdg.stats' được ghi lại ngay sau khi xoá và
+       người chơi thấy tiến trình "sống dậy" sau khi đã xoá.
+       Thứ tự đúng: dừng màn (base.js nghe sự kiện này) rồi mới xoá. */
+    try {
+      window.dispatchEvent(new CustomEvent('smdg:clear-save'));
+    } catch { /* trình duyệt cũ không hỗ trợ CustomEvent thì bỏ qua */ }
+
+    clearSave();
+    confirmBox.hidden = true;
+    /* Tải lại về màn khởi động. Không dùng location.href: chỉ cần
+       nạp lại chính tài liệu đang mở, trình duyệt tự về trạng thái
+       đầu vì mọi khoá đã trống. */
+    try { window.location.reload(); } catch { close(); }
+  });
+
   // đổi ngôn ngữ thì vẽ lại toàn bộ chữ trong bảng
-  const offLang = onLangChange(() => refresh());
+  const offLang = onLangChange(() => { refresh(); renderSaveBlock(); });
   panel._cleanupLang = offLang;
 
   bindClickSounds(panel);
+}
+
+/* Điền trạng thái bản lưu: giờ lưu, ngày trong game, màn đang ở,
+   dung lượng. Gọi lúc mở bảng, sau mỗi lần lưu tay, và khi đổi ngôn
+   ngữ (vì nhãn màn và định dạng giờ đều đổi theo). */
+function renderSaveBlock() {
+  if (!panel) return;
+
+  const info = getSaveInfo();
+  const valueEl = panel.querySelector('[data-save-status]');
+  const metaEl = panel.querySelector('[data-save-meta]');
+  const dayEl = panel.querySelector('[data-save-day]');
+  const phaseEl = panel.querySelector('[data-save-phase]');
+  const sizeEl = panel.querySelector('[data-save-size]');
+  const nowBtn = panel.querySelector('[data-act="save-now"]');
+  const clearBtn = panel.querySelector('[data-act="save-clear"]');
+
+  if (!info) {
+    if (valueEl) {
+      valueEl.textContent = t('save.status.none');
+      valueEl.classList.add('is-empty');
+    }
+    if (metaEl) metaEl.hidden = true;
+    if (clearBtn) clearBtn.disabled = true;
+    return;
+  }
+
+  const when = new Date(info.savedAt);
+  let time = info.savedAt;
+  try {
+    time = when.toLocaleString(getLang() === 'en' ? 'en-GB' : 'vi-VN', {
+      hour: '2-digit', minute: '2-digit',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+    });
+  } catch { /* trình duyệt thiếu bảng ngôn ngữ thì hiện ISO */ }
+
+  if (valueEl) {
+    valueEl.textContent = t('save.status.savedAt').replace('{time}', time);
+    valueEl.classList.remove('is-empty');
+  }
+
+  if (metaEl) metaEl.hidden = false;
+  if (dayEl) dayEl.textContent = String(info.day);
+  if (phaseEl) phaseEl.textContent = t('save.phase.' + info.phase);
+  /* Dấu phẩy thập phân cho tiếng Việt, dấu chấm cho tiếng Anh. */
+  if (sizeEl) {
+    const n = getLang() === 'en'
+      ? info.sizeKb.toFixed(1)
+      : String(info.sizeKb).replace('.', ',');
+    sizeEl.textContent = n + ' KB';
+  }
+
+  if (clearBtn) clearBtn.disabled = false;
+  if (nowBtn) nowBtn.disabled = false;
 }
 
 /* Vẽ lại toàn bộ chữ và trạng thái đang chọn. */

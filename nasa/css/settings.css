@@ -57,8 +57,10 @@
   color: var(--tx-bright);
 }
 .settings-close {
-  width: 30px;
-  height: 30px;
+  /* 30px là dưới ngưỡng chạm tối thiểu 44px. Nút đóng là thứ người chơi
+     bấm nhiều nhất trong panel nên phải đủ lớn. */
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

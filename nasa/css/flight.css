@@ -283,15 +283,17 @@
   min-width: 0;
 }
 
+/* Nhãn cho xuống dòng thay vì cắt bằng dấu ba chấm: "Khoảng cách tới
+   Sao Hỏa" ở cột hẹp mà cắt thì còn "KHOẢNG CÁCH TỚI SAO", đọc không
+   ra nghĩa. Hai dòng ngắn vẫn gọn hơn một dòng cụt. */
 .flt-tele-k {
   font-family: var(--st-font-mono);
   font-size: var(--st-size-label);
+  line-height: 1.25;
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--tx-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: balance;
 }
 
 .flt-tele-v {
@@ -299,13 +301,16 @@
   align-items: baseline;
   gap: 5px;
   min-width: 0;
+  /* line-height 1,05 cắt mất phần dưới của chữ số có chân (9, 3) trong
+     một số font mono. 1,2 vẫn gọn mà không ăn vào nét chữ. */
+  line-height: 1.2;
 }
 
 .flt-tele-v b {
   font-family: var(--st-font-mono);
   font-size: clamp(1rem, .85rem + .5vw, 1.35rem);
   font-weight: 500;
-  line-height: 1.05;
+  line-height: 1.2;
   color: var(--tx-bright);
   letter-spacing: -.01em;
 }
@@ -349,7 +354,7 @@
   gap: var(--st-gap-sm);
   padding: var(--st-gap-md);
   border-bottom: 1px solid var(--line);
-  background: rgba(7, 9, 13, .35);
+  background: color-mix(in srgb, var(--bg-void) 35%, transparent);
 }
 
 .flt-bar {
@@ -500,6 +505,85 @@
   text-transform: uppercase;
   color: var(--tx-soft);
 }
+
+/* ---------- nhật ký quyết định ---------- */
+
+.flt-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--st-gap-xs);
+  padding-top: var(--st-gap-sm);
+  border-top: 1px solid var(--line-hair);
+}
+
+.flt-log[hidden] { display: none; }
+
+.flt-log-title {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.flt-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flt-log-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--bg-panel);
+  border-left: 2px solid var(--line-strong);
+  border-radius: 0 2px 2px 0;
+}
+
+.flt-log-list li[data-sign="neg"] { border-left-color: var(--fail); }
+.flt-log-list li[data-sign="pos"] { border-left-color: var(--ok); }
+
+.flt-log-day {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  color: var(--tx-dim);
+}
+
+.flt-log-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.flt-log-ev {
+  font-size: var(--st-size-cap);
+  line-height: 1.4;
+  color: var(--tx-soft);
+}
+
+.flt-log-opt {
+  font-size: var(--st-size-label);
+  line-height: 1.4;
+  color: var(--tx-dim);
+}
+
+.flt-log-delta {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-soft);
+}
+
+.flt-log-list li[data-sign="neg"] .flt-log-delta { color: var(--fail); }
+.flt-log-list li[data-sign="pos"] .flt-log-delta { color: var(--ok); }
 
 .flt-error {
   display: flex;
@@ -725,8 +809,14 @@
   white-space: nowrap;
 }
 
-.flt-chip.is-pos { color: var(--ok); border-color: rgba(111, 191, 138, .35); }
-.flt-chip.is-neg { color: var(--fail); border-color: rgba(217, 105, 79, .35); }
+.flt-chip.is-pos {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+}
+.flt-chip.is-neg {
+  color: var(--fail);
+  border-color: color-mix(in srgb, var(--fail) 35%, transparent);
+}
 
 .flt-reaction {
   display: flex;
@@ -837,7 +927,7 @@
   display: grid;
   place-items: center;
   padding: max(var(--st-gap-md), env(safe-area-inset-top)) var(--st-gap-md);
-  background: rgba(7, 9, 13, .88);
+  background: color-mix(in srgb, var(--bg-void) 88%, transparent);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -853,7 +943,7 @@
   background: linear-gradient(168deg, var(--bg-raise), var(--bg-panel) 45%, var(--bg-deep));
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, .62);
+  box-shadow: 0 24px 64px color-mix(in srgb, #000 62%, transparent);
 }
 
 .flt-card.is-fail { border-color: var(--fail); }
@@ -988,20 +1078,22 @@
 
   .flt-map-stage .mviz-progress-row { font-size: 10px; }
 
+  /* Bốn ô, hai cột: AU và km đều phải còn, vì đó là hai đơn vị người
+     chơi cần đối chiếu. Ô số lần đốt TCM đã có trên thanh tiến trình
+     của bản đồ nên bỏ ở đây cho khỏi chật. */
   .flt-tele {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .flt-tele-cell {
     padding: 7px 8px 8px;
   }
 
-  .flt-tele-cell.is-km,
-  .flt-tele-cell.is-tcm {
-    display: none;
-  }
+  .flt-tele-cell.is-tcm { display: none; }
 
   .flt-tele-v b { font-size: .95rem; }
+
+  .flt-tele-cell.is-km .flt-tele-v b { font-size: .82rem; }
 
   .flt-bars {
     padding: var(--st-gap-sm);

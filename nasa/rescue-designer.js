@@ -4,12 +4,12 @@
 
    Đây là phần gameplay chính. Người chơi chọn một module cho mỗi
    nhóm hệ thống, đọc ngay con số tổng ở cột phải, và phải giữ ba
-   giới hạn trong xanh: ngân sách, tải trọng tên lửa, delta-v.
+   giới hạn trong mức an toàn: ngân sách, tải trọng tên lửa, delta-v.
 
    Nguồn số liệu duy nhất: data/nasa/rescue_modules.json và
    data/nasa/rescue_mission.json, đọc qua nasa-data.js.
    Không có con số cân bằng nào được viết lại trong file này, trừ
-   ngân sách 900 triệu USD và số người trong phi hành đoàn, hai
+   ngân sách 700 triệu USD và số người trong phi hành đoàn, hai
    tham số của luật chơi chứ không phải số liệu NASA.
 
    Chuỗi giao diện: i18n.js, tiền tố 'rescue.'.
@@ -83,7 +83,7 @@ const PRESETS = {
       communications: 'comms_high_gain',
       life_support: 'life_eclss_recycler',
       landing: 'sensor_edl_suite',
-      shielding: null,
+      shielding: 'shield_radiation',
     },
     qty: { propellant: 1 },
   },
@@ -133,6 +133,13 @@ const SHELL = `
       <div class="rescue-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="rescue-progress-fill"></div>
       </div>
+      <!-- Thông báo ngắn hiện đè lên dải tiến trình: đó là dải trạng
+           thái duy nhất không chứa nội dung người chơi đang đọc, nên
+           thông báo không bao giờ che chữ hay nút.
+           The short notice covers the progress strip: that is the one
+           status band with no content being read, so the notice never
+           hides text or a button. -->
+      <div class="rescue-toast" role="status" aria-live="polite" hidden></div>
     </div>
 
     <div class="rescue-cols">
@@ -142,6 +149,7 @@ const SHELL = `
       </section>
 
       <aside class="rescue-right" aria-labelledby="rescue-summary-h">
+        <div class="rescue-right-body">
         <h3 class="rescue-col-h" id="rescue-summary-h" data-i18n="rescue.col.summary"></h3>
 
         <div class="rescue-launcher">
@@ -154,6 +162,7 @@ const SHELL = `
         <dl class="rescue-sums"></dl>
 
         <div class="rescue-validation" aria-live="polite"></div>
+        </div>
 
         <div class="rescue-actions">
           <button type="button" class="rescue-btn rescue-btn-check" data-action="check">
@@ -184,7 +193,6 @@ const SHELL = `
     </div>
   </div>
 
-  <div class="rescue-toast" role="status" aria-live="polite" hidden></div>
 `;
 
 /* ---------- tiện ích ---------- */
@@ -530,7 +538,13 @@ export function startRescueDesigner({ container, onDone } = {}) {
     );
 
     /* Delta-v không có thanh "vượt", nó chỉ có thể thiếu. */
-    const dvCls = dvShort > 1e-9 ? ' is-over' : dvRatioRaw < 1.05 ? ' is-near' : '';
+    /* Thanh delta-v đầy 100 phần trăm nghĩa là vừa đủ. Dư nhiều thì
+       đổi sang màu cyan để "vừa đủ" (xanh lá) và "dư" (cyan) không
+       trông giống nhau.
+       A full delta-v bar means exactly enough. A large surplus turns
+       the fill cyan so "just enough" and "plenty spare" never look
+       the same. */
+    const dvCls = dvShort > 1e-9 ? ' is-over' : dvRatioRaw < 1.05 ? ' is-near' : ' is-spare';
     const dvNote = dvShort > 1e-9
       ? tr('rescue.bar.shortDv', { n: fmt(dvShort, 0) })
       : dvRatioRaw < 1.05
@@ -657,14 +671,58 @@ export function startRescueDesigner({ container, onDone } = {}) {
     elVal.innerHTML = head + fails + warns;
   }
 
+  /* validateRescueDesign không kiểm tra tiền: ngân sách là luật chơi
+     của phần này chứ không phải số liệu NASA, nên phép kiểm tra ngân
+     sách được ghép thêm ở đây. Nếu để nguyên thì một thiết kế 748
+     triệu vẫn "đạt" và vẫn phóng được, trong khi thanh ngân sách đã
+     đỏ, tức là hai chỗ nói hai chuyện khác nhau.
+     validateRescueDesign does not check money: the budget is a rule of
+     this screen, not NASA data, so the budget failure is appended here.
+     Otherwise a 748 million design would "pass" with a red budget bar. */
+  function withBudgetCheck(result, cost) {
+    if (cost - BUDGET_MUSD <= 1e-9) return result;
+    const over = Math.round(cost - BUDGET_MUSD);
+    const failure = {
+      code: 'over_budget',
+      vi: 'Tổng giá ' + fmt(cost, 0) + ' triệu USD vượt ngân sách ' + fmt(BUDGET_MUSD, 0) +
+        ' triệu USD, vượt ' + fmt(over, 0) + ' triệu USD.',
+      en: 'Total cost of ' + fmt(cost, 0) + ' million USD exceeds the ' + fmt(BUDGET_MUSD, 0) +
+        ' million USD budget by ' + fmt(over, 0) + ' million USD.',
+      detail: { cost_musd: Math.round(cost), budget_musd: BUDGET_MUSD, over_musd: over },
+    };
+    const failures = result.failures.concat([failure]);
+    return { ...result, pass: false, failures };
+  }
+
   function runCheck() {
     const design = designOf();
-    st.result = validateRescueDesign(design);
+    const n = computeNumbers();
+    st.result = withBudgetCheck(validateRescueDesign(design), n.cost);
     st.checked = true;
     renderValidation();
     refresh();
-    if (st.result.pass) {
-      elVal.scrollIntoView({ block: 'nearest', behavior: motionOn() ? 'smooth' : 'auto' });
+    /* Cuộn khung phải để danh sách lỗi hiện ra ngay. Dùng scrollTop
+       của chính khung cuộn thay vì scrollIntoView, vì scrollIntoView
+       còn đẩy cả trang và trên màn hẹp sẽ nhảy lung tung.
+       Scroll the right pane to the result using its own scrollTop.
+       scrollIntoView would also move the page and jumps around on
+       narrow screens. */
+    const body = root.querySelector('.rescue-right-body');
+    if (body && body.scrollHeight > body.clientHeight) {
+      /* offsetTop không dùng được vì gốc toạ độ của nó là phần tử
+         định vị gần nhất, không phải khung cuộn. Lấy hiệu hai hình
+         chữ nhật là chắc chắn đúng.
+         offsetTop is unreliable here because its origin is the nearest
+         positioned ancestor, not the scroll pane. The difference of the
+         two client rects is exact. */
+      /* Gán thẳng scrollTop, không dùng cuộn mượt: kết quả kiểm tra
+         là thông tin người chơi cần đọc ngay, và cuộn mượt còn phụ
+         thuộc khung hình nên có trình duyệt bỏ qua.
+         Set scrollTop directly instead of a smooth scroll: the check
+         result is what the player needs to read right now, and smooth
+         scrolling depends on animation frames some browsers skip. */
+      const delta = elVal.getBoundingClientRect().top - body.getBoundingClientRect().top;
+      body.scrollTop = Math.max(0, body.scrollTop + delta - 8);
     }
     return st.result;
   }
@@ -782,7 +840,7 @@ export function startRescueDesigner({ container, onDone } = {}) {
            <h4>${escapeHtml(pick(mod, 'name'))}</h4>
            <p class="rescue-info-label">${t('rescue.info.tradeoff')}</p>
            <p class="rescue-info-tradeoff">${escapeHtml(pick(mod, 'tradeoff'))}</p>
-           <p class="rescue-info-source"><span class="rescue-info-key">${t('rescue.info.source')}:</span> ${escapeHtml(pick(mod, 'source'))}</p>
+           <p class="rescue-info-source"><span class="rescue-info-key">${t('rescue.info.source')}:</span> ${escapeHtml(mod.source || '')}</p>
          </div>`
       : `<div class="rescue-info-mod">
            <h4>${tr('rescue.opt.none')}</h4>

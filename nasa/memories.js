@@ -128,7 +128,7 @@ export function playMemory({ container, memoryId = 'family', onDone, playerName 
       <footer class="mem-foot">
         <div class="mem-dots" aria-hidden="true"></div>
         <div class="mem-nav">
-          <button type="button" class="mem-back" aria-label="Back"></button>
+          <button type="button" class="mem-back"></button>
           <button type="button" class="mem-next"></button>
         </div>
       </footer>
@@ -166,6 +166,12 @@ export function playMemory({ container, memoryId = 'family', onDone, playerName 
     if (!beat) return;
 
     el.dataset.beat = String(index);
+    /* Nút quay lại trước đây không được gán chữ hay icon nào, nên nó là
+       một ô trống 96x34 cạnh nút TIẾP. Người chơi không biết đó là nút
+       gì. Nay gán chữ từ i18n, và aria-label cũng theo ngôn ngữ hiện
+       hành thay vì hardcode tiếng Anh. */
+    backBtn.textContent = t('mem.back');
+    backBtn.setAttribute('aria-label', t('mem.back'));
     backBtn.disabled = index === 0;
 
     const last = index === memory.beats.length - 1;
@@ -179,6 +185,24 @@ export function playMemory({ container, memoryId = 'family', onDone, playerName 
     if (key && artEl.dataset.key !== key) {
       artEl.dataset.key = key;
       artEl.innerHTML = artFor(key);
+
+      /* artFor trả ảnh kèm data-fallbacks, nhưng chỉ story.js gắn
+         listener lỗi để đổi đuôi. Thiếu listener thì khi người vẽ thay
+         tranh bằng jpg thay vì webp, khung hồi tưởng sẽ đen. Gắn ở đây
+         để hành vi giống story.js. */
+      const artImg = artEl.querySelector('img[data-fallbacks]');
+      if (artImg) {
+        artImg.addEventListener('error', function tryNext() {
+          const chain = (artImg.dataset.fallbacks || '').split(';').filter(Boolean);
+          if (!chain.length) {
+            artImg.removeEventListener('error', tryNext);
+            return;
+          }
+          const next = BASE_URL + chain.shift();
+          artImg.dataset.fallbacks = chain.join(';');
+          artImg.src = next;
+        });
+      }
       el.dataset.art = key;
     }
 
