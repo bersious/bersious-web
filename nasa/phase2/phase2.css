@@ -7,7 +7,7 @@
    chỉ khai báo biến cục bộ suy ra từ biến gốc bằng color-mix.
    ============================================================ */
 
-@import url('../css/tokens.css');
+@import url('../src/css/tokens.css');
 
 /* ---------- biến cục bộ, suy ra từ token gốc ---------- */
 

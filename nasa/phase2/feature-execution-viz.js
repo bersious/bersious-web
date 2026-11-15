@@ -22,6 +22,8 @@
      - vùng bấm tối thiểu 44px, tôn trọng chế độ giảm chuyển động
    ============================================================ */
 
+import { getLang, onLangChange } from '../i18n.js';
+
 const BASE = new URL('.', import.meta.url).href;
 
 /* ---------- hằng số ---------- */
@@ -291,7 +293,10 @@ export function mountExecution({ container, engine, onDone } = {}) {
   if (!container) throw new Error('mountExecution cần container');
   injectCss();
 
-  const t = (key) => (T.vi[key] != null ? T.vi[key] : key);
+  /* Chọn bảng theo ngôn ngữ đang bật (xem chú thích trong
+     feature-cml4-checklist.js: bản cũ luôn đọc T.vi). */
+  const lang = () => (getLang() === 'en' ? T.en : T.vi);
+  const t = (key) => (lang()[key] != null ? lang()[key] : key);
   const e = (key) => (T.en[key] != null ? T.en[key] : key);
 
   const root = document.createElement('section');
@@ -301,13 +306,13 @@ export function mountExecution({ container, engine, onDone } = {}) {
     <header class="exv-head">
       <div class="exv-head-text">
         <p class="exv-tag">
-          <span class="exv-tag-step">${esc(t('tag'))}</span>
+          <span class="exv-tag-step">${esc(getLang() === 'en' ? t('tagEn') : t('tag'))}</span>
           <span class="exv-tag-sep" aria-hidden="true"></span>
-          <span class="exv-tag-en">${esc(t('tagEn'))}</span>
+          <span class="exv-tag-en">${esc(getLang() === 'en' ? t('tag') : t('tagEn'))}</span>
         </p>
         <h2 class="exv-title">
-          <span class="exv-title-vi">${esc(t('title'))}</span>
-          <span class="exv-title-en">${esc(t('titleEn'))}</span>
+          <span class="exv-title-vi">${esc(getLang() === 'en' ? t('titleEn') : t('title'))}</span>
+          <span class="exv-title-en">${esc(getLang() === 'en' ? t('title') : t('titleEn'))}</span>
         </h2>
       </div>
       <ol class="exv-chips" aria-label="${esc(t('title'))}">
@@ -322,7 +327,7 @@ export function mountExecution({ container, engine, onDone } = {}) {
     <section class="exv-phase exv-phase-cruise" data-phase="cruise">
       <div class="exv-strip">
         <div class="exv-strip-block">
-          <span class="exv-strip-k">${esc(t('dayLabel'))}<em>${esc(t('dayEn'))}</em></span>
+          <span class="exv-strip-k">${esc(getLang() === 'en' ? t('dayEn') : t('dayLabel'))}<em>${esc(getLang() === 'en' ? t('dayLabel') : t('dayEn'))}</em></span>
           <span class="exv-strip-v"><b data-out="day">0,0</b><i>${esc(t('ofDays'))}</i></span>
         </div>
         <div class="exv-strip-block">
@@ -330,7 +335,7 @@ export function mountExecution({ container, engine, onDone } = {}) {
           <span class="exv-strip-v"><b data-out="au">0,000</b><i>AU</i><u data-out="km">0</u><i>km</i></span>
         </div>
         <div class="exv-strip-block is-delay">
-          <span class="exv-strip-k">${esc(t('delayLabel'))}<em>${esc(t('delayEn'))}</em></span>
+          <span class="exv-strip-k">${esc(getLang() === 'en' ? t('delayEn') : t('delayLabel'))}<em>${esc(getLang() === 'en' ? t('delayLabel') : t('delayEn'))}</em></span>
           <span class="exv-strip-v"><b data-out="delay">0,0</b><i>${esc(t('minutes'))}</i></span>
         </div>
         <div class="exv-strip-block is-prog">

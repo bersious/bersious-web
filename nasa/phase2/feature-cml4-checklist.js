@@ -24,6 +24,8 @@
      - vùng bấm tối thiểu 44px, tôn trọng chế độ giảm chuyển động
    ============================================================ */
 
+import { getLang, onLangChange } from '../i18n.js';
+
 const BASE = new URL('.', import.meta.url).href;
 
 /* ---------- chuỗi song ngữ ---------- */
@@ -314,7 +316,11 @@ export function mountCml4({ container, engine, onNext } = {}) {
   if (!container) throw new Error('mountCml4 cần container');
   injectCss();
 
-  const t = (key) => (T.vi[key] != null ? T.vi[key] : key);
+  /* Chọn bảng theo ngôn ngữ đang bật. Bản cũ luôn đọc T.vi và chỉ
+     kèm bản EN như một dòng phụ nhỏ, nên người chơi chọn EN vẫn thấy
+     cả màn tiếng Việt. */
+  const lang = () => (getLang() === 'en' ? T.en : T.vi);
+  const t = (key) => (lang()[key] != null ? lang()[key] : key);
   const e = (key) => (T.en[key] != null ? T.en[key] : key);
 
   /* ---------- khung DOM ---------- */
@@ -480,20 +486,20 @@ export function mountCml4({ container, engine, onNext } = {}) {
             <div class="cm4-row" role="button" tabindex="0"
                  aria-expanded="${open ? 'true' : 'false'}"
                  aria-controls="cm4-detail-${esc(id)}"
-                 aria-label="${esc(lb.vi)}: ${esc(statusWord)}">
+                 aria-label="${esc(getLang() === 'en' ? lb.en : lb.vi)}: ${esc(statusWord)}">
               <span class="cm4-light" aria-hidden="true"><i class="cm4-dot is-${status === 'green' ? 'green' : status === 'yellow' ? 'yellow' : 'red'}"></i></span>
               <span class="cm4-row-text">
-                <b class="cm4-row-label">${esc(lb.vi)}</b>
-                <em class="cm4-row-label-en">${esc(lb.en)}</em>
+                <b class="cm4-row-label">${esc(getLang() === 'en' ? lb.en : lb.vi)}</b>
+                <em class="cm4-row-label-en">${esc(getLang() === 'en' ? lb.vi : lb.en)}</em>
                 <span class="cm4-row-nasa">(${esc(lb.nasa)})</span>
               </span>
               <span class="cm4-row-status">${esc(statusWord)}</span>
-              <button type="button" class="cm4-help" aria-label="${esc(t('help'))}: ${esc(lb.vi)}" title="${esc(t('help'))}">?</button>
+              <button type="button" class="cm4-help" aria-label="${esc(t('help'))}: ${esc(getLang() === 'en' ? lb.en : lb.vi)}" title="${esc(t('help'))}">?</button>
             </div>
             <div class="cm4-detail" id="cm4-detail-${esc(id)}" role="region" ${open ? '' : 'hidden'}>
               <p class="cm4-detail-k">${esc(t('cause'))}</p>
-              <p class="cm4-detail-vi">${esc(detailVi || t('emptyChecks'))}</p>
-              ${detailEn ? `<p class="cm4-detail-en">${esc(detailEn)}</p>` : ''}
+              <p class="cm4-detail-vi">${esc((getLang() === 'en' ? detailEn : detailVi) || t('emptyChecks'))}</p>
+              ${detailEn ? `<p class="cm4-detail-en">${esc(getLang() === 'en' ? detailVi : detailEn)}</p>` : ''}
               ${status === 'red' ? `
                 <p class="cm4-detail-warn">${esc(t('fixable'))}</p>
                 <button type="button" class="cm4-back">${esc(t('back'))}<em>Back to design</em></button>
@@ -741,11 +747,16 @@ export function mountCml4({ container, engine, onNext } = {}) {
 
   render();
 
+  /* Đổi ngôn ngữ giữa chừng thì dựng lại toàn bộ màn: các chuỗi nằm
+     trong template literal, chỉ vẽ lại mới đổi được. */
+  const offLang = onLangChange(() => { render(); });
+
   return {
     root,
     refresh: render,
     destroy() {
       destroyed = true;
+      if (typeof offLang === 'function') offLang();
       unsubs.forEach((u) => { try { u(); } catch { /* bỏ qua */ } });
       unsubs = [];
       listEl.removeEventListener('click', onListClick);

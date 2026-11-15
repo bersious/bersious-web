@@ -6,7 +6,7 @@
    viết thẳng ở đây, chỉ có color-mix pha ra từ biến.
    ============================================================ */
 
-@import url('../css/tokens.css');
+@import url('../src/css/tokens.css');
 
 .cml1-root {
   --cml1-void:    var(--bg-void);

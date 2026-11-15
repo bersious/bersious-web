@@ -7,7 +7,7 @@
    Tôn trọng prefers-reduced-motion và html.motion-off.
    ============================================================ */
 
-@import url('../css/tokens.css');
+@import url('../src/css/tokens.css');
 
 /* ---------- lớp phủ và khung ---------- */
 
