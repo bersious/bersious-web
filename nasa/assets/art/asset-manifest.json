@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T16:50:04",
+  "generated": "2026-11-15T17:56:28",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -116,123 +116,188 @@
   ],
   "icons": [
     {
+      "id": "icon-antenna-board",
+      "path": "assets/art/icon-antenna-board.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 3436,
+      "transparent": true
+    },
+    {
+      "id": "icon-battery-spare",
+      "path": "assets/art/icon-battery-spare.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 3654,
+      "transparent": true
+    },
+    {
       "id": "icon-cable",
       "path": "assets/art/icon-cable.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1252
+      "bytes": 1252,
+      "transparent": false
     },
     {
       "id": "icon-dsn-dish",
       "path": "assets/art/icon-dsn-dish.webp",
       "width": 128,
       "height": 128,
-      "bytes": 5482
+      "bytes": 5482,
+      "transparent": true
     },
     {
       "id": "icon-electronics",
       "path": "assets/art/icon-electronics.webp",
       "width": 128,
       "height": 128,
-      "bytes": 3070
+      "bytes": 3070,
+      "transparent": false
     },
     {
       "id": "icon-family-photo",
       "path": "assets/art/icon-family-photo.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2032
+      "bytes": 2032,
+      "transparent": false
     },
     {
       "id": "icon-filter",
       "path": "assets/art/icon-filter.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1550
+      "bytes": 1550,
+      "transparent": false
+    },
+    {
+      "id": "icon-first-aid",
+      "path": "assets/art/icon-first-aid.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 3366,
+      "transparent": true
     },
     {
       "id": "icon-hex-packet",
       "path": "assets/art/icon-hex-packet.webp",
       "width": 128,
       "height": 128,
-      "bytes": 5560
+      "bytes": 5560,
+      "transparent": true
     },
     {
       "id": "icon-hydrazine",
       "path": "assets/art/icon-hydrazine.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1630
+      "bytes": 1630,
+      "transparent": false
     },
     {
       "id": "icon-media",
       "path": "assets/art/icon-media.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1214
+      "bytes": 1214,
+      "transparent": false
+    },
+    {
+      "id": "icon-moxie-core",
+      "path": "assets/art/icon-moxie-core.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 3944,
+      "transparent": true
     },
     {
       "id": "icon-mro-satellite",
       "path": "assets/art/icon-mro-satellite.webp",
       "width": 128,
       "height": 128,
-      "bytes": 3016
+      "bytes": 3016,
+      "transparent": true
     },
     {
       "id": "icon-potato",
       "path": "assets/art/icon-potato.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1826
+      "bytes": 1826,
+      "transparent": false
+    },
+    {
+      "id": "icon-ration-nasa",
+      "path": "assets/art/icon-ration-nasa.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 4566,
+      "transparent": true
     },
     {
       "id": "icon-ration",
       "path": "assets/art/icon-ration.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2264
+      "bytes": 2264,
+      "transparent": false
     },
     {
       "id": "icon-seed",
       "path": "assets/art/icon-seed.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1812
+      "bytes": 1812,
+      "transparent": false
     },
     {
       "id": "icon-solar",
       "path": "assets/art/icon-solar.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1334
+      "bytes": 1334,
+      "transparent": false
     },
     {
       "id": "icon-tape",
       "path": "assets/art/icon-tape.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1812
+      "bytes": 1812,
+      "transparent": false
     },
     {
       "id": "icon-toolbox",
       "path": "assets/art/icon-toolbox.webp",
       "width": 128,
       "height": 128,
-      "bytes": 2458
+      "bytes": 2458,
+      "transparent": false
     },
     {
       "id": "icon-uhf-transmitter",
       "path": "assets/art/icon-uhf-transmitter.webp",
       "width": 128,
       "height": 128,
-      "bytes": 4774
+      "bytes": 4774,
+      "transparent": true
+    },
+    {
+      "id": "icon-water-recycled",
+      "path": "assets/art/icon-water-recycled.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 2842,
+      "transparent": true
     },
     {
       "id": "icon-water",
       "path": "assets/art/icon-water.webp",
       "width": 128,
       "height": 128,
-      "bytes": 1338
+      "bytes": 1338,
+      "transparent": false
     }
   ],
   "panels": [
@@ -297,14 +362,14 @@
       "path": "assets/art/screen-09.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 172766
+      "bytes": 67278
     },
     {
       "id": "screen-10",
       "path": "assets/art/screen-10.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 155092
+      "bytes": 183740
     },
     {
       "id": "screen-11",
@@ -319,6 +384,48 @@
       "width": 1600,
       "height": 900,
       "bytes": 139388
+    }
+  ],
+  "chars": [
+    {
+      "id": "char-cold",
+      "path": "assets/art/char-cold.webp",
+      "width": 213,
+      "height": 505,
+      "bytes": 43902,
+      "transparent": true
+    },
+    {
+      "id": "char-healthy",
+      "path": "assets/art/char-healthy.webp",
+      "width": 316,
+      "height": 512,
+      "bytes": 49532,
+      "transparent": true
+    },
+    {
+      "id": "char-tired",
+      "path": "assets/art/char-tired.webp",
+      "width": 309,
+      "height": 358,
+      "bytes": 30366,
+      "transparent": true
+    }
+  ],
+  "popups": [
+    {
+      "id": "popup-airlock-eva",
+      "path": "assets/art/popup-airlock-eva.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 92362
+    },
+    {
+      "id": "popup-comms-radar",
+      "path": "assets/art/popup-comms-radar.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 75528
     }
   ]
 }
