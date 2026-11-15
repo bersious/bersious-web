@@ -24,20 +24,23 @@
    1600x900 và xoá watermark.
    Xoá một dòng ở đây thì cảnh đó quay về tranh SVG vẽ tay. */
 export const PHOTOS = {
-  'mars-surface': 'assets/mars-surface.jpg',
-  'storm-coming': 'assets/storm-coming.jpg',
-  'storm-impact': 'assets/storm-impact.jpg',
-  'departure': 'assets/departure.jpg',
-  'awake': 'assets/awake.jpg',
+  'mars-surface': 'assets/mars-surface.webp',
+  'storm-coming': 'assets/storm-coming.webp',
+  'storm-impact': 'assets/storm-impact.webp',
+  'departure': 'assets/departure.webp',
+  'awake': 'assets/awake.webp',
 
-  /* tám khung mở đầu điện ảnh */
-  'bg-storm-wide':   'assets/art/bg-storm-wide.jpg',
-  'bg-crew-running': 'assets/art/bg-crew-running.jpg',
-  'bg-running-pov':  'assets/art/bg-running-pov.jpg',
-  'bg-face-closeup': 'assets/art/bg-face-closeup.jpg',
-  'bg-fall-buried':  'assets/art/bg-fall-buried.jpg',
-  'bg-mars-orbit':   'assets/art/bg-mars-orbit.jpg',
-  'bg-waking-eyes':  'assets/art/bg-waking-eyes.jpg',
+  /* Mười sáu khung cảnh thật.
+     KHE ẢNH: muốn thay tranh thì chỉ cần để file mới vào assets/art/
+     đúng tên, không sửa dòng nào ở đây. Đuôi file tự dò, nhận webp,
+     jpg, png, avif. Xem resolveArtPath bên dưới. */
+  'bg-storm-wide':   'assets/art/bg-storm-wide.webp',
+  'bg-crew-running': 'assets/art/bg-crew-running.webp',
+  'bg-running-pov':  'assets/art/bg-running-pov.webp',
+  'bg-face-closeup': 'assets/art/bg-face-closeup.webp',
+  'bg-fall-buried':  'assets/art/bg-fall-buried.webp',
+  'bg-mars-orbit':   'assets/art/bg-mars-orbit.webp',
+  'bg-waking-eyes':  'assets/art/bg-waking-eyes.webp',
   'bg-entering-hab': 'assets/art/bg-entering-hab.jpg',
 
   /* cảnh hồi tưởng gia đình, mở từ túi đồ trong màn căn cứ */
@@ -962,7 +965,43 @@ const SVG_ART = {
    gạch chéo cuối. Khai báo "assets/mars-surface.jpg" trần thì trình
    duyệt phân giải thành https://site/assets/... và 404, làm 5 ảnh cảnh
    Sao Hỏa biến mất, chỉ còn nền đen. */
-const BASE_URL = new URL('.', import.meta.url).href;
+export const BASE_URL = new URL('.', import.meta.url).href;
+
+/* Danh sách đuôi file chấp nhận được, xếp theo thứ tự ưu tiên.
+   Agent vẽ tay chỉ cần bỏ file vào assets/art/ đúng tên gốc, không
+   phải sửa PHOTOS cũng không phải đổi đuôi cho khớp. */
+const ART_EXTS = ['webp', 'jpg', 'jpeg', 'png', 'avif'];
+
+/* Với một đường dẫn khai báo trong PHOTOS, trả về đường dẫn tuyệt đối
+   đã có base URL. Gọi đúng một lần cho mỗi đường dẫn, không gọi lại
+   trên kết quả của chính nó, vì chuỗi đã tuyệt đối sẽ bị ghép base
+   thêm lần nữa và thành địa chỉ rác. */
+function resolveArtPath(declared) {
+  if (declared.startsWith('http') || declared.startsWith('/') || declared.startsWith('data:')) {
+    return declared;
+  }
+  return BASE_URL + declared;
+}
+
+/* Tìm file thật cho một key. Thử lần lượt các đuôi trong ART_EXTS, vì
+   khi thay tranh người vẽ có thể lưu ra jpg hoặc png thay vì webp.
+   Cách làm: khai báo webp trước, nếu ảnh báo lỗi thì đổi sang đuôi kế
+   tiếp. img.onerror bắn trước khi người chơi kịp nhận ra, và chỉ tốn
+   một request 404 cho mỗi đuôi thiếu.
+
+   Đường dẫn trong chuỗi phải là TƯƠNG ĐỐI so với gốc thư mục module,
+   không được ghép base ở đây, và cũng không được dùng
+   new URL(x, img.src) bên kia: img.src là URL của file ảnh đang lỗi,
+   nên ghép tương đối vào sẽ cộng dồn thư mục (assets/art/assets/art/
+   assets/art/...). Phải luôn ghép với BASE_URL. */
+function fallbackChain(declaredPath) {
+  const m = declaredPath.match(/\.([a-z0-9]+)$/i);
+  if (!m) return [];
+  const stem = declaredPath.slice(0, -(m[1].length + 1));
+  return ART_EXTS
+    .filter((e) => e !== m[1].toLowerCase())
+    .map((e) => stem + '.' + e);
+}
 
 /* Chọn ảnh: ưu tiên ảnh thật nếu PHOTOS có khai báo.
    Trả về chuỗi HTML để story.js gán bằng innerHTML. */
@@ -971,10 +1010,17 @@ export function artFor(key) {
   if (photo) {
     /* Giữ nguyên nếu đã là đường dẫn tuyệt đối, còn không thì ghép
        base để chạy đúng ở mọi thư mục deploy. */
-    const src = photo.startsWith('http') || photo.startsWith('/') || photo.startsWith('data:')
-      ? photo
-      : BASE_URL + photo;
-    return `<img class="story-art story-art-photo" src="${src}" alt="" decoding="async">`;
+    const src = resolveArtPath(photo);
+    /* data-fallbacks là danh sách đuôi khác để onerror thử tiếp. Nhờ
+       vậy người vẽ chỉ cần ném file vào đúng thư mục, không cần quan
+       tâm định dạng. */
+    /* Lưu đường dẫn TƯƠNG ĐỐI, không tuyệt đối. Nếu lưu tuyệt đối thì
+       resolveArtPath chạy hai lần khi đổi sang đuôi khác (lần đầu ở
+       đây, lần hai trong onerror) và tạo ra địa chỉ rác kiểu
+       http:,,host,assets. Phân cách bằng dấu chấm phẩy vì đường dẫn
+       có chứa dấu gạch chéo, không thể dùng làm phân cách. */
+    const chain = fallbackChain(photo).join(';');
+    return `<img class="story-art story-art-photo" src="${src}" data-fallbacks="${chain}" alt="" decoding="async">`;
   }
   return SVG_ART[key] || '';
 }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>comms test</title>
+<link rel="stylesheet" href="./css/tokens.css">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #07090d; color: #b9c7d6;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+  #stage { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+  #bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+    display: flex; gap: 6px; padding: 6px; background: #0b0f15; border-top: 1px solid #26313f; font-size: 11px; }
+  #bar button { font: inherit; padding: 4px 8px; background: #111721; color: #b9c7d6; border: 1px solid #26313f; }
+  #log { position: fixed; top: 0; right: 0; width: 260px; max-height: 40vh; overflow: auto; z-index: 999;
+    background: rgba(0,0,0,.7); font: 10px/1.4 monospace; color: #8497aa; padding: 4px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="bar">
+  <button id="b-vi" type="button">VI</button>
+  <button id="b-en" type="button">EN</button>
+  <button id="b-motion" type="button">motion off</button>
+  <span id="done-flag" style="margin-left:auto">done=no</span>
+</div>
+<div id="log"></div>
+<script type="module">
+const errs = [];
+window.__errs = errs;
+window.addEventListener('error', (e) => errs.push(String(e.message)));
+window.addEventListener('unhandledrejection', (e) => errs.push('reject: ' + String(e.reason)));
+const logEl = document.getElementById('log');
+function log(m) { const d = document.createElement('div'); d.textContent = m; logEl.appendChild(d); }
+window.__log = log;
+
+const { startComms } = await import('./comms.js');
+const api = startComms({
+  container: document.getElementById('stage'),
+  onDone: () => { window.__done = true; document.getElementById('done-flag').textContent = 'done=yes'; log('onDone fired'); },
+});
+window.__comms = api;
+
+document.getElementById('b-vi').onclick = async () => (await import('./i18n.js')).setLang('vi');
+document.getElementById('b-en').onclick = async () => (await import('./i18n.js')).setLang('en');
+document.getElementById('b-motion').onclick = async () => {
+  const s = await import('./settings.js');
+  s.setSetting('motion', !s.getSettings().motion);
+};
+window.__ready = true;
+</script>
+</body>
+</html>

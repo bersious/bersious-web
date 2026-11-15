@@ -9,7 +9,7 @@
    ============================================================ */
 
 import { STORY, CREW, PLAYER_ROLE } from './story-data.js';
-import { artFor } from './art.js';
+import { artFor, BASE_URL } from './art.js';
 import { t, getLang, onLangChange } from './i18n.js';
 import { playClick } from './audio.js';
 import { playSceneSfx, playBeatSfx, stopAllSceneSfx } from './audio-sfx.js';
@@ -114,6 +114,29 @@ export function startStory({ onFinish } = {}) {
     if (stageArt.dataset.key === key) return;
     stageArt.dataset.key = key;
     stageArt.innerHTML = markup;
+
+    /* KHE ẢNH: người vẽ tay chỉ cần ném file vào assets/art/ đúng tên
+       gốc, đuôi nào cũng được. Nếu file khai báo (mặc định webp) không
+       có, ảnh báo lỗi và ta thử lần lượt jpg, png, avif. Không có thử
+       này thì thay một tấm tranh bằng jpg là cả khung đen. */
+    const img = stageArt.querySelector('img[data-fallbacks]');
+    if (img) {
+      img.addEventListener('error', function tryNext() {
+        const chain = (img.dataset.fallbacks || '').split(';').filter(Boolean);
+        if (!chain.length) {
+          img.removeEventListener('error', tryNext);
+          return;
+        }
+        /* Đường dẫn trong chuỗi là tương đối so với thư mục chứa module.
+           Phải ghép với BASE_URL, KHÔNG dùng new URL(x, img.src), vì
+           img.src là URL của chính file ảnh đang lỗi nên ghép vào sẽ
+           cộng dồn thư mục: assets/art/ lặp năm lần. */
+        const next = BASE_URL + chain.shift();
+        img.dataset.fallbacks = chain.join(';');
+        img.src = next;
+      });
+    }
+
     el.dataset.art = key;
     playSceneSfx(key);
   }

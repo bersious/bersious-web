@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T14:59:41",
+  "generated": "2026-11-15T15:19:00",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -157,7 +157,7 @@
       "path": "assets/art/icon-hex-packet.webp",
       "width": 128,
       "height": 128,
-      "bytes": 4796,
+      "bytes": 5560,
       "transparent": true,
       "note": "icon: gói tin dữ liệu hex"
     },
