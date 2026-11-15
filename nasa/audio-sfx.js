@@ -16,7 +16,12 @@
 import { getSettings, onSettingsChange } from './settings.js';
 import { isAudioUnlocked } from './audio.js';
 
-const BASE = new URL('.', location.href).href;
+/* Lấy base từ URL của chính file module này, KHÔNG dùng location.href.
+   location.href khi trang ở /nasa mà không có dấu chéo cuối sẽ cho ra
+   gốc site (https://site/), làm mọi đường dẫn audio thành
+   https://site/assets/... và 404. import.meta.url luôn trỏ đúng vào
+   file này nên new URL('.', ...) luôn ra đúng thư mục chứa nó. */
+const BASE = new URL('.', import.meta.url).href;
 const SFX_DIR = BASE + 'assets/audio/sfx/';
 
 /* Bản đồ ánh xạ từ key cảnh (art key) sang file hiệu ứng chính */

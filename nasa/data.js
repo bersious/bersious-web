@@ -15,7 +15,18 @@ const FILES = ['scenarios', 'instruments', 'orbits', 'launch_vehicles', 'events'
      2. deployed to bersious.io.vn/nasa, the page is the root  → data/
    Do not collapse this to a single path; that silently breaks one environment.
    See docs/10-DEPLOY-TARGET.md §3. */
-const BASES = ['../data/', 'data/'];
+/* Base tuyệt đối tính từ URL của chính module này. Không dùng đường
+   dẫn tương đối như 'data/' hay '../data/' vì fetch tương đối tính
+   theo URL trang, mà trang deploy ở /nasa không có dấu chéo cuối:
+   'data/' sẽ thành https://site/data/ và 404, còn '../data/' cũng ra
+   https://site/data/. Cả hai đều trượt, game không nạp được số liệu.
+   Ở repo thì data/ nằm ngoài src/ nên vẫn giữ phương án dự phòng. */
+const MODULE_BASE = new URL('.', import.meta.url).href;
+const BASES = [
+  MODULE_BASE + 'data/',
+  MODULE_BASE + '../data/',
+  'data/',
+];
 
 export const DB = {
   scenarios: null,
