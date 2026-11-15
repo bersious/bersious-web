@@ -1,0 +1,348 @@
+/* ============================================================
+   repair.css  ·  màn sửa chữa ba món trước khi phát tín hiệu
+   Toàn bộ màu lấy từ tokens.css, không hardcode.
+   ============================================================ */
+
+.repair-root,
+.repair-root * { box-sizing: border-box; }
+
+.repair-root {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3vw, 32px);
+  font-family: var(--st-font-body, "Inter", system-ui, sans-serif);
+}
+
+.repair-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 6, 10, .82);
+  backdrop-filter: blur(6px);
+}
+
+.repair-panel {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: min(92dvh, 860px);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel, #111721);
+  border: 1px solid rgba(232, 163, 61, .28);
+  border-radius: var(--st-radius-lg, 6px);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .7);
+  overflow: hidden;
+}
+
+/* ---------- đầu panel ---------- */
+
+.repair-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: clamp(16px, 2.4vw, 24px) clamp(16px, 2.4vw, 28px) 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.repair-title {
+  margin: 0 0 6px;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: clamp(1.15rem, 1.6vw + .6rem, 1.6rem);
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--tx-bright, #eaf1f8);
+}
+
+.repair-sub {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(.78rem, .3vw + .7rem, .9rem);
+  line-height: 1.5;
+  color: var(--tx-soft, #9fb0c4);
+}
+
+.repair-close {
+  flex: 0 0 auto;
+  /* 44px là ngưỡng chạm tối thiểu. */
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: var(--st-radius, 3px);
+  background: transparent;
+  color: var(--tx-soft, #9fb0c4);
+  cursor: pointer;
+  transition: color .16s ease, border-color .16s ease;
+}
+
+.repair-close:hover { color: var(--tx-bright, #eaf1f8); border-color: rgba(232, 163, 61, .5); }
+.repair-close:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 3px; }
+.repair-close svg { width: 18px; height: 18px; }
+
+/* ---------- thanh tiến trình ---------- */
+
+.repair-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px clamp(16px, 2.4vw, 28px);
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+
+.repair-progress-bar {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .08);
+  overflow: hidden;
+}
+
+.repair-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--amber, #e8a33d), #f2b552);
+  transition: width .32s ease;
+}
+
+.repair-progress-text {
+  flex: 0 0 auto;
+  font-size: .74rem;
+  letter-spacing: .1em;
+  color: var(--tx-soft, #9fb0c4);
+}
+
+/* ---------- danh sách ba món ---------- */
+
+.repair-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px clamp(16px, 2.4vw, 28px) 16px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.repair-item {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 14px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: var(--st-radius, 3px);
+  background: rgba(255, 255, 255, .02);
+}
+
+.repair-item.is-ready {
+  border-color: rgba(232, 163, 61, .55);
+  background: rgba(232, 163, 61, .06);
+}
+
+.repair-item.is-done {
+  border-color: rgba(79, 184, 201, .38);
+  background: rgba(79, 184, 201, .05);
+}
+
+.repair-item-num {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  color: var(--tx-dim, #72879d);
+  padding-top: 3px;
+}
+
+.repair-item.is-done .repair-item-num { color: var(--cyan, #4fb8c9); }
+
+.repair-item-body { min-width: 0; }
+
+.repair-item-name {
+  margin: 0 0 4px;
+  font-size: clamp(.92rem, .4vw + .82rem, 1.02rem);
+  font-weight: 600;
+  color: var(--tx-bright, #eaf1f8);
+}
+
+.repair-item-why {
+  margin: 0 0 6px;
+  font-size: clamp(.76rem, .28vw + .68rem, .86rem);
+  line-height: 1.55;
+  color: var(--tx-soft, #9fb0c4);
+}
+
+.repair-item-step {
+  margin: 0 0 8px;
+  font-size: clamp(.76rem, .28vw + .68rem, .86rem);
+  line-height: 1.55;
+  color: var(--tx, #b9c7d6);
+}
+
+.repair-item-step b,
+.repair-item-cost b {
+  font-weight: 600;
+  color: var(--amber, #e8a33d);
+  margin-right: 4px;
+}
+
+.repair-item-cost {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: .74rem;
+}
+
+.repair-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid rgba(79, 184, 201, .4);
+  border-radius: 2px;
+  background: rgba(79, 184, 201, .1);
+  color: var(--cyan, #4fb8c9);
+  font-family: var(--st-font-mono, monospace);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.repair-chip.is-short {
+  border-color: rgba(232, 90, 70, .55);
+  background: rgba(232, 90, 70, .12);
+  color: #f08c7a;
+}
+
+.repair-chip.is-time {
+  border-color: rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .04);
+  color: var(--tx-soft, #9fb0c4);
+}
+
+/* ---------- nút và dấu hoàn thành ---------- */
+
+.repair-item-act { display: flex; align-items: center; }
+
+.repair-btn {
+  min-height: 44px;
+  min-width: 96px;
+  padding: 0 18px;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: .84rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  border: 1px solid var(--amber, #e8a33d);
+  border-radius: var(--st-radius, 3px);
+  background: var(--amber, #e8a33d);
+  color: #07090d;
+  cursor: pointer;
+  transition: background-color .16s ease, transform .16s ease;
+}
+
+.repair-btn:hover { background: #f2b552; }
+.repair-btn:active { transform: translateY(2px); }
+.repair-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.repair-btn:disabled {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .05);
+  color: var(--tx-dim, #72879d);
+  cursor: not-allowed;
+}
+
+.repair-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(79, 184, 201, .5);
+  background: rgba(79, 184, 201, .12);
+  color: var(--cyan, #4fb8c9);
+}
+
+.repair-check svg { width: 22px; height: 22px; }
+
+/* ---------- chân panel ---------- */
+
+.repair-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px clamp(16px, 2.4vw, 28px);
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  background: rgba(0, 0, 0, .2);
+}
+
+.repair-status {
+  margin: 0;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--tx-soft, #9fb0c4);
+}
+
+.repair-done {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 22px;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: .86rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border: 1px solid var(--cyan, #4fb8c9);
+  border-radius: var(--st-radius, 3px);
+  background: var(--cyan, #4fb8c9);
+  color: #061014;
+  cursor: pointer;
+}
+
+.repair-done:disabled {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .05);
+  color: var(--tx-dim, #72879d);
+  cursor: not-allowed;
+}
+
+.repair-done:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 680px) {
+  .repair-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "body act"
+      "num  num";
+  }
+  .repair-item-num { grid-area: num; padding-top: 0; }
+  .repair-item-body { grid-area: body; }
+  .repair-item-act { grid-area: act; align-items: flex-start; }
+  .repair-item-step { margin-bottom: 6px; }
+  .repair-foot { flex-direction: column; align-items: stretch; }
+  .repair-done { width: 100%; }
+}
+
+/* ---------- tắt chuyển động ---------- */
+
+html.motion-off .repair-progress-fill { transition: none; }
+html.motion-off .repair-btn,
+html.motion-off .repair-close { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .repair-progress-fill,
+  .repair-btn,
+  .repair-close { transition: none; }
+}

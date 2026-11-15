@@ -20,6 +20,12 @@ import { getSettings } from './settings.js';
 import { playClick } from './audio.js';
 import { playMemory } from './memories.js';
 import {
+  loadQuest, tickQuest, markExcavated, canOpenRepair,
+  showProbeNotice, daysUntilTransmit, noticeLines,
+} from './probe-quest.js';
+import { openRepairBay, isAllRepaired, repairedCount, REPAIR_PARTS } from './repair.js';
+import { openBeaconScene } from './beacon.js';
+import {
   applySave, loadGame, hasSave, saveGame, getSaveInfo, clockFromStats,
   takePendingClock, initSaveWatchers, bindClockAutoSave, showSaveChip,
 } from './save-game.js';
@@ -484,6 +490,23 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
       openExploreScreen();
       return;
     }
+    if (id === 'excavate') {
+      /* Đào máy phát khỏi xác tàu. Chỉ mở khi đã tới ngày 6 và đã nghe
+         thông báo, để người chơi không mò ra đó từ ngày đầu. */
+      if (!quest.noticed) {
+        showToast(t('probe.log.noticed'));
+        return;
+      }
+      if (quest.excavated) {
+        showToast(t('probe.log.excavated'));
+        return;
+      }
+      markExcavated(quest, clock.state().day);
+      sockLog(t('probe.log.excavated'));
+      playClick();
+      showToast(t('probe.log.excavated'));
+      return;
+    }
     if (id === 'bag') {
       openBag();
       return;
@@ -499,6 +522,28 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     }
     if (id === 'radio') {
       setScene(sceneEl, sceneCap, 'radio');
+      /* Chuỗi mở khoá: phải đào được máy phát từ xác tàu thăm dò trước
+         đã, rồi sửa ba món, rồi mới phát được tín hiệu. Không có máy
+         phát thì cái ăng-ten gãy ngoài kia không nối vào đâu cả. */
+      if (!canOpenRepair(quest)) {
+        const need = daysUntilTransmit(clock.state().day);
+        showToast(need > 0
+          ? t('probe.log.noticed')
+          : t('probe.need'));
+        return;
+      }
+      if (!isAllRepaired()) {
+        openRepairBay({
+          stats,
+          onDone: () => {
+            /* Sửa xong ba món thì mới vào màn phát tín hiệu. */
+            showToast(t('repair.done'));
+            openRadioScreen();
+          },
+          onClose: () => {},
+        });
+        return;
+      }
       openRadioScreen();
       return;
     }
@@ -911,8 +956,45 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     el.classList.toggle('is-night', s.isNight);
     phase.textContent = s.isNight ? t('base.night') : t('base.daytime');
     footDays.textContent = t(s.day === 1 ? 'base.footer.survived.one' : 'base.footer.survived').replace('{n}', String(s.day));
-    if (s.day !== shownDay) renderDayLog(s.day);
+    if (s.day !== shownDay) {
+      renderDayLog(s.day);
+      checkProbeQuest(s.day);
+    }
   });
+
+  /* ---------- chuỗi tìm xác tàu thăm dò ----------
+     Chỉ chạy một lần mỗi ngày, khi đồng hồ sang ngày mới. Ngày 6 thì
+     hiện thông báo nhớ ra xác tàu. Từ đó tới khi đào được thì mỗi sáng
+     nhắc lại bằng một dòng trong nhật ký. */
+  const quest = loadQuest();
+
+  function checkProbeQuest(day) {
+    const ev = tickQuest(quest, day);
+    if (ev === 'notice') {
+      sockLog(t('probe.log.noticed'));
+      showProbeNotice({
+        onGo: () => { /* người chơi tự ra đồng bằng bằng nút thám hiểm */ showToast(t('probe.go')); },
+        onLater: () => showToast(t('probe.later')),
+      });
+    } else if (ev === 'excavate') {
+      /* Chưa đào thì nhắc nhẹ, không chặn gì. */
+      const left = daysUntilTransmit(day);
+      if (left > 0) showToast(t('probe.log.noticed'));
+    }
+  }
+
+  /* Ghi thêm một dòng vào nhật ký ngày đang hiện. Dùng cho sự kiện
+     đặc biệt như nhớ ra xác tàu, để dòng quest chen giữa các dòng
+     DAY_LOG thường. Không ghi đè dòng cũ, chỉ thay đúng dòng nhật ký
+     bằng phiên bản có thêm câu quest ở cuối. */
+  const questLogLines = new Set();
+  function sockLog(line) {
+    if (!line || questLogLines.has(line)) return;
+    questLogLines.add(line);
+    if (!logText) return;
+    const base = logText.textContent || '';
+    logText.textContent = base ? base + ' ' + line : line;
+  }
 
   /* ---------- thanh chỉ số ---------- */
 

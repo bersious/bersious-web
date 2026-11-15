@@ -485,8 +485,21 @@ export function createStats({ clock, initialState } = {}) {
     return get();
   }
 
+  /* Trừ vật liệu theo số lượng, dùng khi chế tạo hoặc sửa chữa.
+     Khác useItem ở chỗ không chạy hiệu ứng dùng vật phẩm: ăng-ten hay
+     pin tiêu hao để thành một món khác, không phải để ăn hay uống.
+     Trả về true nếu trừ được, false nếu kho không đủ. */
+  function spendItem(itemId, count = 1) {
+    const have = inv[itemId] || 0;
+    if (have < count) return false;
+    inv[itemId] = have - count;
+    emit();
+    save();
+    return true;
+  }
+
   return {
-    tick, get, useItem, craft, exploreCost, sleepOver, forecastUntil,
+    tick, get, useItem, spendItem, craft, exploreCost, sleepOver, forecastUntil,
     checkDeath, onTick, save, load, getUnlocks, addItems, setStorm,
     setUvLamp, getInventory, addSanity,
     BALANCE, ITEMS, RECIPES,

@@ -265,6 +265,7 @@
   const { startComms }      = await import(BASE + 'comms.js');
   const { startRescueDesigner } = await import(BASE + 'rescue-designer.js');
   const { startFlight }     = await import(BASE + 'flight.js');
+  const { openBeaconScene } = await import(BASE + 'beacon.js');
   const { playIntro }       = await import(BASE + 'intro-video.js');
   const { applyToDom, onLangChange, t, getLang } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
@@ -333,7 +334,15 @@
         markDone();
         if (comms && typeof comms.destroy === 'function') comms.destroy();
         host.remove();
-        if (typeof onDone === 'function') onDone();
+        /* Phát xong là kết thúc Giai đoạn 1. Trước khi chuyển sang phần
+           thiết kế tàu cứu hộ, chạy đoạn trạm mặt đất nhận tin. Đây là
+           chỗ Minh Ngọc đang vẽ tranh comic; chưa có tranh thì module
+           vẫn chạy bằng khung dựng tạm, không chặn luồng. */
+        openBeaconScene({
+          onDone: () => {
+            if (typeof onDone === 'function') onDone();
+          },
+        });
       },
     });
 

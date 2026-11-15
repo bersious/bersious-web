@@ -868,20 +868,28 @@ html.motion-off .base-clock-fill { transition: none; }
 .base-scene {
   position: relative;
   flex: 0 0 auto;
-  width: 100%;
-  max-width: 1180px;
+  /* Bề ngang phải suy từ ngân sách chiều cao, không phải luôn 100%.
+     Với width:100% + aspect-ratio + max-height, max-height chỉ cắt
+     chiều cao còn bề ngang giữ nguyên, nên khung 16:9 bị bóp thành dải
+     rộng 6:1. Đặt bề ngang = chiều cao cho phép nhân 16/9 thì tỉ lệ
+     luôn đúng 16:9 ở mọi màn. Các bậc thang bên dưới chỉ cần đổi
+     --scene-h, không phải sửa hai thuộc tính rời nhau. */
+  --scene-h: 36dvh;
+  width: min(1180px, 100%, calc(var(--scene-h) * 16 / 9));
+  height: auto;
   margin: 0 auto;
+  align-self: center;
   aspect-ratio: 16 / 9;
-  /* 36dvh chứ không 27dvh: ở 27dvh khung ảnh trên màn 900px chỉ còn
-     cao 243px, trong khi bề ngang 1180px, tỉ lệ thật bị bóp còn
-     4,86:1 và ảnh cảnh bị nghiến thành dải. 36dvh giữ được khoảng
-     16:5, vẫn chừa chỗ cho lưới nút và thanh trên dưới. */
-  max-height: 36dvh;
+  max-height: var(--scene-h);
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: var(--st-radius-lg);
   overflow: hidden;
   background: #0a0d12;
 }
+
+/* Khung ảnh là con của .base-main (flex column). justify-self không
+   áp cho flex item, nên căn giữa bằng align-self. */
+.base-main > .base-scene { align-self: center; }
 
 .base-scene-img {
   position: absolute;
@@ -923,8 +931,8 @@ html.motion-off .base-clock-fill { transition: none; }
 /* màn hẹp: cảnh thu nhỏ, không chiếm quá nửa màn */
 @media (max-width: 760px) {
   .base-scene {
-    max-height: 27dvh;
-    width: 100%;
+    --scene-h: 32dvh;
+    max-height: var(--scene-h);
   }
 }
 
@@ -973,18 +981,18 @@ html.motion-off .base-clock-fill { transition: none; }
    mỗi bậc cắt khoảng 4 tới 6 phần trăm chiều cao ảnh cho tới khi
    khung vừa một màn hình, không phải cuộn. */
 @media (max-height: 880px) {
-  .base-scene { max-height: 22dvh; }
+  .base-scene { --scene-h: 28dvh; max-height: var(--scene-h); }
   .base-main { gap: 7px; }
 }
 
 @media (max-height: 800px) {
-  .base-scene { max-height: 18dvh; }
+  .base-scene { --scene-h: 24dvh; max-height: var(--scene-h); }
   .base-log { padding-block: 6px; }
   .base-card { padding: 10px 12px; }
 }
 
 @media (max-height: 720px) {
-  .base-scene { max-height: 16dvh; }
+  .base-scene { --scene-h: 20dvh; max-height: var(--scene-h); }
 }
 
 @media (max-height: 660px) {
@@ -1009,7 +1017,7 @@ html.motion-off .base-clock-fill { transition: none; }
     padding: 12px 8px;
   }
 
-  .base-scene { max-height: 21dvh; }
+  .base-scene { --scene-h: 21dvh; max-height: var(--scene-h); }
   .base-main { gap: 6px; padding-block: 8px; }
 }
 
@@ -1023,7 +1031,7 @@ html.motion-off .base-clock-fill { transition: none; }
 /* Màn dọc 768px: HUD bốn ô xuống hai hàng, tốn thêm 50px. Bù bằng
    cách cho phép main cuộn mượt thay vì cắt, và hạ ảnh xuống nữa. */
 @media (min-width: 640px) and (max-width: 860px) and (min-height: 900px) {
-  .base-scene { max-height: 19dvh; }
+  .base-scene { --scene-h: 19dvh; max-height: var(--scene-h); }
 }
 
 /* Màn rất thấp và hẹp (375x667): ẩn ảnh cảnh, thu HUD */
@@ -1516,7 +1524,7 @@ html.motion-off .base-clock-fill { transition: none; }
    26px mỗi nhóm. Trên màn dọc hẹp, bù lại bằng cách thu ảnh cảnh và
    bỏ nhãn nhóm (đã có nhãn riêng từng chỉ số). */
 @media (max-width: 620px) {
-  .base-scene { max-height: 18dvh; }
+  .base-scene { --scene-h: 18dvh; max-height: var(--scene-h); }
   .hud-group { padding: 6px 7px 7px; gap: 5px 8px; }
   .hud-cell { padding: 3px 4px 4px; gap: 3px; }
   .base-main { gap: 6px; }
@@ -1527,7 +1535,7 @@ html.motion-off .base-clock-fill { transition: none; }
      76px, tỉ lệ thật 4,43:1, ảnh cảnh bị nghiến thành một dải. 16dvh
      (khoảng 135px ở 390x844) giữ được hình đọc ra được, và vùng chính
      vẫn cuộn được nên không đẩy nút hành động ra ngoài. */
-  .base-scene { max-height: 16dvh; }
+  .base-scene { --scene-h: 16dvh; max-height: var(--scene-h); }
   .base-log { padding-block: 3px; }
   .base-heading { margin-block: 0; }
   .base-card { padding: 8px 8px; }

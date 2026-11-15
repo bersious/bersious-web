@@ -1,0 +1,156 @@
+/* ============================================================
+   beacon.css  ·  khe cảnh trạm nhận tin
+   ============================================================ */
+
+.beacon-root,
+.beacon-root * { box-sizing: border-box; }
+
+.beacon-root {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 2.4vw, 32px) clamp(12px, 2.4vw, 32px) clamp(48px, 5vh, 64px);
+  background: #05070b;
+  cursor: pointer;
+}
+
+.beacon-stage {
+  width: min(1180px, 100%);
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beacon-frame {
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8vh, 20px);
+}
+
+.beacon-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 66dvh;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--st-radius, 3px);
+  background: #0a0d12;
+  overflow: hidden;
+}
+
+.beacon-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: beacon-in .5s ease;
+}
+
+/* khung chờ khi chưa có ảnh */
+.beacon-img-missing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 10px, transparent 10px 20px),
+    linear-gradient(160deg, #141b25, #0a0e14);
+}
+
+.beacon-img-missing .mono {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .8rem;
+  letter-spacing: .2em;
+  color: var(--amber, #e8a33d);
+}
+
+.beacon-img-note {
+  max-width: 46ch;
+  font-size: clamp(.76rem, .3vw + .68rem, .88rem);
+  line-height: 1.55;
+  color: var(--tx-soft, #9fb0c4);
+}
+
+.beacon-line {
+  margin: 0 auto;
+  max-width: 68ch;
+  text-align: center;
+  font-size: clamp(.88rem, .42vw + .78rem, 1.04rem);
+  line-height: 1.68;
+  color: var(--tx-bright, #eaf1f8);
+  animation: beacon-line-in .55s ease;
+}
+
+@keyframes beacon-in {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes beacon-line-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- nút bỏ qua và thanh tiến trình ---------- */
+
+.beacon-skip {
+  position: absolute;
+  right: clamp(12px, 2vw, 24px);
+  bottom: clamp(44px, 6vh, 60px);
+  min-height: 44px;
+  padding: 0 18px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--tx-soft, #9fb0c4);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--st-radius, 3px);
+  cursor: pointer;
+}
+.beacon-skip:hover { color: var(--tx-bright, #eaf1f8); border-color: rgba(232, 163, 61, .5); }
+.beacon-skip:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 3px; }
+
+.beacon-progress {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.beacon-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--amber, #e8a33d), #f2b552);
+  transition: width .3s ease;
+}
+
+@media (max-width: 640px) {
+  .beacon-img-wrap { max-height: 44dvh; }
+  .beacon-line { font-size: .86rem; }
+}
+
+html.motion-off .beacon-img,
+html.motion-off .beacon-line { animation: none; }
+html.motion-off .beacon-progress-fill { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .beacon-img, .beacon-line { animation: none; }
+  .beacon-progress-fill { transition: none; }
+}
