@@ -1,0 +1,3 @@
+@echo off
+echo Dang mo PWABuilder voi URL bersious.io.vn...
+start "" "https://www.pwabuilder.com/reportcard?site=https%3A%2F%2Fbersious.io.vn"

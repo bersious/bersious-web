@@ -94,6 +94,15 @@ jobs:
           if [ -d _source/data ]; then
             rsync -a _source/data/ "$DEST/data/"
           fi
+          # phase2/ nam NGOAI src/ (thiet ke cu) nhung game nap no qua
+          # duong dan ../phase2 tu src/index.html. Thieu buoc nay thi
+          # ca Giai doan 2 tra 404 va nguoi choi khong bao gio thay man
+          # thiet ke tau. Khong dung --delete de khong xoa nham.
+          if [ -d _source/phase2 ]; then
+            rsync -a               --exclude='_tmp-*'               --exclude='*.test.html'               _source/phase2/ "$DEST/phase2/"
+            echo "Data + Phase 2:"
+            du -sh "$DEST/phase2"
+          fi
           echo "Đã chép xong, dung lượng:"
           du -sh "$DEST"
 

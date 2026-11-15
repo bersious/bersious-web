@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Thud sound candidates</title>
+<style>
+  body { font-family: sans-serif; background: #1a1a1a; color: #eee; padding: 20px; }
+  h1 { color: #fb923c; }
+  .item { background: #2a2a2a; padding: 12px; margin: 8px 0; border-radius: 8px; display: flex; align-items: center; gap: 12px; }
+  .item audio { flex: 1; }
+  .id { color: #888; min-width: 60px; font-family: monospace; }
+  .info { color: #aaa; font-size: 0.85rem; }
+  button { background: #fb923c; color: #000; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  .selected { background: #10b981; color: #fff; }
+</style>
+</head>
+<body>
+<h1>🎵 Chọn thud cho game (24 ứng viên từ Mixkit)</h1>
+<p>File mp3 ở: <code>C:\Users\nguye\Desktop\thud-candidates\thud_p_*.mp3</code></p>
+<p>Bấm ▶ nghe. Khi thấy thích, bấm "Chọn". Số ID sẽ copy vào clipboard.</p>
+<p>Sau khi chọn, gửi ID cho tớ (hoặc nhiều ID nếu thích vài cái).</p>
+<div id="list"></div>
+
+<script>
+const ids = [748, 749, 751, 752, 753, 754, 756, 757, 759, 820, 835, 888, 2182, 2498, 2839, 2920, 3005, 3046, 3049, 3088, 3133, 3166, 3179, 3187];
+const list = document.getElementById('list');
+ids.forEach(id => {
+  const div = document.createElement('div');
+  div.className = 'item';
+  div.innerHTML = `
+    <span class="id">#${id}</span>
+    <audio controls preload="none">
+      <source src="file:///C:/Users/nguye/Desktop/thud-candidates/thud_p_${id}.mp3" type="audio/mpeg">
+    </audio>
+    <button onclick="select(${id}, this)">Chọn</button>
+  `;
+  list.appendChild(div);
+});
+
+const selected = new Set();
+function select(id, btn) {
+  if (selected.has(id)) {
+    selected.delete(id);
+    btn.classList.remove('selected');
+    btn.textContent = 'Chọn';
+  } else {
+    selected.add(id);
+    btn.classList.add('selected');
+    btn.textContent = '✓ ' + id;
+  }
+  navigator.clipboard.writeText([...selected].join(','));
+  console.log('Selected:', [...selected].join(','));
+}
+</script>
+</body>
+</html>
