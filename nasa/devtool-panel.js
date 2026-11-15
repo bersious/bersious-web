@@ -1,5 +1,5 @@
 /* ============================================================
-   dev-panel.js  ·  bảng điều khiển nhà phát triển (bản nhanh)
+   devtool-panel.js  ·  bảng điều khiển nhà phát triển (bản nhanh)
 
    MỤC ĐÍCH: nhảy tới bất kỳ mốc nào trong game để test, không phải
    chơi lại từ đầu. Có thêm nhóm nút phát sự kiện để test các khúc có
@@ -298,7 +298,7 @@ export function injectDevCss() {
   if (document.querySelector('link[data-dev-css]')) return;
   const l = document.createElement('link');
   l.rel = 'stylesheet';
-  l.href = BASE_URL + 'css/dev-panel.css';
+  l.href = BASE_URL + 'css/devtool-panel.css';
   l.dataset.devCss = '1';
   document.head.appendChild(l);
 }

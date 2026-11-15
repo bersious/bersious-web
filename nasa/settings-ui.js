@@ -7,7 +7,7 @@
    ============================================================ */
 
 import { t, getLang, setLang, onLangChange } from './i18n.js';
-import { openDevPanel, askDevPassword, isDevUnlocked, injectDevCss } from './dev-panel.js';
+import { openDevPanel, askDevPassword, isDevUnlocked, injectDevCss } from './devtool-panel.js';
 import { getSettings, setSetting, resetSettings } from './settings.js';
 import { bindClickSounds } from './audio.js';
 import { isFullscreen, toggleFullscreen, onFullscreenChange, isSupported } from './fullscreen.js';
