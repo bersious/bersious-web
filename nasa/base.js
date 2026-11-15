@@ -420,6 +420,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   let childScreen = null;
 
   function openFarmScreen() {
+    if (!bag.hidden) closeBag();
     if (childScreen) return;
     closeChild(() => {
       import('./farm.js').then((mod) => {
@@ -444,6 +445,8 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   }
 
   function openCraftScreen() {
+    /* đóng túi đồ nếu đang mở, vì cả hai đều là lớp phủ toàn màn */
+    if (!bag.hidden) closeBag();
     if (childScreen) return;
     closeChild(() => {
       import('./craft.js').then((mod) => {
@@ -458,6 +461,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   }
 
   function openRadioScreen() {
+    if (!bag.hidden) closeBag();
     if (childScreen) return;
     closeChild(() => {
       import('./radio.js').then((mod) => {
@@ -472,6 +476,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   }
 
   function openExploreScreen() {
+    if (!bag.hidden) closeBag();
     if (childScreen) return;
     closeChild(() => {
       import('./explore.js').then((mod) => {
@@ -504,6 +509,9 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   /* ---------- túi đồ ---------- */
 
   function openBag() {
+    /* Túi đồ là lớp riêng, không nằm trong childScreen. Nếu đang mở
+       màn con khác thì đóng lại trước, tránh hai lớp chồng nhau. */
+    if (childScreen) closeChild();
     renderBag();
     bag.hidden = false;
     requestAnimationFrame(() => bag.classList.add('is-open'));
