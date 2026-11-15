@@ -21,7 +21,7 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
+    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
@@ -236,8 +236,17 @@
      lại. Trên mạng yếu, mấy lần import bên dưới cũng mất vài giây, và
      khoảng trắng đó chính là chỗ người chơi tưởng trang bị treo. Chạy
      nền, không chờ, để nút Bắt đầu vẫn dùng được như thường. */
-  const { startPreloader, runPreloader } = await import(BASE + 'preloader.js');
-  startPreloader();
+  /* Nạp mềm: thiếu file phụ thì game vẫn chạy, chỉ mất màn chờ.
+     Trước đây import cứng nên một file chưa deploy là cả trang chết
+     đứng, nút Bắt đầu bấm không phản ứng gì. */
+  let runPreloader = async () => ({ ok: true, failed: [] });
+  try {
+    const pre = await import(BASE + 'preloader.js');
+    if (pre && typeof pre.startPreloader === 'function') pre.startPreloader();
+    if (pre && typeof pre.runPreloader === 'function') runPreloader = pre.runPreloader;
+  } catch (err) {
+    console.warn('[boot] chưa nạp được màn chờ, vào thẳng game', err);
+  }
 
   /* Màn kể chuyện cũ chỉ được nạp khi thật sự cần: nó là đường dự phòng
      cho prologue, và là đường chính khi prologue không nạp được. Nạp

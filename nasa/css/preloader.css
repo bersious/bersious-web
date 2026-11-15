@@ -1,0 +1,247 @@
+/* ============================================================
+   css/preloader.css
+   Màn chờ tải tài nguyên.
+
+   Lớp phủ kín màn hình, nền đúng màu nền tối nhất của game, một huy
+   hiệu tròn xoay chậm, thanh tiến trình mảnh và một dòng trạng thái.
+   Không có nút bấm: người chơi không phải làm gì ở đây.
+
+   Mọi màu đọc từ css/tokens.css, kèm giá trị dự phòng để màn chờ vẫn
+   đúng màu cả khi tokens.css chưa nạp xong.
+   ============================================================ */
+
+/* ---------- lớp phủ ---------- */
+
+.pre-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg-void, #07090d);
+  color: var(--tx, #b9c7d6);
+  /* che mọi thứ bên dưới, kể cả nút Bắt đầu, để không bấm nhầm khi
+     tài nguyên còn đang tải */
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: 1;
+  transition: opacity 400ms var(--st-ease-out, cubic-bezier(.22, .61, .36, 1));
+  /* Không bắt cú bấm nào: đây là tấm màn che, không có gì để bấm bên
+     trong. Nhờ vậy nút Bắt đầu phía sau vẫn dùng được ngay, không bị
+     màn chờ khoá lại. */
+  pointer-events: none;
+}
+
+.pre-root *,
+.pre-root *::before,
+.pre-root *::after {
+  box-sizing: border-box;
+}
+
+/* Mờ dần ra khi xong. Không dùng display: none đột ngột vì mắt sẽ
+   thấy một cú nhảy. */
+.pre-root.pre-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- khối giữa màn ---------- */
+
+.pre-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* ---------- huy hiệu ---------- */
+
+.pre-emblem {
+  display: block;
+  width: 96px;
+  height: 96px;
+  /* 12 giây một vòng: đủ chậm để không gây rối mắt, đủ nhanh để thấy
+     là màn hình còn sống khi mạng chậm */
+  animation: pre-spin 12s linear infinite;
+  transform-origin: 50% 50%;
+  /* ảnh có nền trong suốt, đặt trên nền tối nên cần một quầng rất nhẹ
+     để vành kim loại xám không bị chìm vào nền */
+  filter: drop-shadow(0 0 18px var(--amber-glow, rgba(232, 163, 61, .18)));
+  will-change: transform;
+}
+
+@keyframes pre-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---------- dòng tên nhiệm vụ ---------- */
+
+.pre-mission {
+  font-family: var(--st-font-mono, 'JetBrains Mono', Consolas, monospace);
+  font-size: var(--st-size-label, .7rem);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--tx-dim, #72879d);
+  margin: 0;
+}
+
+/* ---------- thanh tiến trình ---------- */
+
+.pre-track {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 3px;
+  border-radius: 2px;
+  /* rãnh thanh: tối hơn nền một bậc để nhìn ra được chiều dài thanh */
+  background: var(--line-hair, #1b232e);
+  overflow: hidden;
+}
+
+.pre-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--amber-dim, #6b4a1c) 0%,
+    var(--amber, #e8a33d) 100%);
+  box-shadow: 0 0 10px var(--amber-glow, rgba(232, 163, 61, .18));
+  transition: width 260ms var(--st-ease-out, cubic-bezier(.22, .61, .36, 1));
+}
+
+/* ---------- hàng chữ dưới thanh ---------- */
+
+.pre-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  font-family: var(--st-font-mono, 'JetBrains Mono', Consolas, monospace);
+  font-size: var(--st-size-cap, .72rem);
+  letter-spacing: .04em;
+}
+
+.pre-status {
+  color: var(--tx-soft, #8497aa);
+}
+
+/* phần trăm bằng số, đúng cỡ số liệu kỹ thuật, không nhảy bề rộng
+   khi từ 9 lên 10 phần trăm */
+.pre-pct {
+  min-width: 4.5ch;
+  text-align: right;
+  color: var(--amber, #e8a33d);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- thông báo lỗi nhẹ ---------- */
+
+/* Nằm ở chân màn hình, ngoài lớp phủ, nên vẫn đọc được sau khi lớp
+   phủ đã mờ đi. Chỉ là một dòng chữ vàng nhạt, không nền, không viền,
+   không chặn bấm. */
+.pre-warn {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 210;
+  max-width: min(88vw, 460px);
+  padding: 0 4px;
+  font-family: var(--st-font-mono, 'JetBrains Mono', Consolas, monospace);
+  font-size: var(--st-size-cap, .72rem);
+  line-height: 1.5;
+  letter-spacing: .03em;
+  text-align: center;
+  color: var(--warn, #e8c05a);
+  pointer-events: none;
+  animation: pre-warn-in 240ms var(--st-ease-out, cubic-bezier(.22, .61, .36, 1));
+}
+
+@keyframes pre-warn-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 420px) {
+  .pre-emblem { width: 80px; height: 80px; }
+  .pre-card { gap: 14px; }
+  .pre-mission { letter-spacing: .12em; }
+}
+
+/* ---------- màn thấp: thu khoảng cách để không tràn ---------- */
+
+@media (max-height: 420px) {
+  .pre-emblem { width: 64px; height: 64px; }
+  .pre-card { gap: 10px; }
+}
+
+/* ---------- chuyển động tắt ----------
+   Huy hiệu đứng yên, thanh tiến trình nhảy thẳng, không mờ dần.
+   Áp cho cả thiết lập hệ điều hành lẫn công tắc trong bảng cài đặt
+   của game (settings-ui.js gắn class motion-off lên thẻ html). */
+
+.pre-root.pre-static {
+  transition: none;
+}
+
+.pre-root.pre-static .pre-emblem {
+  animation: none;
+  transform: none;
+}
+
+.pre-root.pre-static .pre-fill {
+  transition: none;
+}
+
+.pre-root.pre-static .pre-warn {
+  animation: none;
+}
+
+html.motion-off .pre-emblem {
+  animation: none;
+  transform: none;
+}
+
+html.motion-off .pre-fill {
+  transition: none;
+}
+
+html.motion-off .pre-root {
+  transition: none;
+}
+
+html.motion-off .pre-warn {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pre-emblem {
+    animation: none;
+    transform: none;
+  }
+
+  .pre-fill {
+    transition: none;
+  }
+
+  .pre-root {
+    transition: none;
+  }
+
+  .pre-warn {
+    animation: none;
+  }
+}
