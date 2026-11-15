@@ -33,6 +33,15 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
+
+    /* Huy hiệu của màn chờ nằm trong CSS, mà CSS nhúng phân giải url()
+       theo URL của trang (/nasa) nên "assets/…" sẽ thành "/assets/…"
+       và 404. Gán địa chỉ tuyệt đối qua biến CSS ngay ở đây — script
+       này chạy trước khung hình đầu nên huy hiệu có mặt từ đầu. */
+    try {
+      var _emblem = document.querySelector('.pb-emblem');
+      if (_emblem) _emblem.style.setProperty('--pb-emblem', 'url("' + base + 'assets/art/loading-emblem.webp")');
+    } catch (e0) { /* thiếu biến thì vẫn còn lớp gradient dự phòng */ }
     /* CSS nạp bất đồng bộ, KHÔNG chặn khung hình đầu.
        Vì sao: thẻ <link rel=stylesheet> chèn bằng JS vẫn là tài nguyên
        chặn vẽ. Trên mạng 400ms độ trễ, bảy tệp CSS này giữ khung đầu
@@ -245,11 +254,19 @@
   }
 
   /* Huy hiệu xoay chậm: 12 giây một vòng, đủ chậm để không rối mắt,
-     đủ nhanh để thấy màn hình còn sống khi mạng chậm. */
+     đủ nhanh để thấy màn hình còn sống khi mạng chậm.
+     Ảnh khai báo qua biến --pb-emblem (gán bằng JS bên dưới, dựng từ
+     location.pathname) chứ không viết "assets/…" trần trong CSS: CSS
+     nhúng trong HTML phân giải url() theo URL của TRANG, mà trang chạy
+     ở /nasa nên url() tương đối thành /assets/… và 404 trên production.
+     Ảnh dự phòng vẽ bằng gradient nên khung vẫn đẹp khi tệp thiếu. */
   .pb-emblem {
     width: 96px;
     height: 96px;
-    background: url('assets/art/loading-emblem.webp') center / contain no-repeat;
+    background:
+      var(--pb-emblem, none) center / contain no-repeat,
+      radial-gradient(circle at 50% 50%,
+        rgba(232, 163, 61, .28) 0%, rgba(232, 163, 61, 0) 62%);
     animation: pb-spin 12s linear infinite;
     transform-origin: 50% 50%;
   }
