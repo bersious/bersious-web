@@ -12,7 +12,12 @@ const KEY = 'smdg.settings';
 export const DEFAULTS = {
   music: true,
   sfx: true,
-  volume: 55,          // 0 tới 100
+  /* 55 quá nhỏ khi cộng với gain riêng của từng tiếng. Đo thật: nhạc nền
+     phát ở -26 dB, tiếng gió xa ở -31 dB, gần như không nghe thấy trên
+     loa laptop dù đã bật hết. Nay file đã chuẩn hoá về -16 dB và mức
+     mặc định nâng lên 80 để nghe rõ ngay lần đầu, người chơi vẫn hạ
+     xuống được trong cài đặt. */
+  volume: 80,          // 0 tới 100
   quality: 'auto',     // auto | high | low
   motion: true,
   textSize: 100,       // phần trăm, 90 tới 130

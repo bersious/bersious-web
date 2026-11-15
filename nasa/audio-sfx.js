@@ -56,12 +56,12 @@ export const SCENE_SFX = {
 
 /* Cấu hình chi tiết từng file SFX trong src/assets/audio/sfx/ */
 export const SFX_CONFIG = {
-  'wind-far':      { file: 'wind-far.mp3',      loop: true,  gain: 0.45, fadeMs: 600 },
-  'storm-wind':    { file: 'storm-wind.mp3',    loop: true,  gain: 0.75, fadeMs: 450 },
+  'wind-far':      { file: 'wind-far.mp3',      loop: true,  gain: 0.62, fadeMs: 600 },
+  'storm-wind':    { file: 'storm-wind.mp3',    loop: true,  gain: 0.86, fadeMs: 450 },
   'metal-impact':  { file: 'metal-impact.mp3',  loop: false, gain: 0.90, fadeMs: 40  },
   'flatline':      { file: 'flatline.mp3',      loop: false, gain: 0.80, fadeMs: 60  },
   'rocket-launch': { file: 'rocket-launch.mp3', loop: false, gain: 0.85, fadeMs: 250 },
-  'hab-vent':      { file: 'hab-vent.mp3',      loop: true,  gain: 0.55, fadeMs: 600 },
+  'hab-vent':      { file: 'hab-vent.mp3',      loop: true,  gain: 0.68, fadeMs: 600 },
   'radio-static':  { file: 'radio-static.mp3',  loop: false, gain: 0.70, fadeMs: 200 },
   'shutter-click': { file: 'shutter-click.mp3', loop: false, gain: 0.85, fadeMs: 40  },
   'terminal-blip': { file: 'terminal-blip.mp3', loop: false, gain: 0.70, fadeMs: 40  },
