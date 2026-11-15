@@ -125,6 +125,12 @@
   transform: scale(1.03);
   transition: opacity .55s ease, transform 6.8s cubic-bezier(.22, .61, .36, 1);
   pointer-events: none;
+  /* Làm tối và giảm bão hoà để chữ đọc được trên mọi khung hình, và để
+     video trông như cảnh nền của đoạn trailer chứ không phải video
+     đang được xem. Đây là lý do phải kéo sáng xuống thay vì chỉ phủ
+     một lớp đen: lớp phủ đen làm mất chi tiết, filter thì giữ được
+     hình mà vẫn tối. */
+  filter: brightness(.42) contrast(1.08) saturate(.72);
 }
 
 .intro-overlay.is-video-ready .intro-video {
@@ -163,6 +169,33 @@
   padding: 0 clamp(20px, 5vw, 64px);
   pointer-events: none;
   animation: intro-text-arc 6.2s cubic-bezier(.22, .61, .36, 1) forwards;
+}
+
+/* Dòng credit nêu nguồn cảm hứng. Hiện trước mọi thứ khác, chữ nhỏ,
+   giãn rộng, mờ dần vào rồi giữ nguyên. Kiểu opening credits phim:
+   người xem đọc được nhưng mắt vẫn ở hình phía sau. */
+.intro-credit {
+  font-family: var(--st-font-body, "Inter", system-ui, sans-serif);
+  font-size: clamp(.68rem, .32vw + .58rem, .84rem);
+  font-weight: 400;
+  letter-spacing: .14em;
+  /* Màu phải sáng hơn token --tx-dim, vì dòng này nằm đè lên video
+     đang chuyển động. Đo trên ảnh chụp thật thì #72879d chỉ đạt
+     khoảng 2,9:1 trên nền tối, dưới ngưỡng AA. Lên #c3d0de thì đạt
+     khoảng 8,4:1, đọc rõ kể cả khi khung hình sáng lên. */
+  color: #c3d0de;
+  margin-bottom: clamp(14px, 2.4vh, 26px);
+  opacity: 0;
+  animation: intro-credit-in 1.6s cubic-bezier(.22, .61, .36, 1) .2s forwards;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 1), 0 2px 18px rgba(0, 0, 0, .95);
+}
+
+/* Chữ nghiêng cho tên phim, đúng kiểu credit ghi nguồn. */
+.intro-credit em,
+.intro-credit .film {
+  font-style: italic;
+  color: var(--amber, #e8a33d);
+  letter-spacing: .06em;
 }
 
 .intro-kicker {
@@ -356,4 +389,11 @@
     padding: 0 14px;
     font-size: .76rem;
   }
+}
+
+/* Credit hiện chậm hơn các dòng khác, gần như tan vào hình. */
+@keyframes intro-credit-in {
+  0%   { opacity: 0; transform: translateY(6px); filter: blur(4px); }
+  60%  { opacity: .95; filter: blur(0); }
+  100% { opacity: .9; transform: translateY(0); filter: blur(0); }
 }

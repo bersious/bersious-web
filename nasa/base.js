@@ -234,6 +234,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       <span class="base-foot-days"></span>
       <span class="base-foot-sep" aria-hidden="true">·</span>
       <span class="base-foot-items"></span>
+      <button type="button" class="base-replay" data-action="comms"></button>
     </footer>
 
     <div class="base-toast" role="status" aria-live="polite" hidden></div>
@@ -276,6 +277,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   const logText   = q('.base-log-text');
   const idleLine  = q('.base-idle');
   const sleepLine = q('.base-sleep-line');
+  const replayBtn = q('.base-replay');
 
   /* ---------- lưới hành động ---------- */
 
@@ -420,6 +422,19 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       openRadioScreen();
       return;
     }
+    if (id === 'comms') {
+      /* Chơi lại Giai đoạn 1. Phải xoá cờ trước khi mở, nếu không
+         index.html thấy cờ còn thì sẽ bỏ qua màn. Việc mở bảng viễn
+         thông do index.html lo, ở đây chỉ phát tín hiệu: base.js không
+         import comms.js để tránh hai màn phụ thuộc vòng vào nhau. */
+      try { localStorage.removeItem('smdg.stage1Done'); } catch (e) { /* chế độ riêng tư chặn ghi */ }
+      window.dispatchEvent(new CustomEvent('smdg:comms-replay'));
+      return;
+    }
+  }
+
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => onAction('comms'));
   }
 
   /* ---------- màn con: nông trại và thám hiểm ---------- */
@@ -807,6 +822,11 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       btn.querySelector('.base-card-desc').textContent = t('base.' + act.id + '.desc');
     }
     updateFootItems();
+    if (replayBtn) {
+      replayBtn.textContent = t('base.replayComms');
+      replayBtn.title = t('base.replayComms.hint');
+      replayBtn.setAttribute('aria-label', t('base.replayComms'));
+    }
     if (!bag.hidden) renderBag();
     if (shownDay) renderDayLog(shownDay);
     if (idleEntry) idleLine.textContent = localized(idleEntry);

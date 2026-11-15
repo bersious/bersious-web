@@ -41,6 +41,106 @@
     overflow: hidden;
     overflow-x: hidden;
   }
+
+  /* ---------- lớp chứa Giai đoạn 1 (bảng viễn thông) ----------
+     .comms-root bên trong định vị tuyệt đối theo khung padding của
+     lớp này, nên phải chặn bớt cạnh trên để dành một dải cho nút
+     "Bỏ qua" và không đè lên tiêu đề của panel. */
+  .comms-host {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    box-sizing: border-box;
+  }
+
+  .comms-host .comms-root {
+    inset: 52px 0 0 0;
+  }
+
+  /* panel của comms cao tối đa 94dvh; trừ thêm dải 52px ở trên để
+     chân bảng luôn nằm trong khung nhìn. */
+  .comms-host .comms-panel {
+    max-height: min(calc(100dvh - 76px), 900px);
+  }
+
+  /* Lối thoát khỏi Giai đoạn 1. Bắt buộc phải có: comms.js không có
+     nút đóng riêng, nếu không có nút này người chơi kẹt trong màn.
+     z-index cao hơn .comms-root (70) vì hai lớp là anh em cùng một
+     ngữ cảnh xếp lớp. */
+  .comms-skip {
+    position: absolute;
+    top: 4px;
+    left: 10px;
+    z-index: 100;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--st-font-body, "Be Vietnam Pro", sans-serif);
+    font-size: var(--st-size-label, .7rem);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--tx-soft, #8497aa);
+    background: rgba(11, 15, 21, .88);
+    border: 1px solid var(--line-strong, #35455a);
+    border-radius: var(--st-radius, 3px);
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+
+  .comms-skip[hidden] { display: none; }
+
+  .comms-skip:hover,
+  .comms-skip:focus-visible {
+    color: var(--amber, #e8a33d);
+    border-color: var(--amber, #e8a33d);
+    outline: none;
+  }
+
+  .comms-skip:focus-visible {
+    box-shadow: 0 0 0 2px rgba(232, 163, 61, .35);
+  }
+
+  @media (max-width: 680px) {
+    .comms-skip { top: 4px; left: 8px; padding: 0 12px; }
+  }
+
+  html.motion-off .comms-skip { transition: none; }
+
+  /* ---------- nút chơi lại Giai đoạn 1 trong màn căn cứ ----------
+     Nằm ở chân màn căn cứ, kiểu chữ theo chân màn hình, vùng bấm 44px. */
+  .base-replay {
+    min-height: 44px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-size: var(--st-size-label, .7rem);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--tx-soft, #8497aa);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--st-radius, 3px);
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+
+  .base-replay:hover,
+  .base-replay:focus-visible {
+    color: var(--amber, #e8a33d);
+    border-color: var(--amber-dim, #8a6a33);
+    outline: none;
+  }
+
+  .base-replay:focus-visible {
+    box-shadow: 0 0 0 2px rgba(232, 163, 61, .35);
+  }
+
+  html.motion-off .base-replay { transition: none; }
 </style>
 </head>
 <body>
@@ -127,8 +227,9 @@
 
   const { startStory }      = await import(BASE + 'story.js');
   const { startBase }       = await import(BASE + 'base.js');
+  const { startComms }      = await import(BASE + 'comms.js');
   const { playIntro }       = await import(BASE + 'intro-video.js');
-  const { applyToDom, onLangChange } = await import(BASE + 'i18n.js');
+  const { applyToDom, onLangChange, t } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
   const { initAudio, bindClickSounds, playClick } = await import(BASE + 'audio.js');
   const { openSettings }    = await import(BASE + 'settings-ui.js');
@@ -148,6 +249,99 @@
      đó luôn là false, nên không chặn được gì. */
   let baseStarted = false;
 
+  /* ---------- Giai đoạn 1: bảng điều khiển viễn thông ----------
+     Màn đầu tiên sau khi tỉnh dậy: gọi cứu xong mới quản lý căn cứ.
+     Cờ dưới đây để lần sau vào game không phải làm lại ba bước. */
+  const STAGE1_KEY = 'smdg.stage1Done';
+
+  function stage1Done() {
+    try { return localStorage.getItem(STAGE1_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  /* Mở bảng viễn thông trong một lớp phủ riêng.
+     comms.js không có nút đóng nội bộ, nên nút "Bỏ qua" ở đây là lối
+     thoát duy nhất. Cả hai đường ra (xong ba bước, hoặc bỏ qua) đều
+     gọi comms.destroy() rồi gỡ lớp phủ trước khi đi tiếp, nhờ vậy
+     không bao giờ còn khung trắng hay panel nằm lại trên màn căn cứ. */
+  function openStage1({ onDone, onSkip }) {
+    const host = document.createElement('div');
+    host.className = 'comms-host';
+    document.body.appendChild(host);
+
+    const skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'comms-skip';
+    skip.textContent = t('comms.skip');
+    host.appendChild(skip);
+
+    let closed = false;
+    const comms = startComms({
+      container: host,
+      onDone: () => {
+        if (closed) return;
+        closed = true;
+        /* Ghi cờ trước khi dọn, để lần tải lại trang sau không hỏi lại. */
+        try { localStorage.setItem(STAGE1_KEY, '1'); } catch (e) { /* trình duyệt chặn ghi thì vẫn đi tiếp */ }
+        if (comms && typeof comms.destroy === 'function') comms.destroy();
+        host.remove();
+        if (typeof onDone === 'function') onDone();
+      },
+    });
+
+    skip.addEventListener('click', () => {
+      playClick();
+      if (closed) return;
+      closed = true;
+      if (comms && typeof comms.destroy === 'function') comms.destroy();
+      host.remove();
+      if (typeof onSkip === 'function') onSkip();
+    });
+
+    return {
+      destroy: () => {
+        if (closed) return;
+        closed = true;
+        if (comms && typeof comms.destroy === 'function') comms.destroy();
+        host.remove();
+      },
+    };
+  }
+
+  /* Vào màn căn cứ. Tách riêng vì có hai đường vào: sau Giai đoạn 1,
+     và vào thẳng khi cờ đã có sẵn. */
+  function enterBase(playerName) {
+    if (baseStarted) return;
+    baseStarted = true;
+
+    const host = document.createElement('div');
+    host.className = 'base-host';
+    document.body.appendChild(host);
+    startBase({
+      container: host,
+      playerName,
+      onExit: () => {
+        host.remove();
+        baseStarted = false;
+        boot.style.display = '';
+        delete btn.dataset.started;
+      },
+    });
+  }
+
+  /* Sau màn mở đầu: Giai đoạn 1 trước, căn cứ sau. */
+  function afterStory(playerName) {
+    if (stage1Done()) { enterBase(playerName); return; }
+    openStage1({
+      onDone: () => enterBase(playerName),
+      onSkip: () => {
+        /* Bỏ qua vẫn đánh dấu đã qua, để lần sau không bị chặn ở đây
+           nữa. Ai muốn xem lại thì bấm nút trong màn căn cứ. */
+        try { localStorage.setItem(STAGE1_KEY, '1'); } catch (e) { /* bỏ qua */ }
+        enterBase(playerName);
+      },
+    });
+  }
+
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
   btn.addEventListener('click', async () => {
@@ -161,34 +355,40 @@
     await playIntro();
     startStory({
       onFinish: ({ playerName }) => {
-        /* Màn mở đầu xong thì vào thẳng căn cứ. Không quay lại màn
-           khởi động, vì người chơi đã bắt đầu chơi rồi.
+        /* Màn mở đầu xong thì mở Giai đoạn 1 rồi mới vào căn cứ.
            Cờ baseStarted ở phạm vi ngoài chặn trường hợp onFinish bị
            gọi hai lần, tránh hai màn căn cứ chồng lên nhau. */
         if (baseStarted) return;
-        baseStarted = true;
-
-        const host = document.createElement('div');
-        host.className = 'base-host';
-        document.body.appendChild(host);
-        startBase({
-          container: host,
-          playerName,
-          onExit: () => {
-            host.remove();
-            baseStarted = false;
-            boot.style.display = '';
-            delete btn.dataset.started;
-          },
-        });
+        afterStory(playerName);
       },
     });
   });
 
+  /* ---------- chơi lại Giai đoạn 1 từ màn căn cứ ----------
+     base.js phát sự kiện này khi bấm thẻ "Chơi lại màn liên lạc".
+     Dùng sự kiện thay vì import thẳng comms.js vào base.js để hai
+     màn không phụ thuộc vòng vào nhau. Lớp phủ của comms nằm trên
+     màn căn cứ (z-index 90), nhưng vẫn ẩn màn căn cứ đi để trình đọc
+     màn hình không đọc lẫn hai lớp nội dung. */
+  window.addEventListener('smdg:comms-replay', () => {
+    if (!baseStarted) return;
+    if (document.querySelector('.comms-host')) return;
+
+    const baseHost = document.querySelector('.base-host');
+    if (baseHost) baseHost.style.visibility = 'hidden';
+    const restore = () => { if (baseHost) baseHost.style.visibility = ''; };
+
+    openStage1({ onDone: restore, onSkip: restore });
+  });
+
   bindClickSounds();
 
-  /* đổi ngôn ngữ thì cập nhật cả khung khởi động */
-  onLangChange(() => applyToDom());
+  /* đổi ngôn ngữ thì cập nhật cả khung khởi động và nút bỏ qua */
+  onLangChange(() => {
+    applyToDom();
+    const sk = document.querySelector('.comms-skip');
+    if (sk) sk.textContent = t('comms.skip');
+  });
 </script>
 </body>
 </html>

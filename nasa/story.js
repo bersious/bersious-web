@@ -88,8 +88,15 @@ export function startStory({ onFinish } = {}) {
     .replace(/'/g, '&#39;');
 
   function fmt(text) {
+    /* Trước khi nhập tên, {name} phải hiện một tên tạm chứ không phải
+       đại từ. Lý do: cảnh 1 và 2 có thoại của Vance và Sato gọi tên
+       người chơi qua bộ đàm, mà lượt nhập tên nằm ở cảnh 4. Nếu hiện
+       "bạn" hay "you" thì câu thoại thành "Mất tín hiệu bạn rồi!",
+       nghe như đang nói với chính mình. Dùng tên tạm của nhân vật cho
+       tới khi người chơi đặt tên thật. */
+    const fallback = pick({ vi: 'Reid', en: 'Reid' });
     return esc(text)
-      .replace(/\{name\}/g, `<span class="pname">${esc(playerName || 'bạn')}</span>`)
+      .replace(/\{name\}/g, `<span class="pname">${esc(playerName || fallback)}</span>`)
       .replace(/\*([^*]+)\*/g, '<em>$1</em>');
   }
 
@@ -254,10 +261,15 @@ export function startStory({ onFinish } = {}) {
 
     if (beat.type === 'dialogue') {
       const who = CREW.find((c) => c.id === beat.who);
+      /* Lượt của người chơi có name rỗng trong CREW, nên hiển thị tên
+         đã nhập. Nếu chưa nhập thì để trống, đừng hiện "undefined". */
+      const speaker = who?.id === 'player'
+        ? (playerName || t('story.you'))
+        : (who?.name || '');
       body.innerHTML = `
         <div class="story-speaker" style="color:${who?.color || 'var(--tx-bright)'}">
           <span class="dot"></span>
-          <span>${esc(who?.name || '')}</span>
+          <span>${esc(speaker)}</span>
           <span class="role">${esc(pick(who?.role) || '')}</span>
         </div>
         <p class="story-line">${fmt(pick(beat.text))}</p>${hint}`;

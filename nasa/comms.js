@@ -97,7 +97,7 @@ function motionOn() {
    Nếu chỉ dựa vào rAF thì hoạt ảnh đứng im và màn chơi không bao giờ
    hoàn tất. Ở đây rAF lo độ mượt, còn một nhịp setInterval chỉ nhảy
    vào khi rAF đã im quá 120ms, để hoạt ảnh luôn chạy tới cuối. */
-function runAnim(ms, onFrame, onEnd, reg) {
+function runAnim(ms, onFrame, onEnd, reg, isDead) {
   const start = performance.now();
   let done = false;
   let lastRaf = 0;
@@ -125,7 +125,7 @@ function runAnim(ms, onFrame, onEnd, reg) {
     if (done) return;
     lastRaf = now;
     step(now);
-    if (!done && !destroyed) raf = requestAnimationFrame(rafLoop);
+    if (!done && !(isDead && isDead())) raf = requestAnimationFrame(rafLoop);
   };
   raf = requestAnimationFrame(rafLoop);
 
@@ -245,7 +245,10 @@ const SHELL = `
           <div class="comms-card comms-radar-card">
             <div class="comms-card-head">
               <h3 class="comms-card-title" data-k="s2.passTitle"></h3>
-              <span class="comms-timer mono"></span>
+              <span class="comms-head-tools">
+                <img class="comms-card-icon comms-mro-icon" alt="" />
+                <span class="comms-timer mono"></span>
+              </span>
             </div>
             <div class="comms-radar">
               <svg viewBox="0 0 320 320" role="img" aria-labelledby="comms-radar-desc">
@@ -326,7 +329,7 @@ const SHELL = `
 
       <section class="comms-step" data-step="3" hidden>
         <div class="comms-col">
-          <div class="comms-card">
+          <div class="comms-card comms-pkts-card">
             <div class="comms-card-head">
               <h3 class="comms-card-title" data-k="s3.pktTitle"></h3>
               <img class="comms-card-icon" alt="" />
@@ -1052,6 +1055,7 @@ export function startComms({ container, onDone } = {}) {
   function transmit() {
     if (!selectionValid() || st.flying || st.finished) return;
     st.flying = true;
+    q('.comms-flight-lbl').dataset.k = 's3.flying';
     playOneShotSfx('radio-static');
 
     const ranked = rankStations();
@@ -1105,7 +1109,7 @@ export function startComms({ container, onDone } = {}) {
       const eased = p * p * (3 - 2 * p);
       place(eased);
       clock.textContent = fmtClock(eased * simulateSeconds);
-    }, () => arrive(winner), timers);
+    }, () => arrive(winner), timers, () => destroyed);
   }
 
   function arrive(winner) {
@@ -1113,7 +1117,9 @@ export function startComms({ container, onDone } = {}) {
     st.flying = false;
     elBody.classList.remove('is-flying');
     const s = winner.station;
-    q('.comms-flight-lbl').textContent = tr('comms.s3.arrived');
+    const lbl = q('.comms-flight-lbl');
+    lbl.dataset.k = 's3.arrived';
+    lbl.textContent = tr('comms.s3.arrived');
     q('.comms-flight-clock').textContent = fmtClock(DATA.signal_timing.one_way_light_time_min * 60);
 
     const li = q('.comms-dsn-item[data-id="' + s.id + '"]');
@@ -1353,11 +1359,10 @@ export function startComms({ container, onDone } = {}) {
       el.textContent = tr('comms.' + el.dataset.k);
     });
 
-    q('.comms-card-icon');
-    qa('.comms-card-icon').forEach((img, i) => {
-      img.src = i === 0 ? ART.uhf : ART.hex;
-      img.alt = '';
-    });
+    const iconOf = (sel, src) => { const el = q(sel); if (el) { el.src = src; el.alt = ''; } };
+    iconOf('.comms-devices-card .comms-card-icon', ART.uhf);
+    iconOf('.comms-pkts-card .comms-card-icon', ART.hex);
+    iconOf('.comms-mro-icon', ART.mro);
 
     if (!DATA) return;
 
@@ -1413,7 +1418,10 @@ export function startComms({ container, onDone } = {}) {
     renderSnr();
     renderBudget();
     paintTimer();
-    if (st.step === 2) q('.comms-radar-state').textContent = tr('comms.s2.inWindow');
+    if (st.step === 2) {
+      q('.comms-radar-state').textContent =
+        tr(st.passPhase === 'wait' ? 'comms.s2.expired' : 'comms.s2.inWindow');
+    }
     updateGate();
   }
 

@@ -27,16 +27,18 @@ import { getLang, onLangChange } from './i18n.js';
 
 const COPY = {
   vi: {
-    kicker: 'HỒI KÝ SỨ MỆNH · NASA ARES PROGRAM',
-    title: 'ARES III',
-    sub: 'ACIDALIA PLANITIA · SOL 1 — SOL 19',
+    credit: 'Lấy cảm hứng từ phim The Martian',
+    kicker: 'HỒI KÝ SỨ MỆNH · CHƯƠNG TRÌNH ARES',
+    title: 'HORIZON IV',
+    sub: 'ACIDALIA PLANITIA · SAO HỎA',
     skip: 'Bỏ qua',
     skipHint: 'Space / Enter',
   },
   en: {
-    kicker: 'MISSION ARCHIVE · NASA ARES PROGRAM',
-    title: 'ARES III',
-    sub: 'ACIDALIA PLANITIA · SOL 1 — SOL 19',
+    credit: 'Inspired by the film The Martian',
+    kicker: 'MISSION ARCHIVE · ARES PROGRAM',
+    title: 'HORIZON IV',
+    sub: 'ACIDALIA PLANITIA · MARS',
     skip: 'Skip',
     skipHint: 'Space / Enter',
   },
@@ -97,7 +99,16 @@ export function playIntro(options = {}) {
     let blobUrl = null;
     const abortCtrl = new AbortController();
 
-    /* ---------- dựng DOM overlay ---------- */
+    /* Tên phim trong dòng credit cần in nghiêng và tô màu, nên phải bọc
+   bằng thẻ em. Không nhét HTML vào chuỗi i18n vì chỗ khác dùng
+   textContent sẽ hiện ra cả thẻ. Hàm này chỉ bọc đúng cụm tên phim,
+   phần còn lại giữ nguyên chữ thường. */
+function creditHtml(str) {
+  const safe = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return safe.replace('The Martian', '<em class="film">The Martian</em>');
+}
+
+/* ---------- dựng DOM overlay ---------- */
     const el = document.createElement('div');
     el.className = 'intro-overlay';
     el.setAttribute('role', 'region');
@@ -178,6 +189,9 @@ export function playIntro(options = {}) {
 
       <!-- Chữ điện ảnh hiện dần giữa màn -->
       <div class="intro-typography">
+        <!-- Dòng credit hiện trước tiên, kiểu opening credits của phim.
+             Đây là chỗ nêu nguồn cảm hứng, đặt trên cùng và mờ nhất. -->
+        <div class="intro-credit" data-intro-i18n="credit">${creditHtml(text.credit)}</div>
         <div class="intro-kicker" data-intro-i18n="kicker">${text.kicker}</div>
         <div class="intro-title" data-intro-i18n="title">${text.title}</div>
         <div class="intro-rule"></div>
