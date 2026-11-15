@@ -29,6 +29,118 @@ import { t, onLangChange } from './i18n.js';
 import { getSettings } from './settings.js';
 import { playOneShotSfx, stopAllSceneSfx } from './audio-sfx.js';
 
+/* ============================================================
+   KHE NHẠC NỀN CHO PROLOGUE
+   Bốn chỗ chờ sẵn. Chỉ cần bỏ file vào assets/audio/prologue/
+   đúng tên, không phải sửa dòng code nào.
+
+   Tên file và ý đồ:
+     theme-open.mp3    nhạc vào, từ nhịp 1 tới nhịp 3
+     theme-storm.mp3   dồn dập khi bão ập tới, nhịp 4 tới 6
+     theme-silence.mp3 nhịp 7 tới 8, gần như im để chuẩn bị cú nổ
+     theme-hope.mp3    từ nhịp 9 tới 11, hồi lên khi tàu đi và mở mắt
+
+   File nào chưa có thì bỏ qua êm, không lỗi, không chặn luồng.
+   Nhạc tự cắt theo nhịp, có fade ngắn để không bị giật.
+   ============================================================ */
+
+const MUSIC_DIR = new URL('.', import.meta.url).href + 'assets/audio/prologue/';
+
+/* Mỗi mục: file, nhịp bắt đầu, nhịp kết thúc (tính cả hai) */
+const MUSIC_CUES = [
+  { file: 'theme-open.mp3',    from: 1,  to: 3,  gain: 0.42, fadeMs: 1200 },
+  { file: 'theme-storm.mp3',   from: 4,  to: 6,  gain: 0.56, fadeMs: 900  },
+  { file: 'theme-silence.mp3', from: 7,  to: 8,  gain: 0.20, fadeMs: 1400 },
+  { file: 'theme-hope.mp3',    from: 9,  to: 11, gain: 0.50, fadeMs: 1200 },
+];
+
+/* Trạng thái: phần tử audio đang phát, và chỉ số cue đang dùng */
+let musicEl = null;
+let musicCue = -1;
+let musicTimer = null;
+
+/* Nhạc chỉ phát khi người chơi bật nhạc trong cài đặt. */
+function musicAllowed() {
+  try {
+    const st = getSettings();
+    return !!(st && st.music);
+  } catch { return true; }
+}
+
+function musicVolume(gain) {
+  let base = 0.8;
+  try { base = Math.max(0, Math.min(100, getSettings().volume)) / 100; } catch {}
+  return Math.max(0, Math.min(1, base * gain));
+}
+
+/* Tắt nhạc hiện tại bằng cách hạ dần âm lượng rồi dừng, để không bị cụt. */
+function stopMusic(fadeMs = 600) {
+  if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  if (!musicEl) return;
+  const el = musicEl;
+  musicEl = null;
+  musicCue = -1;
+  if (fadeMs <= 0) { try { el.pause(); } catch {} return; }
+  const start = el.volume;
+  const steps = Math.max(3, Math.round(fadeMs / 60));
+  let i = 0;
+  musicTimer = setInterval(() => {
+    i += 1;
+    const k = 1 - i / steps;
+    if (k <= 0) {
+      clearInterval(musicTimer); musicTimer = null;
+      try { el.pause(); } catch {}
+      return;
+    }
+    try { el.volume = Math.max(0, start * k); } catch {}
+  }, 60);
+}
+
+/* Phát nhạc cho một nhịp. Gọi mỗi lần đổi nhịp, chỉ làm gì đó khi
+   nhịp rơi vào cue khác cue đang chạy. */
+function musicForBeat(beatNumber) {
+  if (!musicAllowed()) { if (musicEl) stopMusic(400); return; }
+  const want = MUSIC_CUES.findIndex((c) => beatNumber >= c.from && beatNumber <= c.to);
+  if (want === -1) { if (musicEl) stopMusic(700); return; }
+  if (want === musicCue) return;
+
+  stopMusic(500);
+  const cue = MUSIC_CUES[want];
+  musicCue = want;
+
+  const el = new Audio(MUSIC_DIR + cue.file);
+  el.loop = true;
+  el.preload = 'auto';
+  el.volume = 0;
+  musicEl = el;
+  /* File chưa có thì bỏ qua êm. Không báo lỗi ra console vì đây là
+     khe chờ, người dùng chưa bỏ nhạc vào là chuyện bình thường. */
+  el.addEventListener('error', () => {
+    if (musicEl === el) { musicEl = null; musicCue = -1; }
+  });
+  el.play().then(() => {
+    if (musicEl !== el) return;
+    /* Tăng dần tới âm lượng đích thay vì bật thẳng, tránh giật tai. */
+    const target = musicVolume(cue.gain);
+    const steps = Math.max(3, Math.round(cue.fadeMs / 60));
+    let i = 0;
+    if (musicTimer) clearInterval(musicTimer);
+    musicTimer = setInterval(() => {
+      i += 1;
+      const k = i / steps;
+      if (k >= 1) {
+        clearInterval(musicTimer); musicTimer = null;
+        try { el.volume = target; } catch {}
+        return;
+      }
+      try { el.volume = target * k; } catch {}
+    }, 60);
+  }).catch(() => {
+    /* Trình duyệt chặn phát thì bỏ qua, nhịp sau thử lại. */
+    if (musicEl === el) { musicEl = null; musicCue = -1; }
+  });
+}
+
 const FRAME_COUNT = 12;
 
 /* Đuôi ảnh dự phòng, thử lần lượt khi webp 404. Cùng thứ tự với
@@ -51,31 +163,31 @@ const B = (ms, panels, extra = {}) => ({ ms, panels, ...extra });
 
 const BEATS = [
   /* 1: một ảnh phủ kín, máy đẩy chậm vào */
-  B(3600, [
+  B(4900, [
     { id: 'p1', frame: 1, r: [0, 0, 100, 100], anim: 'zoom-in' },
   ], { ambient: 'storm-wind' }),
 
   /* 2: cắt thẳng sang ảnh mới, rung theo nhịp chân chạy */
-  B(2800, [
+  B(3800, [
     { id: 'p2', frame: 2, r: [0, 0, 100, 100], anim: 'jitter' },
   ], { ambient: 'storm-wind' }),
 
   /* 3: ảnh cũ THU NHỎ thành ô góc trên trái, ảnh mới LỚN bên phải
         trượt vào từ phải. Đây là hiệu ứng cốt lõi của phác thảo. */
-  B(3600, [
+  B(4900, [
     { id: 'p2', frame: 2, r: [3, 5, 30, 30] },
     { id: 'p3', frame: 3, r: [36, 5, 61, 88], anim: 'slide-right' },
   ], { ambient: 'storm-wind' }),
 
   /* 4: giữ ô nhỏ và ô tàu ở hàng trên, ô vát chéo mới trượt lên */
-  B(3200, [
+  B(4300, [
     { id: 'p2', frame: 2, r: [3, 5, 30, 30] },
     { id: 'p3', frame: 3, r: [36, 5, 61, 30] },
     { id: 'p4', frame: 4, r: [3, 39, 94, 56], anim: 'slide-up', clip: 'a' },
   ], { ambient: 'storm-wind', hit: 'metal-impact' }),
 
   /* 5: ô vát chéo dưới chia đôi, nửa phải trượt vào từ phải */
-  B(3200, [
+  B(4300, [
     { id: 'p2', frame: 2, r: [3, 5, 30, 30] },
     { id: 'p3', frame: 3, r: [36, 5, 61, 30] },
     { id: 'p4', frame: 4, r: [3, 39, 46, 56], clip: 'a' },
@@ -83,7 +195,7 @@ const BEATS = [
   ], { ambient: 'storm-wind', hit: 'metal-impact' }),
 
   /* 6: hai ô mặt và chân lên hàng trên, ô rộng mở ra từ giữa */
-  B(3200, [
+  B(4300, [
     { id: 'p4', frame: 4, r: [3, 5, 46, 37], clip: 'a' },
     { id: 'p5', frame: 5, r: [51, 5, 46, 37], clip: 'b' },
     { id: 'p6', frame: 6, r: [3, 45, 94, 50], anim: 'open-x' },
@@ -91,34 +203,34 @@ const BEATS = [
 
   /* 7: phủ kín, viền kép kiểu trang truyện in giấy cũ, cát phủ dần,
         ảnh mờ dần về cuối nhịp */
-  B(3800, [
+  B(5100, [
     { id: 'p7', frame: 7, r: [0, 0, 100, 100], paper: true, sand: true, anim: 'sand-late' },
   ], { ambient: 'storm-wind' }),
 
   /* 8: phủ kín, góc nhìn từ trên xuống. Bão đã qua từ nhịp 7, nên từ
         đây không còn tiếng gió: khoảng lặng trước cú khai hỏa. */
-  B(2500, [
+  B(3400, [
     { id: 'p8', frame: 8, r: [0, 0, 100, 100], anim: 'drift-down' },
   ]),
 
   /* 9: phủ kín, rung mạnh theo nhịp động cơ khai hỏa */
-  B(2900, [
+  B(3900, [
     { id: 'p9', frame: 9, r: [0, 0, 100, 100], anim: 'shake-strong' },
   ], { hit: 'rocket-launch' }),
 
   /* 10: phủ kín, ảnh thu nhỏ dần về cuối nhịp, gợi cảm giác xa dần */
-  B(3000, [
+  B(4100, [
     { id: 'p10', frame: 10, r: [0, 0, 100, 100], anim: 'zoom-out' },
   ]),
 
   /* 11: phủ kín, MỞ MÍ MẮT. Nhịp chậm hơn hẳn vì đây là điểm nhấn
          cảm xúc: hai dải đen khép kín rồi mở ra, hình từ nhòe sang rõ. */
-  B(5600, [
+  B(7600, [
     { id: 'p11', frame: 11, r: [0, 0, 100, 100], anim: 'focus-in' },
   ], { ambient: 'hab-vent', lids: true }),
 
   /* 12: phủ kín, tĩnh lặng hoàn toàn, giữ 1,5 giây rồi kết thúc */
-  B(1500, [
+  B(2000, [
     { id: 'p12', frame: 12, r: [0, 0, 100, 100] },
   ], { silent: true }),
 ];
@@ -205,6 +317,16 @@ function makePanel(spec) {
 
 export function startPrologue({ container, onDone } = {}) {
   injectCss();
+
+  /* Nạp trước cả 12 ảnh ngay khi vào, để nhịp nào cũng có ảnh sẵn
+     trong bộ nhớ đệm. Không có bước này thì nhịp 3 trở đi sẽ trống
+     khung trong lúc chờ ảnh tải, nhất là trên mạng chậm hoặc lần đầu
+     vào. Ảnh chỉ 1,74 MB tổng nên nạp hết một lượt là hợp lý.
+     Dùng Image() chứ không chèn vào DOM, nên không tốn bộ nhớ hiển thị. */
+  for (let i = 1; i <= 12; i++) {
+    const im = new Image();
+    im.src = new URL(`assets/art/screen-${String(i).padStart(2, '0')}.webp`, import.meta.url).href;
+  }
 
   const host = container || document.body;
 
@@ -375,6 +497,10 @@ export function startPrologue({ container, onDone } = {}) {
       skip.tabIndex = -1;
     }
 
+    /* Nhạc nền prologue, theo khe đã chừa. Gọi ở mọi nhịp kể cả nhịp
+       im lặng, để hàm tự tắt nếu nhịp đó không rơi vào cue nào. */
+    musicForBeat(idx + 1);
+
     /* âm thanh */
     if (beat.silent) {
       stopAllSceneSfx();
@@ -421,6 +547,9 @@ export function startPrologue({ container, onDone } = {}) {
     skip.removeEventListener('click', onSkipClick);
     offLang();
     stopAllSceneSfx();
+    /* Tắt nhạc prologue có fade, để nó không bị cụt khi bấm Bỏ qua
+       giữa nhịp. Không để nhạc chạy tiếp vào màn nhập tên. */
+    stopMusic(700);
     root.remove();
   }
 

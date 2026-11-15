@@ -1047,6 +1047,10 @@
   .flt-top {
     gap: 8px;
     padding: var(--st-gap-sm);
+    /* Nút cài đặt là position fixed ở góc trên phải (44px + 12px lề).
+       Không chừa chỗ thì khối "Hành trình 258,9 ngày" chạy xuống dưới
+       nó và bị đè mất phần đuôi trên điện thoại. */
+    padding-right: calc(var(--st-gap-sm) + 56px);
   }
 
   .flt-phase { padding-left: var(--st-gap-sm); }

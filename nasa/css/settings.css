@@ -47,9 +47,12 @@
   left: 1px;
   right: 1px;
   bottom: 1px;
-  height: 44px;
+  height: 36px;
   border-radius: 0 0 var(--st-radius) var(--st-radius);
-  background: linear-gradient(180deg, transparent 0%, var(--bg-panel) 92%);
+  /* Nhạt hơn ở nửa trên để chữ của hàng đang đọc không bị bôi mờ: chỉ
+     nửa dưới đậm dần. Trước đây gradient đặc từ 0% nên chữ ở rìa cuộn
+     bị giảm tương phản dù vẫn đang đọc được. */
+  background: linear-gradient(180deg, transparent 0%, rgba(17, 23, 33, .55) 55%, var(--bg-panel) 100%);
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;

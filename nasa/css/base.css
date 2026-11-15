@@ -1523,7 +1523,11 @@ html.motion-off .base-clock-fill { transition: none; }
 }
 
 @media (max-width: 620px) and (max-height: 920px) {
-  .base-scene { max-height: 9dvh; }
+  /* 16dvh chứ không 9dvh: ở 9dvh khung ảnh trên điện thoại chỉ còn
+     76px, tỉ lệ thật 4,43:1, ảnh cảnh bị nghiến thành một dải. 16dvh
+     (khoảng 135px ở 390x844) giữ được hình đọc ra được, và vùng chính
+     vẫn cuộn được nên không đẩy nút hành động ra ngoài. */
+  .base-scene { max-height: 16dvh; }
   .base-log { padding-block: 3px; }
   .base-heading { margin-block: 0; }
   .base-card { padding: 8px 8px; }

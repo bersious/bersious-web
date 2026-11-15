@@ -485,7 +485,7 @@ export const STRINGS = {
     'flight.phase.surface': 'Mặt đất',
 
     'flight.tele.distance': 'Khoảng cách tới Sao Hỏa',
-    'flight.tele.km': 'Khoảng cách',
+    'flight.tele.km': 'Quãng đường',
     'flight.tele.delay': 'Trễ một chiều',
     'flight.tele.day': 'Ngày bay',
     'flight.tele.tcm': 'Đốt hiệu chỉnh',
@@ -988,7 +988,7 @@ export const STRINGS = {
     'flight.phase.surface': 'Surface',
 
     'flight.tele.distance': 'Range to Mars',
-    'flight.tele.km': 'Range',
+    'flight.tele.km': 'Distance covered',
     'flight.tele.delay': 'One way delay',
     'flight.tele.day': 'Flight day',
     'flight.tele.tcm': 'Correction burns',
