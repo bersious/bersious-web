@@ -83,6 +83,8 @@ jobs:
             --exclude='tests' \
             --exclude='.github' \
             --exclude='dev-*.js' \
+            --exclude='__*-test.html' \
+            --exclude='__*-demo.html' \
             _source/src/ "$DEST/"
           # data/ nằm ngoài src nhưng game cần đọc, xem data.js BASES.
           # KHÔNG dùng --delete ở đây: src/data/ (chứa data/nasa/ và
