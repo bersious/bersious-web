@@ -354,6 +354,7 @@
        Đúng hai chữ N ở cuối, đây là dấu ấn của nhóm. -->
   <div class="menu-title-wrap">
     <h1 class="menu-title" id="menu-title">ABANDONN</h1>
+    <p class="menu-tagline" id="menu-tagline"></p>
     <div class="menu-title-dust" aria-hidden="true"></div>
   </div>
 
@@ -424,10 +425,15 @@
      Trước đây import cứng nên một file chưa deploy là cả trang chết
      đứng, nút Bắt đầu bấm không phản ứng gì. */
   let runPreloader = async () => ({ ok: true, failed: [] });
+  /* Cổng chặn chuyển cảnh: bọc mọi lần đổi màn lớn để không lộ khung
+     trống trong lúc dựng ảnh. Nếu preloader không nạp được thì cổng
+     chỉ gọi thẳng việc cần làm, game vẫn chạy bình thường. */
+  let gate = async (job, opts) => (typeof job === 'function' ? job() : undefined);
   try {
     const pre = await import(BASE + 'preloader.js');
     if (pre && typeof pre.startPreloader === 'function') pre.startPreloader();
     if (pre && typeof pre.runPreloader === 'function') runPreloader = pre.runPreloader;
+    if (pre && typeof pre.gate === 'function') gate = pre.gate;
   } catch (err) {
     console.warn('[boot] chưa nạp được màn chờ, vào thẳng game', err);
   }
@@ -601,10 +607,13 @@
     if (baseStarted) return;
     baseStarted = true;
 
-    const host = document.createElement('div');
-    host.className = 'base-host';
-    document.body.appendChild(host);
-    startBase({
+    /* Chặn màn trong lúc dựng căn cứ: ảnh nền và sprite cần vài trăm ms,
+       không chặn thì lộ khung trống. */
+    gate(() => {
+      const host = document.createElement('div');
+      host.className = 'base-host';
+      document.body.appendChild(host);
+      startBase({
       container: host,
       playerName,
       onExit: () => {
@@ -617,20 +626,24 @@
          bước sang nửa còn lại của game: thiết kế tàu cứu hộ từ Trái Đất
          rồi bay 258,9 ngày. Đây là phần chiếm phần lớn điểm số. */
       onLaunchRescue: () => openRescueDesigner(playerName),
+      });
     });
   }
 
   /* Màn thiết kế tàu cứu hộ. Xong thì vào màn bay. */
   function openRescueDesigner(playerName) {
-    const host = document.createElement('div');
-    host.className = 'rescue-host';
-    document.body.appendChild(host);
-    startRescueDesigner({
+    /* Chặn màn trong lúc dựng xưởng thiết kế. */
+    gate(() => {
+      const host = document.createElement('div');
+      host.className = 'rescue-host';
+      document.body.appendChild(host);
+      startRescueDesigner({
       container: host,
       onDone: (design) => {
         host.remove();
         openFlight(playerName, design);
       },
+      });
     });
     return { destroy: () => host.remove() };
   }
@@ -1117,6 +1130,9 @@
 
   /* Vào game từ nút Bắt đầu. Chạy sau khi hoạt cảnh phóng kết thúc. */
   async function enterFromStart() {
+    /* Bọc trong cổng chặn: bấm Bắt đầu là lớp phủ hiện ngay, chỉ vào
+       phim/comic khi ảnh đã tải xong, nên không lộ khung trống. */
+    return gate(async () => {
     const pre = preloadAhead();
     await pre;
     boot.style.display = 'none';
@@ -1133,6 +1149,7 @@
     await runOpening((playerName) => {
       if (baseStarted) return;
       afterStory(playerName);
+    });
     });
   }
 

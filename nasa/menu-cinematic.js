@@ -34,6 +34,7 @@ const TEXT = {
     retry: 'Thử lại',
     noSave: 'Chưa có bản lưu',
     langGroup: 'Ngôn ngữ',
+    tagline: 'Lấy cảm hứng từ phim The Martian',
   },
   en: {
     loading: 'Loading...',
@@ -42,6 +43,7 @@ const TEXT = {
     retry: 'Try again',
     noSave: 'No saved game',
     langGroup: 'Language',
+    tagline: 'Inspired by The Martian',
   },
 };
 
@@ -377,6 +379,7 @@ export function initMenu(opts = {}) {
   const hint = document.getElementById('menu-hint');
   const retry = document.getElementById('menu-retry');
   const langBox = document.getElementById('menu-lang');
+  const taglineEl = document.getElementById('menu-tagline');
 
   const dust = canvas ? createDust(canvas) : null;
   activeDust = dust;
@@ -515,6 +518,17 @@ export function initMenu(opts = {}) {
     }
   }
 
+  /* ---------- dòng phụ đề dưới chữ ABANDONN ----------
+     Đổi theo cùng cơ chế setLang/onLangChange của menu, không tự
+     nghe sự kiện riêng: bấm VI/EN là chữ này đổi ngay cùng lúc với
+     nhãn nút, không có độ trễ của một vòng vẽ lại. */
+  function paintTagline() {
+    if (!taglineEl) return;
+    const text = s('tagline');
+    if (taglineEl.textContent !== text) taglineEl.textContent = text;
+    taglineEl.setAttribute('lang', getLang());
+  }
+
   /* ---------- nút đổi ngôn ngữ ---------- */
 
   function paintLang() {
@@ -636,10 +650,12 @@ export function initMenu(opts = {}) {
 
   bindLang();
   paintLang();
+  paintTagline();
   refreshSave();
 
   const offLang = onLangChange(() => {
     paintLang();
+    paintTagline();
     if (langBox) langBox.setAttribute('aria-label', s('langGroup'));
     refreshSave();
     /* nút đang tải thì giữ chữ "đang tải" theo ngôn ngữ mới */

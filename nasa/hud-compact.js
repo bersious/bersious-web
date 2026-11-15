@@ -14,6 +14,10 @@
 import { t, getLang, onLangChange } from './i18n.js';
 import { openHandbook } from './onboarding.js';
 import { DAY_LOG } from './base-flavor.js';
+import {
+  createMissionLog, startMissionLogIntro, markMissionLogOpened, missionLogTabLabels,
+} from './mission-log.js';
+import { playOneShotSfx } from './audio-sfx.js';
 
 const BASE = new URL('.', import.meta.url).href;
 const AVATAR_SRC = BASE + 'assets/art/char-healthy.webp';
@@ -234,13 +238,20 @@ export function createCompactHud({
       <header class="hud2-log-head">
         <span class="hud2-log-ico">${ICONS.log}</span>
         <h3 class="hud2-log-title"></h3>
+        <span class="hud2-log-peek"></span>
         <button type="button" class="hud2-log-toggle" data-act="log">
           <span class="hud2-log-toggle-ico">${ICONS.collapse}</span>
         </button>
       </header>
+      <div class="hud2-log-tabs" role="tablist" hidden>
+        <button type="button" class="hud2-tab" role="tab" data-tab="check" aria-selected="true"></button>
+        <button type="button" class="hud2-tab" role="tab" data-tab="journal" aria-selected="false"></button>
+      </div>
       <div class="hud2-log-body" role="log" aria-live="off">
+        <div class="hud2-tabpanel" data-panel="check" role="tabpanel"></div>
         <ol class="hud2-log-list"></ol>
       </div>
+      <span class="hud2-badge" aria-hidden="true">+1</span>
     </section>
 
     <div class="hud2-guide" hidden>
@@ -302,6 +313,11 @@ export function createCompactHud({
   const logToggleIco = q('.hud2-log-toggle-ico');
   const logList = q('.hud2-log-list');
   const logBody = q('.hud2-log-body');
+  const logPeek = q('.hud2-log-peek');
+  const tabsEl = q('.hud2-log-tabs');
+  const tabBtns = Array.from(root.querySelectorAll('.hud2-tab'));
+  const checkPanel = q('[data-panel="check"]');
+  const badgeEl = q('.hud2-badge');
   const guideEl = q('.hud2-guide');
   const guideTitle = q('.hud2-guide-title');
   const guideSecs = Array.from(root.querySelectorAll('.hud2-guide-sec'));
@@ -565,22 +581,107 @@ export function createCompactHud({
   }
 
   function applyLogVisibility() {
-    const lines = Array.from(logList.children);
-    const keep = logCollapsed ? 4 : lines.length;
-    const from = lines.length - keep;
-    lines.forEach((el, i) => { el.hidden = i < from; });
     logEl.dataset.collapsed = logCollapsed ? 'true' : 'false';
     logToggle.setAttribute('aria-expanded', logCollapsed ? 'false' : 'true');
     logToggle.setAttribute('aria-label', logCollapsed ? t('hud2.log.expand') : t('hud2.log.collapse'));
     logToggle.title = logCollapsed ? t('hud2.log.expand') : t('hud2.log.collapse');
     logToggleIco.innerHTML = logCollapsed ? ICONS.restore : ICONS.collapse;
-    if (!logCollapsed) logBody.scrollTop = logBody.scrollHeight;
+    applyTabVisibility();
+    if (!logCollapsed) logBody.scrollTop = 0;
   }
 
   function setLogCollapsed(next) {
     logCollapsed = !!next;
     writeLogCollapsed(logCollapsed);
+    /* Mở nhật ký là mốc hoàn thành mục tiêu đầu tiên của Giai đoạn 1. */
+    if (!logCollapsed) markMissionLogOpened();
     applyLogVisibility();
+    if (!logCollapsed) {
+      renderChecklist();
+      logEl.scrollTop = 0;
+    }
+  }
+
+  /* ---------- hai tab của nhật ký ----------
+     Tab 1 "Mục tiêu và Hướng dẫn" mở mặc định, là thứ người chơi cần
+     thấy trước. Tab 2 "Ghi chép Hành trình" giữ nguyên danh sách các
+     ngày Sol như widget cũ. */
+  let logTab = 'check';
+  let missionLog = null;
+  let badgeTimer = 0;
+
+  function applyTabVisibility() {
+    if (!tabsEl) return;
+    /* Thanh tab chỉ có nghĩa khi nhật ký đang mở. Thu gọn thì thân
+       widget chỉ còn một dòng xem trước, không đủ chỗ cho hai tab. */
+    tabsEl.hidden = logCollapsed;
+    for (const btn of tabBtns) {
+      const on = btn.dataset.tab === logTab;
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1;
+    }
+    if (checkPanel) checkPanel.hidden = logCollapsed || logTab !== 'check';
+    logList.hidden = logCollapsed || logTab !== 'journal';
+    logEl.dataset.tab = logTab;
+  }
+
+  function renderChecklist() {
+    if (!missionLog) return;
+    if (!logCollapsed && logTab === 'check') missionLog.render();
+    paintPeek();
+  }
+
+  /* Dòng xem trước ở đầu widget khi thu gọn: tên mục tiêu kế tiếp.
+     Đây là thứ khiến widget còn có ích lúc đóng, thay vì chỉ là một
+     tiêu đề. */
+  function paintPeek() {
+    if (!logPeek) return;
+    if (!logCollapsed) {
+      logPeek.textContent = '';
+      logPeek.hidden = true;
+      return;
+    }
+    const label = missionLog ? missionLog.nextStepLabel() : '';
+    logPeek.hidden = !label;
+    if (logPeek.textContent !== label) logPeek.textContent = label;
+  }
+
+  function setLogTab(next) {
+    if (next !== 'check' && next !== 'journal') return;
+    if (logTab === next) return;
+    logTab = next;
+    if (!logCollapsed) markMissionLogOpened();
+    applyTabVisibility();
+    if (logTab === 'check') renderChecklist();
+    else logBody.scrollTop = logBody.scrollHeight;
+    if (!logCollapsed) {
+      try { playOneShotSfx('switch-flip'); } catch { /* tiếng chỉ là phụ */ }
+    }
+  }
+
+  /* Huy hiệu +1 khi vừa xong thêm một mục tiêu: icon nhật ký nhấp nháy
+     hai lần và huy hiệu hiện ba giây. Không chạy khi người chơi tắt
+     chuyển động. */
+  function flagNewGoal() {
+    if (!motionOn) return;
+    const ico = q('.hud2-log-ico');
+    if (ico) {
+      ico.classList.remove('is-ping');
+      void ico.offsetWidth;
+      ico.classList.add('is-ping');
+      window.setTimeout(() => ico.classList.remove('is-ping'), 1400);
+    }
+    if (badgeEl) {
+      badgeEl.classList.remove('is-on');
+      void badgeEl.offsetWidth;
+      badgeEl.classList.add('is-on');
+      window.clearTimeout(badgeTimer);
+      badgeTimer = window.setTimeout(() => badgeEl.classList.remove('is-on'), 3000);
+    }
+  }
+
+  for (const btn of tabBtns) {
+    btn.addEventListener('click', () => setLogTab(btn.dataset.tab));
   }
 
   /* Dòng đầu tiên: vài ngày gần nhất, lấy từ base-flavor.js, để widget
@@ -776,6 +877,20 @@ export function createCompactHud({
     logTitle.textContent = t('hud2.log.title');
     logEl.setAttribute('aria-label', t('hud2.log.title'));
 
+    /* Hai tab: nhãn lấy từ mission-log.js để chữ trong nhật ký và chữ
+       trên tab không bao giờ lệch nhau. */
+    const tabLabels = missionLogTabLabels();
+    for (const btn of tabBtns) {
+      const onTab = btn.dataset.tab === 'check';
+      btn.textContent = onTab ? tabLabels.check : tabLabels.journal;
+      btn.setAttribute('aria-label', onTab ? tabLabels.check : tabLabels.journal);
+    }
+    tabsEl.setAttribute('aria-label', t('hud2.log.title'));
+    if (missionLog) {
+      missionLog.render();
+      paintPeek();
+    }
+
     guideTitle.textContent = t('hud2.guide.title');
     const x = q('.hud2-guide-x');
     if (x) x.setAttribute('aria-label', t('hud2.guide.close'));
@@ -842,6 +957,13 @@ export function createCompactHud({
     paintAll();
   });
 
+  /* Checklist dựng trước lần vẽ ngôn ngữ đầu tiên, để tên tab và tên
+     mục tiêu cùng ra một lượt, không nháy chữ tiếng Việt rồi mới đổi. */
+  missionLog = createMissionLog({
+    host: checkPanel,
+    onNewlyDone: flagNewGoal,
+  });
+
   applyLang();
   seedLog();
   setCollapsed(false);
@@ -855,8 +977,10 @@ export function createCompactHud({
     if (typeof clockOff === 'function') clockOff();
     if (typeof speedOff === 'function') speedOff();
     if (typeof langOff === 'function') langOff();
+    if (missionLog && typeof missionLog.destroy === 'function') missionLog.destroy();
     document.removeEventListener('keydown', onKeydown);
     window.clearTimeout(savedTimer);
+    window.clearTimeout(badgeTimer);
     root.remove();
   }
 
@@ -869,6 +993,7 @@ export function createCompactHud({
       paintAll();
       logDirty = true;
       renderLog();
+      renderChecklist();
     },
     setSignalSent(on) {
       signalSent = !!on;
@@ -877,6 +1002,17 @@ export function createCompactHud({
     pushLog,
     openGuide,
     closeGuide,
+    openLog() {
+      setLogCollapsed(false);
+      setLogTab('check');
+    },
+    closeLog() {
+      setLogCollapsed(true);
+    },
+    logElement: logEl,
+    startIntro() {
+      return startMissionLogIntro({ logEl });
+    },
     destroy,
   };
 }

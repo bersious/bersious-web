@@ -1409,8 +1409,13 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
      đặc biệt như nhớ ra xác tàu, để dòng quest chen giữa các dòng
      DAY_LOG thường. Không ghi đè dòng cũ, chỉ thay đúng dòng nhật ký
      bằng phiên bản có thêm câu quest ở cuối. */
-  const questLogLines = new Set();
+  /* Khai báo ở phạm vi hàm chứ không phải const tại chỗ: sockLog được
+     gọi từ rất sớm (nhặt đồ, sự kiện xác tàu) trước khi dòng khai báo
+     này chạy tới, nên const sẽ ném ReferenceError vì vùng chết tạm thời.
+     Dùng biến khai báo trước và khởi tạo lười bên trong hàm. */
+  var questLogLines = null;
   function sockLog(line) {
+    if (!questLogLines) questLogLines = new Set();
     if (!line || questLogLines.has(line)) return;
     questLogLines.add(line);
     if (!logText) return;

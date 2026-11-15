@@ -514,3 +514,104 @@ export async function runPreloader(opts = {}) {
 export function isPreloading() {
   return !!task;
 }
+
+
+/* ============================================================
+   Cổng chặn chuyển cảnh (gate)
+   ============================================================
+   Khi chuyển giữa các màn lớn (menu → comic → story → căn cứ →
+   Phase 2 → bay → tổng kết) hoặc khi bấm nút mở màn mới, nội dung
+   màn mới dựng lên khi còn thiếu ảnh thì lộ khung trống. Cổng này
+   hiện lớp phủ tối + huy hiệu xoay + chữ "đang tải", chờ tối thiểu
+   một nhịp vẽ để màn mới kịp dựng khung, rồi mới gỡ.
+
+   Cách dùng:
+     import { gate } from './preloader.js';
+
+     await gate(async () => {
+       await openStory();          // dựng màn mới
+     });
+
+   Hành vi:
+   - Lớp phủ hiện NGAY (đồng bộ) trước khi callback chạy, nên không
+     có khung trắng nào kịp lộ ra.
+   - Chờ tối thiểu minMs (mặc định 450ms) để hoạt cảnh chuyển cảnh
+     không bị nháy quá nhanh, tối đa maxMs (mặc định 6000ms) để
+     không bao giờ treo người chơi.
+   - Callback ném lỗi thì vẫn gỡ lớp phủ rồi ném tiếp, không nuốt
+     lỗi của người gọi.
+   - Gọi lồng nhau: đếm tham chiếu, lớp phủ chỉ gỡ khi cổng ngoài
+     cùng đóng. Motion off thì bỏ hoạt cảnh mờ dần.
+   ============================================================ */
+
+let gateDepth = 0;
+let gateUi = null;
+let gateTimer = null;
+
+function gateMotionOff() {
+  try {
+    return document.documentElement.classList.contains('motion-off') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  } catch (_) { return false; }
+}
+
+function gateShow(label) {
+  if (gateDepth > 0) { gateDepth += 1; return; }
+  gateDepth = 1;
+  const S = strings();
+  const root = document.createElement('div');
+  root.className = 'pre-root pre-gate';
+  root.setAttribute('role', 'status');
+  root.setAttribute('aria-label', label || S.label);
+  root.innerHTML = `
+    <div class="pre-card">
+      <div class="pre-emblem" aria-hidden="true"></div>
+      <div class="pre-status">${label || S.gateDefault || S.label}</div>
+    </div>`;
+  if (gateMotionOff()) root.classList.add('pre-static');
+  document.body.appendChild(root);
+  gateUi = root;
+}
+
+function gateHide() {
+  gateDepth -= 1;
+  if (gateDepth > 0) return;
+  gateDepth = 0;
+  const root = gateUi;
+  gateUi = null;
+  if (!root) return;
+  if (gateMotionOff()) { root.remove(); return; }
+  root.classList.add('pre-out');
+  setTimeout(() => { try { root.remove(); } catch (_) {} }, 240);
+}
+
+/* Chạy một việc trong lúc lớp phủ chặn màn hình. Trả về kết quả của
+   callback. Lỗi của callback được ném lại sau khi đã gỡ lớp phủ. */
+export async function gate(job, opts = {}) {
+  const minMs = Number.isFinite(opts.minMs) ? Math.max(0, opts.minMs) : 450;
+  const maxMs = Number.isFinite(opts.maxMs) ? Math.max(0, opts.maxMs) : 6000;
+  const label = opts.label || null;
+  gateShow(label);
+  const t0 = performance.now();
+  try {
+    /* Chạy callback và chờ. Nếu callback chưa xong sau maxMs thì vẫn
+       gỡ lớp phủ để không treo, nhưng KHÔNG huỷ công việc. */
+    const work = Promise.resolve().then(job);
+    const timeout = new Promise((res) => { gateTimer = setTimeout(res, maxMs); });
+    await Promise.race([work, timeout]);
+    clearTimeout(gateTimer);
+    /* Đảm bảo lớp phủ hiện ít nhất minMs để không nháy. */
+    const left = minMs - (performance.now() - t0);
+    if (left > 0) await new Promise((r) => setTimeout(r, left));
+    return await work;
+  } finally {
+    clearTimeout(gateTimer);
+    gateHide();
+  }
+}
+
+/* Bản tiện lợi cho việc chỉ cần chặn một nhịp dựng màn: hiện lớp phủ,
+   chờ một requestAnimationFrame (màn mới kịp sơn khung đầu), gỡ. */
+export async function gateFrame(minMs = 450) {
+  return gate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))), { minMs });
+}

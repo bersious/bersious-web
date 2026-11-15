@@ -245,3 +245,80 @@ html.motion-off .pre-warn {
     animation: none;
   }
 }
+
+
+/* ============================================================
+   Cổng chặn chuyển cảnh (.pre-gate)
+   ============================================================
+   Dùng khi đổi màn giữa chừng, không phải lúc mở trang. Khác màn
+   chờ đầy đủ ở chỗ: không có thanh tiến trình (vì chưa biết tải
+   bao nhiêu), chỉ huy hiệu xoay và một dòng chữ. Nền đục hơn để
+   che hẳn màn cũ đang tháo dỡ, tránh thấy hai màn chồng nhau.
+   ============================================================ */
+
+.pre-root.pre-gate {
+  background: radial-gradient(circle at 50% 42%,
+    color-mix(in srgb, var(--bg-panel) 92%, transparent), var(--bg-void) 72%);
+  z-index: 240;
+  animation: pre-gate-in 180ms ease-out both;
+}
+
+.pre-root.pre-gate .pre-card {
+  gap: 18px;
+}
+
+/* Huy hiệu xoay: vòng cung hở quay chậm, không dùng ảnh để khỏi phải
+   chờ tải thêm một tệp nữa lúc đang chuyển cảnh. */
+.pre-root.pre-gate .pre-emblem {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--amber) 26%, transparent);
+  border-top-color: var(--amber);
+  border-right-color: color-mix(in srgb, var(--amber) 62%, transparent);
+  animation: pre-gate-spin 900ms linear infinite;
+}
+
+.pre-root.pre-gate .pre-status {
+  font-size: 13px;
+  letter-spacing: .06em;
+  color: var(--tx-dim);
+}
+
+/* Đang tải thì làm mờ nhẹ màn cũ bên dưới cho có cảm giác chuyển lớp,
+   nhưng vẫn thấy nó để không phải nhìn vào khoảng đen tuyệt đối. */
+.pre-root.pre-gate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: none;
+}
+
+@keyframes pre-gate-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pre-gate-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Tắt chuyển động: không xoay, không mờ dần, hiện và biến tức thì. */
+.pre-root.pre-gate.pre-static,
+.pre-root.pre-static.pre-gate {
+  animation: none;
+}
+
+.pre-root.pre-gate.pre-static .pre-emblem {
+  animation: none;
+  border-top-color: var(--amber);
+  border-right-color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pre-root.pre-gate { animation: none; }
+  .pre-root.pre-gate .pre-emblem { animation: none; }
+}

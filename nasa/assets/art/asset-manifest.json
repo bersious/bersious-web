@@ -1,131 +1,222 @@
 {
-  "generated": "2026-11-15T20:28:19",
+  "generated": "2026-11-15T21:51:25",
   "scenes": [
     {
       "id": "bg-airlock",
       "path": "assets/art/bg-airlock.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 83584
+      "bytes": 81506
     },
     {
       "id": "bg-crew-running",
       "path": "assets/art/bg-crew-running.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 83708
+      "bytes": 81242
     },
     {
       "id": "bg-entering-hab",
       "path": "assets/art/bg-entering-hab.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 107202
+      "bytes": 103586
     },
     {
       "id": "bg-face-closeup",
       "path": "assets/art/bg-face-closeup.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 73224
+      "bytes": 71266
     },
     {
       "id": "bg-fall-buried",
       "path": "assets/art/bg-fall-buried.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 73654
+      "bytes": 71128
     },
     {
       "id": "bg-family-kitchen-night",
       "path": "assets/art/bg-family-kitchen-night.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 70554
+      "bytes": 67028
     },
     {
       "id": "bg-farewell-door",
       "path": "assets/art/bg-farewell-door.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 54656
+      "bytes": 52246
     },
     {
       "id": "bg-farm",
       "path": "assets/art/bg-farm.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 152898
+      "bytes": 148432
     },
     {
       "id": "bg-hab",
       "path": "assets/art/bg-hab.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 99650
+      "bytes": 97794
     },
     {
       "id": "bg-houston-kitchen",
       "path": "assets/art/bg-houston-kitchen.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 64984
+      "bytes": 61756
+    },
+    {
+      "id": "bg-im-01",
+      "path": "assets/art/bg-im-01.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 181536
+    },
+    {
+      "id": "bg-im-02",
+      "path": "assets/art/bg-im-02.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 179842
+    },
+    {
+      "id": "bg-im-03",
+      "path": "assets/art/bg-im-03.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 86454
+    },
+    {
+      "id": "bg-im-04",
+      "path": "assets/art/bg-im-04.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 76504
+    },
+    {
+      "id": "bg-im-05",
+      "path": "assets/art/bg-im-05.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 225504
+    },
+    {
+      "id": "bg-im-06",
+      "path": "assets/art/bg-im-06.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 123688
+    },
+    {
+      "id": "bg-im-07",
+      "path": "assets/art/bg-im-07.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 124430
+    },
+    {
+      "id": "bg-im-08",
+      "path": "assets/art/bg-im-08.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 100422
+    },
+    {
+      "id": "bg-im-09",
+      "path": "assets/art/bg-im-09.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 84816
+    },
+    {
+      "id": "bg-im-10",
+      "path": "assets/art/bg-im-10.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 44954
+    },
+    {
+      "id": "bg-im-11",
+      "path": "assets/art/bg-im-11.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 172626
+    },
+    {
+      "id": "bg-im-12",
+      "path": "assets/art/bg-im-12.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 80878
+    },
+    {
+      "id": "bg-im-13",
+      "path": "assets/art/bg-im-13.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 151184
     },
     {
       "id": "bg-kid-doorway",
       "path": "assets/art/bg-kid-doorway.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 52210
+      "bytes": 48522
     },
     {
       "id": "bg-mars-orbit",
       "path": "assets/art/bg-mars-orbit.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 47224
+      "bytes": 45292
     },
     {
       "id": "bg-moving-boxes",
       "path": "assets/art/bg-moving-boxes.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 61642
+      "bytes": 58372
     },
     {
       "id": "bg-radio",
       "path": "assets/art/bg-radio.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 96280
+      "bytes": 92710
     },
     {
       "id": "bg-running-pov",
       "path": "assets/art/bg-running-pov.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 58408
+      "bytes": 55900
     },
     {
       "id": "bg-storm-wide",
       "path": "assets/art/bg-storm-wide.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 48102
+      "bytes": 46052
     },
     {
       "id": "bg-waking-eyes",
       "path": "assets/art/bg-waking-eyes.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 106804
+      "bytes": 102950
     },
     {
       "id": "bg-workbench",
       "path": "assets/art/bg-workbench.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 77018
+      "bytes": 73056
     }
   ],
   "icons": [
@@ -407,6 +498,14 @@
       "width": 176,
       "height": 505,
       "bytes": 32820,
+      "transparent": true
+    },
+    {
+      "id": "char-eva",
+      "path": "assets/art/char-eva.webp",
+      "width": 451,
+      "height": 1024,
+      "bytes": 108690,
       "transparent": true
     },
     {

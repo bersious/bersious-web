@@ -459,6 +459,49 @@
   100% { background-position: -60% 0; }
 }
 
+/* ---------- dòng phụ đề dưới chữ ABANDONN ----------
+   Chữ nhỏ, giãn cách rộng, màu trắng ngả hổ phách: đọc ra như một dòng
+   credit của phim, không tranh chỗ với tiêu đề. Hai bên có đường kẻ
+   mảnh ngắn, cùng màu, để dòng chữ đứng riêng giữa khung.
+
+   Viết mã màu trực tiếp ở đây vì bảng biến của tokens.css đặt cho nền
+   đặc; dòng này nằm trên ảnh cảnh Sao Hỏa nên cần đúng độ sáng này. */
+#boot .menu-tagline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.4vw, 16px);
+  margin: clamp(6px, 1vh, 12px) 0 0;
+  font-family: var(--st-font-mono, monospace);
+  font-size: clamp(.52rem, .44rem + .28vw, .68rem);
+  font-weight: 500;
+  letter-spacing: .15em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(246, 226, 200, .74);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .7);
+  /* dòng phụ đề mờ dần cùng tiêu đề lúc bấm phóng */
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+#boot .menu-tagline::before,
+#boot .menu-tagline::after {
+  content: "";
+  flex: 0 0 auto;
+  width: clamp(16px, 4vw, 46px);
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(232, 163, 61, .55) 100%);
+}
+
+#boot .menu-tagline::after {
+  background: linear-gradient(90deg,
+    rgba(232, 163, 61, .55) 0%,
+    transparent 100%);
+}
+
 /* ---------- nút VI|EN góc trên phải ---------- */
 
 /* Nút mở cài đặt đã chiếm góc phải (44px, cách mép 18px). Viên thuốc
@@ -890,6 +933,11 @@ html.motion-off .menu-astro-img { transform: scaleX(-1); }
 @media (max-width: 620px) {
   .menu-title-wrap { top: 7%; padding: 0 8px; }
   .menu-title { letter-spacing: .14em; margin-right: -.14em; }
+  /* dòng phụ đề thu nhỏ và bỏ hai đường kẻ: trên màn hẹp chúng chỉ
+     chiếm bề ngang mà không đọc ra gì */
+  #boot .menu-tagline { gap: 6px; }
+  #boot .menu-tagline::before,
+  #boot .menu-tagline::after { width: 12px; }
 
   .menu-actions {
     left: 50%;

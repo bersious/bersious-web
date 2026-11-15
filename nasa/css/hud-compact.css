@@ -726,6 +726,314 @@
   overflow: hidden;
 }
 
+/* ---------- hai tab của nhật ký ----------
+   Tab 1 là checklist mục tiêu (mở mặc định), tab 2 là danh sách các
+   ngày Sol của widget cũ. Thanh tab chỉ hiện khi nhật ký đang mở. */
+
+.hud2-log-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px 6px 0;
+  border-bottom: 1px solid var(--hud2-hair);
+}
+
+.hud2-log-tabs[hidden] { display: none; }
+
+.hud2-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 26px;
+  padding: 3px 5px 5px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .5rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  cursor: pointer;
+  /* nhãn dài gãy hai dòng, không cắt chữ: "Mục tiêu và Hướng dẫn" */
+  white-space: normal;
+  text-align: center;
+  transition: color .16s ease, border-color .16s ease;
+}
+
+.hud2-tab:hover { color: var(--tx-bright); }
+.hud2-tab:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
+
+.hud2-tab[aria-selected="true"] {
+  color: var(--hud2-accent);
+  border-bottom-color: var(--amber);
+}
+
+.hud2-tabpanel[hidden],
+.hud2-log-list[hidden] { display: none; }
+
+/* ---------- checklist mục tiêu ----------
+   Mỗi bước là một hàng: ô vuông [ ] bên trái, tên bước đậm, câu
+   hướng dẫn ngắn bên dưới. Bước kế tiếp chưa làm được viền hổ phách
+   để mắt biết bắt đầu từ đâu. */
+
+.ml-count {
+  margin: 0 0 5px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .5rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.ml-phase { margin-top: 6px; }
+
+.ml-ph {
+  margin: 0 0 3px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.ml-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ml-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 3px 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: opacity .3s ease, border-color .3s ease, background-color .3s ease;
+}
+
+.ml-step.is-next {
+  border-color: color-mix(in srgb, var(--amber) 52%, transparent);
+  background: color-mix(in srgb, var(--amber) 7%, transparent);
+}
+
+.ml-box {
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .6rem;
+  line-height: 1.5;
+  letter-spacing: .02em;
+  color: var(--tx-soft);
+}
+
+.ml-step[data-done="true"] .ml-box { color: var(--hud2-good); }
+
+.ml-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ml-t {
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--tx-bright);
+}
+
+.ml-extra {
+  margin-left: 4px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .55rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--amber);
+}
+
+.ml-g {
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .64rem;
+  line-height: 1.4;
+  color: var(--tx-soft);
+  /* Hướng dẫn dài thì cắt ở ba dòng, đủ để hiểu việc cần làm */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Đã xong: gạch ngang, mờ đi. Ô vuông đổi màu ở quy tắc trên. */
+.ml-step[data-done="true"] { opacity: .52; }
+
+.ml-step[data-done="true"] .ml-t,
+.ml-step[data-done="true"] .ml-g {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--hud2-good) 70%, transparent);
+  text-decoration-thickness: 1px;
+}
+
+.ml-urgent {
+  margin: 6px 0 0;
+  padding: 4px 6px;
+  border-left: 2px solid var(--hud2-caution);
+  border-radius: 0 4px 4px 0;
+  background: color-mix(in srgb, var(--hud2-caution) 10%, transparent);
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .63rem;
+  line-height: 1.4;
+  color: var(--hud2-caution);
+}
+
+/* ---------- dòng xem trước khi thu gọn ---------- */
+
+.hud2-log-peek {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .58rem;
+  color: var(--tx-soft);
+}
+
+.hud2-log-peek[hidden] { display: none; }
+.hud2-log[data-collapsed="false"] .hud2-log-peek { display: none; }
+
+/* ---------- huy hiệu +1 và nhịp nhấp nháy của icon ---------- */
+
+.hud2-badge {
+  position: absolute;
+  top: 3px;
+  left: 14px;
+  z-index: 2;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: var(--hud2-accent);
+  font-family: var(--st-font-mono, monospace);
+  font-size: .5rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  color: var(--bg-void);
+  opacity: 0;
+  transform: translateY(2px) scale(.9);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.hud2-badge.is-on {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@keyframes hud2-log-ping {
+  0%   { transform: scale(1); filter: none; }
+  18%  { transform: scale(1.35); filter: drop-shadow(0 0 6px var(--amber)); }
+  36%  { transform: scale(1); filter: none; }
+  54%  { transform: scale(1.35); filter: drop-shadow(0 0 6px var(--amber)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+.hud2-log-ico.is-ping { animation: hud2-log-ping 1.2s ease-in-out 1; }
+
+/* ============================================================
+   LỚP PHỦ LẦN ĐẦU MỞ NHẬT KÝ (mission-log.js)
+   Bốn tấm tối bao quanh đúng widget nhật ký, một viền hổ phách và
+   một thẻ chú thích có mũi tên chỉ vào widget. Cùng hình thức với
+   lớp phủ của onboarding.css để hai hệ thống trông như một.
+   ============================================================ */
+
+.ml-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 125;
+  pointer-events: none;
+}
+
+.ml-intro.is-in .ml-card,
+.ml-intro.is-in .ml-dim {
+  transition: opacity .22s ease;
+}
+
+.ml-dim {
+  position: fixed;
+  z-index: 1;
+  background: color-mix(in srgb, var(--bg-void) 84%, transparent);
+  -webkit-backdrop-filter: blur(1.5px);
+  backdrop-filter: blur(1.5px);
+  pointer-events: auto;
+}
+
+.ml-ring {
+  position: fixed;
+  z-index: 2;
+  border: 2px solid var(--amber);
+  border-radius: 9px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 22%, transparent),
+              0 0 26px color-mix(in srgb, var(--amber) 34%, transparent);
+  pointer-events: none;
+}
+
+@keyframes ml-ring-nudge {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  40%      { transform: translateX(4px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(2px); }
+}
+
+.ml-ring.is-nudge { animation: ml-ring-nudge .42s ease-in-out 1; }
+
+.ml-card {
+  position: fixed;
+  z-index: 3;
+  width: min(360px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 15px 14px;
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line-strong));
+  border-radius: 10px;
+  background: var(--bg-panel);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .60);
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  color: var(--tx-bright);
+  pointer-events: none;
+}
+
+.ml-arrow {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  color: var(--amber);
+}
+
+.ml-arrow svg { width: 100%; height: 100%; }
+
+.ml-eyebrow {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.ml-text {
+  margin: 0;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--tx-bright);
+}
+
 /* ============================================================
    SỔ TAY HƯỚNG DẪN
    ============================================================ */
@@ -904,6 +1212,15 @@
     max-height: none;
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+
+  /* Trần chiều cao của widget cũ chừa đúng 20,5 phần trăm khung nhìn,
+     đủ cho bốn dòng nhật ký. Checklist mục tiêu dài hơn nhiều, và ở
+     màn hẹp người chơi mở nhật ký để làm theo thì cần đọc được trọn
+     một bước, nên mở rộng trần và cho widget trôi lên trên chân nhân
+     vật. Đáy vẫn neo thanh công cụ nên không đè nút nào. */
+  .hud2-log[data-collapsed="false"] {
+    max-height: calc(100dvh - var(--hud2-bar-h, 78px) - var(--base-toolbar-h, 64px) - 34px);
   }
 }
 
