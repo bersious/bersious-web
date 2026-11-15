@@ -71,6 +71,11 @@ export function startStory({ onFinish } = {}) {
   const caption  = el.querySelector('.story-caption');
   const body     = el.querySelector('.story-body');
   const btnSkip  = el.querySelector('.story-skip');
+  btnSkip.textContent = pick({ vi: 'Bỏ qua', en: 'Skip' });
+  btnSkip.setAttribute('aria-label', pick({
+    vi: 'Bỏ qua phần kể chuyện và vào thẳng trò chơi',
+    en: 'Skip the story and go straight into the game',
+  }));
   const btnPrev  = el.querySelector('[data-dir="-1"]');
   const btnNext  = el.querySelector('[data-dir="1"]');
   const btnPrevLabel = btnPrev.querySelector('.story-btn-label');
@@ -395,6 +400,15 @@ export function startStory({ onFinish } = {}) {
   btnPrev.addEventListener('click', () => {
     playClick();
     prev();
+  });
+
+  /* Nút bỏ qua toàn bộ phần kể chuyện. Trước đây nút có trong DOM
+     nhưng không gắn sự kiện, không có CSS, nên vô hình và bấm không
+     ăn. Giám khảo phải đọc hết hai mươi lượt thoại mới vào game. */
+  btnSkip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playClick();
+    finish();
   });
 
   function onKey(e) {

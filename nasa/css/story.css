@@ -445,3 +445,51 @@
     transition-duration: .01ms;
   }
 }
+
+
+/* Nút bỏ qua phần kể chuyện.
+   Vì sao phải có: phần kể chuyện dài hai mươi lượt thoại, giám khảo chỉ
+   có vài phút chấm bài. Không có nút này thì họ phải bấm Tiếp hai mươi
+   lần mới tới được phần chơi thật, và rất dễ bỏ cuộc giữa chừng.
+   Đặt góc dưới phải, cùng vị trí và kiểu với nút Bỏ qua của comic và
+   phân cảnh kết thúc để người chơi thấy quen mắt. */
+.story-skip {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  z-index: 12;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid rgba(232, 163, 61, .34);
+  border-radius: 3px;
+  background: rgba(10, 14, 22, .68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #ecd9bb;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.story-skip:hover,
+.story-skip:focus-visible {
+  background: rgba(232, 163, 61, .22);
+  border-color: rgba(232, 163, 61, .72);
+  color: #fff4e2;
+  outline: none;
+}
+
+@media (max-width: 620px) {
+  .story-skip {
+    right: 12px;
+    bottom: 12px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+}
+
+html.motion-off .story-skip { transition: none; }
