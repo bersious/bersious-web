@@ -411,10 +411,17 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
     const canvas = host.querySelector('.cml3-stage-canvas');
     let cx0 = EDGE;
     let cx1 = R.width - EDGE;
+    let cy0 = EDGE;
+    let cy1 = R.height - EDGE;
     if (canvas) {
       const C = canvas.getBoundingClientRect();
       cx0 = Math.max(cx0, C.left - R.left + 6);
       cx1 = Math.min(cx1, C.right - R.left - 6);
+      /* Canh cả theo chiều dọc. Lớp phủ cao bằng cả màn (599), còn ô vẽ
+         tàu chỉ chiếm phần giữa (395). Nếu chỉ canh ngang thì nút ở
+         pct 22 bay lên tận phần tiêu đề, ra ngoài sân khấu. */
+      cy0 = Math.max(cy0, C.top - R.top + NODE / 2 + 6);
+      cy1 = Math.min(cy1, C.bottom - R.top - NODE / 2 - 6);
     }
 
     nodes.forEach((n, i) => {
@@ -436,7 +443,10 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
         n.wrap.style.top = (nodeCy - NODE / 2) + 'px';
         n.wrap.style.transform = 'none';
       } else {
-        nodeCy = (R.height * cfg.pct) / 100;
+        /* Trải đều ba nút trong khoảng dọc đã canh, thay vì kẹp từng nút
+           riêng lẻ. Kẹp riêng thì hai nút gần nhau dồn về cùng một mức
+           và chồng lên nhau. */
+        nodeCy = cy0 + (cy1 - cy0) * (cfg.pct / 100);
         if (cfg.side === 'left') {
           /* Nút nằm ngoài mép trái thân tàu, nhãn xa hơn về phía mép
              sân khấu. Neo bằng right để nút tự bám mép phải.
@@ -454,7 +464,10 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
           n.wrap.style.left = nodeLeft + 'px';
           n.wrap.style.right = 'auto';
         }
-        n.wrap.style.top = cfg.pct + '%';
+        /* Ghi bằng pi-xen theo toạ độ đã canh, không ghi lại phần trăm.
+           Ghi phần trăm sau khi đã canh là vứt bỏ kết quả canh, và nút
+           ở mốc 22 phần trăm lại bay lên phần tiêu đề. */
+        n.wrap.style.top = nodeCy + 'px';
         n.wrap.style.transform = 'translateY(-50%)';
       }
 

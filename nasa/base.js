@@ -423,18 +423,24 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     let signalSent = false;
     try { signalSent = localStorage.getItem('smdg.stage1Done') === '1'; } catch (e) { /* chặn ghi */ }
     const want = { farm: !!u.farm, rescue: signalSent };
+    let changed = false;
     grid.querySelectorAll('.base-card').forEach((btn) => {
       const id = btn.dataset.action;
       if (!(id in want)) return;
       const locked = !want[id];
+      const was = btn.classList.contains('is-locked');
+      if (was !== locked) changed = true;
       btn.classList.toggle('is-locked', locked);
       btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
     });
     /* Chấm việc ở sân khấu cũng phải theo: trước đây refreshLocks chỉ
        chạy một lần lúc dựng lưới, nên phát tín hiệu xong mà không nhảy
        màn thì nút Thiết kế tàu cứu hộ vẫn trông như bị khoá, và chấm
-       nhắc ở trạm liên lạc vẫn sáng. Gọi lại mỗi lần kho đổi. */
-    if (baseScene && typeof baseScene.refresh === 'function') {
+       nhắc ở trạm liên lạc vẫn sáng.
+
+       Chỉ gọi khi trạng thái khoá THẬT SỰ đổi: refresh() của sân khấu
+       đọc lại chỉ số và vẽ lại chấm, gọi mỗi nhịp đồng hồ là thừa. */
+    if (changed && baseScene && typeof baseScene.refresh === 'function') {
       try { baseScene.refresh(); } catch (err) { /* trang trí, không chặn game */ }
     }
   }
@@ -581,13 +587,13 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
           onDone: () => {
             /* Sửa xong ba món thì mới vào màn phát tín hiệu. */
             showToast(t('repair.done'));
-            openRadioScreen();
+            openTransmitConsole();
           },
           onClose: () => {},
         });
         return;
       }
-      openRadioScreen();
+      openTransmitConsole();
       return;
     }
     if (id === 'rescue') {
@@ -726,6 +732,22 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
         });
       });
     });
+  }
+
+  /* Màn viễn thông ba bước của Giai đoạn 1 (comms.js) là màn PHÁT tín
+     hiệu thật. Trước đây base.js gọi openRadioScreen() ở đây, mà
+     radio.js chỉ là khung chat gọi về nhà: nó không ghi smdg.stage1Done,
+     nên sửa xong ba món là ngõ cụt, nút Thiết kế tàu cứu hộ khoá vĩnh
+     viễn và cả Giai đoạn 1 không có lối ra.
+
+     Bảng viễn thông do index.html dựng (nó giữ openStage1 và biết phải
+     mở scene Trái Đất nhận tin sau khi phát xong), nên ở đây chỉ phát
+     sự kiện. index.html đã nghe smdg:comms-replay cho đúng việc này;
+     dùng lại đúng đường đó thay vì tự dựng một bản sao. */
+  function openTransmitConsole() {
+    if (!bag.hidden) closeBag();
+    closeChild();
+    window.dispatchEvent(new CustomEvent('smdg:comms-replay'));
   }
 
   function openExploreScreen() {
@@ -1400,6 +1422,11 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
       }
     }
 
+    /* Trạng thái khoá tô lại mỗi nhịp: nông trại mở khi đủ hạt và nước,
+       nút cứu hộ mở khi đã phát tín hiệu. Trước đây chỉ gọi một lần
+       lúc dựng lưới, nên nhặt đủ đồ giữa chừng mà nút vẫn hiện ổ khoá.
+       Rẻ: vài class toggle, không dựng lại DOM. */
+    refreshLocks();
     el.classList.toggle('is-night', s.isNight);
     phase.textContent = s.isNight ? t('base.night') : t('base.daytime');
     footDays.textContent = t(s.day === 1 ? 'base.footer.survived.one' : 'base.footer.survived').replace('{n}', String(s.day));

@@ -45,6 +45,7 @@ export function startStory({ onFinish } = {}) {
   const el = document.createElement('div');
   el.className = 'story-screen';
   el.innerHTML = `
+    <button class="story-skip" type="button"></button>
     <div class="story-stage">
       <div class="story-caption"></div>
       <div class="story-art-slot"></div>
@@ -69,6 +70,7 @@ export function startStory({ onFinish } = {}) {
   const stageArt = el.querySelector('.story-art-slot');
   const caption  = el.querySelector('.story-caption');
   const body     = el.querySelector('.story-body');
+  const btnSkip  = el.querySelector('.story-skip');
   const btnPrev  = el.querySelector('[data-dir="-1"]');
   const btnNext  = el.querySelector('[data-dir="1"]');
   const btnPrevLabel = btnPrev.querySelector('.story-btn-label');
