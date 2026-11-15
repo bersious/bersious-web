@@ -7,6 +7,7 @@
    ============================================================ */
 
 import { t, getLang, setLang, onLangChange } from './i18n.js';
+import { openDevPanel, askDevPassword, isDevUnlocked, injectDevCss } from './dev-panel.js';
 import { getSettings, setSetting, resetSettings } from './settings.js';
 import { bindClickSounds } from './audio.js';
 import { isFullscreen, toggleFullscreen, onFullscreenChange, isSupported } from './fullscreen.js';
@@ -184,6 +185,19 @@ export function openSettings() {
           </div>
         </section>
 
+        <!-- Bảng test cho nhóm làm game. Có mật khẩu để người chơi
+             thường không mở nhầm. -->
+        <section class="settings-group settings-group-dev">
+          <h3>Nhà phát triển</h3>
+          <div class="settings-row">
+            <span class="settings-label">
+              <span>Chế độ nhà phát triển</span>
+              <small>Nhảy tới màn bất kỳ, bắn sự kiện test, chỉnh trạng thái</small>
+            </span>
+            <button type="button" data-act="dev-open">Mở</button>
+          </div>
+        </section>
+
       </div>
     </div>`;
 
@@ -279,6 +293,32 @@ export function openSettings() {
   updateFsLabel();
 
   // xoá dữ liệu
+  /* Mở bảng test nhà phát triển. Có mật khẩu lần đầu, sau đó nhớ
+     trong localStorage cho tới khi bấm Khoá lại trong bảng. */
+  const devBtn = panel.querySelector('[data-act="dev-open"]');
+  if (devBtn) {
+    devBtn.addEventListener('click', async () => {
+      injectDevCss();
+      let ok = isDevUnlocked();
+      if (!ok) ok = await askDevPassword();
+      if (!ok) return;
+      openDevPanel({
+        onJump: (id) => {
+          const fn = window.__devJump;
+          if (typeof fn === 'function') fn(id);
+        },
+        onEvent: (id) => {
+          const fn = window.__devEvent;
+          if (typeof fn === 'function') fn(id);
+        },
+        onTool: (id) => {
+          const fn = window.__devTool;
+          if (typeof fn === 'function') fn(id);
+        },
+      });
+    });
+  }
+
   panel.querySelector('[data-act="reset"]').addEventListener('click', (e) => {
     const btn = e.currentTarget;
     if (btn.dataset.armed !== '1') {

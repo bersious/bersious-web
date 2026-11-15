@@ -21,7 +21,7 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
+    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
@@ -232,6 +232,13 @@
   if (_p[_p.length - 1].indexOf('.') !== -1) _p[_p.length - 1] = '';
   const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
 
+  /* Màn chờ tải bật ngay từ đây, trước cả khi nạp nốt các module còn
+     lại. Trên mạng yếu, mấy lần import bên dưới cũng mất vài giây, và
+     khoảng trắng đó chính là chỗ người chơi tưởng trang bị treo. Chạy
+     nền, không chờ, để nút Bắt đầu vẫn dùng được như thường. */
+  const { startPreloader, runPreloader } = await import(BASE + 'preloader.js');
+  startPreloader();
+
   /* Màn kể chuyện cũ chỉ được nạp khi thật sự cần: nó là đường dự phòng
      cho prologue, và là đường chính khi prologue không nạp được. Nạp
      muộn cũng làm khung khởi động nhẹ hơn, vì story.js kéo theo
@@ -441,6 +448,136 @@
 
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
+  /* ---------- cầu nối cho bảng test nhà phát triển ----------
+     Bảng test gọi ba hàm này để nhảy màn, bắn sự kiện, chạy công cụ.
+     Đặt ở đây vì chỉ chỗ này mới biết đủ các hàm chuyển màn. */
+
+  function devClearScreens() {
+    /* Dọn mọi lớp đang phủ trước khi nhảy, nếu không hai màn sẽ
+       chồng nhau và người chơi bấm không được. */
+    document.querySelectorAll('.base-host, .rescue-host, .flight-host, .comms-host, .story-root, .prologue-root, .intro-overlay, .beacon-root')
+      .forEach((el) => el.remove());
+    baseStarted = false;
+  }
+
+  function devPlayerName() {
+    try { return localStorage.getItem('smdg.playerName') || 'Nhan'; } catch (e) { return 'Nhan'; }
+  }
+
+  window.__devJump = (id) => {
+    devClearScreens();
+    const name = devPlayerName();
+    try {
+      if (id === 'boot') {
+        boot.style.display = '';
+        delete btn.dataset.started;
+        return;
+      }
+      if (id === 'intro') { boot.style.display = 'none'; playIntro(); return; }
+      if (id === 'prologue' || id === 'story') {
+        boot.style.display = 'none';
+        runOpening(() => {});
+        return;
+      }
+      if (id.startsWith('base')) {
+        const day = Number(id.replace('base', '')) || 1;
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) {}
+        try {
+          localStorage.setItem('smdg.clock', JSON.stringify({ day, minutes: 8 * 60 }));
+        } catch (e) {}
+        boot.style.display = 'none';
+        enterBase(name);
+        return;
+      }
+      if (id === 'repair' || id === 'comms') {
+        boot.style.display = 'none';
+        openStage1({ onDone: () => enterBase(name), onSkip: () => enterBase(name) });
+        return;
+      }
+      if (id === 'beacon') {
+        boot.style.display = 'none';
+        openBeaconScene({ onDone: () => enterBase(name) });
+        return;
+      }
+      if (id.startsWith('p2') || id === 'summary') {
+        boot.style.display = 'none';
+        openRescueDesigner(name);
+        return;
+      }
+      if (id === 'flight') { boot.style.display = 'none'; openRescueDesigner(name); return; }
+    } catch (err) {
+      console.warn('[dev] nhay man loi', id, err);
+    }
+  };
+
+  window.__devEvent = (id) => {
+    const name = devPlayerName();
+    try {
+      if (id === 'phase1done') {
+        /* Chạy đúng luồng kết Giai đoạn 1: phát tín hiệu xong thì sang
+           trạm Trái Đất rồi sang Giai đoạn 2. */
+        devClearScreens();
+        boot.style.display = 'none';
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) {}
+        openBeaconScene({ onDone: () => openRescueDesigner(name) });
+        return;
+      }
+      if (id === 'sos') {
+        devClearScreens();
+        boot.style.display = 'none';
+        openRescueDesigner(name);
+        return;
+      }
+      if (id === 'beaconEv') {
+        devClearScreens();
+        boot.style.display = 'none';
+        openRescueDesigner(name);
+        return;
+      }
+      if (id === 'dsn') {
+        devClearScreens();
+        boot.style.display = 'none';
+        openRescueDesigner(name);
+        return;
+      }
+    } catch (err) {
+      console.warn('[dev] ban su kien loi', id, err);
+    }
+  };
+
+  window.__devTool = (id) => {
+    try {
+      if (id === 'reset') {
+        /* Xoá mọi key của game, giữ nguyên cài đặt âm thanh. */
+        const keep = ['smdg.settings', 'smdg.lang', 'smdg.devUnlocked'];
+        const keepVals = {};
+        keep.forEach((k) => { try { keepVals[k] = localStorage.getItem(k); } catch (e) {} });
+        const drop = [];
+        for (let i = 0; i < localStorage.length; i++) drop.push(localStorage.key(i));
+        drop.forEach((k) => { if (keep.indexOf(k) === -1) localStorage.removeItem(k); });
+        Object.keys(keepVals).forEach((k) => {
+          if (keepVals[k] !== null) { try { localStorage.setItem(k, keepVals[k]); } catch (e) {} }
+        });
+        return;
+      }
+      if (id === 'unlock') {
+        try {
+          localStorage.setItem('smdg.stage1Done', '1');
+          localStorage.setItem('smdg.prologueDone', '1');
+          localStorage.setItem('smdg.storyDone', '1');
+        } catch (e) {}
+        return;
+      }
+      if (id === 'items' || id === 'stats') {
+        /* Hai món này cần đối tượng stats của màn căn cứ, chỉ chạy
+           được khi đang trong căn cứ. */
+        if (typeof window.__devStats === 'function') window.__devStats(id);
+      }
+    } catch (err) {
+      console.warn('[dev] cong cu loi', id, err);
+    }
+  };
+
   /* ---------- nút Tiếp tục ----------
      Chỉ hiện khi trình duyệt này đã có bản lưu. Người chơi vẫn giữ được
      lựa chọn chơi lại từ đầu bằng nút Bắt đầu bên cạnh, nên nút này
@@ -601,6 +738,12 @@
     btn.dataset.started = '1';
 
     playClick();
+    /* Chờ tải đủ tài nguyên rồi mới vào. Nếu màn chờ đã chạy xong từ
+       lúc trang mở (trường hợp thường gặp) thì đây là một Promise đã
+       resolve, gần như không tốn thời gian. Nếu người chơi bấm rất
+       sớm thì phải chờ nốt, và màn chờ đang phủ sẵn nên không có
+       khoảng trắng nào ở giữa. */
+    await runPreloader();
     boot.style.display = 'none';
     await playIntro();
     try {
