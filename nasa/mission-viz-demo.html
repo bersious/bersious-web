@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Viz, bản đồ hành trình Trái Đất tới Sao Hỏa</title>
+<!--
+  Trang xem riêng cho module mission-viz.js.
+
+  Mở bằng một web server tĩnh, ví dụ:
+      python -m http.server 8731
+  rồi vào http://127.0.0.1:8731/src/mission-viz-demo.html
+
+  Không mở thẳng bằng file:// vì trình duyệt chặn nạp ES module từ
+  đĩa cục bộ.
+
+  Trang này KHÔNG phải một phần của game. Nó chỉ để xem và chỉnh bản
+  đồ mà không phải chạy cả trò chơi.
+-->
+<link rel="stylesheet" href="./css/tokens.css">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(120% 90% at 50% 0%, #0b1017 0%, #07090d 60%, #05070a 100%);
+    color: #b9c7d6;
+    font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  .demo-wrap {
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: clamp(12px, 2vw, 32px);
+  }
+
+  .demo-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #26313f;
+  }
+
+  .demo-tag {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #4fb8c9;
+    border: 1px solid #20505a;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  .demo-note {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 10px;
+    color: #72879d;
+    letter-spacing: .04em;
+    margin-right: auto;
+  }
+
+  .demo-btn {
+    appearance: none;
+    background: #111721;
+    border: 1px solid #26313f;
+    color: #b9c7d6;
+    border-radius: 3px;
+    padding: 6px 12px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+    cursor: pointer;
+  }
+
+  .demo-btn:hover {
+    border-color: #35455a;
+    color: #eaf1f8;
+  }
+
+  .demo-btn.on {
+    background: #e8a33d;
+    border-color: #e8a33d;
+    color: #07090d;
+    font-weight: 700;
+  }
+
+  .demo-readout {
+    margin-top: 14px;
+    margin-bottom: 4px;
+    padding: 10px 12px;
+    background: #0a0e14;
+    border: 1px solid #1b232e;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: #8497aa;
+    letter-spacing: .03em;
+    word-break: break-word;
+  }
+
+  .demo-warn {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 2px solid #d9694f;
+    background: rgba(217, 105, 79, .08);
+    color: #d9694f;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 11px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+  <div class="demo-bar">
+    <span class="demo-tag">mission viz</span>
+    <span class="demo-note">trang xem riêng, không thuộc game</span>
+    <button class="demo-btn on" id="lang-vi" type="button">Tiếng Việt</button>
+    <button class="demo-btn" id="lang-en" type="button">English</button>
+    <button class="demo-btn" id="jump-mid" type="button">Ngày 129,5</button>
+    <button class="demo-btn" id="jump-end" type="button">Ngày 258,9</button>
+    <button class="demo-btn" id="toggle-motion" type="button">Tắt chuyển động</button>
+  </div>
+
+  <div id="host"></div>
+
+  <div class="demo-warn" id="warn"></div>
+  <div class="demo-readout" id="readout" aria-live="off">Đang khởi động.</div>
+</div>
+
+<script type="module">
+import { createMissionViz } from './mission-viz.js';
+
+const warn = document.getElementById('warn');
+const readout = document.getElementById('readout');
+
+if (location.protocol === 'file:') {
+  warn.style.display = 'block';
+  warn.textContent =
+    'Trang đang mở bằng file://, trình duyệt sẽ chặn nạp ES module. ' +
+    'Hãy chạy python -m http.server rồi mở qua http://127.0.0.1.';
+}
+
+let frameCount = 0;
+
+const viz = createMissionViz({
+  container: document.getElementById('host'),
+  lang: 'vi',
+  onFrame(f) {
+    frameCount++;
+    readout.textContent =
+      'Khung hình ' + frameCount +
+      ' · ngày ' + f.day.toFixed(2) +
+      ' · tiến trình ' + (f.progress * 100).toFixed(1) + '%' +
+      ' · khoảng cách ' + Math.round(f.distanceKm).toLocaleString('vi-VN') + ' km' +
+      ' · trễ ' + f.delayMinutes.toFixed(1) + ' phút' +
+      ' · TCM đã qua ' + f.tcmPassed + '/3';
+  },
+});
+
+const btnVi = document.getElementById('lang-vi');
+const btnEn = document.getElementById('lang-en');
+
+btnVi.addEventListener('click', () => {
+  viz.setLang('vi');
+  btnVi.classList.add('on');
+  btnEn.classList.remove('on');
+});
+
+btnEn.addEventListener('click', () => {
+  viz.setLang('en');
+  btnEn.classList.add('on');
+  btnVi.classList.remove('on');
+});
+
+document.getElementById('jump-mid').addEventListener('click', () => {
+  viz.pause();
+  viz.setDay(129.45);
+});
+
+document.getElementById('jump-end').addEventListener('click', () => {
+  viz.pause();
+  viz.setDay(258.9);
+});
+
+const btnMotion = document.getElementById('toggle-motion');
+let motionOff = false;
+btnMotion.addEventListener('click', () => {
+  motionOff = !motionOff;
+  document.documentElement.classList.toggle('motion-off', motionOff);
+  btnMotion.classList.toggle('on', motionOff);
+  btnMotion.textContent = motionOff ? 'Bật chuyển động' : 'Tắt chuyển động';
+});
+
+/* Phím tắt để kiểm tra nhanh: cách tua và dừng. */
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') viz.setDay(Math.min(258.9, viz.day + 5));
+  if (e.key === 'ArrowLeft') viz.setDay(Math.max(0, viz.day - 5));
+  if (e.key === ' ') {
+    e.preventDefault();
+    if (viz.progress > 0 && viz.day < 258.9) viz.resume();
+  }
+});
+
+window.__viz = viz;
+window.__demoReady = true;
+</script>
+</body>
+</html>

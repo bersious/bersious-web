@@ -169,6 +169,12 @@ export const STRINGS = {
     'base.item.potato': 'Củ khoai tây',
     'base.item.potato_seed': 'Mẫu hạt giống',
     'base.item.radio': 'Máy liên lạc hỏng',
+    'base.item.family_photo': 'Tấm ảnh gia đình',
+    'base.item.family_photo.desc': 'Xem lại',
+
+    'mem.error.title': 'Không mở được',
+    'mem.error.body': 'Tệp hồi tưởng chưa nạp được. Đóng lại rồi thử lần nữa.',
+    'mem.close': 'Đóng',
   },
 
   en: {
@@ -322,6 +328,12 @@ export const STRINGS = {
     'base.item.potato': 'Potato',
     'base.item.potato_seed': 'Seed sample',
     'base.item.radio': 'Broken radio',
+    'base.item.family_photo': 'Family photo',
+    'base.item.family_photo.desc': 'Look through it',
+
+    'mem.error.title': 'Could not open',
+    'mem.error.body': 'The memory file did not load. Close this and try again.',
+    'mem.close': 'Close',
   },
 };
 

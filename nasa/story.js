@@ -35,9 +35,10 @@ export function startStory({ onFinish } = {}) {
   let transitionToken = 0;
   let watchdog = null;
   let lastRenderedBeat = -1;
-  /* Mốc khoá bấm nút cho cú đập ăng-ten ở lượt 25. Dùng mốc thời gian
-     riêng thay vì cờ busy, để không tranh chấp với quá trình chuyển
-     cảnh đang chạy song song. */
+  /* Mốc khoá bấm nút cho cú va đập ăng-ten. Dùng mốc thời gian riêng
+     thay vì cờ busy, để không tranh chấp với quá trình chuyển cảnh
+     đang chạy song song. Giờ do dữ liệu quyết định qua trường lock,
+     không còn đóng cứng số lượt ở đây. */
   let fxLockUntil = 0;
 
   /* ---------- dựng khung ---------- */
@@ -92,6 +93,12 @@ export function startStory({ onFinish } = {}) {
       .replace(/\*([^*]+)\*/g, '<em>$1</em>');
   }
 
+  /* Nhãn bối cảnh là textContent nên không nhận HTML. Cần bỏ thẻ do fmt
+     sinh ra, chỉ giữ phần chữ và tên đã thay. */
+  function stripTags(html) {
+    return String(html).replace(/<[^>]*>/g, '');
+  }
+
   /* tìm art key gần nhất cho beat này (beat có thể không khai báo art) */
   function artKeyFor(index) {
     if (STORY[index]?.art) return STORY[index].art;
@@ -121,10 +128,13 @@ export function startStory({ onFinish } = {}) {
     const artKey = artKeyFor(i);
 
     const beat = STORY[i];
-    if (beat?.caption) caption.textContent = pick(beat.caption);
+    /* caption cũng có thể chứa {name}, nên phải đi qua fmt chứ không
+       gán textContent trực tiếp: nếu không người chơi thấy nguyên chuỗi
+       "{name}" trên khung hình. */
+    if (beat?.caption) caption.textContent = stripTags(fmt(pick(beat.caption)));
     else {
       const owner = STORY.find((b) => b.art === artKey && b.caption);
-      caption.textContent = owner ? pick(owner.caption) : '';
+      caption.textContent = owner ? stripTags(fmt(pick(owner.caption))) : '';
     }
   }
 
@@ -151,7 +161,6 @@ export function startStory({ onFinish } = {}) {
     /* Áp hiệu ứng hình ảnh cho lượt này. Tách riêng để không rải
        lời gọi FX khắp các nhánh render bên dưới. */
     function runFx() {
-      const overlay = el.querySelector('.fx-overlay');
       applyBeatFx({
         beatIndex: i,
         beatType: beat.type,
@@ -159,9 +168,28 @@ export function startStory({ onFinish } = {}) {
         root: el,
         body,
         stage: el.querySelector('.story-stage'),
-        fxOverlay: overlay,
+        beatFx: beat.fx,
       });
-      if (i === 25 && fxMotionOn()) fxLockUntil = Date.now() + 500;
+      /* Khoá nút đúng nhịp cú va đập, để cú đập không bị cú bấm tiếp
+         theo cắt ngang. Chỉ khoá khi chuyển động đang bật, vì tắt
+         chuyển động thì không có cú đập nào để xem. */
+      if (beat.lock && fxMotionOn()) fxLockUntil = Date.now() + 500;
+      /* Một số lượt cần giữ người chơi lại đúng khoảng lặng: khung tối
+         đen hai tới ba giây, hoặc câu cuối cùng của một hồi. Không dùng
+         busy vì busy còn phục vụ chuyển cảnh. */
+      if (beat.pause) {
+        fxLockUntil = Math.max(fxLockUntil, Date.now() + beat.pause);
+        /* Khoá luôn nút để người chơi thấy mình đang bị giữ, thay vì
+           bấm mà không có gì xảy ra. Nhả khoá sau đúng khoảng lặng,
+           nhưng chỉ khi vẫn còn ở lượt này. */
+        const atBeat = i;
+        btnNext.disabled = true;
+        setTimeout(() => {
+          if (i === atBeat) {
+            btnNext.disabled = STORY[i]?.type === 'name' && !playerName;
+          }
+        }, beat.pause);
+      }
     }
 
     const hint = '<span class="story-next-hint"></span>';

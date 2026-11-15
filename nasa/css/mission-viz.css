@@ -1,0 +1,1019 @@
+/* ============================================================
+   mission-viz.css
+   Khung bản đồ quỹ đạo Trái Đất tới Sao Hỏa.
+
+   Bố cục hai cột trên màn rộng: khung vẽ 16:9 bên trái, cột thông số
+   bên phải. Dưới 980px thì cột thông số xuống dưới thành lưới hai ô,
+   dưới 560px thì thành một cột.
+
+   Mọi màu lấy từ tokens.css. Không khai báo màu mới ở đây, trừ vài
+   giá trị trong suốt dẫn xuất từ biến gốc.
+   ============================================================ */
+
+.mviz {
+  /* màu Sao Hỏa, dẫn từ --fail vì bảng tokens chưa có màu hành tinh */
+  --mviz-mars: #d9694f;
+  --mviz-mars-soft: rgba(217, 105, 79, .16);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(240px, 25%, 320px);
+  gap: var(--st-gap-md);
+  /* Hai cột canh theo mép trên, không kéo giãn bằng nhau. Cột số liệu
+     ngắn hơn khung vẽ là bình thường, và để nó tự co theo nội dung thì
+     không phải nhồi thêm khối chỉ để lấp chỗ trống. */
+  align-items: start;
+
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--st-gap-md);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.mviz *,
+.mviz *::before,
+.mviz *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- cột trái ---------- */
+
+.mviz-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-sm);
+  min-width: 0;
+}
+
+.mviz-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  padding-bottom: var(--st-gap-xs);
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.mviz-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.05rem, .9rem + .7vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  line-height: 1.15;
+}
+
+.mviz-title-en {
+  font-family: var(--st-font-mono);
+  font-size: .62em;
+  font-weight: 400;
+  letter-spacing: .12em;
+  color: var(--tx-dim);
+}
+
+.mviz-title .is-primary {
+  color: var(--tx-bright);
+}
+
+.mviz-title-en.is-primary {
+  color: var(--tx-soft);
+}
+
+.mviz-sub {
+  margin: 3px 0 0;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+}
+
+/* ---------- chú giải ---------- */
+
+.mviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: var(--st-size-cap);
+}
+
+.mviz-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--tx-dim);
+  font-family: var(--st-font-mono);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.mviz-key b,
+.mviz-key em {
+  font-style: normal;
+  font-weight: 400;
+}
+
+.mviz-key em {
+  opacity: .55;
+  font-size: .86em;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.mviz-key .is-primary {
+  color: var(--tx-soft);
+  opacity: 1;
+}
+
+.mviz-swatch {
+  width: 16px;
+  height: 0;
+  border-top-width: 2px;
+  border-top-style: solid;
+  flex: none;
+}
+
+.mviz-swatch.is-transfer {
+  border-top-color: var(--amber);
+  border-top-style: dashed;
+}
+
+.mviz-swatch.is-earth {
+  border-top-color: var(--cyan);
+}
+
+.mviz-swatch.is-mars {
+  border-top-color: var(--mviz-mars);
+}
+
+/* ---------- khung vẽ ---------- */
+
+.mviz-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+  /* Khung vẽ nằm trong một cột flex. Không có flex: none thì nó bị
+     co lại theo chiều cao của cột, aspect-ratio 16:9 mất tác dụng và
+     khung bẹp xuống còn một dải mỏng. */
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background:
+    radial-gradient(120% 100% at 50% 45%, #0b1017 0%, #080c12 55%, var(--bg-void) 100%);
+  /* vệt tối bốn góc, cùng thủ pháp với khung tranh của phần kể */
+  box-shadow: inset 0 0 46px rgba(0, 0, 0, .55);
+}
+
+/* đường kẻ mảnh trong khung, gợi lưới kính ngắm thiết bị */
+.mviz-stage::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(53, 69, 90, .18);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.mviz-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+/* ---------- tooltip ---------- */
+
+.mviz-tip {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 240px;
+  padding: 9px 11px;
+  background: rgba(10, 14, 20, .96);
+  border: 1px solid var(--amber-dim);
+  border-left: 2px solid var(--amber);
+  border-radius: var(--st-radius);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .6);
+  pointer-events: none;
+  font-family: var(--st-font-mono);
+  font-size: 10.5px;
+  line-height: 1.45;
+  letter-spacing: .02em;
+  color: var(--tx);
+  animation: mviz-tip-in var(--st-dur-move) var(--st-ease-out) both;
+}
+
+.mviz-tip[hidden] {
+  display: none;
+}
+
+@keyframes mviz-tip-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mviz-tip-name {
+  font-family: var(--st-font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.mviz-tip-name-en {
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  margin-bottom: 2px;
+}
+
+.mviz-tip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--tx);
+}
+
+.mviz-tip-row i {
+  width: 3px;
+  height: 3px;
+  flex: none;
+  background: var(--amber);
+  opacity: .7;
+}
+
+.mviz-tip-note {
+  color: var(--tx-dim);
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+/* ---------- huy hiệu tới nơi ---------- */
+
+.mviz-badge {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 5px 12px;
+  background: rgba(111, 191, 138, .12);
+  border: 1px solid rgba(111, 191, 138, .45);
+  border-radius: 999px;
+  color: var(--ok);
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mviz-badge[hidden] {
+  display: none;
+}
+
+/* ---------- điều khiển ---------- */
+
+.mviz-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--st-gap-sm);
+  flex-wrap: wrap;
+}
+
+.mviz-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.mviz-track {
+  position: relative;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+
+.mviz-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: 2px;
+}
+
+.mviz-track::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: border-color var(--st-dur-fast) linear;
+}
+
+.mviz-track:hover::after,
+.mviz-track:focus-visible::after {
+  border-color: rgba(79, 184, 201, .35);
+}
+
+.mviz-track:focus-visible::after {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(79, 184, 201, .18);
+}
+
+.mviz-track-fill {
+  position: absolute;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan-dim) 0%, var(--cyan) 35%, var(--amber) 100%);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.mviz-track-knob {
+  position: absolute;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 2px solid var(--amber);
+  box-shadow: 0 0 10px var(--amber-glow);
+  pointer-events: none;
+}
+
+.mviz-track-tcm {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  pointer-events: none;
+}
+
+.mviz-tcm-tick {
+  position: absolute;
+  top: -5px;
+  width: 1px;
+  height: 13px;
+  margin-left: -.5px;
+  background: rgba(232, 163, 61, .45);
+}
+
+.mviz-progress-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: .05em;
+  color: var(--tx-dim);
+}
+
+.mviz-day-num {
+  font-family: var(--st-font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--tx-bright);
+}
+
+.mviz-day-of {
+  margin-left: 5px;
+  color: var(--tx-dim);
+}
+
+.mviz-pct {
+  color: var(--amber);
+  letter-spacing: .08em;
+}
+
+/* ---------- nút ---------- */
+
+.mviz-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.mviz-btn {
+  appearance: none;
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  color: var(--tx-soft);
+  font-family: var(--st-font-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition:
+    color var(--st-dur-fast) linear,
+    border-color var(--st-dur-fast) linear,
+    background-color var(--st-dur-fast) linear;
+}
+
+.mviz-btn:hover {
+  color: var(--tx-bright);
+  border-color: var(--line-strong);
+  background: var(--bg-raise);
+}
+
+.mviz-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.mviz-btn.is-active {
+  color: var(--bg-void);
+  background: var(--amber);
+  border-color: var(--amber);
+  font-weight: 700;
+}
+
+.mviz-btn.is-icon {
+  width: 40px;
+  padding: 0;
+  font-size: 12px;
+}
+
+.mviz-btn.is-icon.is-playing {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+.mviz-btn.is-fast {
+  font-size: 12px;
+}
+
+/* ---------- cột phải ---------- */
+
+.mviz-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  /* Cột số liệu co theo nội dung, tự đóng khung như một bảng riêng.
+     Có viền và bo góc nên khi ngắn hơn khung vẽ nó vẫn đọc là một khối
+     hoàn chỉnh, không phải khối bị cắt cụt. */
+  align-self: start;
+  background: var(--line-hair);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.mviz-side-block {
+  padding: 10px 12px 11px;
+  background: var(--bg-panel);
+}
+
+.mviz-label {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 4px;
+  font-family: var(--st-font-mono);
+  font-size: 8.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.mviz-label b,
+.mviz-label em {
+  font-style: normal;
+  font-weight: 500;
+}
+
+.mviz-label em {
+  opacity: .5;
+  letter-spacing: .1em;
+}
+
+.mviz-label .is-primary {
+  color: var(--cyan);
+  opacity: 1;
+}
+
+.mviz-big {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1;
+}
+
+.mviz-big-num {
+  font-family: var(--st-font-display);
+  font-size: clamp(1.5rem, 1.2rem + .9vw, 2rem);
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.mviz-big-num.is-delay {
+  color: var(--cyan);
+}
+
+.mviz-unit {
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--tx-dim);
+  text-transform: uppercase;
+}
+
+.mviz-unit b {
+  font-weight: 600;
+  color: var(--tx-soft);
+}
+
+.mviz-sub-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 5px;
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .03em;
+  color: var(--tx-dim);
+}
+
+.mviz-phase-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.mviz-phase-wrap .mviz-unit {
+  font-size: 8.5px;
+  letter-spacing: .1em;
+}
+
+.mviz-sub-line.is-split {
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.mviz-sub-line b {
+  font-weight: 500;
+  color: var(--tx);
+}
+
+.mviz-sub-num {
+  color: var(--tx-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.mviz-mini-label {
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: 8.5px;
+  opacity: .85;
+}
+
+/* đồng hồ sứ mệnh */
+
+.mviz-clock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mviz-clock-main {
+  font-family: var(--st-font-mono);
+  font-size: clamp(12.5px, 1vw + 8px, 15px);
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--tx-bright);
+  white-space: nowrap;
+}
+
+.mviz-clock-sub {
+  font-family: var(--st-font-mono);
+  font-size: 9.5px;
+  letter-spacing: .05em;
+  color: var(--tx-dim);
+  white-space: nowrap;
+}
+
+/* danh sách TCM */
+
+.mviz-side-block.is-tcm {
+  /* Khối này co theo nội dung: nhãn, ba mốc, ghi chú, tất cả liền
+     nhau. Phần cao dư của cột để khối ngân sách bên dưới hấp thụ. */
+  flex: 0 0 auto;
+}
+
+.mviz-tcm-list {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* Danh sách gọn, bám ngay dưới nhãn khối. Ghi chú nằm sát dưới mốc
+     cuối, cùng một cụm, nên không có khoảng trống chen giữa nhãn và
+     dòng đầu. Phần cao dư của cột dồn xuống dưới khối ngân sách. */
+  flex: 0 0 auto;
+}
+
+.mviz-tcm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 5px 6px;
+  border-radius: var(--st-radius);
+  border-left: 2px solid transparent;
+  color: var(--tx-dim);
+  transition: background-color var(--st-dur-fast) linear;
+}
+
+.mviz-tcm-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  transform: rotate(45deg);
+  border: 1px solid var(--amber-dim);
+  background: transparent;
+}
+
+.mviz-tcm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.mviz-tcm-name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mviz-tcm-name b,
+.mviz-tcm-name em {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mviz-tcm-name b {
+  color: var(--tx-soft);
+}
+
+.mviz-tcm-name em {
+  font-size: 8.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-ghost);
+  flex: none;
+}
+
+.mviz-tcm-meta {
+  font-family: var(--st-font-mono);
+  font-size: 9px;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+}
+
+.mviz-tcm-state {
+  flex: none;
+  font-family: var(--st-font-mono);
+  font-size: 8px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-ghost);
+}
+
+.mviz-tcm-item.is-next {
+  border-left-color: var(--amber);
+  background: rgba(232, 163, 61, .05);
+}
+
+.mviz-tcm-item.is-next .mviz-tcm-state {
+  color: var(--amber);
+}
+
+.mviz-tcm-item.is-done .mviz-tcm-dot {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.mviz-tcm-item.is-done .mviz-tcm-state {
+  color: var(--ok);
+}
+
+.mviz-note {
+  margin: 8px 0 0;
+  padding-top: 7px;
+  border-top: 1px solid var(--line-hair);
+  font-family: var(--st-font-mono);
+  font-size: 8.5px;
+  line-height: 1.55;
+  letter-spacing: .02em;
+  /* Nền tối cộng chữ quá mờ thì ghi chú coi như không tồn tại. Dùng
+     --tx-dim, mức chữ phụ đã đạt tương phản đủ đọc. */
+  color: var(--tx-dim);
+}
+
+/* ngân sách delta-v */
+
+.mviz-side-block.is-budget {
+  /* Khối ngân sách lên ngay dưới khối TCM, không bị đẩy xuống đáy cột.
+     Phần cao dư dồn xuống cuối cột, thành một khoảng lề dưới cùng, đọc
+     như lề có chủ đích thay vì một lỗ trống ở giữa cột. */
+  flex: 0 0 auto;
+}
+
+.mviz-budget {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mviz-budget li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .03em;
+  color: var(--tx-dim);
+}
+
+.mviz-budget-k {
+  flex: 1 1 auto;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: 8.5px;
+  color: var(--tx-dim);
+}
+
+.mviz-budget b {
+  font-weight: 500;
+  color: var(--tx-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.mviz-budget i {
+  font-style: normal;
+  font-size: 8.5px;
+  letter-spacing: .08em;
+  color: var(--tx-ghost);
+  min-width: 32px;
+  text-align: right;
+}
+
+.mviz-budget li.is-total {
+  padding-top: 5px;
+  border-top: 1px solid var(--line-hair);
+}
+
+.mviz-budget li.is-total b {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Màn vừa: cột thông số xuống dưới, chia lưới hai cột.
+   ============================================================ */
+
+@media (max-width: 980px) {
+  .mviz {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mviz-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mviz-side-block.is-tcm {
+    grid-column: 1 / -1;
+  }
+
+  .mviz-side-block.is-budget {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================================================
+   Màn hẹp: một cột, chữ và nút thu lại.
+   ============================================================ */
+
+@media (max-width: 560px) {
+  .mviz {
+    padding: var(--st-gap-sm);
+    gap: var(--st-gap-sm);
+  }
+
+  .mviz-side {
+    grid-template-columns: 1fr;
+  }
+
+  .mviz-head {
+    align-items: flex-start;
+  }
+
+  .mviz-legend {
+    gap: 4px 12px;
+  }
+
+  .mviz-stage {
+    min-height: 190px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .mviz-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mviz-progress {
+    flex: none;
+  }
+
+  .mviz-buttons {
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .mviz-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 34px;
+  }
+
+  .mviz-btn.is-icon {
+    flex: 0 0 44px;
+    width: 44px;
+  }
+
+  .mviz-tip {
+    max-width: 190px;
+    font-size: 10px;
+  }
+
+  .mviz-tcm-name em {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Rất hẹp, 360px: chỉ giữ những gì thiết yếu.
+   ============================================================ */
+
+@media (max-width: 380px) {
+  .mviz-title {
+    font-size: 1rem;
+  }
+
+  .mviz-title-en {
+    display: none;
+  }
+
+  .mviz-sub {
+    font-size: 9px;
+  }
+
+  .mviz-legend {
+    font-size: 9px;
+  }
+
+  .mviz-big-num {
+    font-size: 1.45rem;
+  }
+
+  .mviz-clock-main {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   Màn rộng: nới cột thông số và bo góc lớn hơn.
+   ============================================================ */
+
+@media (min-width: 1500px) {
+  .mviz {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    padding: var(--st-gap-lg);
+    gap: var(--st-gap-lg);
+  }
+
+  .mviz-side-block {
+    padding: 13px 15px 14px;
+  }
+
+  .mviz-big-num {
+    font-size: 2.15rem;
+  }
+}
+
+/* ============================================================
+   Màn thấp, ví dụ laptop 1366x768 đang mở toàn màn: vẫn giữ đúng
+   16:9, chỉ hạ chiều cao tối thiểu để khung không bị đẩy tràn.
+   Không đặt max-height, vì nó phá tỉ lệ và làm bản đồ bẹp thành một
+   dải ngang, sai hẳn hình dạng quỹ đạo.
+   ============================================================ */
+
+@media (max-height: 720px) {
+  .mviz-stage {
+    min-height: 180px;
+  }
+}
+
+/* ============================================================
+   Giảm chuyển động: tắt mọi chuyển tiếp và hiệu ứng hiện lên.
+   Bản đồ vẫn vẽ đủ, chỉ không động.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .mviz-tip {
+    animation: none;
+  }
+
+  .mviz-btn,
+  .mviz-track::after,
+  .mviz-tcm-item {
+    transition: none;
+  }
+}
+
+html.motion-off .mviz-tip {
+  animation: none;
+}
+
+html.motion-off .mviz-btn,
+html.motion-off .mviz-track::after,
+html.motion-off .mviz-tcm-item {
+  transition: none;
+}
+
+/* ============================================================
+   In ra giấy: bỏ nền tối, giữ đường nét đọc được.
+   ============================================================ */
+
+@media print {
+  .mviz {
+    background: #fff;
+    color: #111;
+    border-color: #999;
+  }
+
+  .mviz-stage {
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .mviz-buttons,
+  .mviz-tip {
+    display: none;
+  }
+}

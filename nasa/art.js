@@ -18,8 +18,10 @@
    ============================================================ */
 
 /* ---------- ẢNH THẬT ----------
-   Năm ảnh dựng từ ảnh NASA public domain, xem assets/CREDITS.md.
-   File nằm trong src/assets/ (thư mục này được deploy thành gốc site).
+   Ảnh dựng từ ảnh NASA public domain (xem assets/CREDITS.md) và ảnh
+   sinh bằng model rồi xử lý qua scripts/process-assets.py.
+   Ảnh sinh ra nằm trong src/assets/art/, do process-assets.py cắt về
+   1600x900 và xoá watermark.
    Xoá một dòng ở đây thì cảnh đó quay về tranh SVG vẽ tay. */
 export const PHOTOS = {
   'mars-surface': 'assets/mars-surface.jpg',
@@ -27,6 +29,21 @@ export const PHOTOS = {
   'storm-impact': 'assets/storm-impact.jpg',
   'departure': 'assets/departure.jpg',
   'awake': 'assets/awake.jpg',
+
+  /* tám khung mở đầu điện ảnh */
+  'bg-storm-wide':   'assets/art/bg-storm-wide.jpg',
+  'bg-crew-running': 'assets/art/bg-crew-running.jpg',
+  'bg-running-pov':  'assets/art/bg-running-pov.jpg',
+  'bg-face-closeup': 'assets/art/bg-face-closeup.jpg',
+  'bg-fall-buried':  'assets/art/bg-fall-buried.jpg',
+  'bg-mars-orbit':   'assets/art/bg-mars-orbit.jpg',
+  'bg-waking-eyes':  'assets/art/bg-waking-eyes.jpg',
+  'bg-entering-hab': 'assets/art/bg-entering-hab.jpg',
+
+  /* cảnh hồi tưởng gia đình, mở từ túi đồ trong màn căn cứ */
+  'bg-houston-kitchen': 'assets/art/bg-houston-kitchen.jpg',
+  'bg-moving-boxes':    'assets/art/bg-moving-boxes.jpg',
+  'bg-farewell-door':   'assets/art/bg-farewell-door.jpg',
 };
 
 /* ---------- SVG VẼ TAY, PHƯƠNG ÁN DỰ PHÒNG ---------- */

@@ -1,0 +1,387 @@
+/* ============================================================
+   css/memories.css
+   Khung hồi tưởng gia đình. Sinh ra bởi memories.js.
+
+   Tông khác màn chính có chủ đích: nền giấy cũ, sepia nhẹ, viền mảnh
+   như khung ảnh in. Màn chính lạnh và tối, khung này ấm và phẳng, để
+   người chơi biết ngay mình đang xem ký ức chứ không phải đang chơi.
+
+   Giảm chuyển động: html.motion-off hoặc prefers-reduced-motion thì
+   bỏ hết animation, chữ vẫn hiện đủ.
+   ============================================================ */
+
+.mem-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 3vmin;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, rgba(58, 40, 26, .55), rgba(6, 7, 10, .96) 78%),
+    #06070a;
+  color: var(--tx, #cfd8e3);
+  font-family: var(--st-font-body, "Be Vietnam Pro", sans-serif);
+  animation: mem-fade-in .34s ease-out both;
+}
+
+@keyframes mem-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.mem-screen.is-out {
+  animation: mem-fade-out .26s ease-in both;
+}
+@keyframes mem-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* dải đen trên dưới, gợi khung phim, nhưng mảnh để không chiếm chỗ chữ */
+.mem-letterbox {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .7) 0, transparent 11%),
+    linear-gradient(0deg, rgba(0, 0, 0, .7) 0, transparent 11%);
+}
+
+/* ---------- khung chính ---------- */
+
+.mem-frame {
+  position: relative;
+  width: min(1080px, 100%);
+  max-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1.35fr) minmax(0, auto) auto;
+  gap: clamp(10px, 1.6vmin, 20px);
+  padding: clamp(16px, 2.4vmin, 28px);
+  border-radius: 4px;
+  /* sepia nhẹ: nền giấy cũ, không phải màu phim */
+  background:
+    linear-gradient(180deg, rgba(38, 30, 22, .92), rgba(22, 18, 14, .95));
+  border: 1px solid rgba(196, 158, 106, .28);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, .6),
+    0 26px 70px -20px rgba(0, 0, 0, .9),
+    inset 0 1px 0 rgba(226, 196, 148, .08);
+  overflow: hidden;
+}
+
+/* hạt giấy: rất nhẹ, chỉ đủ để nền không phẳng lì */
+.mem-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .16;
+  background-image: repeating-linear-gradient(
+    0deg, rgba(255, 236, 200, .05) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+/* ---------- đầu khung ---------- */
+
+.mem-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.mem-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mem-title {
+  font-family: var(--st-font-display, inherit);
+  font-size: clamp(15px, 1.9vmin, 20px);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #e8c896;
+}
+
+.mem-sub {
+  font-family: var(--st-font-mono, monospace);
+  font-size: clamp(10px, 1.1vmin, 12px);
+  letter-spacing: .08em;
+  color: rgba(214, 190, 156, .62);
+}
+
+.mem-skip {
+  flex: none;
+  padding: 7px 14px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(226, 200, 168, .78);
+  background: rgba(255, 236, 200, .05);
+  border: 1px solid rgba(196, 158, 106, .32);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.mem-skip:hover {
+  background: rgba(255, 236, 200, .1);
+  color: #f2ddbc;
+  border-color: rgba(196, 158, 106, .55);
+}
+.mem-skip:focus-visible {
+  outline: 2px solid #e8c896;
+  outline-offset: 2px;
+}
+
+/* ---------- khung ảnh ---------- */
+
+.mem-stage {
+  position: relative;
+  min-height: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #0a0b0d;
+  box-shadow:
+    inset 0 0 0 1px rgba(226, 196, 148, .16),
+    0 14px 34px -18px rgba(0, 0, 0, .9);
+}
+
+.mem-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.mem-art img,
+.mem-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* sepia nhẹ + hạ độ tương phản: dấu hiệu "đây là ký ức", không phải
+   hiện tại. Không dùng filter nặng để ảnh vẫn đọc được chi tiết. */
+.mem-art {
+  filter: sepia(.34) saturate(.86) contrast(.95) brightness(1.02);
+}
+
+.mem-cap {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  padding: 4px 10px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: .09em;
+  color: rgba(240, 224, 196, .9);
+  background: rgba(10, 8, 6, .62);
+  border-radius: 2px;
+  backdrop-filter: blur(3px);
+}
+.mem-cap[hidden] { display: none; }
+
+/* ---------- chữ ---------- */
+
+.mem-body {
+  position: relative;
+  z-index: 2;
+  min-height: clamp(84px, 15vmin, 150px);
+  max-width: 68ch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.mem-speaker {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--st-font-display, inherit);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.mem-speaker .mem-dot-sep {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.mem-speaker .mem-role {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(200, 190, 170, .55);
+}
+
+.mem-line {
+  margin: 0;
+  font-size: clamp(15px, 1.85vmin, 19px);
+  line-height: 1.62;
+  color: #ece2d2;
+}
+
+.mem-line em {
+  font-style: italic;
+  color: #f4dcb4;
+}
+
+.mem-line .mem-name {
+  color: #f0c78a;
+  font-weight: 600;
+}
+
+/* ---------- chân khung ---------- */
+
+.mem-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(196, 158, 106, .16);
+}
+
+.mem-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mem-dot {
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(196, 158, 106, .24);
+  transition: background .2s;
+}
+.mem-dot.is-past { background: rgba(196, 158, 106, .55); }
+.mem-dot.is-on   { background: #e8c896; }
+
+.mem-nav {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.mem-back,
+.mem-next {
+  min-width: 96px;
+  padding: 9px 16px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #f0dcbc;
+  background: rgba(255, 236, 200, .07);
+  border: 1px solid rgba(196, 158, 106, .38);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .12s;
+}
+.mem-back:hover:not(:disabled),
+.mem-next:hover:not(:disabled) {
+  background: rgba(255, 236, 200, .14);
+  border-color: rgba(226, 196, 148, .68);
+}
+.mem-back:active:not(:disabled),
+.mem-next:active:not(:disabled) { transform: translateY(1px); }
+.mem-back:focus-visible,
+.mem-next:focus-visible {
+  outline: 2px solid #e8c896;
+  outline-offset: 2px;
+}
+.mem-back:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+.mem-next { color: #1a1208; background: #dcb87e; border-color: #dcb87e; }
+.mem-next:hover:not(:disabled) { background: #eecb92; border-color: #eecb92; }
+
+/* ---------- chuyển lượt ---------- */
+
+.mem-screen.is-enter .mem-art {
+  animation: mem-art-in .62s cubic-bezier(.22, .8, .3, 1) both;
+}
+@keyframes mem-art-in {
+  from { opacity: 0; transform: scale(1.035); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.mem-screen.is-enter .mem-body,
+.mem-screen.is-enter .mem-cap {
+  animation: mem-text-in .4s ease-out both;
+}
+@keyframes mem-text-in {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+.mem-screen.is-leaving .mem-art,
+.mem-screen.is-leaving .mem-body {
+  animation: mem-out .16s ease-in both;
+}
+@keyframes mem-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 720px) {
+  .mem-screen { padding: 2vmin; }
+  .mem-frame {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    padding: 14px;
+    gap: 10px;
+  }
+  .mem-body { min-height: 96px; max-width: none; }
+  .mem-back, .mem-next { min-width: 72px; padding: 8px 10px; }
+  .mem-dots { display: none; }
+}
+
+/* ============================================================
+   Giảm chuyển động: không animation, không transform. Chữ và ảnh
+   vẫn hiện đủ ngay lập tức để đọc được câu chuyện.
+   ============================================================ */
+
+.mem-screen.is-static,
+.mem-screen.is-static * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mem-screen,
+  .mem-screen.is-out,
+  .mem-screen.is-enter .mem-art,
+  .mem-screen.is-enter .mem-body,
+  .mem-screen.is-enter .mem-cap,
+  .mem-screen.is-leaving .mem-art,
+  .mem-screen.is-leaving .mem-body {
+    animation: none !important;
+  }
+}
+
+html.motion-off .mem-screen,
+html.motion-off .mem-screen.is-out,
+html.motion-off .mem-screen.is-enter .mem-art,
+html.motion-off .mem-screen.is-enter .mem-body,
+html.motion-off .mem-screen.is-enter .mem-cap,
+html.motion-off .mem-screen.is-leaving .mem-art,
+html.motion-off .mem-screen.is-leaving .mem-body {
+  animation: none !important;
+}

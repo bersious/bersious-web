@@ -428,6 +428,137 @@
 }
 
 /* ============================================================
+   NHỊP MỞ ĐẦU 8 KHUNG
+   Những hiệu ứng dưới đây phục vụ riêng nhịp mở màn mới. Khác với
+   fx-shake-wind (rung hỗn loạn vì va đập), fx-breath là rung ĐỀU theo
+   nhịp thở: lên chậm, xuống chậm, biên độ nhỏ, chu kỳ cố định. Mắt
+   người đọc ra đó là "đang thở", không phải "đang bị đánh".
+   ============================================================ */
+
+/* ---------- 20. thở dốc, góc nhìn thứ nhất (khung 3) ----------
+   40 nhịp một phút là 1,5 giây một chu kỳ. Dùng 2,4 giây cho dễ đọc
+   hơn trên màn hình, vẫn ra cảm giác thở gấp vì biên độ lớn hơn hẳn
+   fx-shake-wind. Gốc biến đổi đặt ở 50% 88% để khung hình như nâng
+   lên từ lồng ngực chứ không phải rung cả tấm ảnh. */
+
+.story-stage.fx-breath {
+  animation: fx-breath 2.4s ease-in-out infinite;
+  transform-origin: 50% 88%;
+  will-change: transform;
+}
+@keyframes fx-breath {
+  0%   { transform: scale(1.015) translate3d(0, 0, 0); }
+  28%  { transform: scale(1.015) translate3d(0, -1.1%, 0); }
+  46%  { transform: scale(1.015) translate3d(0, -1.3%, 0); }
+  100% { transform: scale(1.015) translate3d(0, 0, 0); }
+}
+
+/* ---------- 21. thở dốc sau khi tỉnh (khung 8) ----------
+   Chậm hơn nhưng biên độ rộng hơn: phổi vẫn chưa hạ, bước đi còn
+   nặng. Thêm chút xoay để khung hình nghiêng theo từng bước. */
+
+.story-stage.fx-breath-hard {
+  animation: fx-breath-hard 3.1s ease-in-out infinite;
+  transform-origin: 50% 90%;
+  will-change: transform;
+}
+@keyframes fx-breath-hard {
+  0%   { transform: scale(1.02) translate3d(0, 0, 0) rotate(0deg); }
+  30%  { transform: scale(1.02) translate3d(0, -1.6%, 0) rotate(-.22deg); }
+  52%  { transform: scale(1.02) translate3d(0, -1.9%, 0) rotate(-.28deg); }
+  100% { transform: scale(1.02) translate3d(0, 0, 0) rotate(0deg); }
+}
+
+/* ---------- 22. tia quét ngang mặt kính (khung 4) ----------
+   Một dải sáng mảnh chạy trái sang phải đúng một lượt, kèm một vạch
+   mảnh phía sau như đầu đọc đang kéo. Tắt chuyển động thì lớp này
+   biến mất hoàn toàn, chỉ còn lời kể. */
+
+.fx-scan {
+  z-index: 8;
+  overflow: hidden;
+}
+.fx-scan::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 26%;
+  left: -26%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(198, 232, 240, .05) 55%,
+    rgba(176, 224, 236, .22) 88%,
+    rgba(226, 246, 250, .44) 97%,
+    transparent 100%);
+  animation: fx-scan-sweep 1.55s cubic-bezier(.32, 0, .68, 1) 1 both;
+}
+@keyframes fx-scan-sweep {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translate3d(485%, 0, 0); opacity: 0; }
+}
+
+/* vạch mảnh bám sau tia quét, tạo cảm giác đây là thiết bị đọc */
+.fx-scan::after {
+  content: "";
+  position: absolute;
+  top: 34%;
+  bottom: 34%;
+  width: 1px;
+  left: -1px;
+  background: rgba(214, 240, 246, .55);
+  animation: fx-scan-line 1.55s cubic-bezier(.32, 0, .68, 1) 1 both;
+}
+@keyframes fx-scan-line {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: .9; }
+  88%  { opacity: .9; }
+  100% { transform: translate3d(112vw, 0, 0); opacity: 0; }
+}
+
+/* ---------- 23. cát phủ dần lên khung hình (khung 5) ----------
+   Không phải hạt bụi bay ngang mà là một lớp cát dâng từ đáy lên,
+   chậm, không có chuyển động ngang, để người chơi thấy mình đang bị
+   chôn chứ không phải đang bị thổi. */
+
+.fx-sand-in {
+  background: linear-gradient(0deg,
+    rgba(122, 52, 24, .88) 0%,
+    rgba(150, 74, 36, .62) 22%,
+    rgba(160, 90, 48, .3) 44%,
+    transparent 68%);
+  animation: fx-sand-rise 3.4s cubic-bezier(.3, .1, .4, 1) both;
+  transform-origin: 50% 100%;
+}
+@keyframes fx-sand-rise {
+  0%   { opacity: 0; transform: scaleY(.55); }
+  40%  { opacity: .85; }
+  100% { opacity: 1; transform: scaleY(1); }
+}
+
+/* ---------- 24. lùi máy ra toàn cảnh (khung 5) ----------
+   Ảnh thu nhỏ dần trong khung, phần thừa hai bên do nền tối của
+   .story-stage lấp. Đây là cú "pull back" của điện ảnh: cùng một
+   cảnh nhưng phạm vi rộng dần. */
+
+.story-art-slot.fx-zoom-far {
+  animation: fx-pull-back 5.2s cubic-bezier(.25, .1, .25, 1) both;
+  transform-origin: 50% 52%;
+  will-change: transform;
+}
+@keyframes fx-pull-back {
+  0%   { transform: scale(1.18); filter: brightness(1); }
+  55%  { transform: scale(1); filter: brightness(.92); }
+  100% { transform: scale(.86); filter: brightness(.74); }
+}
+
+/* ---------- 25. bụi vàng cho khung bước vào căn cứ ----------
+   Hạt dùng chung .fx-particle.warm như cảnh ấm, đã khai báo ở mục 1.
+   Ở đây không cần thêm gì: lớp fx-dust-warm đã có sẵn quy tắc. */
+
+/* ============================================================
    Tiếp cận: tắt chuyển động trong CSS.
    story-fx.js đã chặn từ đầu, đây là lưới an toàn thứ hai.
    ============================================================ */
@@ -441,11 +572,17 @@
   .story-stage.fx-shake-wind,
   .story-stage.fx-shake-hard,
   .story-stage.fx-shake-fire,
+  .story-stage.fx-breath,
+  .story-stage.fx-breath-hard,
   .story-art-slot.fx-panup,
   .story-art-slot.fx-tilt,
   .story-art-slot.fx-panx,
   .story-art-slot.fx-unblur,
   .story-art-slot.fx-blur-bg,
+  .story-art-slot.fx-zoom-far,
+  .fx-scan::before,
+  .fx-scan::after,
+  .fx-sand-in,
   .story-body.fx-bounce-body > *,
   .story-body.fx-jitter .story-line,
   .story-body.fx-jitter .story-speaker,
@@ -455,6 +592,8 @@
   }
   .story-art-slot.fx-zoom-warm { animation: none; }
   .story-art-slot.fx-blur-bg { filter: none; }
+  .story-art-slot.fx-zoom-far { transform: none; filter: none; }
+  .fx-scan { display: none; }
   .fx-vignette-warm,
   .fx-dust-haze,
   .fx-flood { animation-duration: 1ms; }
@@ -468,11 +607,17 @@ html.motion-off .fx-eyelids::after,
 html.motion-off .story-stage.fx-shake-wind,
 html.motion-off .story-stage.fx-shake-hard,
 html.motion-off .story-stage.fx-shake-fire,
+html.motion-off .story-stage.fx-breath,
+html.motion-off .story-stage.fx-breath-hard,
 html.motion-off .story-art-slot.fx-panup,
 html.motion-off .story-art-slot.fx-tilt,
 html.motion-off .story-art-slot.fx-panx,
 html.motion-off .story-art-slot.fx-unblur,
 html.motion-off .story-art-slot.fx-blur-bg,
+html.motion-off .story-art-slot.fx-zoom-far,
+html.motion-off .fx-scan::before,
+html.motion-off .fx-scan::after,
+html.motion-off .fx-sand-in,
 html.motion-off .story-body.fx-bounce-body > *,
 html.motion-off .story-body.fx-jitter .story-line,
 html.motion-off .story-body.fx-jitter .story-speaker,
@@ -482,6 +627,8 @@ html.motion-off .story-body.fx-radio .fx-wave {
 }
 html.motion-off .story-art-slot.fx-zoom-warm { animation: none; }
 html.motion-off .story-art-slot.fx-blur-bg { filter: none; }
+html.motion-off .story-art-slot.fx-zoom-far { transform: none; filter: none; }
+html.motion-off .fx-scan { display: none; }
 html.motion-off .fx-vignette-warm,
 html.motion-off .fx-dust-haze,
 html.motion-off .fx-flood { animation-duration: 1ms; }

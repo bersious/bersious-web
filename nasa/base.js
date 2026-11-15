@@ -18,6 +18,7 @@ import { createClockUi } from './clock-ui.js';
 import { t, onLangChange, getLang } from './i18n.js';
 import { getSettings } from './settings.js';
 import { playClick } from './audio.js';
+import { playMemory } from './memories.js';
 import {
   DAY_LOG, IDLE_LINES, SLEEP_LINES, MORNING_LINES, NOTIFY,
 } from './base-flavor.js';
@@ -66,7 +67,11 @@ function setScene(sceneEl, capEl, key) {
 /* Kho hiển thị trong túi đồ. Khởi điểm lấy đúng bộ vật phẩm của
    hab-stats.js để hai nơi không lệch nhau: trước đây túi đồ dùng
    id riêng (toolkit, oxygen, radio) trong khi hệ thống chỉ số dùng
-   id khác, nên nhặt được đồ mà túi không hiện. */
+   id khác, nên nhặt được đồ mà túi không hiện.
+
+   family_photo không phải vật tư: bấm vào là mở đoạn hồi tưởng, xem
+   ON_USE bên dưới. Đặt qty 1 để không ai hiểu nhầm là dùng được
+   nhiều lần như khẩu phần. */
 function makeInventory() {
   return [
     { id: 'ration',       qty: 12 },
@@ -75,6 +80,7 @@ function makeInventory() {
     { id: 'electronics',  qty: 3 },
     { id: 'hydrazine',    qty: 2 },
     { id: 'media',        qty: 2 },
+    { id: 'family_photo', qty: 1 },
   ];
 }
 
@@ -127,6 +133,7 @@ const ITEM_IMAGES = {
   cable:         'assets/art/icon-cable.webp',
   filter:        'assets/art/icon-filter.webp',
   solar:         'assets/art/icon-solar.webp',
+  family_photo:  'assets/art/icon-family-photo.webp',
 };
 
 function itemIcon(id) {
@@ -161,6 +168,13 @@ const ITEM_ICONS = {
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <rect x="3" y="9" width="18" height="11" rx="2"/>
     <path d="M7 9 17 4"/><circle cx="8.5" cy="14.5" r="2.5"/><path d="M14 13h4M14 16.5h4"/>
+  </svg>`,
+  family_photo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/>
+    <circle cx="9" cy="10" r="1.7"/><circle cx="15" cy="10" r="1.7"/>
+    <path d="M6.5 16c.9-1.7 2.4-2.6 4.3-2.6M13.2 16c.9-1.7 2.4-2.6 4.3-2.6"/>
+    <path d="M3.5 4.5 20 19.5" stroke-opacity=".28"/>
   </svg>`,
 };
 
@@ -519,18 +533,52 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   bag.querySelectorAll('[data-bag-close]').forEach((n) =>
     n.addEventListener('click', () => { playClick(); closeBag(); }));
 
+  /* ---------- vật phẩm dùng được ----------
+     Đa số vật phẩm chỉ để đếm. Riêng tấm ảnh gia đình là vật phẩm kể
+     chuyện: bấm vào thì chạy đoạn hồi tưởng chứ không trừ số lượng và
+     không đụng tới chỉ số sinh tồn. Để bảng riêng thay vì chuỗi if
+     trong renderBag, vì sau này còn thêm vật phẩm kể chuyện khác. */
+  const ITEM_ACTIONS = {
+    family_photo: () => openFamilyMemory(),
+  };
+
+  let memoryScreen = null;
+
+  function openFamilyMemory() {
+    if (memoryScreen) return;
+    /* Đóng túi đồ trước để hai lớp không tranh nhau bắt cú bấm. */
+    closeBag();
+    memoryScreen = playMemory({
+      container: document.body,
+      memoryId: 'family',
+      playerName,
+      onDone: () => { memoryScreen = null; },
+    });
+  }
+
   function renderBag() {
     bagTitle.textContent = t('base.bag.title');
     bagClose.setAttribute('aria-label', t('base.close'));
     bagGrid.innerHTML = '';
     for (const item of inventory) {
-      const cell = document.createElement('div');
-      cell.className = 'base-item';
+      const act = ITEM_ACTIONS[item.id];
+      const cell = document.createElement(act ? 'button' : 'div');
+      cell.className = 'base-item' + (act ? ' is-usable' : '');
+      if (act) {
+        cell.type = 'button';
+        cell.setAttribute('aria-label', t('base.item.' + item.id));
+      }
       cell.innerHTML = `
         <span class="base-item-icon">${itemIcon(item.id)}</span>
         <span class="base-item-name"></span>
-        <span class="base-item-qty">×${item.qty}</span>`;
+        <span class="base-item-qty">×${item.qty}</span>
+        ${act ? `<span class="base-item-hint"></span>` : ''}`;
       cell.querySelector('.base-item-name').textContent = t('base.item.' + item.id);
+      if (act) {
+        cell.querySelector('.base-item-hint').textContent =
+          t('base.item.' + item.id + '.desc');
+        cell.addEventListener('click', () => { playClick(); act(); });
+      }
       bagGrid.appendChild(cell);
     }
   }
@@ -631,7 +679,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
       const dl = document.createElement('span');
       dl.className = 'sc-delta';
-      if (delta === 0) dl.textContent = '—';
+      if (delta === 0) dl.textContent = '0';
       else dl.textContent = (delta > 0 ? '+' : '') + delta;
       if (delta < 0) dl.classList.add('is-down');
       else if (delta > 0) dl.classList.add('is-up');
@@ -787,6 +835,12 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     stopIdle();
     clearSleepTimers();
     sleepLineTimer = null;
+    /* Nếu người chơi đang xem hồi tưởng lúc thoát màn căn cứ thì dọn
+       luôn, nếu không khung ký ức sẽ nằm lại trên màn khởi động. */
+    if (memoryScreen && typeof memoryScreen.destroy === 'function') {
+      memoryScreen.destroy();
+      memoryScreen = null;
+    }
     el.remove();
   }
 

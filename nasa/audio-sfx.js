@@ -24,19 +24,34 @@ import { isAudioUnlocked } from './audio.js';
 const BASE = new URL('.', import.meta.url).href;
 const SFX_DIR = BASE + 'assets/audio/sfx/';
 
-/* Bản đồ ánh xạ từ key cảnh (art key) sang file hiệu ứng chính */
+/* Bản đồ ánh xạ từ key cảnh (art key) sang file hiệu ứng chính.
+   Tám khung mở đầu đi theo nhịp bão: gió bão suốt từ khung 1 tới
+   khung 5, rồi im lặng ở khung quỹ đạo (ngoài không gian không có
+   tiếng), rồi tiếng quạt khoang Hab khi tỉnh dậy. */
 export const SCENE_SFX = {
-  /* Bếp Trái Đất và lúc chia tay là cảnh trong nhà, yên tĩnh. Gán
-     wind-far (gió sao Hỏa) vào đây là sai bối cảnh, người chơi nghe
-     tiếng gió hoang trên Hỏa tinh khi đang ở Houston. */
-  'earth-home':   null,
-  'farewell':     null,
-  'launchpad':    'wind-far',
+  /* màn mở đầu 8 khung */
+  'bg-storm-wide':   'storm-wind',   // khung 1: tường bụi đang tới
+  'bg-crew-running': 'storm-wind',   // khung 2: chạy trong bão
+  'bg-running-pov':  'storm-wind',   // khung 3: góc nhìn thứ nhất, thở dốc
+  'bg-face-closeup': 'storm-wind',   // khung 4: cận mặt, bão vẫn ngoài kính
+  'bg-fall-buried':  'storm-wind',   // khung 5a: ngã xuống, cát phủ
+  'bg-mars-orbit':   null,           // khung 5b và 6: ngoài không gian, im lặng
+  'bg-waking-eyes':  'hab-vent',     // khung 7: mở mắt, chỉ có quạt lọc khí
+  'bg-entering-hab': 'hab-vent',     // khung 8: bước vào căn cứ
+
+  /* cảnh cũ, giữ lại cho các nhánh còn dùng */
   'mars-surface': 'wind-far',
   'storm-coming': 'storm-wind',
   'storm-impact': 'storm-wind',
   'departure':    'rocket-launch',
   'awake':        'hab-vent',
+
+  /* Hồi tưởng gia đình trong nhà trên Trái Đất: hoàn toàn không có
+     gió. Gán wind-far (gió Sao Hỏa) vào đây là sai bối cảnh, người
+     chơi nghe tiếng gió hoang trên Hỏa tinh khi đang ở Houston. */
+  'bg-houston-kitchen': null,
+  'bg-moving-boxes':    null,
+  'bg-farewell-door':   null,
 };
 
 /* Cấu hình chi tiết từng file SFX trong src/assets/audio/sfx/ */
@@ -57,27 +72,28 @@ export const SFX_CONFIG = {
   'door-hatch':    { file: 'door-hatch.mp3',    loop: false, gain: 0.85, fadeMs: 60  },
 };
 
-/* Ánh xạ thêm hiệu ứng sự kiện đi kèm khi bắt đầu một cảnh cụ thể
-   (ví dụ: vừa sang cảnh storm-impact ở lượt 25 là mảng ăng-ten đập vào lưng) */
-const SCENE_ONESHOT_ON_ENTER = {
-  'storm-impact': 'metal-impact',
-};
+/* Ánh xạ thêm hiệu ứng sự kiện đi kèm khi bắt đầu một cảnh cụ thể.
+   Cú ăng-ten đập vào lưng nằm ở khung 4, cùng cảnh bg-face-closeup
+   với hai lượt trước, nên không thể gắn vào lúc đổi cảnh được: phải
+   gắn theo lượt, xem BEAT_SFX. */
+const SCENE_ONESHOT_ON_ENTER = {};
 
 /* Ánh xạ một số lượt (beat index) có hiệu ứng sự kiện đặc thù trong nội dung.
    Giá trị có thể là một tên SFX, hoặc một mảng tên khi lượt đó cần hai tiếng
-   chồng lên nhau (ví dụ lượt 19 vừa bíp máy vừa rung chuông cảnh báo). */
+   chồng lên nhau. Chỉ số khớp mảng STORY trong story-data.js: */
 export const BEAT_SFX = {
-  12: 'terminal-blip',  // Dòng LOG: đếm ngược phóng T−6 giờ
-  15: 'shutter-click',  // Johanssen chụp ảnh cả đội trước bệ phóng
-  16: 'terminal-blip',  // Dòng LOG: Sao Hỏa, SOL 6
-  19: ['terminal-blip', 'warning-chime'], // Dòng LOG cảnh báo bão cát: bíp máy + chuông khẩn hai nhịp
-  25: 'metal-impact',   // Mảnh ăng-ten đập vào lưng nhân vật
-  26: 'flatline',       // Bộ đo sinh hiệu đứt (flatlined)
-  32: ['switch-flip', 'rocket-launch'],   // Lewis gạt nắp bảo vệ công tắc rồi "Đốt tầng một."
-  34: 'headset-click',  // Vogel tháo tai nghe rồi đeo lại hai lần
-  35: ['terminal-blip', 'door-hatch'],    // Dòng LOG khoang Hab: bíp máy + nắp kim loại nặng
-  38: 'radio-static',   // Bật đài thu phát suốt hai mươi phút, chỉ có tiếng nhiễu tĩnh điện
-  39: 'pen-scribble',   // Ghi số khẩu phần vào sổ tay và gạch dưới hai đường
+  0:  ['terminal-blip', 'warning-chime'], // log mở màn: gió 137 km/h đã vượt ngưỡng
+  3:  'radio-static',                     // Lewis gọi qua kênh chung trong bão
+  11: ['terminal-blip', 'warning-chime'], // HUD quét, phát hiện vật thể cách 1,4 m
+  13: 'metal-impact',                     // Chảo ăng-ten đập vào lưng nhân vật
+  15: 'terminal-blip',                    // log áp suất bộ đồ đang tụt
+  18: ['terminal-blip', 'headset-click'], // log mất tín hiệu từ bề mặt
+  20: 'radio-static',                     // đóng kênh, chỉ còn nhiễu
+  21: 'terminal-blip',                    // log Sol 7, áp suất khoang 101,3 kPa
+  25: 'door-hatch',                       // bước qua cửa trong, nắp kim loại nặng
+  27: 'door-hatch',                       // log cửa ngoài đóng kín
+  32: 'radio-static',                     // bật đài thu phát hai mươi phút
+  35: 'pen-scribble',                     // ghi Sol 7 và gạch dưới 1.398
 };
 
 const cache = new Map();

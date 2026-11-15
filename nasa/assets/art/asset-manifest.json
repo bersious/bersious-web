@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T08:32:02",
+  "generated": "2026-11-15T14:59:41",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -7,6 +7,41 @@
       "width": 1600,
       "height": 900,
       "bytes": 160708
+    },
+    {
+      "id": "bg-crew-running",
+      "path": "assets/art/bg-crew-running.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 154472
+    },
+    {
+      "id": "bg-entering-hab",
+      "path": "assets/art/bg-entering-hab.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 187632
+    },
+    {
+      "id": "bg-face-closeup",
+      "path": "assets/art/bg-face-closeup.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 140559
+    },
+    {
+      "id": "bg-fall-buried",
+      "path": "assets/art/bg-fall-buried.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 138906
+    },
+    {
+      "id": "bg-farewell-door",
+      "path": "assets/art/bg-farewell-door.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 120853
     },
     {
       "id": "bg-farm",
@@ -23,11 +58,53 @@
       "bytes": 178862
     },
     {
+      "id": "bg-houston-kitchen",
+      "path": "assets/art/bg-houston-kitchen.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 135321
+    },
+    {
+      "id": "bg-mars-orbit",
+      "path": "assets/art/bg-mars-orbit.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 100373
+    },
+    {
+      "id": "bg-moving-boxes",
+      "path": "assets/art/bg-moving-boxes.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 128667
+    },
+    {
       "id": "bg-radio",
       "path": "assets/art/bg-radio.jpg",
       "width": 1600,
       "height": 900,
       "bytes": 173276
+    },
+    {
+      "id": "bg-running-pov",
+      "path": "assets/art/bg-running-pov.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 122677
+    },
+    {
+      "id": "bg-storm-wide",
+      "path": "assets/art/bg-storm-wide.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 103139
+    },
+    {
+      "id": "bg-waking-eyes",
+      "path": "assets/art/bg-waking-eyes.jpg",
+      "width": 1600,
+      "height": 900,
+      "bytes": 188855
     },
     {
       "id": "bg-workbench",
@@ -46,6 +123,15 @@
       "bytes": 1252
     },
     {
+      "id": "icon-dsn-dish",
+      "path": "assets/art/icon-dsn-dish.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 5482,
+      "transparent": true,
+      "note": "icon: chảo thu Deep Space Network"
+    },
+    {
       "id": "icon-electronics",
       "path": "assets/art/icon-electronics.webp",
       "width": 128,
@@ -53,11 +139,27 @@
       "bytes": 3070
     },
     {
+      "id": "icon-family-photo",
+      "path": "assets/art/icon-family-photo.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 2032
+    },
+    {
       "id": "icon-filter",
       "path": "assets/art/icon-filter.webp",
       "width": 128,
       "height": 128,
       "bytes": 1550
+    },
+    {
+      "id": "icon-hex-packet",
+      "path": "assets/art/icon-hex-packet.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 4796,
+      "transparent": true,
+      "note": "icon: gói tin dữ liệu hex"
     },
     {
       "id": "icon-hydrazine",
@@ -72,6 +174,15 @@
       "width": 128,
       "height": 128,
       "bytes": 1214
+    },
+    {
+      "id": "icon-mro-satellite",
+      "path": "assets/art/icon-mro-satellite.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 3016,
+      "transparent": true,
+      "note": "icon: vệ tinh Mars Reconnaissance Orbiter"
     },
     {
       "id": "icon-potato",
@@ -114,6 +225,15 @@
       "width": 128,
       "height": 128,
       "bytes": 2458
+    },
+    {
+      "id": "icon-uhf-transmitter",
+      "path": "assets/art/icon-uhf-transmitter.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 4774,
+      "transparent": true,
+      "note": "icon: bộ phát UHF gắn trên trạm"
     },
     {
       "id": "icon-water",

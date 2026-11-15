@@ -1,0 +1,425 @@
+/* ============================================================
+   css/negotiation.css
+   Panel đàm phán giữa ba vai trò.
+
+   Toàn bộ màu, cỡ chữ, khoảng cách đọc từ css/tokens.css. File
+   này chỉ quyết định bố cục và trạng thái. Muốn đổi tông thì
+   sửa tokens.css, không sửa ở đây.
+
+   Yêu cầu đã kiểm:
+     - chạy được từ 360px tới 1920px
+     - mọi vùng bấm cao tối thiểu 44px
+     - chữ trên nền tối đạt tương phản đọc được
+   ============================================================ */
+
+.neg-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: var(--st-gap-md);
+  background: rgba(7, 9, 13, .84);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  color: var(--tx);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.neg-panel[hidden] { display: none; }
+
+/* ---------- khung chính ---------- */
+
+.neg-card {
+  width: min(920px, 100%);
+  max-height: calc(100dvh - 2 * var(--st-gap-md));
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+  padding: var(--st-pad-sub);
+  background:
+    linear-gradient(168deg, var(--bg-raise) 0%, var(--bg-panel) 44%, var(--bg-deep) 100%);
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--st-radius-lg);
+  box-shadow:
+    0 0 0 1px rgba(232, 163, 61, .10),
+    0 24px 64px rgba(0, 0, 0, .62),
+    inset 0 1px 0 rgba(232, 163, 61, .14);
+  overflow: hidden;
+}
+
+/* ---------- đầu panel ---------- */
+
+.neg-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  padding-bottom: var(--st-gap-sm);
+  border-bottom: 1px solid var(--line);
+}
+
+.neg-phase {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.neg-title {
+  flex: 1 1 100%;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: var(--st-size-title);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.01em;
+  color: var(--tx-bright);
+}
+
+.neg-situation {
+  margin: 0;
+  font-size: var(--st-size-body);
+  line-height: 1.62;
+  color: var(--tx);
+  max-width: var(--st-measure);
+}
+
+.neg-stakes {
+  display: flex;
+  gap: var(--st-gap-sm);
+  margin: 0;
+  padding: var(--st-gap-sm) var(--st-gap-md);
+  background: var(--fail-glow);
+  border-left: 2px solid var(--fail);
+  border-radius: 0 var(--st-radius) var(--st-radius) 0;
+  font-size: var(--st-size-cap);
+  line-height: 1.6;
+  color: var(--tx);
+}
+
+.neg-stakes::before {
+  content: "!";
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono);
+  font-weight: 700;
+  color: var(--fail);
+}
+
+/* ---------- ba thanh đồng thuận ---------- */
+
+.neg-roles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--st-gap-sm);
+}
+
+.neg-role {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--st-gap-sm);
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+}
+
+.neg-role-name {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.neg-role-val {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+}
+
+.neg-bar {
+  position: relative;
+  height: 6px;
+  background: var(--line-hair);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.neg-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 0%);
+  background: var(--ok);
+  border-radius: inherit;
+  transition: width var(--st-dur-slow) var(--st-ease-out),
+              background-color var(--st-dur-move) linear;
+}
+
+.neg-role[data-status="strained"] .neg-bar-fill { background: var(--warn); }
+.neg-role[data-status="critical"] .neg-bar-fill { background: var(--fail); }
+.neg-role[data-status="mutiny"]   .neg-bar-fill { background: var(--fail); }
+.neg-role[data-favors="true"] .neg-role-name { color: var(--amber); }
+
+/* ---------- danh sách phương án ---------- */
+
+.neg-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-sm);
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.neg-opt {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: var(--st-gap-sm);
+  width: 100%;
+  min-height: var(--st-btn-h);
+  padding: var(--st-gap-sm) var(--st-gap-md);
+  text-align: left;
+  font: inherit;
+  color: var(--tx);
+  background: var(--bg-raise);
+  border: 1px solid var(--line-strong);
+  border-left: 2px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+  transition:
+    background-color var(--st-dur-move) linear,
+    border-color var(--st-dur-move) linear,
+    transform var(--st-dur-fast) var(--st-ease-out);
+}
+
+.neg-opt:hover,
+.neg-opt:focus-visible {
+  background: var(--bg-panel);
+  border-color: var(--amber-dim);
+  border-left-color: var(--amber);
+  outline: none;
+}
+
+.neg-opt:focus-visible {
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+.neg-opt:active { transform: translateY(1px); }
+
+.neg-opt:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.neg-opt-body { display: flex; flex-direction: column; gap: 4px; }
+
+.neg-opt-label {
+  font-size: var(--st-size-body);
+  font-weight: 500;
+  line-height: 1.42;
+  color: var(--tx-bright);
+}
+
+.neg-opt-risk {
+  font-size: var(--st-size-cap);
+  line-height: 1.55;
+  color: var(--tx-dim);
+}
+
+.neg-opt-tag {
+  align-self: start;
+  padding: 3px 7px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--amber);
+  background: var(--amber-glow);
+  border: 1px solid var(--amber-dim);
+  border-radius: 999px;
+}
+
+/* ---------- dòng phản ứng ---------- */
+
+.neg-reaction {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--st-gap-sm) var(--st-gap-md);
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-left: 2px solid var(--line-strong);
+  border-radius: 0 var(--st-radius) var(--st-radius) 0;
+  font-size: var(--st-size-cap);
+  line-height: 1.6;
+  color: var(--tx-soft);
+}
+
+.neg-reaction[data-severity="high"] {
+  border-left-color: var(--fail);
+  background: var(--fail-glow);
+  color: var(--tx);
+}
+
+.neg-reaction[data-severity="mid"] {
+  border-left-color: var(--warn);
+  color: var(--tx);
+}
+
+.neg-reaction-who {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.neg-reaction-line { margin: 0; }
+
+.neg-reaction[hidden] { display: none; }
+
+/* ---------- chân panel: trạng thái chung và nút ---------- */
+
+.neg-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  padding-top: var(--st-gap-sm);
+  border-top: 1px solid var(--line);
+}
+
+.neg-cohesion {
+  display: flex;
+  align-items: baseline;
+  gap: var(--st-gap-xs);
+  font-size: var(--st-size-cap);
+  color: var(--tx-soft);
+}
+
+.neg-cohesion-val {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-lead);
+  font-variant-numeric: tabular-nums;
+  color: var(--amber);
+}
+
+.neg-cohesion[data-status="critical"] .neg-cohesion-val,
+.neg-cohesion[data-status="mutiny"] .neg-cohesion-val { color: var(--fail); }
+
+.neg-btn {
+  min-height: var(--st-btn-h);
+  min-width: 120px;
+  padding: 0 var(--st-gap-lg);
+  font-family: var(--st-font-display);
+  font-size: var(--st-size-body);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--bg-void);
+  background: var(--amber);
+  border: 1px solid var(--amber);
+  border-radius: var(--st-radius-btn);
+  cursor: pointer;
+  transition: filter var(--st-dur-move) linear;
+}
+
+.neg-btn:hover { filter: brightness(1.1); }
+.neg-btn:focus-visible { outline: 2px solid var(--tx-bright); outline-offset: 2px; }
+.neg-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.neg-btn--ghost {
+  color: var(--tx);
+  background: transparent;
+  border-color: var(--line-strong);
+}
+
+/* ---------- trạng thái tan rã ---------- */
+
+.neg-card[data-status="mutiny"] { border-color: var(--fail); }
+
+.neg-card[data-status="mutiny"] .neg-title { color: var(--fail); }
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 720px) {
+  .neg-panel { padding: var(--st-gap-sm); align-items: stretch; }
+
+  .neg-card {
+    max-height: none;
+    height: calc(100dvh - 2 * var(--st-gap-sm));
+    padding: var(--st-pad-sub-sm);
+    gap: var(--st-gap-sm);
+  }
+
+  .neg-title { font-size: clamp(1.35rem, 5.6vw, 1.9rem); }
+
+  .neg-roles { grid-template-columns: 1fr; gap: 6px; }
+
+  .neg-role {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--st-gap-sm);
+    padding: 8px var(--st-gap-sm);
+    min-height: 44px;
+  }
+
+  .neg-role-name { flex: 0 0 40%; }
+  .neg-bar { flex: 1 1 auto; }
+
+  .neg-opt {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: var(--st-gap-md) var(--st-gap-sm);
+    min-height: 56px;
+  }
+
+  .neg-opt-tag { justify-self: start; }
+
+  .neg-foot { justify-content: stretch; }
+  .neg-btn { width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .neg-stakes { font-size: var(--st-size-label); line-height: 1.55; }
+  .neg-opt-label { font-size: 1rem; }
+}
+
+/* ---------- màn rộng: giữ dòng chữ trong tầm đọc ---------- */
+
+@media (min-width: 1440px) {
+  .neg-card { width: min(1040px, 100%); }
+  .neg-options { gap: var(--st-gap-md); }
+}
+
+/* ---------- màn thấp: bỏ bớt đệm để vẫn thấy nút ---------- */
+
+@media (max-height: 620px) {
+  .neg-card { gap: var(--st-gap-sm); padding: var(--st-gap-sm) var(--st-gap-md); }
+  .neg-situation { font-size: .95rem; line-height: 1.5; }
+  .neg-stakes { display: none; }
+}
+
+/* ---------- giảm chuyển động ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .neg-bar-fill,
+  .neg-opt,
+  .neg-btn { transition: none; }
+}
+
+html.motion-off .neg-bar-fill,
+html.motion-off .neg-opt,
+html.motion-off .neg-btn { transition: none; }

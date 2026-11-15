@@ -71,60 +71,47 @@ onSettingsChange(() => {
   if (lastArgs) applyBeatFx(lastArgs);
 });
 
-/* ---------- bảng hiệu ứng theo số lượt (đếm từ 0) ---------- */
+/* ---------- bảng hiệu ứng mặc định theo số lượt (đếm từ 0) ----------
 
-/* class gắn trên: root = .story-screen, stage = .story-stage,
-   art = .story-art-slot, body = .story-body, overlay = lớp phủ,
-   special = phần xử lý riêng bằng JS.
+   Lượt có trường fx riêng trong story-data.js thì bảng này KHÔNG áp
+   dụng: dữ liệu thắng, vì nhịp 8 khung cần đổi hiệu ứng theo từng
+   khung và các khoá số ở đây sẽ lệch ngay khi thêm bớt một lượt.
+   Bảng dưới chỉ còn giữ cho những lượt không khai báo fx. */
 
-   Khoá là chỉ số mảng STORY, khớp thuộc tính data-beat mà story.js
-   ghi ra DOM. Kịch bản đang có 40 lượt, thêm bớt lượt thì phải dời
-   các khoá này theo, nên mỗi dòng ghi kèm nội dung để dò lại. */
 const BEAT_FX = {
-  /* cảnh ấm: nhà trên Trái Đất */
-  4:  { body: ['fx-bounce-body'] },        /* Linh: thùng dán nhãn Cấm mở */
-  11: { overlay: ['fx-vignette-warm'] },   /* tựa lưng tới 3 giờ sáng */
+  /* khung 3: góc nhìn thứ nhất, thở dốc */
+  6:  { stage: ['fx-breath'], overlay: ['fx-dust-red-dense'] },
+  7:  { stage: ['fx-breath'], overlay: ['fx-dust-red-dense'] },
+  8:  { stage: ['fx-breath'], overlay: ['fx-dust-red'] },
+  9:  { stage: ['fx-breath'], overlay: ['fx-dust-red'] },
 
-  /* bệ phóng */
-  12: { special: 'typewriter' },           /* log T−6 giờ */
-  13: { art: ['fx-panup'] },               /* đứng dưới chân tầng đẩy */
-  15: { overlay: ['fx-flash-white'] },     /* Johanssen chụp ảnh */
+  /* khung 4: tia quét ngang mặt kính */
+  10: { overlay: ['fx-scan'] },
+  11: { overlay: ['fx-scan'], special: 'typewriter' },
+  13: { stage: ['fx-shake-hard'], overlay: ['fx-flash-impact', 'fx-flash-red'] },
 
-  /* mặt sao Hỏa, hoang vắng */
-  17: { overlay: ['fx-dust-red'] },
-  18: { overlay: ['fx-dust-red'], body: ['fx-radio'], special: 'radio' },
+  /* khung 5: cát phủ dần rồi lùi máy */
+  14: { art: ['fx-zoom-far'], overlay: ['fx-sand-in'] },
+  15: { overlay: ['fx-sand-in'] },
+  16: { art: ['fx-zoom-far'] },
+  17: { art: ['fx-zoom-far'] },
 
-  /* bão cát ập tới */
-  19: { overlay: ['fx-dust-red', 'fx-border-red'] },  /* log cảnh báo bão */
-  20: { overlay: ['fx-dust-red-dense', 'fx-dust-haze'] },
-  21: { stage: ['fx-shake-wind'], root: ['fx-fast-text'], overlay: ['fx-dust-red'] },
-  22: { stage: ['fx-shake-wind'], root: ['fx-fast-text'], overlay: ['fx-dust-red'] },
-  23: { stage: ['fx-shake-wind'], root: ['fx-fast-text'], overlay: ['fx-dust-red'] },
-  24: { art: ['fx-blur-bg'] },             /* bảng nhập tên */
+  /* khung 6: tối đen */
+  19: { root: ['fx-blackout'] },
+  20: { root: ['fx-blackout'] },
 
-  /* cao trào: ăng-ten đập vào lưng, tụt áp */
-  25: { stage: ['fx-shake-hard'], overlay: ['fx-flash-impact', 'fx-flash-red'] },
-  26: { overlay: ['fx-vignette-red'] },
-  28: { art: ['fx-tilt'] },                /* tàu nghiêng 11,4 độ */
-  30: { body: ['fx-jitter'] },             /* Martinez gắt */
+  /* khung 7: mí mắt mở */
+  21: { overlay: ['fx-eyelids'], art: ['fx-unblur'] },
+  22: { overlay: ['fx-eyelids'], art: ['fx-unblur'] },
+  24: { art: ['fx-panx'] },
 
-  /* rời đi */
-  32: { stage: ['fx-shake-fire'], overlay: ['fx-fire'] },  /* đốt tầng một */
-  33: { overlay: ['fx-flood'] },
+  /* khung 8: đi vào căn cứ, thở dốc */
+  25: { stage: ['fx-breath-hard'], overlay: ['fx-dust-warm'] },
+  26: { stage: ['fx-breath-hard'] },
 
-  /* thức giấc */
-  35: { root: ['fx-blackout'] },           /* log Sol 7 */
-  36: { overlay: ['fx-eyelids'], art: ['fx-unblur'] },     /* mở mắt */
-  37: { art: ['fx-panx'] },                /* dãy giá treo đồ */
+  /* nhập tên */
+  28: { art: ['fx-blur-bg'] },
 };
-
-/* Lượt 16 tới 18: bụi đỏ trôi ngang suốt cảnh mặt sao Hỏa, kể cả dòng
-   log nằm giữa. Khai báo riêng thay vì thêm từng khoá, để bảng bên
-   trên vẫn chỉ chứa những lượt có hiệu ứng đặc thù. */
-const RED_DUST_BEATS = new Set([16, 17, 18]);
-
-/* Lượt 0 tới 11: cảnh ấm áp, zoom chậm và hạt bụi vàng. */
-function isWarmScene(index) { return index >= 0 && index <= 11; }
 
 /* ---------- hạt bụi ---------- */
 
@@ -197,14 +184,16 @@ function radioBadge(body) {
 
 /* ---------- áp hiệu ứng cho một lượt ---------- */
 
-export function applyBeatFx({ beatIndex, beatType, artKey, root, body, stage, fxOverlay }) {
+export function applyBeatFx({ beatIndex, beatType, artKey, root, body, stage, beatFx }) {
   lastRoot = root;
   if (!root || !body || !stage) return;
-  lastArgs = { beatIndex, beatType, artKey, root, body, stage, fxOverlay };
+  lastArgs = { beatIndex, beatType, artKey, root, body, stage, beatFx };
   if (!motionAllowed()) return;
 
   const art = root.querySelector('.story-art-slot');
-  const plan = BEAT_FX[beatIndex] || {};
+  /* Dữ liệu thắng bảng mặc định. Lượt khai báo fx riêng thì dùng đúng
+     nó, kể cả khi fx rỗng, để dữ liệu luôn là nguồn sự thật duy nhất. */
+  const plan = (beatFx !== undefined ? beatFx : BEAT_FX[beatIndex]) || {};
 
   const add = (elm, classes) => {
     if (!elm || !classes) return;
@@ -216,9 +205,9 @@ export function applyBeatFx({ beatIndex, beatType, artKey, root, body, stage, fx
   add(body, plan.body);
 
   /* Lớp phủ toàn màn: một thẻ chứa, mỗi hiệu ứng là một lớp con. */
-  const hasOverlay = plan.overlay || isWarmScene(beatIndex) || RED_DUST_BEATS.has(beatIndex);
+  const hasOverlay = plan.overlay && plan.overlay.length;
   if (hasOverlay) {
-    const ov = fxOverlay || root.querySelector('.fx-overlay') || document.createElement('div');
+    const ov = root.querySelector('.fx-overlay') || document.createElement('div');
     if (!ov.isConnected) {
       ov.className = 'fx-overlay';
       ov.setAttribute('aria-hidden', 'true');
@@ -227,31 +216,19 @@ export function applyBeatFx({ beatIndex, beatType, artKey, root, body, stage, fx
     /* Vẽ lại cùng một lượt (nhập tên, đổi ngôn ngữ) thì dựng lại lớp
        phủ từ đầu, tránh chồng hai lớp giống nhau. */
     ov.innerHTML = '';
-    (plan.overlay || []).forEach((c) => {
+    plan.overlay.forEach((c) => {
       const layer = document.createElement('div');
       layer.className = 'fx-layer ' + c;
       ov.appendChild(layer);
     });
 
-    /* bụi đỏ trôi ngang suốt cảnh mặt sao Hỏa */
-    if (RED_DUST_BEATS.has(beatIndex) && !ov.querySelector('.fx-dust-red')) {
-      const dust = document.createElement('div');
-      dust.className = 'fx-layer fx-dust-red';
-      ov.appendChild(dust);
-    }
-
-    /* cảnh ấm: zoom cực chậm trên khung tranh và bụi vàng lơ lửng */
-    if (isWarmScene(beatIndex)) {
-      add(art, ['fx-zoom-warm']);
-      const dust = document.createElement('div');
-      dust.className = 'fx-layer fx-dust-warm';
-      ov.appendChild(dust);
-      spawnParticles(dust, 15, 'warm');
-    }
-
-    /* bụi đỏ bay ngang theo gió */
+    /* bụi bay ngang theo gió, số hạt theo độ dày của lớp */
     const redDust = ov.querySelector('.fx-dust-red, .fx-dust-red-dense');
     if (redDust) spawnParticles(redDust, redDust.classList.contains('fx-dust-red-dense') ? 26 : 22, 'red');
+
+    /* bụi vàng lơ lửng của cảnh ấm trong hồi tưởng */
+    const warmDust = ov.querySelector('.fx-dust-warm');
+    if (warmDust) spawnParticles(warmDust, 15, 'warm');
   } else {
     const ov = root.querySelector('.fx-overlay');
     if (ov) ov.innerHTML = '';
@@ -276,9 +253,15 @@ export function resetFx(root) {
   if (!root) return;
   root.classList.remove('fx-fast-text', 'fx-blackout');
   root.querySelectorAll('.story-stage').forEach((s) =>
-    s.classList.remove('fx-shake-wind', 'fx-shake-hard', 'fx-shake-fire'));
+    s.classList.remove(
+      'fx-shake-wind', 'fx-shake-hard', 'fx-shake-fire',
+      'fx-breath', 'fx-breath-hard'
+    ));
   root.querySelectorAll('.story-art-slot').forEach((a) =>
-    a.classList.remove('fx-zoom-warm', 'fx-panup', 'fx-blur-bg', 'fx-tilt', 'fx-unblur', 'fx-panx'));
+    a.classList.remove(
+      'fx-zoom-warm', 'fx-panup', 'fx-blur-bg', 'fx-tilt', 'fx-unblur',
+      'fx-panx', 'fx-zoom-far'
+    ));
   root.querySelectorAll('.story-body').forEach((b) =>
     b.classList.remove('fx-bounce-body', 'fx-jitter', 'fx-radio'));
 

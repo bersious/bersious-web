@@ -785,6 +785,49 @@ html.motion-off .base-clock-fill { transition: none; }
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- vật phẩm bấm được (tấm ảnh gia đình) ----------
+   Ô này là <button> chứ không phải <div>, nên phải gỡ style mặc định
+   của trình duyệt và giữ đúng bố cục như các ô khác. Viền vàng nhạt
+   cho biết bấm được, để người chơi không phải thử hết cả lưới. */
+.base-item.is-usable {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-color: rgba(232, 163, 61, .32);
+  background: linear-gradient(180deg, rgba(40, 30, 16, .6), rgba(12, 14, 20, .6));
+}
+
+.base-item.is-usable:hover {
+  border-color: rgba(232, 163, 61, .7);
+  background: linear-gradient(180deg, rgba(58, 42, 20, .78), rgba(20, 24, 32, .8));
+}
+
+.base-item.is-usable:focus-visible {
+  outline: 2px solid var(--amber, #e8a33d);
+  outline-offset: 2px;
+}
+
+.base-item.is-usable:active {
+  transform: translateY(1px);
+}
+
+.base-item-hint {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .64rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: rgba(232, 163, 61, .82);
+}
+
+/* Ở màn hẹp, hai hàng chữ trong ô dễ tràn. Cắt gọn một dòng. */
+@media (max-width: 520px) {
+  .base-item-hint {
+    font-size: .58rem;
+    letter-spacing: .04em;
+  }
+}
+
 /* Chân màn hình trước đây gần như vô hình trên nền tối. */
 .base-foot {
   color: var(--tx-soft, #8497aa);
