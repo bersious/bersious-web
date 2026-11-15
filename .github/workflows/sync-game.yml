@@ -1,0 +1,121 @@
+name: Đồng bộ game từ repo chung
+
+# Kéo code game từ repo làm việc chung (space-mission-design-game) sang
+# thư mục nasa/ của site này, rồi commit. Vercel thấy commit là tự deploy.
+#
+# Vì sao đặt workflow ở đây mà không đặt ở repo kia: repo này thuộc
+# bersious (quyền admin), còn repo kia là của Minh Ngọc. Kéo từ đây sang
+# thì GitHub tự cấp token trong phạm vi repo này, không cần tạo token tay
+# và không cần thêm collaborator.
+#
+# CẢNH BÁO: workflow chạy trên main. Nếu main của repo nguồn trống hoặc
+# lỗi, bản deploy sẽ hỏng theo. Kiểm tra bằng tay trước khi tin.
+
+on:
+  # Chạy khi repo nguồn có push vào main
+  repository_dispatch:
+    types: [game-updated]
+  # Chạy theo lịch, mỗi 15 phút một lần, phòng khi dispatch không bắn
+  schedule:
+    - cron: '*/15 * * * *'
+  # Cho phép bấm chạy tay từ tab Actions
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Hai lần chạy cùng lúc sẽ tranh nhau commit, xếp hàng thay vì đè
+  group: sync-game
+  cancel-in-progress: false
+
+env:
+  SOURCE_REPO: tranminhngoc171-bot/space-mission-design-game
+  SOURCE_REF: main
+  DEST: nasa
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy repo site
+        uses: actions/checkout@v4
+
+      - name: Lấy repo game
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ env.SOURCE_REF }}
+          path: _source
+          # Chỉ cần đọc, không cần ghi sang repo kia
+          persist-credentials: false
+
+      - name: Kiểm tra bản nguồn có code thật
+        run: |
+          # Chặn trường hợp main trống hoặc chỉ có README. Không có bước
+          # này thì một lần merge sai ở repo nguồn sẽ xoá sạch bản deploy.
+          if [ ! -f _source/src/index.html ]; then
+            echo "LỖI: bản nguồn không có src/index.html, dừng để không xoá bản đang chạy"
+            exit 1
+          fi
+          if [ ! -d _source/src ]; then
+            echo "LỖI: bản nguồn không có thư mục src"
+            exit 1
+          fi
+          count=$(find _source/src -name '*.js' | wc -l)
+          echo "Số file JS trong bản nguồn: $count"
+          if [ "$count" -lt 5 ]; then
+            echo "LỖI: quá ít file JS ($count), có vẻ bản nguồn chưa đầy đủ"
+            exit 1
+          fi
+
+      - name: Chép sang thư mục nasa
+        run: |
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          # Chỉ chép phần chạy được. Không chép docs, scripts, .github,
+          # data riêng của repo nguồn vì site không cần.
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='scripts' \
+            --exclude='docs' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='dev-*.js' \
+            _source/src/ "$DEST/"
+          # data/ nằm ngoài src nhưng game cần đọc, xem data.js BASES
+          if [ -d _source/data ]; then
+            rsync -a --delete _source/data/ "$DEST/data/"
+          fi
+          echo "Đã chép xong, dung lượng:"
+          du -sh "$DEST"
+
+      - name: Kiểm tra không có file rác
+        run: |
+          # Chặn .git lọt vào bản deploy, và chặn file test tạm
+          if [ -d "$DEST/.git" ]; then
+            echo "LỖI: .git lọt vào bản deploy"
+            exit 1
+          fi
+          find "$DEST" -name 'test-*.html' -o -name '*.tmp' | head -5
+          # File dev-*.js là công cụ test của lúc phát triển, không được
+          # lên production vì nó mở đường tắt vào thẳng màn căn cứ.
+          if ls "$DEST"/dev-*.js >/dev/null 2>&1; then
+            echo "LỖI: file dev-*.js lọt vào bản deploy"
+            exit 1
+          fi
+
+      - name: Commit nếu có thay đổi
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST"
+          if git diff --staged --quiet; then
+            echo "Không có thay đổi, bỏ qua"
+          else
+            SOURCE_SHA=$(git -C _source rev-parse --short HEAD)
+            git commit -m "sync: game từ ${SOURCE_REPO}@${SOURCE_SHA}"
+            git push
+            echo "Đã commit và push, Vercel sẽ tự deploy"
+          fi
