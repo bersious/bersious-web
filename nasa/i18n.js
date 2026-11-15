@@ -609,6 +609,8 @@ export const STRINGS = {
     'repair.board.step': 'Thay hai tụ cháy, hàn lại đường mạch bị đứt, rồi đo lại tần số đầu ra.',
     'item.tape': 'băng keo chịu lực',
     'item.electronics': 'linh kiện điện tử',
+    'item.hydrazine': 'bình hydrazine',
+    'item.potato_seed': 'mẫu hạt giống',
     /* ---------- chữ dễ hiểu cho ba bước ---------- */
     'comms.step1': 'Đủ điện để phát',
     'comms.step2': 'Bắt được vệ tinh',
@@ -1274,6 +1276,8 @@ export const STRINGS = {
     'repair.board.step': 'Swap the two burnt capacitors, reflow the broken trace, then measure the output frequency.',
     'item.tape': 'duct tape',
     'item.electronics': 'electronics',
+    'item.hydrazine': 'hydrazine tank',
+    'item.potato_seed': 'seed sample',
     /* ---------- plainer wording for the three steps ---------- */
     'comms.step1': 'Enough power to transmit',
     'comms.step2': 'Catch the satellite',

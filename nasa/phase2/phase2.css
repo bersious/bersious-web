@@ -56,11 +56,13 @@
 .p2-root {
   position: relative;
   display: grid;
-  /* Thanh trên đúng 56px, sân khấu khoảng 60 phần trăm, thanh thao tác
-     khoảng 35 phần trăm. Tỉ lệ dùng fr nên ba vùng luôn vừa đúng một
-     khung nhìn ở mọi chiều cao, không có hàng nào bị đẩy ra ngoài.
-     Đo ở 1440x900: 56px trên, 60,2 phần trăm giữa, 32,6 phần trăm dưới. */
-  grid-template-rows: var(--p2-top-h) minmax(0, 1.72fr) minmax(0, 1fr);
+  /* Thanh trên đúng 56px. Sân khấu nhận hết phần còn lại. Thanh thao tác
+     chỉ cao bằng nội dung của nó, không chia phần theo tỉ lệ: bảng bốn
+     thanh đo chỉ cần khoảng sáu chục pi-xen, nhưng khi chia 1fr thì nó
+     bị kéo lên gần ba trăm, ăn mất một phần ba màn hình và ép sân khấu
+     xuống còn khoảng năm trăm. Đo lại ở 1440x900 sau khi sửa: 56px trên,
+     sân khấu khoảng 660px, thanh thao tác khoảng 185px. */
+  grid-template-rows: var(--p2-top-h) minmax(0, 1fr) max-content;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
@@ -779,16 +781,19 @@
 /* ---------- bảng bốn thanh đo an toàn ---------- */
 
 .p2-board {
-  /* Giãn hết phần còn lại của thanh thao tác, để không có dải trống
-     dưới đáy. Bốn thẻ căn giữa theo chiều dọc, có trần chiều cao để
-     không bị kéo dài thành ô rỗng. */
-  flex: 1 1 auto;
+  /* Bảng bốn thanh đo cao vừa đủ cho nhãn, thanh và ghi chú. Trước đây
+     flex: 1 1 auto kéo nó chiếm hết thanh thao tác, mỗi thẻ cao hơn một
+     trăm sáu mươi trong khi nội dung chỉ cần khoảng sáu chục, phần dư
+     thành dải trống đáy và đẩy sân khấu co lại. */
+  flex: 0 0 auto;
   min-height: 0;
   /* Thẻ đo cao đúng phần còn lại của thanh thao tác. Có trần chiều cao
      thì phần dư nằm lại thành một dải trống ngay dưới bốn thẻ. */
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, 1fr);
+  /* auto thay vì minmax(0, 1fr): mỗi thẻ cao đúng nội dung của nó, không
+     bị kéo giãn theo chiều cao thanh thao tác. */
+  grid-auto-rows: auto;
   gap: clamp(6px, 1vw, 12px);
 }
 

@@ -879,7 +879,18 @@ export function mountCml1({ container, engine, onNext } = {}) {
     later(() => {
       elPick.hidden = false;
       elPick.classList.add('cml1-in');
-      elPick.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      /* Không gọi scrollIntoView ở đây. Bản cũ cuộn cả sân khấu xuống
+         hơn bảy trăm pi-xen để lôi phần chọn mục tiêu vào, kết quả là
+         ngay sau khi khoá sóng, radar và chấm MARS bị đẩy ra ngoài khung
+         nhìn: người chơi vừa bấm nhận tín hiệu xong lại không thấy tín
+         hiệu. Phần chọn mục tiêu tự hiện ngay dưới cột phải, còn radar
+         thu nhỏ lại ở dòng dưới. Chỉ cuộn khi khung chứa đã bị đẩy lên
+         cao, tức là người chơi đã tự cuộn trước đó. */
+      const scroller = elPick.closest('.p2-stage-inner');
+      if (scroller && scroller.scrollTop > 0) {
+        const need = elPick.offsetTop + elPick.offsetHeight - scroller.clientHeight;
+        if (need > scroller.scrollTop) scroller.scrollTo({ top: need, behavior: 'smooth' });
+      }
     }, 760);
 
     /* Radar thu nhỏ lại nhường chỗ cho phần chọn mục tiêu. */

@@ -731,7 +731,20 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
           clock,
           playerName,
           onClose: () => closeChild(),
-          onFind: ({ id, name, qty }) => {
+          onFind: ({ id, name, qty, quest: isQuest }) => {
+            /* Máy phát từ xác tàu thăm dò là vật cốt truyện, nằm trong
+               smdg.probeQuest chứ không nằm trong kho. Nhét nó vào kho
+               thì túi đồ hiện một món không có trong ITEMS, bấm vào
+               không làm gì được. */
+            if (isQuest) {
+              /* Nạp lại trạng thái quest: explore.js vừa ghi đè
+                 smdg.probeQuest, còn biến quest của màn này vẫn là bản
+                 cũ nên canOpenRepair() sẽ trả false cho tới lần mở lại. */
+              Object.assign(quest, loadQuest());
+              sockLog(t('probe.log.excavated'));
+              showToast(t('probe.log.excavated'));
+              return;
+            }
             stats.addItems([{ id, qty }]);
             stats.save();
             updateFootItems();

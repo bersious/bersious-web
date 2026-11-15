@@ -12,6 +12,7 @@
 
 import { getLang, onLangChange } from './i18n.js';
 import { playClick } from './audio.js';
+import { loadQuest, markExcavated, PROBE_NOTICE_DAY } from './probe-quest.js';
 
 const BASE_URL = new URL('.', import.meta.url).href;
 
@@ -75,6 +76,9 @@ const STRINGS = {
     'exp.terrain.debris': 'Bãi rải vụn kim loại',
     'exp.resultBtn': 'Đã hiểu',
     'exp.energy': 'Năng lượng bộ đồ',
+    'exp.probe': 'Đào máy phát từ xác tàu',
+    'exp.probe.hint': 'Xác tàu thăm dò nằm ở ô này. Bấm để đào nó lên.',
+    'exp.probe.done': 'Đã đào được máy phát. Về căn cứ sửa ba món rồi phát tín hiệu.',
   },
 
   en: {
@@ -122,6 +126,9 @@ const STRINGS = {
     'exp.terrain.debris': 'Metal debris field',
     'exp.resultBtn': 'Got it',
     'exp.energy': 'Suit energy',
+    'exp.probe': 'Dig the transmitter out of the probe',
+    'exp.probe.hint': 'The probe wreck is on this cell. Tap to dig it up.',
+    'exp.probe.done': 'Transmitter dug out. Back at the base, repair the three parts and transmit.',
   },
 };
 
@@ -284,6 +291,21 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
         </button>
       </div>
 
+      <div class="exp-probe" hidden>
+        <button type="button" class="exp-probe-btn">
+          <span class="exp-probe-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16"/><path d="M7 19V9l5-4 5 4v10"/><path d="M10 12h4"/>
+              <path d="M9 19v-3h6v3"/></svg>
+          </span>
+          <span class="exp-probe-body">
+            <span class="exp-probe-title"></span>
+            <span class="exp-probe-hint"></span>
+          </span>
+        </button>
+      </div>
+
       <p class="exp-foot"></p>
     </div>
   `;
@@ -300,6 +322,10 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
   const resultName = q('.exp-result-name');
   const resultNote = q('.exp-result-note');
   const footEl = q('.exp-foot');
+  const probeBox = q('.exp-probe');
+  const probeBtn = q('.exp-probe-btn');
+  const probeTitle = q('.exp-probe-title');
+  const probeHint = q('.exp-probe-hint');
 
   const RESULT_ICONS = {
     found: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -358,6 +384,43 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
     turnsEl.textContent = tr('exp.turnsLeft').replace('{n}', String(state.tripsLeft));
     turnsEl.classList.toggle('is-out', state.tripsLeft <= 0);
   }
+
+  /* ---------- cầu nối chuỗi xác tàu thăm dò ----------
+     Chỗ DUY NHẤT để đào máy phát. Trước đây base.js có nhánh
+     onAction('excavate') nhưng không nút nào bấm tới nó, nên chuỗi
+     quest đứng im ở bước "nhớ ra xác tàu": không bao giờ đào được,
+     màn sửa chữa không bao giờ mở, và ván chơi kẹt vĩnh viễn.
+
+     Nút chỉ hiện khi đã nghe thông báo (ngày 6 trở đi) và chưa đào.
+     Đào xong thì ghi vào smdg.probeQuest qua markExcavated(). */
+  let quest = loadQuest();
+
+  function refreshProbe() {
+    if (!probeBox) return;
+    if (!quest.noticed || quest.excavated) {
+      probeBox.hidden = true;
+      return;
+    }
+    probeBox.hidden = false;
+    probeTitle.textContent = tr('exp.probe');
+    probeHint.textContent = tr('exp.probe.hint');
+    probeBtn.setAttribute('aria-label', tr('exp.probe') + '. ' + tr('exp.probe.hint'));
+  }
+
+  probeBtn?.addEventListener('click', () => {
+    if (quest.excavated) return;
+    playClick();
+    const day = clock && typeof clock.state === 'function' ? clock.state().day : PROBE_NOTICE_DAY;
+    markExcavated(quest, day);
+    showToast(footEl, tr('exp.probe.done'));
+    if (typeof onFind === 'function') {
+      /* Không đẩy vật phẩm: máy phát là vật cốt truyện, nằm trong trạng
+         thái quest chứ không nằm trong kho. Chỉ báo cho màn căn cứ biết
+         để ghi nhật ký. */
+      onFind({ id: 'probe_transmitter', name: tr('exp.probe'), qty: 1, quest: true });
+    }
+    refreshProbe();
+  });
 
   /* ---------- đẩy đồng hồ thêm giờ ----------
      game-time.js không có hàm cộng phút, chỉ có skipTo. Dùng skipTo khi
@@ -491,6 +554,7 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
         : nameEl.textContent;
     }
     resultCard.setAttribute('aria-label', tr('exp.resultBtn'));
+    refreshProbe();
   }
 
   const unLang = onLangChange(() => applyTexts());

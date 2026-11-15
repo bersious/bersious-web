@@ -23,7 +23,12 @@
      openTrueEnding({ stats, engine, onRestart, onExit });
    ============================================================ */
 
-import { getLang, getSettings } from './i18n.js';
+import { getLang } from './i18n.js';
+/* Cài đặt nằm ở settings.js, KHÔNG phải i18n.js. Import nhầm chỗ này
+   làm cả module true-ending.js không nạp được (SyntaxError: i18n.js
+   không export getSettings), và engine Giai đoạn 2 rơi về bảng tổng
+   kết đơn giản — mất nguyên màn kết thúc đẹp nhất của game. */
+import { getSettings } from './settings.js';
 
 const BASE_URL = new URL('.', import.meta.url).href;
 

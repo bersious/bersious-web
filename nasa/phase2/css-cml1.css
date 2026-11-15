@@ -22,7 +22,11 @@
   display: flex;
   flex-direction: column;
   gap: clamp(12px, 1.5vw, 20px);
-  min-height: 100dvh;
+  /* Cao đúng bằng sân khấu chứa nó. Trước đây để 100dvh, nên trong khung
+     Giai đoạn 2 (sân khấu chỉ còn khoảng nửa màn hình) màn bước 1 cao
+     gấp đôi chỗ có, đẩy radar và cột phải ra ngoài và sinh thanh cuộn.
+     Dùng 100% để chiều cao bám theo cha, không bám theo khung nhìn. */
+  min-height: 100%;
   padding: clamp(14px, 2vw, 28px) clamp(14px, 2.4vw, 36px) clamp(16px, 2vw, 26px);
   font-family: var(--st-font-body);
   font-size: var(--st-size-base);
@@ -190,6 +194,11 @@
   grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
   gap: clamp(16px, 2vw, 30px);
   align-items: stretch;
+  /* Cho phép thân co lại dưới chiều cao nội dung, nhưng giữ một sàn:
+     nếu không, phần chọn mục tiêu cao hơn năm trăm pi-xen sẽ ép thân
+     về 0 và radar biến mất hoàn toàn. Sàn ba trăm hai mươi đủ để cung
+     radar và chấm MARS còn nguyên trên màn. */
+  min-height: 320px;
 }
 
 .cml1-radar-col {
@@ -197,12 +206,17 @@
   flex-direction: column;
   gap: var(--st-gap-md);
   min-width: 0;
+  min-height: 0;
 }
 
 .cml1-radar-frame {
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Nhận phần chiều cao còn lại của cột và cho phép co: khung radar phải
+     nhỏ lại khi sân khấu thấp, thay vì giữ nguyên cỡ và tràn ra ngoài. */
+  flex: 1 1 auto;
+  min-height: 0;
   padding: clamp(12px, 1.6vw, 20px);
   border: 1px solid var(--line-strong);
   border-radius: var(--cml1-radius);
@@ -245,7 +259,11 @@
   aspect-ratio: 1;
   margin: 0 auto;
   padding: 4px;
+  /* Co theo cả hai chiều. Thiếu max-height thì khi khung radar thấp,
+     ô vuông vẫn giữ đúng bề rộng và tràn xuống dưới, đè lên thẻ báo
+     khoá sóng nằm sau nó. */
   min-height: 0;
+  max-height: 100%;
 }
 
 .cml1-radar-svg {
@@ -405,7 +423,10 @@
   border: 1px solid var(--line);
   border-radius: var(--cml1-radius);
   background: var(--line-hair);
+  /* visible thay vì hidden: lớp này từng bị ép còn 2px chiều cao khi
+     sân khấu thấp, và hidden cắt mất toàn bộ bốn chặng. */
   overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .cml1-tk {
@@ -447,6 +468,76 @@
 
 .cml1-root.is-picking .cml1-lead { color: var(--tx-dim); }
 
+/* Sau khi khoá sóng, phần chọn mục tiêu chen vào. Radar thu nhỏ lại
+   để nhường chỗ: đây là lý do lớp is-picking tồn tại, trước đây chỉ đổi
+   màu chữ nên radar vẫn giữ nguyên cỡ và đẩy mọi thứ ra ngoài sân khấu.
+
+   Bố cục lúc chọn: hai cột. Cột trái là radar đã thu nhỏ cùng thẻ báo
+   khoá sóng và dải bốn chặng; cột phải là toàn bộ phần chọn mục tiêu.
+   Xếp chồng lên nhau như trước thì radar và hai thẻ phải cao hơn một
+   nghìn pi-xen, không bao giờ vừa sân khấu. */
+.cml1-root.is-picking {
+  display: grid;
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+  grid-template-rows: max-content minmax(0, 1fr) max-content;
+  /* stretch chứ không phải start: hàng hai có chiều cao xác định, cột
+     trái phải nhận đúng chiều cao đó rồi để radar co lại bên trong. Để
+     start thì cột lấy chiều cao nội dung, radar giữ nguyên cỡ và thẻ báo
+     khoá sóng bị đẩy xuống dưới đáy sân khấu. */
+  align-items: stretch;
+  column-gap: clamp(14px, 1.6vw, 24px);
+  row-gap: clamp(10px, 1.2vh, 16px);
+}
+
+.cml1-root.is-picking .cml1-head { grid-column: 1 / -1; grid-row: 1; }
+
+.cml1-root.is-picking .cml1-body {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+  min-height: 0;
+  overflow: hidden;
+  /* Không cho cột trái tự cao hơn hàng: radar co, thẻ báo khoá sóng
+     nằm cuối cột, mọi thứ bám trong sân khấu. */
+  height: 100%;
+  align-self: stretch;
+}
+
+.cml1-root.is-picking .cml1-lock { flex: 0 0 auto; }
+
+.cml1-root.is-picking .cml1-track { grid-column: 1; grid-row: 3; }
+
+.cml1-root.is-picking .cml1-picker {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.cml1-root.is-picking .cml1-picker::-webkit-scrollbar { width: 6px; }
+.cml1-root.is-picking .cml1-picker::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 3px;
+}
+
+/* Bản ghi và bảng ba trạm đã đọc xong trước khi khoá sóng; lúc chọn chỉ
+   giữ lại thẻ báo khoá sóng, vì đó là kết quả người chơi vừa giành được. */
+.cml1-root.is-picking .cml1-readout,
+.cml1-root.is-picking .cml1-stations { display: none; }
+
+.cml1-root.is-picking .cml1-radar-wrap { max-width: 300px; }
+.cml1-root.is-picking .cml1-radar-frame { padding: clamp(8px, 1vw, 14px); }
+.cml1-root.is-picking .cml1-lead { display: none; }
+
+/* Dải bốn chặng là hàng cuối của cột trái, không được co về 0. */
+.cml1-track { flex: 0 0 auto; }
+
 /* ---------- cột phải: bản ghi thu sóng ---------- */
 
 .cml1-side {
@@ -454,7 +545,24 @@
   flex-direction: column;
   gap: var(--st-gap-md);
   min-width: 0;
+  /* Cột phải cuộn bên trong khi ba tấm cao hơn sân khấu, thay vì kéo
+     cả lưới cao lên theo. */
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+  padding-right: 2px;
 }
+
+.cml1-side::-webkit-scrollbar { width: 6px; }
+.cml1-side::-webkit-scrollbar-track { background: transparent; }
+.cml1-side::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 3px;
+}
+
+.cml1-side > * { flex: 0 0 auto; }
 
 .cml1-readout {
   padding: clamp(14px, 1.5vw, 20px);
