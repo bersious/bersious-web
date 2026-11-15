@@ -1,0 +1,1216 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note_vi": "Mười sáu cuộc tranh luận giữa ba vai trò trên tàu cứu hộ. Mỗi phương án làm hài lòng một vai trò và gây thiệt cho vai trò khác. Không có phương án nào miễn phí.",
+    "note_en": "Sixteen arguments between the three roles aboard the rescue ship. Every option pleases one role and costs another. Nothing is free.",
+    "roles": {
+      "commander": {
+        "vi": "Chỉ huy",
+        "en": "Commander",
+        "care_vi": "Giữ mạng người, giữ quyền quyết định, không mất cửa sổ cứu hộ",
+        "care_en": "Lives, decision authority, not losing the rescue window"
+      },
+      "engineer": {
+        "vi": "Kỹ thuật",
+        "en": "Engineer",
+        "care_vi": "Biên an toàn của hệ thống, khối lượng, nhiên liệu, nhiệt độ van",
+        "care_en": "System margins, mass, propellant, valve temperatures"
+      },
+      "comms": {
+        "vi": "Liên lạc",
+        "en": "Comms",
+        "care_vi": "Kênh xuống Trái Đất, dữ liệu quỹ đạo, tinh thần phi hành đoàn",
+        "care_en": "Downlink to Earth, trajectory data, crew morale"
+      }
+    },
+    "effect_fields": {
+      "delta_v_ms": "thay đổi vận tốc khả dụng, m/s, dương là có lợi",
+      "power_w": "thay đổi công suất khả dụng, W, dương là tiết kiệm được",
+      "fuel_kg": "thay đổi nhiên liệu, kg, dương là tiết kiệm được",
+      "water_kg": "thay đổi nước, kg",
+      "food_kg": "thay đổi lương thực dự trữ, kg",
+      "o2_kg": "thay đổi oxy, kg",
+      "payload_kg": "thay đổi khối lượng thiết bị, kg",
+      "radiation_mSv": "liều bức xạ tích lũy thêm, mSv",
+      "crew_morale_pct": "tinh thần phi hành đoàn, phần trăm",
+      "cohesion_pct": "đồng thuận nhóm, phần trăm"
+    }
+  },
+  "events": [
+    {
+      "id": "heaters_vs_tcm",
+      "phase": "cruise",
+      "title_vi": "Hơi ấm cho khoang hay điện cho TCM",
+      "title_en": "Warm cabin or live TCM",
+      "situation_vi": "Khoang đang ở 4 độ C. TCM cần 180 W để giữ hydrazine trên điểm đóng băng. Pin còn 2.140 Wh và còn 6 giờ nữa mới tới bình minh.",
+      "situation_en": "The cabin sits at 4 C. The TCM needs 180 W to keep the hydrazine above its freezing point. The battery holds 2,140 Wh and sunrise is six hours away.",
+      "stakes_vi": "Hydrazine đóng băng làm nứt van, mất sạch khả năng đốt. Cắt sưởi khoang thì cả đội ngủ trong 4 độ C và pin tay áo mất 15 phần trăm dung lượng.",
+      "stakes_en": "Frozen hydrazine cracks a valve and the burn is gone. Cut the cabin heaters and the crew sleeps at 4 C while suit batteries lose 15 percent of capacity.",
+      "options": [
+        {
+          "id": "cut_cabin_heaters",
+          "label_vi": "Cắt sưởi khoang, dồn 180 W cho TCM",
+          "label_en": "Cut cabin heaters, give the TCM its 180 W",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -6,
+            "engineer": 9,
+            "comms": -8
+          },
+          "effects": {
+            "power_w": 180,
+            "crew_morale_pct": -6,
+            "cohesion_pct": -7
+          },
+          "risk_vi": "Bốn giờ ở 4 độ C. Không ai ngủ được, sáng ra hai người phải hâm lại nước uống bằng bình giữ nhiệt.",
+          "risk_en": "Four hours at 4 C. Nobody sleeps, and two of us spend the morning thawing drinking water in a thermos.",
+          "rationale_vi": "Kỹ thuật chỉ quan tâm một điều: van nhiên liệu không được nứt. Khoang lạnh là chuyện chịu được, van nứt là chuyện kết thúc sứ mệnh.",
+          "rationale_en": "The engineer cares about one thing: the propellant valve must not crack. A cold cabin is uncomfortable. A cracked valve ends the mission."
+        },
+        {
+          "id": "cycle_tcm",
+          "label_vi": "Giữ sưởi khoang, TCM chạy chu kỳ 8 phút bật, 20 phút nghỉ",
+          "label_en": "Keep the cabin warm, run the TCM on an 8 on, 20 off cycle",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": -3,
+            "comms": 4
+          },
+          "effects": {
+            "power_w": -55,
+            "fuel_kg": -2,
+            "crew_morale_pct": -1,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Nhiệt độ hydrazine dao động quanh 2 độ C. Van chịu thêm khoảng 40 lần đóng mở trước khi đốt.",
+          "risk_en": "Hydrazine temperature swings around 2 C. The valve takes about 40 extra open and close cycles before the burn.",
+          "rationale_vi": "Chỉ huy cần ba người tỉnh táo làm việc. Một hệ thống hoàn hảo không có ai vận hành thì vô dụng.",
+          "rationale_en": "The commander needs three alert people. A perfect system with no one awake to run it is worth nothing."
+        },
+        {
+          "id": "tcm_off",
+          "label_vi": "Tắt TCM, giữ điện cho ăng ten và sinh hoạt",
+          "label_en": "Shut the TCM down, keep power for the antenna and the crew",
+          "favors": "comms",
+          "role_trust": {
+            "commander": -4,
+            "engineer": -10,
+            "comms": 8
+          },
+          "effects": {
+            "power_w": 260,
+            "fuel_kg": -14,
+            "crew_morale_pct": 2,
+            "cohesion_pct": -11
+          },
+          "risk_vi": "Hydrazine xuống âm 3 độ C trong đêm. Nếu van nứt, lần đốt tới là lần cuối.",
+          "risk_en": "Hydrazine drops to minus 3 C overnight. If the valve cracks, the next burn is the last one.",
+          "rationale_vi": "Liên lạc muốn giữ kênh mở. Không có kênh thì không ai biết chúng ta còn sống, và không ai gửi được phương án cứu.",
+          "rationale_en": "Comms wants the link open. Without it nobody knows we are alive, and nobody can send us a way out."
+        }
+      ]
+    },
+    {
+      "id": "earth_link_cut",
+      "phase": "cruise",
+      "title_vi": "Cắt liên lạc để tiết kiệm 1.140 Wh",
+      "title_en": "Cut the link to save 1,140 Wh",
+      "situation_vi": "Ăng ten hệ số cao ăn 95 W. Cửa sổ DSN tối nay dài 12 phút. Bỏ liên lạc hằng ngày tiết kiệm 1.140 Wh mỗi Sol, đủ cho một chu kỳ sưởi.",
+      "situation_en": "The high gain antenna draws 95 W. Tonight's DSN window runs 12 minutes. Dropping the daily link saves 1,140 Wh per sol, enough for one full heater cycle.",
+      "stakes_vi": "Không có liên lạc nghĩa là Trái Đất không biết quỹ đạo thực của tàu. Nếu hỏng, đội cứu hộ tìm trong vùng sai 40 km.",
+      "stakes_en": "No link means Earth does not know where we actually are. If we fail, the rescue team searches a box 40 km off.",
+      "options": [
+        {
+          "id": "beacon_only",
+          "label_vi": "Cắt downlink, chỉ phát beacon 2 W",
+          "label_en": "Cut the downlink, transmit a 2 W beacon only",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -5,
+            "engineer": 9,
+            "comms": -10
+          },
+          "effects": {
+            "power_w": 95,
+            "crew_morale_pct": -8,
+            "cohesion_pct": -9
+          },
+          "risk_vi": "Bảy Sol không ai xác nhận quỹ đạo. Sai số tích lũy tới 40 km, và beacon không mang được dữ liệu sửa sai.",
+          "risk_en": "Seven sols with no trajectory confirmation. Error accumulates to 40 km, and a beacon carries no correction data.",
+          "rationale_vi": "Điện là thứ duy nhất không tái tạo được trong bóng tối. Kỹ thuật đổi một kênh chữ lấy một chu kỳ sưởi.",
+          "rationale_en": "Power is the one thing we cannot make in the dark. The engineer trades a text channel for a heater cycle."
+        },
+        {
+          "id": "daily_burst",
+          "label_vi": "Gói nén 30 giây mỗi Sol, đủ quỹ đạo và trạng thái pin",
+          "label_en": "One 30 second compressed burst per sol, trajectory and battery state",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": 3,
+            "comms": 2
+          },
+          "effects": {
+            "power_w": 70,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Bỏ hết ảnh và giọng nói, chỉ còn số. Nhà tâm lý mặt đất sẽ phàn nàn, nhưng họ vẫn có dữ liệu.",
+          "risk_en": "All images and voice go, numbers only. The ground psychologists will complain, but they still get data.",
+          "rationale_vi": "Chỉ huy chấp nhận mất phần mềm, không chấp nhận mất khả năng được tìm thấy.",
+          "rationale_en": "The commander will lose the soft parts. The commander will not lose being findable."
+        },
+        {
+          "id": "keep_full_link",
+          "label_vi": "Giữ liên lạc đầy đủ, cắt hai máy sưởi để bù 95 W",
+          "label_en": "Keep the full link, cut two heaters to pay the 95 W",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 3,
+            "engineer": -8,
+            "comms": 9
+          },
+          "effects": {
+            "power_w": -20,
+            "crew_morale_pct": 4,
+            "cohesion_pct": -5
+          },
+          "risk_vi": "Nhiệt độ khoang xuống 6 độ C. Đường ống nước xám có nguy cơ đóng băng trong 9 giờ tới.",
+          "risk_en": "Cabin drops to 6 C. The grey water line risks freezing inside nine hours.",
+          "rationale_vi": "Mỗi Sol có một cuộc gọi 12 phút với nhà. Đó là thứ giữ ba người này làm việc cùng nhau.",
+          "rationale_en": "Twelve minutes of home every sol. That is what keeps the three of us working as a crew."
+        }
+      ]
+    },
+    {
+      "id": "ration_reserve",
+      "phase": "cruise",
+      "title_vi": "Khẩu phần hôm nay hay dự trữ cho người dưới mặt đất",
+      "title_en": "Today's rations or a reserve for the surface",
+      "situation_vi": "Lương thực còn 214 kg cho ba người, tức 62 ngày ở mức đủ. Người mắc kẹt cần 40 kg cho 30 ngày đầu nếu trạm đã hỏng.",
+      "situation_en": "Two hundred fourteen kilos of food for three people, 62 days at full ration. The stranded astronaut needs 40 kg for the first 30 days if the habitat is gone.",
+      "stakes_vi": "Cắt khẩu phần quá tay thì người vận hành sai, và sai một lần ở giai đoạn hạ cánh là hết. Không dự trữ thì người dưới mặt đất chết trước khi tàu tới.",
+      "stakes_en": "Cut rations too far and people make mistakes, and one mistake during descent is final. Skip the reserve and the person on the surface dies before we land.",
+      "options": [
+        {
+          "id": "reserve_forty",
+          "label_vi": "Giảm 10 phần trăm khẩu phần cả ba, khoá 40 kg dự trữ",
+          "label_en": "Cut all three rations by 10 percent, lock 40 kg as reserve",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -5,
+            "comms": -6
+          },
+          "effects": {
+            "food_kg": 21,
+            "crew_morale_pct": -5,
+            "cohesion_pct": -6
+          },
+          "risk_vi": "2.700 kcal xuống 2.430 kcal mỗi ngày trong 40 ngày. Giảm 6 phần trăm sức bền, tăng sai số thao tác.",
+          "risk_en": "2,700 kcal drops to 2,430 a day for 40 days. Six percent less endurance, more operator error.",
+          "rationale_vi": "Chỉ huy tính bằng mạng người. Ba người trên tàu có hệ thống hỗ trợ, một người dưới kia thì không.",
+          "rationale_en": "The commander counts lives. Three of us have life support. The one down there does not."
+        },
+        {
+          "id": "keep_full_ration",
+          "label_vi": "Giữ 3.000 kcal mỗi người, dự trữ còn 12 kg",
+          "label_en": "Hold 3,000 kcal each, reserve falls to 12 kg",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -9,
+            "engineer": 8,
+            "comms": 3
+          },
+          "effects": {
+            "food_kg": -12,
+            "crew_morale_pct": 3,
+            "cohesion_pct": -5
+          },
+          "risk_vi": "Mười hai ký là chín ngày cho một người. Nếu trạm hỏng, chúng ta tới muộn 21 ngày so với nhu cầu.",
+          "risk_en": "Twelve kilos is nine days for one person. If the habitat failed, we arrive 21 days late.",
+          "rationale_vi": "Kỹ thuật không muốn một phi công hạ cánh trong trạng thái thiếu calo. Tay run ở 300 m là chuyện có thật.",
+          "rationale_en": "The engineer will not put a hungry hand on the descent controls. Shaky hands at 300 m are a real failure mode."
+        },
+        {
+          "id": "two_meals",
+          "label_vi": "Hai bữa mỗi ngày, bù điện giải, giữ 30 kg dự trữ",
+          "label_en": "Two meals a day, electrolyte supplement, hold 30 kg",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 4,
+            "engineer": -2,
+            "comms": 8
+          },
+          "effects": {
+            "food_kg": 14,
+            "crew_morale_pct": -2,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Bữa tối bị cắt. Ba người ăn riêng thay vì ăn chung, và bữa chung là lúc duy nhất trong ngày cả đội nói chuyện.",
+          "risk_en": "Dinner is gone. Three people eat alone instead of together, and the shared meal is the only hour the crew talks.",
+          "rationale_vi": "Liên lạc giữ phần con người. Một đội còn nói chuyện với nhau thì còn sửa được sai lầm.",
+          "rationale_en": "Comms protects the human part. A crew still talking to each other can still fix its mistakes."
+        }
+      ]
+    },
+    {
+      "id": "tcm_burn_timing",
+      "phase": "cruise",
+      "title_vi": "Đốt ngay hay chờ GMAT",
+      "title_en": "Burn now or wait for GMAT",
+      "situation_vi": "Cửa sổ đốt mở lúc 06:40. Bản GMAT mới về sau 90 phút với sai số dự kiến 0,8 phần trăm. Giải pháp hiện tại tiết kiệm 40 m/s so với đường chờ.",
+      "situation_en": "The burn window opens at 06:40. The new GMAT solution lands in 90 minutes with an expected 0.8 percent correction. The current solution saves 40 m/s over the wait.",
+      "stakes_vi": "Đốt sai thì phải bù bằng nhiên liệu hạ cánh, mà túi hạ cánh chỉ còn 22 kg biên. Chờ thì mất 40 m/s và một phần cửa sổ hội tụ.",
+      "stakes_en": "A wrong burn is paid for out of landing propellant, and the landing budget has 22 kg of margin. Waiting costs 40 m/s and part of the rendezvous window.",
+      "options": [
+        {
+          "id": "burn_now",
+          "label_vi": "Đốt ngay theo giải pháp hiện tại, 96 kg, 40 m/s",
+          "label_en": "Burn now on the current solution, 96 kg, 40 m/s",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -8,
+            "comms": -3
+          },
+          "effects": {
+            "delta_v_ms": 40,
+            "fuel_kg": -96,
+            "crew_morale_pct": -2,
+            "cohesion_pct": -8
+          },
+          "risk_vi": "Nếu GMAT sửa đúng 0,8 phần trăm, ta thiếu 12 m/s và phải lấy từ túi hạ cánh. Biên còn 10 kg.",
+          "risk_en": "If GMAT corrects the full 0.8 percent we are 12 m/s short and it comes out of the landing budget. Margin left: 10 kg.",
+          "rationale_vi": "Cửa sổ không chờ ai. Chỉ huy đã thấy một sứ mệnh chết vì chờ thêm một vòng dữ liệu.",
+          "rationale_en": "The window does not wait. The commander has seen a mission die from waiting one more data cycle."
+        },
+        {
+          "id": "wait_for_gmat",
+          "label_vi": "Chờ 90 phút, đốt lại với bản GMAT đã hiệu chỉnh",
+          "label_en": "Wait 90 minutes, burn on the corrected GMAT solution",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -7,
+            "engineer": 9,
+            "comms": 4
+          },
+          "effects": {
+            "delta_v_ms": -15,
+            "fuel_kg": -104,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Tốn thêm 8 kg và mất 15 m/s so với đường tối ưu. Cửa sổ hội tụ hẹp lại còn 31 phút.",
+          "risk_en": "Eight more kilos and 15 m/s off the optimum. The rendezvous window narrows to 31 minutes.",
+          "rationale_vi": "Kỹ thuật không đốt trên số liệu tám tiếng tuổi khi có bản mới trong 90 phút. Số sai thì mọi thứ sau đó đều sai.",
+          "rationale_en": "The engineer will not burn on eight hour old numbers with a fresh set 90 minutes out. Bad numbers poison everything after."
+        },
+        {
+          "id": "split_burn",
+          "label_vi": "Đốt 60 phần trăm bây giờ, 40 phần trăm sau khi có GMAT",
+          "label_en": "Burn 60 percent now, 40 percent after GMAT lands",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 3,
+            "engineer": 2,
+            "comms": 6
+          },
+          "effects": {
+            "delta_v_ms": 18,
+            "fuel_kg": -100,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Hai lần đốt thì hai lần rủi ro van. Và lần hai rơi vào giữa cửa sổ liên lạc, ăng ten phải tắt 4 phút.",
+          "risk_en": "Two burns means two valve events. The second falls inside the comm window and the antenna goes dark for four minutes.",
+          "rationale_vi": "Liên lạc muốn có số liệu thật gửi về giữa hai lần đốt. Một lần đốt mù là một lần không ai giúp được.",
+          "rationale_en": "Comms wants real numbers on the ground between burns. A blind burn is a burn nobody can help with."
+        }
+      ]
+    },
+    {
+      "id": "science_mass_drop",
+      "phase": "cruise",
+      "title_vi": "Bỏ thiết bị khoa học để lấy biên khối lượng",
+      "title_en": "Drop instruments to buy mass margin",
+      "situation_vi": "Ta vượt hạn mức nhập quyển 84 kg. Bộ phân tích mẫu nặng 46 kg, máy ảnh địa chất 12 kg, giá đỡ 26 kg.",
+      "situation_en": "We are 84 kg over the entry mass limit. The sample analyzer is 46 kg, the geology camera 12 kg, the mounting rack 26 kg.",
+      "stakes_vi": "Giữ đủ thiết bị thì phải cắt nhiên liệu RCS, mà RCS là thứ giữ tàu ổn định trong 90 giây cuối. Bỏ thiết bị thì mất một nửa giá trị khoa học của sứ mệnh.",
+      "stakes_en": "Keep everything and we cut RCS propellant, which is what holds the ship steady for the last 90 seconds. Drop instruments and half the science value of the mission goes with them.",
+      "options": [
+        {
+          "id": "drop_analyzer",
+          "label_vi": "Bỏ bộ phân tích mẫu 46 kg, giữ biên 38 kg",
+          "label_en": "Drop the 46 kg sample analyzer, keep 38 kg of margin",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": 4,
+            "comms": -9
+          },
+          "effects": {
+            "payload_kg": -46,
+            "delta_v_ms": 9,
+            "crew_morale_pct": -4,
+            "cohesion_pct": -7
+          },
+          "risk_vi": "Mẫu đá sẽ chỉ được chụp ảnh, không phân tích được thành phần. Gần như toàn bộ giá trị khoa học mất.",
+          "risk_en": "Rock samples get photographed, not analyzed. Nearly all of the science return is gone.",
+          "rationale_vi": "Chỉ huy đổi dữ liệu lấy biên hạ cánh. Một sứ mệnh hạ cánh được vẫn hơn một sứ mệnh đẹp nhưng không tới nơi.",
+          "rationale_en": "The commander trades data for descent margin. A mission that lands beats an elegant mission that never arrives."
+        },
+        {
+          "id": "keep_all_science",
+          "label_vi": "Giữ toàn bộ 84 kg thiết bị, cắt 26 kg nhiên liệu RCS",
+          "label_en": "Keep all 84 kg of instruments, cut 26 kg of RCS propellant",
+          "favors": "comms",
+          "role_trust": {
+            "commander": -4,
+            "engineer": -9,
+            "comms": 9
+          },
+          "effects": {
+            "fuel_kg": -26,
+            "crew_morale_pct": 2,
+            "cohesion_pct": -9
+          },
+          "risk_vi": "RCS còn 61 phần trăm. Nếu một cụm bị kẹt, không đủ dự phòng để giữ thái độ trong nhập quyển.",
+          "risk_en": "RCS falls to 61 percent. One stuck cluster and there is no reserve to hold attitude during entry.",
+          "rationale_vi": "Liên lạc giữ phần dữ liệu gửi về. Ba mươi năm nữa, thứ còn lại của sứ mệnh này là những gì ta đo được.",
+          "rationale_en": "Comms protects the data. Thirty years from now, what is left of this mission is what we measured."
+        },
+        {
+          "id": "drop_camera_rack",
+          "label_vi": "Bỏ máy ảnh và giá đỡ, 38 kg, giữ bộ phân tích",
+          "label_en": "Drop the camera and rack, 38 kg, keep the analyzer",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": 4,
+            "engineer": 8,
+            "comms": -5
+          },
+          "effects": {
+            "payload_kg": -38,
+            "fuel_kg": -8,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Mất ảnh địa chất độ phân giải cao, nghĩa là mất bối cảnh của mọi mẫu. Mẫu vẫn phân tích được, nhưng không biết nó nằm ở đâu.",
+          "risk_en": "High resolution geology imaging goes, so every sample loses its context. The sample still analyzes, we just will not know where it sat.",
+          "rationale_vi": "Kỹ thuật lấy khối lượng từ chỗ rẻ nhất. Giá đỡ 26 kg là kim loại, không phải khoa học.",
+          "rationale_en": "The engineer takes mass from the cheapest place. The 26 kg rack is metal, not science."
+        }
+      ]
+    },
+    {
+      "id": "landing_site_offset",
+      "phase": "approach",
+      "title_vi": "Hạ cánh sát trạm hay hạ cánh an toàn",
+      "title_en": "Land close or land safe",
+      "situation_vi": "Trạm mục tiêu cách bãi đáp an toàn nhất 4,2 km. Giữa hai điểm có bãi đá cao 0,6 m. Rover còn 62 phần trăm pin, tức 41 km.",
+      "situation_en": "The target habitat is 4.2 km from the safest pad. A field of 0.6 m rocks sits between them. The rover holds 62 percent charge, about 41 km.",
+      "stakes_vi": "Chân đáp gãy trên đá thì tàu nằm nghiêng, không cất cánh được. Đáp xa thì mất 9 giờ rover, và 9 giờ đó là 9 giờ người dưới kia không có oxy.",
+      "stakes_en": "A leg breaks on rock and the ship sits tilted, unable to lift. Land far and we lose nine rover hours, and those nine hours are oxygen the stranded astronaut does not have.",
+      "options": [
+        {
+          "id": "land_near_hab",
+          "label_vi": "Đáp trong 300 m quanh trạm, chấp nhận bãi đá",
+          "label_en": "Set down within 300 m of the habitat, accept the rock field",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -9,
+            "comms": 2
+          },
+          "effects": {
+            "fuel_kg": -18,
+            "delta_v_ms": 6,
+            "crew_morale_pct": 3,
+            "cohesion_pct": -8
+          },
+          "risk_vi": "Xác suất gãy chân đáp ước tính 11 phần trăm. Không có thiết bị nâng tại chỗ, một chân gãy là hết đường về.",
+          "risk_en": "An estimated 11 percent chance of a broken leg. There is no jack on site, and one broken leg ends the return.",
+          "rationale_vi": "Chỉ huy đếm giờ oxy, không đếm xác suất. Ba trăm mét là ba phút đi bộ, bốn cây số là chín giờ rover.",
+          "rationale_en": "The commander counts oxygen hours, not odds. Three hundred meters is a three minute walk. Four kilometers is nine rover hours."
+        },
+        {
+          "id": "land_safe_pad",
+          "label_vi": "Đáp bãi cát an toàn, cách trạm 4,2 km",
+          "label_en": "Land on the safe sand pad, 4.2 km from the habitat",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -8,
+            "engineer": 9,
+            "comms": 3
+          },
+          "effects": {
+            "fuel_kg": -4,
+            "crew_morale_pct": -3,
+            "cohesion_pct": 0
+          },
+          "risk_vi": "Mất 9 giờ rover cho chặng đầu, và rover phải quay lại nạp trước khi chở người.",
+          "risk_en": "Nine rover hours for the first leg, and the rover must come back to recharge before it carries anyone.",
+          "rationale_vi": "Kỹ thuật không đánh cược chân đáp. Một tàu nghiêng thì cả ba người chết cùng người cần cứu.",
+          "rationale_en": "The engineer does not gamble the landing legs. A tilted ship kills all three of us along with the person we came for."
+        },
+        {
+          "id": "land_mid_offset",
+          "label_vi": "Đáp 1,8 km, đường vòng tránh bãi đá",
+          "label_en": "Land 1.8 km out, dogleg around the rock field",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 3,
+            "engineer": 4,
+            "comms": 7
+          },
+          "effects": {
+            "fuel_kg": -9,
+            "delta_v_ms": 3,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Đường vòng cần hiệu chỉnh giữa chừng. Nếu hiệu chỉnh trượt, tàu đáp vào rìa bãi đá chứ không phải trước nó.",
+          "risk_en": "The dogleg needs a mid course correction. Miss it and we set down on the edge of the rock field instead of short of it.",
+          "rationale_vi": "Liên lạc muốn giữ cả hai: khoảng cách đủ gần để cứu, và một đường bay còn gửi về Trái Đất kiểm tra được.",
+          "rationale_en": "Comms wants both: close enough to reach, and a trajectory Earth can still check."
+        }
+      ]
+    },
+    {
+      "id": "reserve_propellant",
+      "phase": "approach",
+      "title_vi": "Dùng nhiên liệu dự phòng hay giữ lại",
+      "title_en": "Spend the reserve or hold it",
+      "situation_vi": "Còn 214 kg nhiên liệu. Hạn mức tối thiểu để về quỹ đạo là 150 kg. Manoeuvre hiệu chỉnh chính xác cần 48 kg, đốt ngắn bằng RCS cần 11 kg.",
+      "situation_en": "Two hundred fourteen kilos of propellant left. The minimum to get back to orbit is 150 kg. A clean correction burn costs 48 kg, a short RCS trim costs 11 kg.",
+      "stakes_vi": "Đốt đủ thì quỹ đạo sạch, cửa sổ liên lạc ổn định, nhưng biên hủy chỉ còn 16 kg. Đốt thiếu thì trôi, và trôi nghĩa là không hẹn được với tàu mẹ.",
+      "stakes_en": "A full burn gives a clean orbit and steady comm passes, but leaves 16 kg of abort margin. A short trim lets us drift, and drifting means no rendezvous with the mother ship.",
+      "options": [
+        {
+          "id": "full_correction",
+          "label_vi": "Đốt đủ 48 kg, quỹ đạo sạch, còn 166 kg",
+          "label_en": "Full 48 kg correction, clean orbit, 166 kg left",
+          "favors": "comms",
+          "role_trust": {
+            "commander": -5,
+            "engineer": -3,
+            "comms": 9
+          },
+          "effects": {
+            "fuel_kg": -48,
+            "delta_v_ms": 22,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -7
+          },
+          "risk_vi": "Biên hủy còn 16 kg, dưới mức 25 kg mà quy trình gọi là an toàn. Nếu lần đốt hạ cánh trượt, không có lần hai.",
+          "risk_en": "Abort margin falls to 16 kg, below the 25 kg the procedure calls safe. If the descent burn goes long, there is no second attempt.",
+          "rationale_vi": "Liên lạc cần quỹ đạo đoán được. Quỹ đạo sạch nghĩa là mỗi cửa sổ liên lạc đều tới đúng giờ, và Trái Đất thấy ta 12 phút mỗi Sol.",
+          "rationale_en": "Comms needs a predictable orbit. A clean orbit means every pass lands on time and Earth sees us 12 minutes a sol."
+        },
+        {
+          "id": "rcs_trim_only",
+          "label_vi": "Chỉ đốt RCS 11 kg, giữ 203 kg dự phòng",
+          "label_en": "RCS trim only, 11 kg, hold 203 kg in reserve",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": 2,
+            "engineer": 9,
+            "comms": -8
+          },
+          "effects": {
+            "fuel_kg": -11,
+            "delta_v_ms": 6,
+            "crew_morale_pct": -2,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Sai số quỹ đạo còn 1,4 km và lớn dần. Cửa sổ liên lạc trượt 40 giây mỗi Sol, ăng ten phải tự bám.",
+          "risk_en": "Trajectory error stays at 1.4 km and grows. Passes drift 40 seconds per sol and the antenna has to chase.",
+          "rationale_vi": "Kỹ thuật giữ biên cho phần khó nhất. Hạ cánh mới là chỗ cần nhiên liệu, không phải chặng bay bằng.",
+          "rationale_en": "The engineer saves margin for the hard part. Descent is where propellant matters, not the coast."
+        },
+        {
+          "id": "borrow_landing_budget",
+          "label_vi": "Lấy 20 kg từ túi hạ cánh, đốt 28 kg",
+          "label_en": "Borrow 20 kg from the landing budget, burn 28 kg",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": -7,
+            "comms": 5
+          },
+          "effects": {
+            "fuel_kg": -28,
+            "delta_v_ms": 14,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Túi hạ cánh còn 22 kg biên thay vì 42. Gió tầng thấp mạnh hơn dự báo 3 m/s là đủ để ăn hết phần đó.",
+          "risk_en": "Landing margin drops from 42 to 22 kg. Low level wind 3 m/s above forecast eats exactly that.",
+          "rationale_vi": "Chỉ huy giữ đủ nhiên liệu hủy, và vẫn có quỹ đạo đủ sạch để cửa sổ liên lạc không trượt.",
+          "rationale_en": "The commander keeps the abort reserve intact and still buys an orbit clean enough that the passes hold."
+        }
+      ]
+    },
+    {
+      "id": "radiation_budget",
+      "phase": "approach",
+      "title_vi": "Ba mươi bốn mSv để nhanh hơn chín giờ",
+      "title_en": "Thirty four mSv for nine hours",
+      "situation_vi": "Liều tích lũy của cả đội là 118 mSv, giới hạn sự nghiệp 400 mSv. Bay thấp hơn cắt 9 giờ nhưng cộng thêm 34 mSv.",
+      "situation_en": "Crew cumulative dose is 118 mSv against a 400 mSv career limit. A lower trajectory saves nine hours and adds 34 mSv.",
+      "stakes_vi": "Vượt 250 mSv thì một người mất tư cách bay dài hạn. Bay chậm thì người dưới mặt đất mất 9 giờ oxy mà ta không lấy lại được.",
+      "stakes_en": "Past 250 mSv a crew member loses long duration flight status. Going slow costs the surface survivor nine hours of oxygen nobody gets back.",
+      "options": [
+        {
+          "id": "low_fast_track",
+          "label_vi": "Bay thấp, tới sớm 9 giờ, cộng 34 mSv",
+          "label_en": "Fly low, arrive nine hours early, take the 34 mSv",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": 3,
+            "comms": -5
+          },
+          "effects": {
+            "radiation_mSv": 34,
+            "delta_v_ms": 14,
+            "fuel_kg": -12,
+            "crew_morale_pct": -3,
+            "cohesion_pct": -9
+          },
+          "risk_vi": "Cả đội lên 152 mSv. Người trẻ nhất mất 38 phần trăm quỹ liều sự nghiệp trong một tuần.",
+          "risk_en": "The crew goes to 152 mSv. The youngest loses 38 percent of a career dose budget in one week.",
+          "rationale_vi": "Chỉ huy không tiêu 9 giờ oxy của người khác để giữ một con số trong hồ sơ y tế.",
+          "rationale_en": "The commander will not spend someone else's nine hours of oxygen to protect a number in a medical file."
+        },
+        {
+          "id": "hold_nominal_orbit",
+          "label_vi": "Giữ quỹ đạo danh định, chấp nhận chậm 9 giờ",
+          "label_en": "Hold the nominal orbit, accept the nine hour delay",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -9,
+            "engineer": 8,
+            "comms": 4
+          },
+          "effects": {
+            "radiation_mSv": 0,
+            "fuel_kg": -26,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Chín giờ chậm, tốn thêm 14 kg nhiên liệu cho việc giữ quỹ đạo. Oxy dưới mặt đất chỉ còn 32 giờ khi ta tới.",
+          "risk_en": "Nine hours late and 14 kg more propellant to hold the orbit. Surface oxygen is down to 32 hours when we arrive.",
+          "rationale_vi": "Kỹ thuật không đổi biên an toàn lấy tốc độ. Bức xạ không sửa được, nhiên liệu thì mua được bằng thời gian.",
+          "rationale_en": "The engineer does not trade margin for speed. Radiation cannot be fixed. Propellant can be bought with time."
+        },
+        {
+          "id": "water_shield",
+          "label_vi": "Dựng tấm chắn nước 42 kg, giảm 12 mSv, tốn 3 giờ",
+          "label_en": "Build a 42 kg water shield, cut 12 mSv, spend three hours",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 2,
+            "engineer": -4,
+            "comms": 9
+          },
+          "effects": {
+            "radiation_mSv": -12,
+            "water_kg": -42,
+            "crew_morale_pct": 4,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Bốn mươi hai ký nước là bốn mươi hai ký nước uống. Nếu hệ thống thu hồi hỏng, ta mất 11 ngày nước.",
+          "risk_en": "Forty two kilos of shielding is forty two kilos of drinking water. If the recovery loop fails we lose 11 days of water.",
+          "rationale_vi": "Liên lạc giữ sức cho phần còn lại. Một đội đang lo bức xạ thì không ai làm việc tử tế.",
+          "rationale_en": "Comms protects the people for what comes next. A crew worried about dose is not a crew doing careful work."
+        }
+      ]
+    },
+    {
+      "id": "abort_or_push",
+      "phase": "approach",
+      "title_vi": "Tiếp tục hay hủy khi đội đã chia ba",
+      "title_en": "Push or abort when the crew splits three ways",
+      "situation_vi": "Ba người, ba ý. Bỏ phiếu hai lần đều 2-1 nhưng người phản đối đổi mỗi lần. Còn 31 giờ tới điểm quyết định cuối, cửa sổ quay về đóng sau 5 giờ.",
+      "situation_en": "Three people, three positions. Two votes both came out 2-1 with a different dissenter each time. Thirty one hours to the final decision point, and the return window shuts in five.",
+      "stakes_vi": "Tiếp tục với một đội chia rẽ thì người phản đối sẽ chậm tay ở đúng lúc cần nhanh. Hủy thì người dưới mặt đất chờ thêm 26 tháng, và 26 tháng là quá lâu.",
+      "stakes_en": "Push with a split crew and the dissenter hesitates exactly when speed matters. Abort and the surface survivor waits 26 months, and 26 months is too long.",
+      "options": [
+        {
+          "id": "abort_and_wait",
+          "label_vi": "Hủy, quay về quỹ đạo chờ, mất cửa sổ",
+          "label_en": "Abort, return to the holding orbit, lose the window",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -9,
+            "engineer": 8,
+            "comms": 5
+          },
+          "effects": {
+            "fuel_kg": -88,
+            "delta_v_ms": -60,
+            "crew_morale_pct": -10,
+            "cohesion_pct": 1
+          },
+          "risk_vi": "Người dưới mặt đất chờ 26 tháng với 40 kg lương thực. Thực tế là không chờ được.",
+          "risk_en": "The surface survivor waits 26 months on 40 kg of food. In practice, that is not survivable.",
+          "rationale_vi": "Kỹ thuật muốn hạ cánh với một đội đồng ý. Một phi công bị ép thì bỏ sót checklist.",
+          "rationale_en": "The engineer wants to land with a crew that agrees. A pilot overruled skips checklist items."
+        },
+        {
+          "id": "commander_decides",
+          "label_vi": "Chỉ huy quyết, tiếp tục hạ cánh theo kế hoạch",
+          "label_en": "Commander decides, continue the descent as planned",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -7,
+            "comms": -9
+          },
+          "effects": {
+            "delta_v_ms": 20,
+            "crew_morale_pct": -6,
+            "cohesion_pct": -10
+          },
+          "risk_vi": "Hai người còn lại làm việc trong im lặng. Ở Sol thứ ba dưới mặt đất, sự im lặng đó thành sai sót.",
+          "risk_en": "The other two work in silence. By sol three on the surface, that silence becomes a mistake.",
+          "rationale_vi": "Chỉ huy có quyền và có trách nhiệm. Ba người không đồng ý thì một người phải chịu trách nhiệm, ngay bây giờ.",
+          "rationale_en": "Authority exists for this moment. If three people disagree, one carries it, and carries it now."
+        },
+        {
+          "id": "binding_vote",
+          "label_vi": "Bỏ phiếu kín, cam kết theo đa số, ghi vào nhật ký",
+          "label_en": "Secret ballot, commit to the majority, log it",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 2,
+            "engineer": 5,
+            "comms": 8
+          },
+          "effects": {
+            "cohesion_pct": 2,
+            "crew_morale_pct": 2,
+            "fuel_kg": -3
+          },
+          "risk_vi": "Mất 90 phút cho một cuộc họp mà kết quả có thể vẫn là 2-1. Người thiểu số vẫn phải làm theo.",
+          "risk_en": "Ninety minutes for a meeting that may still end 2-1. The dissenter still has to execute.",
+          "rationale_vi": "Liên lạc muốn mọi người nói ra trước khi bấm nút. Đồng thuận không phải là đồng ý, mà là không còn gì giấu.",
+          "rationale_en": "Comms wants everyone on record before the button. Consensus is not agreement. It is nothing left unsaid."
+        }
+      ]
+    },
+    {
+      "id": "short_comms_window",
+      "phase": "approach",
+      "title_vi": "Sáu phút băng thông cho dữ liệu hay cho hạ cánh",
+      "title_en": "Six minutes of bandwidth, data or descent",
+      "situation_vi": "Cửa sổ liên lạc cuối trước vùng nhiễu dài 6 phút. Dữ liệu quỹ đạo cần 1,4 GB. Telemetry hạ cánh cần cả 6 phút nếu muốn giữ nhịp 1 Hz.",
+      "situation_en": "The last pass before the interference zone runs six minutes. The trajectory package is 1.4 GB. Descent telemetry needs all six minutes to hold 1 Hz.",
+      "stakes_vi": "Gửi dữ liệu thì 30 giây cuối hạ cánh không ai thấy. Giữ telemetry thì Trái Đất mù về quỹ đạo và không kịp tính lại điểm đáp.",
+      "stakes_en": "Send the data and nobody sees the last 30 seconds of descent. Keep telemetry and Earth is blind to the trajectory, too late to recompute the landing point.",
+      "options": [
+        {
+          "id": "send_trajectory_package",
+          "label_vi": "Gửi 1,4 GB dữ liệu quỹ đạo, tắt telemetry",
+          "label_en": "Send the 1.4 GB trajectory package, drop telemetry",
+          "favors": "comms",
+          "role_trust": {
+            "commander": -8,
+            "engineer": -6,
+            "comms": 9
+          },
+          "effects": {
+            "power_w": -40,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -6
+          },
+          "risk_vi": "Ba mươi giây cuối không có số. Nếu hỏng, không ai biết hỏng ở đâu và không ai sửa được lần sau.",
+          "risk_en": "No numbers for the last 30 seconds. If it goes wrong, nobody knows where, and nobody fixes it next time.",
+          "rationale_vi": "Liên lạc muốn Trái Đất có dữ liệu để tính lại điểm đáp. Không có dữ liệu thì họ chỉ ngồi nhìn.",
+          "rationale_en": "Comms wants Earth holding the data to recompute the landing point. Without it they can only watch."
+        },
+        {
+          "id": "keep_descent_telemetry",
+          "label_vi": "Giữ đủ 6 phút cho telemetry hạ cánh, dữ liệu gửi sau",
+          "label_en": "Reserve all six minutes for descent telemetry, send data later",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": 3,
+            "comms": -7
+          },
+          "effects": {
+            "cohesion_pct": -1,
+            "crew_morale_pct": 0
+          },
+          "risk_vi": "Dữ liệu quỹ đạo tới muộn 14 giờ, sau khi tà đã vào vùng nhiễu. Coi như mất.",
+          "risk_en": "The trajectory package arrives 14 hours late, after the ship enters the interference zone. Effectively lost.",
+          "rationale_vi": "Chỉ huy muốn thấy từng giây của lần hạ cánh. Không thấy thì không học được gì từ lần sau.",
+          "rationale_en": "The commander wants every second of the descent visible. Unseen descents teach nothing."
+        },
+        {
+          "id": "compress_and_split",
+          "label_vi": "Nén còn 380 MB, gửi 2 phút, giữ 4 phút telemetry",
+          "label_en": "Compress to 380 MB, send in two minutes, keep four for telemetry",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": 5,
+            "engineer": 7,
+            "comms": 3
+          },
+          "effects": {
+            "power_w": -15,
+            "cohesion_pct": -1,
+            "crew_morale_pct": 1
+          },
+          "risk_vi": "Nén mất 70 phần trăm độ phân giải dữ liệu. Sai số quỹ đạo tính lại từ bản nén là 180 m.",
+          "risk_en": "Compression costs 70 percent of the data resolution. Trajectory recomputed from the compressed set is 180 m off.",
+          "rationale_vi": "Kỹ thuật chia kênh thay vì chọn phe. Một phần dữ liệu và một phần telemetry vẫn hơn một bên bằng không.",
+          "rationale_en": "The engineer splits the channel instead of picking a side. Some data and some telemetry beats either at zero."
+        }
+      ]
+    },
+    {
+      "id": "entry_angle",
+      "phase": "descent",
+      "title_vi": "Góc vào dày hay nông",
+      "title_en": "Steep entry or shallow",
+      "situation_vi": "Góc 12,8 độ cho quãng bay 620 km, đỉnh 5,1 g. Góc 15,4 độ ngắn hơn 180 km nhưng đỉnh 9,2 g trong 4 phút.",
+      "situation_en": "A 12.8 degree entry flies 620 km at a 5.1 g peak. A 15.4 degree entry is 180 km shorter but peaks at 9.2 g for four minutes.",
+      "stakes_vi": "Một người trong đội có tiền sử đau cột sống. Chín g trong bốn phút có thể làm cô ấy mất khả năng vận hành đúng lúc cần nhất.",
+      "stakes_en": "One of the crew has a history of spinal injury. Nine g for four minutes can take her out of action at the worst moment.",
+      "options": [
+        {
+          "id": "steep_entry",
+          "label_vi": "Vào 15,4 độ, ngắn 180 km, đỉnh 9,2 g",
+          "label_en": "Enter at 15.4 degrees, 180 km shorter, 9.2 g peak",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": -4,
+            "comms": -6
+          },
+          "effects": {
+            "delta_v_ms": -30,
+            "fuel_kg": 14,
+            "crew_morale_pct": -6,
+            "cohesion_pct": -9
+          },
+          "risk_vi": "Cột sống của phi công chịu 9,2 g khi chưa được đánh giá y tế. Nếu cô ấy ngất, ghế bên phải không ai trực.",
+          "risk_en": "The pilot's spine takes 9.2 g without a medical sign off. If she blacks out, the right seat is uncrewed.",
+          "rationale_vi": "Chỉ huy tiết kiệm 180 km đường bay, tức 11 phút. Mười một phút là thứ không mua được bằng gì khác.",
+          "rationale_en": "The commander buys 180 km, which is 11 minutes. Eleven minutes cannot be bought any other way."
+        },
+        {
+          "id": "shallow_entry",
+          "label_vi": "Vào 12,8 độ, dài hơn 180 km, đỉnh 5,1 g",
+          "label_en": "Enter at 12.8 degrees, 180 km longer, 5.1 g peak",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -8,
+            "engineer": 8,
+            "comms": 4
+          },
+          "effects": {
+            "fuel_kg": -22,
+            "delta_v_ms": 10,
+            "crew_morale_pct": 3,
+            "cohesion_pct": 0
+          },
+          "risk_vi": "Quãng dài hơn nghĩa là ở trong vùng nhiệt lâu hơn 90 giây. Tấm chắn nhiệt đã qua một lần dùng.",
+          "risk_en": "The longer path spends 90 extra seconds in the heating zone. The heat shield is already on its second flight.",
+          "rationale_vi": "Kỹ thuật không đẩy tấm chắn nhiệt và cột sống tới giới hạn cùng lúc. Một trong hai phải có biên.",
+          "rationale_en": "The engineer will not push the heat shield and a spine to their limits at once. One of them keeps margin."
+        },
+        {
+          "id": "lifting_entry",
+          "label_vi": "Vào 14,1 độ có lực nâng, đổi hướng 40 km",
+          "label_en": "Enter at 14.1 degrees with lift, 40 km cross range",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 4,
+            "engineer": 2,
+            "comms": 7
+          },
+          "effects": {
+            "delta_v_ms": -8,
+            "fuel_kg": -6,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Lực nâng phụ thuộc mô hình khí quyển, và mô hình đó chưa được cập nhật bằng dữ liệu bão bụi tuần này.",
+          "risk_en": "Lift depends on the atmosphere model, and this week's dust storm data has not updated that model.",
+          "rationale_vi": "Liên lạc muốn giữ đường bay trong tầm nhìn của trạm đo mặt đất để có người xác nhận điểm đáp.",
+          "rationale_en": "Comms wants the ground track inside station coverage so somebody confirms where we land."
+        }
+      ]
+    },
+    {
+      "id": "chute_timing",
+      "phase": "descent",
+      "title_vi": "Bung dù ở Mach 1,7 hay bung tay",
+      "title_en": "Deploy at Mach 1.7 or on the hand",
+      "situation_vi": "Dù chính bung danh định ở Mach 1,7. Cảm biến áp suất lệch 3,4 phần trăm, đủ để bung sớm 9 giây. Bung sớm thì trôi thêm 2,6 km.",
+      "situation_en": "The main chute is set for Mach 1.7. The pressure sensor reads 3.4 percent off, enough to fire nine seconds early. Early deployment adds 2.6 km of drift.",
+      "stakes_vi": "Bung sớm ở Mach 1,9 thì dù chịu tải vượt thiết kế, rách là mất luôn. Bung muộn thì không kịp giảm tốc trước mặt đất.",
+      "stakes_en": "Fire at Mach 1.9 and the canopy takes a load past design, and a torn canopy is no canopy. Fire late and there is not enough time to slow before the ground.",
+      "options": [
+        {
+          "id": "early_deploy",
+          "label_vi": "Chủ động bung sớm 9 giây, trôi thêm 2,6 km",
+          "label_en": "Deliberately fire nine seconds early, drift 2.6 km",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": -7,
+            "comms": 0
+          },
+          "effects": {
+            "fuel_kg": -8,
+            "delta_v_ms": -12,
+            "crew_morale_pct": -2,
+            "cohesion_pct": -7
+          },
+          "risk_vi": "Trôi 2,6 km ra khỏi vùng đã trinh sát. Bãi đáp mới chưa có ảnh độ phân giải cao.",
+          "risk_en": "We drift 2.6 km outside the surveyed zone. The new pad has no high resolution imagery.",
+          "rationale_vi": "Chỉ huy chọn chỗ chắc chắn còn thời gian sửa. Bung muộn là hết đường lui.",
+          "rationale_en": "The commander picks the case with time left to correct. A late deploy has no recovery."
+        },
+        {
+          "id": "nominal_deploy",
+          "label_vi": "Giữ danh định Mach 1,7, hiệu chỉnh cảm biến bằng mô hình",
+          "label_en": "Hold the Mach 1.7 nominal, correct the sensor in software",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -4,
+            "engineer": 9,
+            "comms": 5
+          },
+          "effects": {
+            "cohesion_pct": -1,
+            "crew_morale_pct": 1
+          },
+          "risk_vi": "Mô hình hiệu chỉnh dựa trên 40 giây dữ liệu. Nếu lệch thật nằm ở phần cứng, ta không biết cho tới khi dù bung.",
+          "risk_en": "The correction model rests on 40 seconds of data. If the bias is in the hardware we find out when the chute fires.",
+          "rationale_vi": "Kỹ thuật tin dữ liệu hơn tin cảm giác. Cảm biến lệch thì sửa số, không sửa quy trình.",
+          "rationale_en": "The engineer trusts data over instinct. A biased sensor means fixing numbers, not fixing procedure."
+        },
+        {
+          "id": "manual_deploy",
+          "label_vi": "Chuyển sang bung tay, phi công bấm theo mốc thị giác",
+          "label_en": "Switch to manual, pilot fires on visual cues",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 3,
+            "engineer": -2,
+            "comms": 8
+          },
+          "effects": {
+            "cohesion_pct": -1,
+            "crew_morale_pct": 3
+          },
+          "risk_vi": "Con người phản ứng chậm hơn máy 0,4 giây. Ở 240 m/s, đó là 96 m.",
+          "risk_en": "A human reacts 0.4 seconds slower than the box. At 240 m/s that is 96 m.",
+          "rationale_vi": "Liên lạc muốn có người trong vòng quyết định, và phi công là người duy nhất nhìn thấy mặt đất thật.",
+          "rationale_en": "Comms wants a human in the loop, and the pilot is the only one actually looking at the ground."
+        }
+      ]
+    },
+    {
+      "id": "ballast_dump",
+      "phase": "descent",
+      "title_vi": "Xả nước dằn hay giữ cho bốn Sol đầu",
+      "title_en": "Dump the ballast or keep four sols of water",
+      "situation_vi": "Còn 62 kg nước trong tank dằn. Xả hết giảm 0,9 tấn lực cản tương đương và tiết kiệm 9 m/s. Bốn Sol đầu dưới mặt đất cần 48 kg nước nếu hệ thống thu hồi chưa chạy.",
+      "situation_en": "Sixty two kilos of water sit in the ballast tank. Dumping it trims the equivalent of 0.9 tonnes of drag and saves 9 m/s. The first four sols on the surface need 48 kg if the recovery loop is not up yet.",
+      "stakes_vi": "Giữ nước thì tàu nặng hơn, góc vào lệch và phải đốt bù. Xả hết thì bốn ngày đầu không có nước uống dự phòng nếu trạm hỏng.",
+      "stakes_en": "Keep the water and the ship is heavier, the entry angle shifts, and we burn propellant to fix it. Dump it all and the first four days have no drinking water reserve if the habitat failed.",
+      "options": [
+        {
+          "id": "dump_all_ballast",
+          "label_vi": "Xả toàn bộ 62 kg, nhẹ hơn, tiết kiệm 9 m/s",
+          "label_en": "Dump all 62 kg, lighter ship, save 9 m/s",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -8,
+            "engineer": 9,
+            "comms": -5
+          },
+          "effects": {
+            "water_kg": -62,
+            "delta_v_ms": 9,
+            "crew_morale_pct": -4,
+            "cohesion_pct": -8
+          },
+          "risk_vi": "Không còn nước dự phòng. Nếu bộ thu hồi hỏng ngay sau khi đáp, ta có 11 giờ trước khi phải quay lại quỹ đạo.",
+          "risk_en": "No water reserve left. If the recovery loop fails right after landing we have 11 hours before we have to leave.",
+          "rationale_vi": "Kỹ thuật cần khối lượng nhập quyển đúng danh định. Mọi ký thừa đều phải trả bằng nhiên liệu hoặc bằng nhiệt.",
+          "rationale_en": "The engineer needs entry mass at nominal. Every extra kilo is paid in propellant or in heat."
+        },
+        {
+          "id": "keep_ballast",
+          "label_vi": "Giữ đủ 62 kg, chấp nhận nặng hơn và đốt bù",
+          "label_en": "Keep all 62 kg, accept the weight and burn to correct",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 8,
+            "engineer": -7,
+            "comms": 4
+          },
+          "effects": {
+            "delta_v_ms": -4,
+            "fuel_kg": -7,
+            "crew_morale_pct": 2,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Nhiệt độ tấm chắn tăng 140 độ C ở đỉnh. Tấm chắn này đã bay một lần và có hai vết nứt nhỏ đã vá.",
+          "risk_en": "Shield peak temperature rises 140 C. That shield has flown once and carries two patched cracks.",
+          "rationale_vi": "Chỉ huy giữ nước cho bốn ngày đầu. Người ta chết vì thiếu nước nhanh hơn chết vì nóng tấm chắn.",
+          "rationale_en": "The commander keeps water for the first four days. People die faster from no water than from a hot shield."
+        },
+        {
+          "id": "dump_half_ballast",
+          "label_vi": "Xả 30 kg, giữ 32 kg, đốt bù 4 m/s",
+          "label_en": "Dump 30 kg, keep 32 kg, trim four m/s",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 4,
+            "engineer": 3,
+            "comms": 7
+          },
+          "effects": {
+            "water_kg": -30,
+            "delta_v_ms": 4,
+            "crew_morale_pct": 0,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Ba mươi hai ký là hai ngày cho ba người. Không đủ nếu phải chờ tàu tiếp tế, đủ nếu trạm còn nguyên.",
+          "risk_en": "Thirty two kilos is two days for three people. Not enough if we wait for resupply, enough if the habitat is intact.",
+          "rationale_vi": "Liên lạc muốn giữ phần dự phòng cho kịch bản xấu nhất và vẫn có số liệu khối lượng sạch để báo về.",
+          "rationale_en": "Comms wants a reserve for the worst case and still a clean mass number to report."
+        }
+      ]
+    },
+    {
+      "id": "rover_charge",
+      "phase": "surface",
+      "title_vi": "Sạc rover hay sưởi trạm qua đêm",
+      "title_en": "Charge the rover or heat the habitat",
+      "situation_vi": "Bụi phủ giảm 22 phần trăm sản lượng pin. Rover cần 3,1 kWh để tới chỗ người mắc kẹt. Trạm cần 2,4 kWh sưởi qua đêm, nếu không nhiệt độ xuống âm 41 độ C.",
+      "situation_en": "Dust on the arrays costs 22 percent of output. The rover needs 3.1 kWh to reach the survivor. The habitat needs 2.4 kWh of heat overnight or it drops to minus 41 C.",
+      "stakes_vi": "Sạc rover trước thì trạm lạnh, và hệ thống nước trong trạm nứt ở âm 41 độ C. Sưởi trước thì rover không tới được trong cửa sổ oxy.",
+      "stakes_en": "Charge the rover first and the habitat freezes, cracking its water lines at minus 41 C. Heat first and the rover misses the oxygen window.",
+      "options": [
+        {
+          "id": "charge_rover_first",
+          "label_vi": "Sạc rover trước, 3,1 kWh, trạm chạy sưởi tối thiểu",
+          "label_en": "Charge the rover first, 3.1 kWh, habitat on minimum heat",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -9,
+            "comms": 3
+          },
+          "effects": {
+            "power_w": -180,
+            "crew_morale_pct": 2,
+            "cohesion_pct": -7
+          },
+          "risk_vi": "Trạm xuống âm 34 độ C trong bốn giờ. Đường nước xám nứt và bộ thu hồi mất 26 giờ sửa.",
+          "risk_en": "The habitat drops to minus 34 C for four hours. The grey water line cracks and the recovery loop costs 26 hours to repair.",
+          "rationale_vi": "Chỉ huy đặt người mắc kẹt lên trước thiết bị. Đường nước sửa được, người thì không.",
+          "rationale_en": "The commander puts the survivor ahead of the plumbing. A water line can be repaired. A person cannot."
+        },
+        {
+          "id": "heat_habitat_first",
+          "label_vi": "Giữ sưởi trạm 2,4 kWh, rover sạc sau 9 giờ",
+          "label_en": "Hold 2.4 kWh of habitat heat, rover charges nine hours later",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -8,
+            "engineer": 9,
+            "comms": 1
+          },
+          "effects": {
+            "power_w": -90,
+            "crew_morale_pct": -3,
+            "cohesion_pct": 0
+          },
+          "risk_vi": "Rover khởi hành muộn 9 giờ. Cửa sổ oxy của người mắc kẹt hẹp lại còn 14 giờ tính từ lúc rover tới.",
+          "risk_en": "The rover leaves nine hours late. The survivor's oxygen window narrows to 14 hours from the rover's arrival.",
+          "rationale_vi": "Kỹ thuật giữ phần cứng sống. Không có trạm thì không có chỗ quay về cho cả bốn người.",
+          "rationale_en": "The engineer keeps the hardware alive. No habitat means nowhere for four people to come back to."
+        },
+        {
+          "id": "split_charge",
+          "label_vi": "Chia 1,6 kWh rover, 1,2 kWh sưởi, hạ nhiệt độ đêm xuống âm 18 độ C",
+          "label_en": "Split 1.6 kWh to the rover, 1.2 kWh to heat, night floor at minus 18 C",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 3,
+            "engineer": 2,
+            "comms": 7
+          },
+          "effects": {
+            "power_w": -120,
+            "crew_morale_pct": -2,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Rover chỉ sạc được 52 phần trăm, chặng về phải dừng nạp giữa đường. Trạm ở âm 18 độ C vẫn đủ lạnh để đau.",
+          "risk_en": "The rover reaches 52 percent and needs a mid route top up. The habitat at minus 18 C is still cold enough to hurt.",
+          "rationale_vi": "Liên lạc muốn giữ cả kênh rover và kênh trạm hoạt động. Mất một bên là mất một nửa bức tranh.",
+          "rationale_en": "Comms wants both the rover link and the habitat link alive. Losing either halves the picture."
+        }
+      ]
+    },
+    {
+      "id": "eva_in_dust",
+      "phase": "surface",
+      "title_vi": "Đi trong bão bụi hay chờ gió xuống",
+      "title_en": "Walk into the dust or wait for the wind",
+      "situation_vi": "Tầm nhìn 180 m, gió 26 m/s, bụi mịn che 40 phần trăm tấm pin. Tính từ lần liên lạc cuối, người mắc kẹt còn 41 giờ oxy.",
+      "situation_en": "Visibility 180 m, wind 26 m/s, fine dust covering 40 percent of the arrays. From the last contact, the survivor has 41 hours of oxygen.",
+      "stakes_vi": "Đi ngay thì mất định hướng và mất liên lạc vô tuyến trong bụi. Chờ 14 giờ thì mất một phần ba quỹ oxy còn lại.",
+      "stakes_en": "Go now and we lose heading and radio contact inside the dust. Wait 14 hours and a third of the remaining oxygen is gone.",
+      "options": [
+        {
+          "id": "eva_now",
+          "label_vi": "Hai người đi ngay, 6 giờ, mang 9 kg oxy",
+          "label_en": "Two go now, six hours, carrying 9 kg of oxygen",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": -6,
+            "comms": -8
+          },
+          "effects": {
+            "o2_kg": -9,
+            "radiation_mSv": 6,
+            "crew_morale_pct": 4,
+            "cohesion_pct": -9
+          },
+          "risk_vi": "Vô tuyến mất liên lạc ở 400 m. Nếu một người bị thương, người kia phải chọn giữa quay về và ở lại.",
+          "risk_en": "Radio drops at 400 m. If one gets hurt, the other has to choose between returning and staying.",
+          "rationale_vi": "Chỉ huy đếm ngược quỹ oxy, không đếm nốt gió. Bốn mươi mốt giờ không chờ thời tiết.",
+          "rationale_en": "The commander counts oxygen, not wind speed. Forty one hours does not wait for weather."
+        },
+        {
+          "id": "wait_for_clear",
+          "label_vi": "Chờ 14 giờ tới khi gió xuống 14 m/s",
+          "label_en": "Wait 14 hours for wind under 14 m/s",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -9,
+            "engineer": 9,
+            "comms": 2
+          },
+          "effects": {
+            "o2_kg": -2,
+            "crew_morale_pct": -3,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Mười bốn giờ là 34 phần trăm quỹ oxy. Nếu dự báo sai, ta mất thêm một cửa sổ nữa.",
+          "risk_en": "Fourteen hours is 34 percent of the oxygen budget. If the forecast is wrong we lose another window on top.",
+          "rationale_vi": "Kỹ thuật không đưa người vào bụi với tầm nhìn 180 m. Bộ lọc của bộ đồ sẽ tắc trong 4 giờ.",
+          "rationale_en": "The engineer will not put people into 180 m visibility. The suit filters clog in four hours."
+        },
+        {
+          "id": "rover_probe_first",
+          "label_vi": "Thả rover dò đường 3 giờ, sau đó đi theo vệt bánh",
+          "label_en": "Send the rover to scout for three hours, then follow its tracks",
+          "favors": "comms",
+          "role_trust": {
+            "commander": 4,
+            "engineer": 5,
+            "comms": 8
+          },
+          "effects": {
+            "power_w": -60,
+            "crew_morale_pct": 1,
+            "cohesion_pct": -1
+          },
+          "risk_vi": "Ba giờ và 60 W, và rover có thể mắc kẹt ở chỗ mà người thì đi qua được.",
+          "risk_en": "Three hours and 60 W, and the rover can bog down where a person would walk through.",
+          "rationale_vi": "Liên lạc giữ một đường liên lạc chuyển tiếp. Rover làm trạm tiếp sóng ở 1,2 km.",
+          "rationale_en": "Comms keeps a relay in the field. The rover acts as a repeater at 1.2 km."
+        }
+      ]
+    },
+    {
+      "id": "evac_order",
+      "phase": "surface",
+      "title_vi": "Đưa người lên trước hay lấy mẫu trước",
+      "title_en": "Lift the person first or the samples",
+      "situation_vi": "Còn 6 giờ trước khi cửa sổ về đóng. Người mắc kẹt cách 3,2 km, mẫu đá 40 kg đã niêm phong, một chân đáp nứt 4 cm.",
+      "situation_en": "Six hours until the return window closes. The survivor is 3.2 km out, 40 kg of sealed rock cores are aboard, and one landing leg has a 4 cm crack.",
+      "stakes_vi": "Mẫu nặng 40 kg là 7 m/s khỏi túi nhiên liệu, mà chân đáp nứt đã ăn một phần biên. Bỏ mẫu thì mất toàn bộ kết quả khoa học của sứ mệnh.",
+      "stakes_en": "Forty kilos of core is seven m/s out of the propellant budget, and the cracked leg already ate part of the margin. Leave the cores and the mission returns no science.",
+      "options": [
+        {
+          "id": "survivor_first",
+          "label_vi": "Đưa người lên trước, bỏ 40 kg mẫu tại chỗ",
+          "label_en": "Lift the survivor first, leave the 40 kg of cores",
+          "favors": "commander",
+          "role_trust": {
+            "commander": 9,
+            "engineer": 5,
+            "comms": -9
+          },
+          "effects": {
+            "payload_kg": -40,
+            "delta_v_ms": 7,
+            "crew_morale_pct": 5,
+            "cohesion_pct": -6
+          },
+          "risk_vi": "Mẫu nằm lại trong hộp niêm phong ở toạ độ đã đánh dấu. Không ai quay lại lấy trong 26 tháng tới.",
+          "risk_en": "The cores stay in a sealed box at a marked coordinate. Nobody comes back for them for 26 months.",
+          "rationale_vi": "Chỉ huy không cân mẫu đá với một người. Câu hỏi đó không có hai đáp án.",
+          "rationale_en": "The commander does not weigh rock against a person. That question does not have two answers."
+        },
+        {
+          "id": "cores_first",
+          "label_vi": "Lấy mẫu lên trước, đón người sau, trễ 2 giờ",
+          "label_en": "Load the cores first, collect the survivor after, two hours late",
+          "favors": "comms",
+          "role_trust": {
+            "commander": -9,
+            "engineer": -4,
+            "comms": 9
+          },
+          "effects": {
+            "delta_v_ms": -6,
+            "crew_morale_pct": -8,
+            "cohesion_pct": -11
+          },
+          "risk_vi": "Hai giờ trễ là hai giờ trong cửa sổ sáu giờ. Chân đáp nứt có thể lan thêm khi chất thêm 40 kg.",
+          "risk_en": "Two hours late out of a six hour window. The cracked leg may spread under 40 extra kilos.",
+          "rationale_vi": "Liên lạc giữ dữ liệu vì đó là thứ duy nhất còn lại sau sứ mệnh. Người ta sống, rồi người ta cần biết vì sao.",
+          "rationale_en": "Comms protects the data because it is the only thing that outlives the mission. People live, then people need to know why."
+        },
+        {
+          "id": "split_crew_return",
+          "label_vi": "Một người về với mẫu, hai người ở lại đón người",
+          "label_en": "One flies home with the cores, two stay to collect the survivor",
+          "favors": "engineer",
+          "role_trust": {
+            "commander": -5,
+            "engineer": 8,
+            "comms": 3
+          },
+          "effects": {
+            "cohesion_pct": -1,
+            "crew_morale_pct": -4,
+            "o2_kg": -6
+          },
+          "risk_vi": "Tách đội là vi phạm quy tắc số một. Và chuyến về một người không có ai kiểm checklist chéo.",
+          "risk_en": "Splitting the crew breaks rule one. And a solo ascent has nobody to cross check the checklist.",
+          "rationale_vi": "Kỹ thuật giữ khối lượng dưới hạn mức chân đáp và vẫn cứu được người. Hai mục tiêu, một cấu hình.",
+          "rationale_en": "The engineer keeps mass inside the cracked leg's limit and still rescues the person. Two goals, one configuration."
+        }
+      ]
+    }
+  ]
+}

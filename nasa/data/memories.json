@@ -1,0 +1,167 @@
+{
+  "$comment": "Các lượt hồi tưởng gia đình. Mở từ túi đồ trong màn căn cứ, không nằm ở màn mở đầu. Mọi trường vi và en đều bắt buộc. Không dùng dấu gạch dài trong nội dung hiển thị.",
+  "family": {
+    "id": "family",
+    "item": "family_photo",
+    "title": {
+      "vi": "Tấm ảnh gia đình",
+      "en": "The family photo"
+    },
+    "subtitle": {
+      "vi": "Houston · mười ngày trước khi phóng",
+      "en": "Houston · ten days before launch"
+    },
+    "skip": {
+      "vi": "Bỏ qua",
+      "en": "Skip"
+    },
+    "next": {
+      "vi": "Tiếp",
+      "en": "Next"
+    },
+    "close": {
+      "vi": "Cất ảnh đi",
+      "en": "Put it away"
+    },
+    "beats": [
+      {
+        "id": "m01",
+        "type": "narration",
+        "art": "bg-houston-kitchen",
+        "caption": { "vi": "Căn hộ Houston · 23:40", "en": "Houston apartment · 23:40" },
+        "text": {
+          "vi": "Trên cánh cửa tủ lạnh có một tấm ảnh cả đội Ares 3 đứng trước bệ phóng. Dán bằng băng keo điện, vì cục nam châm đã thất lạc từ đợt dọn nhà.",
+          "en": "On the fridge door hung a photo of the Ares 3 crew in front of the launchpad. Held up with electrical tape, because the magnet went missing during the move."
+        }
+      },
+      {
+        "id": "m02",
+        "type": "narration",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Căn hộ trống gần hết. Đồ đạc đã vào thùng, chỉ còn bàn ăn và hai cái ghế. Tờ lịch trên tường bị gạch chéo kín tới ngày phóng.",
+          "en": "The flat stood nearly bare. Everything was boxed except the table and two chairs. The wall calendar was crossed out right up to launch day."
+        }
+      },
+      {
+        "id": "m03",
+        "type": "dialogue",
+        "who": "linh",
+        "art": "bg-moving-boxes",
+        "caption": { "vi": "Hành lang · thùng thứ 14", "en": "Hallway · box 14" },
+        "text": {
+          "vi": "Cái thùng này xếp vào đâu anh?",
+          "en": "Where does this box go?"
+        }
+      },
+      {
+        "id": "m04",
+        "type": "dialogue",
+        "who": "watney",
+        "art": "bg-moving-boxes",
+        "text": {
+          "vi": "Thùng nào cơ?",
+          "en": "Which one?"
+        }
+      },
+      {
+        "id": "m05",
+        "type": "dialogue",
+        "who": "linh",
+        "art": "bg-moving-boxes",
+        "text": {
+          "vi": "Thùng ghi chữ \"Cấm mở\". Mà em lỡ mở rồi.",
+          "en": "The one marked \"Do Not Open\". Too late, I already did."
+        }
+      },
+      {
+        "id": "m06",
+        "type": "narration",
+        "art": "bg-moving-boxes",
+        "text": {
+          "vi": "Bên trong: một hộp cà phê hòa tan và bốn cuốn tiểu thuyết cũ sờn gáy. Watney bật cười, ngồi bệt xuống sàn, đẩy hộp cà phê sang một bên.",
+          "en": "Inside: a tin of instant coffee and four dog-eared paperbacks. Watney laughed, sat down on the floor, and pushed the coffee tin aside."
+        }
+      },
+      {
+        "id": "m07",
+        "type": "dialogue",
+        "who": "linh",
+        "art": "bg-houston-kitchen",
+        "caption": { "vi": "Bếp · 01:10", "en": "Kitchen · 01:10" },
+        "text": {
+          "vi": "Anh làm như mình sắp đi công tác vài hôm, tối lại nhắn tin về cho em không bằng.",
+          "en": "You act like you are flying out for a few days and will text me tonight."
+        }
+      },
+      {
+        "id": "m08",
+        "type": "dialogue",
+        "who": "watney",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Tín hiệu từ Sao Hỏa về Trái Đất trễ hai mươi phút thôi. Vẫn nhanh hơn bưu điện quận mình.",
+          "en": "The signal delay from Mars is twenty minutes. Still faster than our district post office."
+        }
+      },
+      {
+        "id": "m09",
+        "type": "dialogue",
+        "who": "linh",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Đừng hứa là anh sẽ về.",
+          "en": "Do not promise me you will come back."
+        }
+      },
+      {
+        "id": "m10",
+        "type": "dialogue",
+        "who": "watney",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Thế em muốn anh hứa điều gì?",
+          "en": "Then what should I promise?"
+        }
+      },
+      {
+        "id": "m11",
+        "type": "dialogue",
+        "who": "linh",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Đừng làm trò gì ngu ngốc. Phần đó nằm trong tay anh.",
+          "en": "Do not do anything stupid. That part is entirely up to you."
+        }
+      },
+      {
+        "id": "m12",
+        "type": "narration",
+        "art": "bg-houston-kitchen",
+        "text": {
+          "vi": "Hai người ngồi tựa lưng vào tủ bếp, nghe tiếng tủ lạnh rì rì, cho tới khi kim đồng hồ chạm ba giờ sáng.",
+          "en": "They sat back to back against the kitchen cabinets, listening to the hum of the fridge, until the clock reached three in the morning."
+        }
+      },
+      {
+        "id": "m13",
+        "type": "narration",
+        "art": "bg-farewell-door",
+        "caption": { "vi": "Cửa căn hộ · 05:20", "en": "Flat door · 05:20" },
+        "text": {
+          "vi": "Cửa mở lúc 05:20. Túi đồ đặt ở ngưỡng cửa. Linh đứng trong khung cửa sáng đèn, không bước ra ngoài hành lang.",
+          "en": "The door opened at 05:20. The duffel sat on the threshold. Linh stood in the lit doorway and did not step into the corridor."
+        }
+      },
+      {
+        "id": "m14",
+        "type": "narration",
+        "art": "bg-farewell-door",
+        "text": {
+          "vi": "Tấm ảnh được gỡ khỏi tủ lạnh, gấp đôi, nhét vào ngăn ngực áo. Sáu năm nữa mới có chuyến bay đưa người ta về lại chỗ đó. Cả hai đều biết con số ấy.",
+          "en": "The photo came off the fridge, folded once, and went into a chest pocket. It would be six years before a flight brought anyone back there. Both of them knew the number."
+        }
+      }
+    ]
+  }
+}

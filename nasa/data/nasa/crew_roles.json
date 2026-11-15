@@ -1,0 +1,150 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "dataset": "crew_roles",
+    "title_vi": "Ba vai trò phi hành đoàn trong sứ mệnh giải cứu",
+    "title_en": "The three crew roles on the rescue mission",
+    "primary_source_document": "docs/11-NASA-RESOURCES.md",
+    "design_note_vi": "Ba vai trò này gộp 16 chuyên ngành của Mission Design Lab thành ba nhóm, đúng theo gợi ý trong tài liệu nguồn mục 4.4. Mỗi vai trò có quyền phủ quyết một số chủ đề, nên muốn có quyết định nhanh thì phải thuyết phục người giữ quyền phủ quyết, không thể lách.",
+    "design_note_en": "These three roles fold the 16 Mission Design Lab disciplines into three groups, following the source document mục 4.4. Each role holds a veto over certain topics, so a fast decision requires persuading the veto holder instead of going around them.",
+    "veto_rule_vi": "Một quyết định chạm vào veto_topics của vai trò đang chơi sẽ bị chặn cho tới khi người đó được thỏa mãn bằng một nhượng bộ ở chủ đề họ ưu tiên.",
+    "veto_rule_en": "A decision that touches a role's veto_topics is blocked until that player is satisfied with a concession on a topic they prioritise."
+  },
+
+  "roles": [
+    {
+      "id": "commander",
+      "name_vi": "Chỉ huy sứ mệnh",
+      "name_en": "Mission Commander",
+      "badge_icon": "compass-rose",
+      "badge_color": "#f2b53c",
+      "priority_vi": "Giữ đoàn người sống và về tới Trái Đất, kể cả khi phải bỏ mục tiêu khoa học.",
+      "priority_en": "Keep the crew alive and bring them home, even at the cost of the science objective.",
+      "veto_topics": [
+        "cut_life_support",
+        "skip_radiation_shield",
+        "launch_outside_window",
+        "crew_overload"
+      ],
+      "veto_reasons_vi": {
+        "cut_life_support": "Cắt hệ sạch nước hoặc oxy là cắt thẳng vào biên sống của ba người.",
+        "skip_radiation_shield": "Bỏ lá chắn bức xạ đổi ung thư lấy vài trăm ki-lô-gam, không đáng.",
+        "launch_outside_window": "Phóng ngoài cửa sổ nghĩa là đốt thêm hàng tấn nhiên liệu cho một hành trình không tới nơi.",
+        "crew_overload": "Nhồi thêm người vào khoang đã tính cho ba suất là cách nhanh nhất để mất cả đoàn."
+      },
+      "veto_reasons_en": {
+        "cut_life_support": "Cutting the water or oxygen loop cuts straight into the margin that keeps three people alive.",
+        "skip_radiation_shield": "Trading cancer risk for a few hundred kilograms is never a good deal.",
+        "launch_outside_window": "Launching outside the window means burning tonnes of extra propellant on a trip that arrives nowhere.",
+        "crew_overload": "Packing more people into a cabin sized for three is the fastest way to lose everyone."
+      },
+      "stat_bonus": {
+        "command_speed": 15,
+        "crew_morale": 10,
+        "decision_latency_minutes": -3
+      },
+      "stat_bonus_note_vi": "Khi được thỏa mãn, chỉ huy giảm độ trễ ra quyết định 3 phút và tăng tốc độ xử lý tình huống 15 phần trăm.",
+      "stat_bonus_note_en": "When satisfied, the commander cuts decision latency by 3 minutes and raises crisis handling speed by 15 percent.",
+      "source": "Vai trò gộp từ nhóm chuyên ngành Mission Operations, Mission Cost và Reliability trong Mission Design Lab, docs/11-NASA-RESOURCES.md mục 4.4. Các con số thưởng là thiết kế của nhóm làm game."
+    },
+    {
+      "id": "engineer",
+      "name_vi": "Kỹ sư hệ thống",
+      "name_en": "Systems Engineer",
+      "badge_icon": "wrench-and-gear",
+      "badge_color": "#5fc6f0",
+      "priority_vi": "Tiêu ít nhiên liệu nhất cho mỗi mét trên giây, và không bao giờ phóng một thiết kế chưa kiểm tra khối lượng.",
+      "priority_en": "Spend the least propellant per metre per second, and never launch a design whose mass has not been checked.",
+      "veto_topics": [
+        "overweight_launch",
+        "delta_v_shortfall",
+        "unproven_engine_without_test",
+        "ignore_power_balance"
+      ],
+      "veto_reasons_vi": {
+        "overweight_launch": "Khối lượng vượt sức chở thì tên lửa không bay, không có thương lượng.",
+        "delta_v_shortfall": "Thiếu delta-v là chết giữa đường, không có phương án dự phòng nào cứu được.",
+        "unproven_engine_without_test": "Động cơ chưa bay lần nào mà không có bệ thử là đánh cược cả sứ mệnh vào một lần đốt.",
+        "ignore_power_balance": "Cân bằng điện âm nghĩa là hệ thống tắt dần theo thứ tự người thiết kế không kiểm soát."
+      },
+      "veto_reasons_en": {
+        "overweight_launch": "Over the payload capacity the rocket simply does not fly, and there is nothing to negotiate.",
+        "delta_v_shortfall": "Running short of delta-v means dying mid course with no backup plan that can save you.",
+        "unproven_engine_without_test": "An engine that has never flown and has no test stand data bets the whole mission on one burn.",
+        "ignore_power_balance": "A negative power balance means systems shut down in an order nobody designed."
+      },
+      "stat_bonus": {
+        "fuel_efficiency_percent": 8,
+        "mass_margin_percent": 5,
+        "failure_repair_speed": 10
+      },
+      "stat_bonus_note_vi": "Khi được thỏa mãn, kỹ sư giảm 8 phần trăm hao nhiên liệu trên mỗi chặng và mở thêm 5 phần trăm biên khối lượng.",
+      "stat_bonus_note_en": "When satisfied, the engineer cuts propellant use by 8 percent per leg and opens up 5 percent more mass margin.",
+      "source": "Vai trò gộp từ Propulsion, Power Systems, Thermal, Structural và Flight Dynamics trong Mission Design Lab, docs/11-NASA-RESOURCES.md mục 4.4. Các con số thưởng là thiết kế của nhóm làm game."
+    },
+    {
+      "id": "comms_officer",
+      "name_vi": "Sĩ quan liên lạc",
+      "name_en": "Communications Officer",
+      "badge_icon": "antenna-dish",
+      "badge_color": "#a97bf0",
+      "priority_vi": "Giữ đường liên lạc mở với Trái Đất và giữ tinh thần đoàn người qua những khoảng lặng dài.",
+      "priority_en": "Keep the link to Earth open and hold crew morale together through the long silences.",
+      "veto_topics": [
+        "drop_high_gain_antenna",
+        "exceed_one_way_delay_budget",
+        "no_return_link_window",
+        "silent_blackout_without_plan"
+      ],
+      "veto_reasons_vi": {
+        "drop_high_gain_antenna": "Bỏ ăng-ten độ lợi cao nghĩa là mất khả năng gửi dữ liệu y tế và ảnh về nhà, cả đoàn sẽ cảm thấy bị bỏ rơi.",
+        "exceed_one_way_delay_budget": "Vượt ngân sách trễ một chiều là biến mọi lệnh khẩn cấp thành lệnh gửi mù, không sửa được.",
+        "no_return_link_window": "Không có cửa sổ liên lạc cho chặng về là bay mà không ai biết tàu còn sống hay không.",
+        "silent_blackout_without_plan": "Mất liên lạc không có kế hoạch dự phòng là nguyên nhân số một của hoảng loạn trên tàu."
+      },
+      "veto_reasons_en": {
+        "drop_high_gain_antenna": "Dropping the high gain dish means losing the medical data and images home, and the crew will feel abandoned.",
+        "exceed_one_way_delay_budget": "Blowing the one way delay budget turns every emergency command into a blind command that cannot be corrected.",
+        "no_return_link_window": "No comm window on the return leg means flying with nobody knowing whether the ship is still alive.",
+        "silent_blackout_without_plan": "An unplanned blackout is the single biggest cause of panic on board."
+      },
+      "stat_bonus": {
+        "crew_morale": 20,
+        "downlink_throughput_percent": 12,
+        "signal_delay_tolerance_minutes": 5
+      },
+      "stat_bonus_note_vi": "Khi được thỏa mãn, sĩ quan liên lạc tăng tinh thần đoàn 20 phần trăm, tăng thông lượng downlink 12 phần trăm và chịu thêm 5 phút trễ trước khi tinh thần tụt.",
+      "stat_bonus_note_en": "When satisfied, the comms officer raises crew morale by 20 percent, lifts downlink throughput by 12 percent, and tolerates 5 more minutes of delay before morale drops.",
+      "source": "Vai trò gộp từ Communications, Flight Software và Avionics trong Mission Design Lab, docs/11-NASA-RESOURCES.md mục 4.4. Dải trễ 3,0 tới 22,3 phút lấy từ mục 5.2 nhóm E. Các con số thưởng là thiết kế của nhóm làm game."
+    }
+  ],
+
+  "negotiation": {
+    "min_crew": 1,
+    "max_crew": 3,
+    "conflict_pairs": [
+      {
+        "roles": ["engineer", "commander"],
+        "topic_vi": "Biên khối lượng so với biên an toàn",
+        "topic_en": "Mass margin versus safety margin",
+        "resolve_vi": "Kỹ sư muốn thêm lá chắn và nhiên liệu dự phòng, chỉ huy muốn cắt khối lượng để bay sớm. Cách giải là chốt trước một ngưỡng khối lượng cứng, rồi cả hai chia phần dư theo tỷ lệ.",
+        "resolve_en": "The engineer wants extra shielding and reserve propellant, the commander wants to cut mass to launch sooner. The way out is to fix a hard mass ceiling first, then split whatever is left in an agreed ratio."
+      },
+      {
+        "roles": ["comms_officer", "engineer"],
+        "topic_vi": "Công suất cho ăng-ten so với công suất cho hệ sạch nước",
+        "topic_en": "Power for the antenna versus power for the water loop",
+        "resolve_vi": "Cả hai đều cần điện liên tục và tổng công suất thì có hạn. Cách giải là cho ăng-ten chạy theo cửa sổ liên lạc thay vì liên tục, đổi lại sĩ quan liên lạc chấp nhận mất một phần dữ liệu khoa học.",
+        "resolve_en": "Both need continuous power and the total supply is finite. The way out is to run the antenna on scheduled windows instead of continuously, in exchange for the comms officer accepting some loss of science data."
+      },
+      {
+        "roles": ["commander", "comms_officer"],
+        "topic_vi": "Ra quyết định nhanh so với giữ liên lạc với Trái Đất",
+        "topic_en": "Deciding fast versus staying in touch with Earth",
+        "resolve_vi": "Chờ Trái Đất trả lời có thể mất 25 phút, trong khi tình huống khẩn cấp tính bằng giây. Cách giải là viết trước một danh sách lệnh được phép tự quyết, phần còn lại vẫn phải chờ.",
+        "resolve_en": "Waiting for Earth to answer can cost 25 minutes while an emergency is measured in seconds. The way out is to pre-authorise a written list of autonomous commands and keep waiting for everything else."
+      }
+    ],
+    "source": "Cơ chế đàm phán dựa trên gợi ý về vai trò và thương lượng trong mô tả đề bài, docs/11-NASA-RESOURCES.md mục 1.6, và danh sách 16 chuyên ngành Mission Design Lab mục 4.4."
+  }
+}

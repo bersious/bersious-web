@@ -1,0 +1,461 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "dataset": "mars_comms_protocol",
+    "title_vi": "Giao thức viễn thông Sao Hỏa cho màn cầu cứu Giai đoạn 1",
+    "title_en": "Mars communications protocol for the Phase 1 distress call",
+    "primary_source_document": "docs/11-NASA-RESOURCES.md",
+    "source_note_vi": "Mỗi con số đều có trường 'source' riêng. Ba loại nguồn được phân biệt rõ: số thật của NASA lấy từ docs/11-NASA-RESOURCES.md hoặc từ tài liệu công khai của NASA JPL, số tính từ hằng số vật lý, và số ước tính của nhóm làm game để cân bằng lối chơi. Số ước tính không bao giờ được ghi như số của NASA.",
+    "source_note_en": "Every number carries its own 'source' field. Three kinds are kept apart on purpose: real NASA figures taken from docs/11-NASA-RESOURCES.md or from public NASA JPL documents, figures computed from physical constants, and figures the game team estimated for play balance. An estimated figure is never labelled as a NASA figure.",
+    "design_rule_vi": "Ba bước của Giai đoạn 1 khoá vào nhau bằng một ràng buộc duy nhất: điện. Không đủ 850 W thì ăng-ten không phát, căn sai góc thì gói tin không tới vệ tinh, chọn quá 16 byte thì gói tin bị cắt và mất phần đuôi. Không bước nào có một đáp án duy nhất, mỗi bước đều có nhiều tổ hợp hợp lệ.",
+    "design_rule_en": "The three steps of Phase 1 are chained by a single constraint: power. Without 850 W the antenna never transmits, a mis-aimed antenna never reaches the orbiter, and a payload over 16 bytes gets truncated and loses its tail. No step has a single correct answer, and every step offers several valid combinations.",
+    "unit_rules_vi": "draw_w là oát tiêu thụ điện xoay chiều một chiều tại bảng điện Hab, available_w là oát khả dụng tức thời, angle_deg là độ cao đường ngắm tính từ đường chân trời, freq_mhz là mê-ga-héc, snr_db là đề-xi-ben, bytes là số byte của gói tin sau khi mã hoá khung, one_way_light_time_min là phút ánh sáng đi một chiều, distance_km là ki-lô-mét.",
+    "unit_rules_en": "draw_w is DC watts drawn at the Hab power bus, available_w is instantaneous available watts, angle_deg is elevation above the local horizon, freq_mhz is megahertz, snr_db is decibels, bytes is the encoded packet size in bytes, one_way_light_time_min is one way light minutes, distance_km is kilometres."
+  },
+  "power_budget": {
+    "_note_vi": "Bối cảnh: bão bụi đã phủ kín trời, tấm pin chỉ còn 35 phần trăm công suất danh định nên cả trạm phải chạy bằng nguồn thu hẹp. Người chơi tắt bớt thiết bị không thiết yếu để dồn 850 W cho bộ phát. Sưởi chính và bơm oxy là hai thiết bị thiết yếu, tắt là chết.",
+    "_note_en": "Setting: the dust storm has closed the sky and the array runs at 35 percent of rated output, so the whole Hab lives on a shrunken supply. The player sheds non-essential loads to free 850 W for the transmitter. Main heater and oxygen pump are the two essentials, and switching either off kills the crew.",
+    "name_vi": "Ngân sách điện của trạm Hab trong bão bụi",
+    "name_en": "Hab power budget under the dust storm",
+    "solar_array_nominal_w": 5200.0,
+    "solar_array_nominal_source": "Công suất danh định của giàn pin là ước tính của nhóm làm game cho một trạm Hab cỡ nhỏ. Bức xạ Mặt Trời ở Sao Hỏa khoảng 590 W/m2 so với 1.361 W/m2 ở Trái Đất, đúng với nhận định ánh sáng yếu hơn ở Sao Hỏa trong docs/11-NASA-RESOURCES.md mục 5.2 nhóm B.",
+    "dust_transmission_pct": 35.0,
+    "dust_transmission_source": "35 phần trăm là luật của kịch bản game (bụi dày), không phải số đo của NASA. Độ sâu quang học tau 1,4 ở meda_conditions là mức tương ứng.",
+    "solar_available_w": 1820.0,
+    "solar_available_formula_vi": "5.200 W danh định nhân 35 phần trăm bằng 1.820 W khả dụng.",
+    "solar_available_formula_en": "5200 W rated times 35 percent equals 1820 W available.",
+    "transmitter_draw_w": 850.0,
+    "transmitter_draw_source": "850 W là ước tính của nhóm làm game, không phải số của NASA. Mốc thật để so: bộ phát UHF Electra trên MRO chỉ ra 5 W sóng vô tuyến nhưng cần tới 71 W điện một chiều, cho thấy tầng khuếch đại công suất là phần hao điện nhất. Con số 850 W gộp tầng khuếch đại, mô-tơ chĩa ăng-ten và sưởi ấm đế ăng-ten trong bão bụi.",
+    "reserve_w": 350.0,
+    "reserve_source": "350 W để sạc lại ắc quy sau khi phát là ước tính của nhóm làm game.",
+    "essential_total_w": 620.0,
+    "load_shed_needed_w": 650.0,
+    "check_vi": "Bật tất cả thiết bị là 1.620 W, vẫn lọt trong 1.820 W khả dụng nên trước khi phát trạm sống bình thường. Nhưng khi bật thêm bộ phát 850 W thì tổng lên 2.470 W và vượt ngân sách. Muốn phát, tải không thiết yếu phải hạ xuống còn không quá 350 W, nghĩa là phải cắt ít nhất 650 W từ nhóm không thiết yếu.",
+    "check_en": "Everything on draws 1620 W, which still fits inside 1820 W, so the Hab is fine before the transmission. Switch the 850 W transmitter on as well and the total climbs to 2470 W, over budget. To transmit, the non-essential load must fall to no more than 350 W, which means shedding at least 650 W from that group.",
+    "devices": [
+      {
+        "id": "light_main",
+        "name_vi": "Đèn chính khoang sinh hoạt",
+        "name_en": "Main cabin lighting",
+        "draw_w": 180.0,
+        "essential": false,
+        "desc_vi": "Dàn đèn LED trần và đèn bàn của khoang sinh hoạt. Tắt được, chỉ tối hơn, và phi hành gia đã có đèn mũ bảo hộ.",
+        "desc_en": "Ceiling LED strips and work lamps for the living module. Safe to switch off, it only gets darker, and the crew still has helmet lamps.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      },
+      {
+        "id": "heater_aux",
+        "name_vi": "Sưởi phụ khoang thí nghiệm",
+        "name_en": "Auxiliary lab heater",
+        "draw_w": 220.0,
+        "essential": false,
+        "desc_vi": "Sưởi giữ khoang thí nghiệm ở 18 độ C. Tắt được, khoang thí nghiệm sẽ lạnh dần nhưng không ai ở đó.",
+        "desc_en": "Keeps the lab module at 18 C. Safe to cut, the lab just drifts colder and nobody is inside it.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      },
+      {
+        "id": "soil_analyzer",
+        "name_vi": "Máy phân tích đất",
+        "name_en": "Regolith analyzer",
+        "draw_w": 150.0,
+        "essential": false,
+        "desc_vi": "Thiết bị nung mẫu và đo thành phần khoáng. Tắt được, chỉ mất dữ liệu khoa học chứ không mất người.",
+        "desc_en": "Heats samples and reads mineral composition. Safe to cut, you lose science data, not people.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      },
+      {
+        "id": "sample_freezer",
+        "name_vi": "Tủ lạnh mẫu đá",
+        "name_en": "Sample freezer",
+        "draw_w": 120.0,
+        "essential": false,
+        "desc_vi": "Giữ mẫu lõi khoan ở âm 20 độ C. Tắt vài chục phút thì mẫu chỉ chậm hỏng chứ không hỏng ngay.",
+        "desc_en": "Holds drill cores at minus 20 C. Off for a few tens of minutes the samples degrade slowly rather than instantly.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      },
+      {
+        "id": "water_recycler",
+        "name_vi": "Máy lọc nước",
+        "name_en": "Water recycler",
+        "draw_w": 240.0,
+        "essential": false,
+        "desc_vi": "Chưng cất và lọc nước tiểu cùng nước thải. Tắt được vì trạm còn 40 lít nước sạch dự trữ, đủ cho vài giờ.",
+        "desc_en": "Distils and filters urine and grey water. Safe to cut because the Hab holds 40 litres of clean reserve, enough for a few hours.",
+        "source": "Công suất là ước tính của nhóm làm game. Mức thu hồi nước 93 tới 94 phần trăm của công nghệ ECLSS lấy từ docs/11-NASA-RESOURCES.md."
+      },
+      {
+        "id": "o2_pump",
+        "name_vi": "Bơm oxy",
+        "name_en": "Oxygen pump",
+        "draw_w": 260.0,
+        "essential": true,
+        "desc_vi": "Bơm tuần hoàn và trộn oxy vào khí khoang. Tắt là nồng độ oxy tụt trong vòng vài phút và phi hành gia ngạt.",
+        "desc_en": "Circulates and mixes oxygen into the cabin atmosphere. Switch it off and oxygen concentration falls within minutes, and the crew suffocates.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      },
+      {
+        "id": "heater_main",
+        "name_vi": "Sưởi chính",
+        "name_en": "Main heater",
+        "draw_w": 360.0,
+        "essential": true,
+        "desc_vi": "Giữ khoang ở 21 độ C khi nhiệt độ ngoài trời âm 25 độ C. Tắt là nhiệt độ khoang tụt xuống dưới mức sống trong vài giờ.",
+        "desc_en": "Holds the cabin at 21 C while the outside air sits at minus 25 C. Switch it off and the cabin falls below survivable temperature within hours.",
+        "source": "Công suất là ước tính của nhóm làm game. Nhiệt độ ngoài trời lấy từ meda_conditions."
+      },
+      {
+        "id": "instrument_bus",
+        "name_vi": "Hệ thống đo đạc và ghi dữ liệu",
+        "name_en": "Instrument bus and data logger",
+        "draw_w": 90.0,
+        "essential": false,
+        "desc_vi": "Bộ ghi dữ liệu cảm biến và đồng hồ trạm. Tắt được, chỉ mất chuỗi dữ liệu liên tục, và mất luôn nhật ký bão nếu chưa ghi xong.",
+        "desc_en": "Sensor logger and station clock. Safe to cut, you lose continuity of the data record, and you lose the storm log if it has not finished writing.",
+        "source": "Công suất là ước tính của nhóm làm game."
+      }
+    ],
+    "valid_load_shed_examples_vi": "Nhiều cách cắt cùng hợp lệ, miễn tải không thiết yếu còn lại không quá 350 W: chỉ giữ tủ lạnh mẫu (120 W còn lại), giữ tủ lạnh mẫu và máy phân tích đất (270 W), giữ đèn chính và máy phân tích đất (330 W), giữ sưởi phụ và hệ đo đạc (310 W), hoặc giữ máy lọc nước và hệ đo đạc (330 W). Cách dư nhiều nhất là tắt cả sáu, còn 0 W.",
+    "valid_load_shed_examples_en": "Several sheds are equally valid as long as non-essential load stays at or under 350 W: keep only the freezer (120 W left), keep the freezer and the soil analyzer (270 W), keep the main lights and the soil analyzer (330 W), keep the auxiliary heater and the instrument bus (310 W), or keep the water recycler and the instrument bus (330 W). The widest margin is cutting all six, which leaves 0 W."
+  },
+  "meda_conditions": {
+    "_note_vi": "MEDA là bộ cảm biến môi trường gắn trên rover Perseverance trong miệng núi lửa Jezero. Đây là thiết bị thật của NASA JPL. Các giá trị dưới đây là điều kiện kịch bản của game, đặt trong dải mà MEDA từng đo được.",
+    "_note_en": "MEDA is the environmental sensor suite on the Perseverance rover inside Jezero crater, real NASA JPL hardware. The values below are the game scenario conditions, set inside the range MEDA has actually measured.",
+    "instrument": "MEDA (Mars Environmental Dynamics Analyzer)",
+    "instrument_host": "Perseverance rover, Jezero crater",
+    "name_vi": "Bộ cảm biến môi trường MEDA",
+    "name_en": "MEDA environmental sensor suite",
+    "instrument_source": "MEDA là thiết bị thật của NASA JPL trên rover Perseverance, theo docs/11-NASA-RESOURCES.md mục 4 và tài liệu công khai của NASA JPL.",
+    "optical_depth_tau": 1.4,
+    "optical_depth_source": "1,4 là giá trị kịch bản do đề bài của nhóm đặt ra, nằm trong dải bão bụi Sao Hỏa. Không phải số đo của một ngày cụ thể.",
+    "solar_panel_efficiency_pct": 35.0,
+    "solar_panel_efficiency_source": "35 phần trăm là luật của kịch bản game cho tình huống bụi dày, không phải hiệu suất tấm pin. Hiệu suất tấm pin là chuyện khác, ở đây 35 phần trăm nghĩa là công suất ra còn 35 phần trăm công suất danh định.",
+    "temp_c": -25.0,
+    "temp_c_source": "Nhiệt độ ban ngày âm 25 độ C là giá trị kịch bản, nằm trong dải MEDA đo được ở Jezero. Nhiệt độ trung bình bề mặt Sao Hỏa khoảng âm 60 độ C.",
+    "pressure_pa": 745.0,
+    "pressure_pa_source": "Áp suất khí quyển Sao Hỏa ở mực địa hình Jezero khoảng 700 tới 750 pascal, theo dải MEDA và NASA Mars Facts trong docs/11-NASA-RESOURCES.md mục 5.2 nhóm E. So sánh: áp suất Trái Đất ở mực biển là 101.325 pascal.",
+    "wind_ms": 12.0,
+    "wind_ms_source": "Gió 12 m/s là giá trị kịch bản của nhóm làm game cho một đợt bão bụi đang lắng. Bão bụi Sao Hỏa toàn hành tinh có thể duy trì gió mạnh hơn.",
+    "visibility_note_vi": "Tầm nhìn bị chặn mạnh bởi bụi lơ lửng. Đây là lý do chính khiến ăng-ten mặt đất không thể dò chính xác vệ tinh bằng mắt hay bằng quang học, phải dựa vào lịch bay.",
+    "visibility_note_en": "Visibility is badly cut by suspended dust. That is the main reason the ground antenna cannot find the orbiter visually or optically and has to rely on the pass schedule.",
+    "desc_vi": "Bộ cảm biến đo bụi, bức xạ, nhiệt độ, áp suất và gió, gắn trên cột buồm của rover Perseverance. Trong màn chơi, số đo của MEDA là thứ cho người chơi biết bầu trời đang tối tới đâu và còn bao nhiêu điện.",
+    "desc_en": "A sensor suite measuring dust, radiation, temperature, pressure and wind, mounted on the Perseverance rover mast. In the mission screen the MEDA readings are what tell the player how dark the sky is and how much power is left."
+  },
+  "mro_satellite": {
+    "_note_vi": "Mars Reconnaissance Orbiter là vệ tinh trinh sát quỹ đạo Sao Hỏa của NASA, phóng năm 2005, vận hành bởi Phòng Thí nghiệm Sức đẩy Phản lực JPL. Nó mang bộ phát UHF Electra để làm trạm trung chuyển cho các tàu đổ bộ và rover.",
+    "_note_en": "Mars Reconnaissance Orbiter is NASA's Mars reconnaissance orbiter, launched in 2005 and operated by the Jet Propulsion Laboratory. It carries the Electra UHF radio to act as a relay for landers and rovers.",
+    "id": "mro",
+    "name_vi": "Mars Reconnaissance Orbiter",
+    "name_en": "Mars Reconnaissance Orbiter",
+    "operator": "NASA JPL",
+    "launch_year": 2005,
+    "launch_year_source": "MRO phóng tháng 8 năm 2005, vào quỹ đạo Sao Hỏa tháng 3 năm 2006, theo hồ sơ sứ mệnh MRO của NASA JPL.",
+    "orbit_altitude_min_km": 255.0,
+    "orbit_altitude_max_km": 320.0,
+    "orbit_altitude_source": "Quỹ đạo khoa học cuối cùng của MRO là 255 km ở cận điểm trên cực nam và 320 km ở viễn điểm trên cực bắc, theo hồ sơ MRO của NASA JPL và chương 6 sách DESCANSO Deep Space Communications.",
+    "orbital_period_min": 112.0,
+    "orbital_period_source": "Chu kỳ quỹ đạo khoảng 112 phút, tức 1 giờ 52 phút, theo cùng nguồn DESCANSO chương 6 và hồ sơ MRO của NASA JPL.",
+    "inclination_deg": 93.0,
+    "inclination_source": "Độ nghiêng quỹ đạo 93 độ, quỹ đạo gần cực, theo hồ sơ MRO của NASA JPL.",
+    "pass_duration_s": 90.0,
+    "pass_duration_source": "Cửa sổ 90 giây là luật của kịch bản game, không phải số của NASA. Một lượt bay ngang thật của MRO kéo dài vài phút tới hơn mười phút tùy độ cao góc ngắm.",
+    "uhf_freq_mhz": 401.5,
+    "uhf_freq_source": "Bộ phát Electra trên MRO hoạt động trong băng 390 tới 450 MHz, và tần số đường về tiêu chuẩn dùng cho trung chuyển là 401,6 MHz theo chương 6 sách DESCANSO. Con số 401,5 MHz là tần số của kịch bản game, lệch 0,1 MHz so với số thật và nằm trong cùng băng.",
+    "relay_data_rate_kbps": 32.0,
+    "relay_data_rate_source": "Electra hỗ trợ 1 kbps tới 2 Mbps cho đường liên vệ tinh theo hồ sơ MRO của NASA JPL. Mức 32 kbps là giá trị kịch bản của nhóm làm game cho một lượt trung chuyển ngắn trong bão bụi.",
+    "xband_downlink_kbps_to_34m": 500.0,
+    "xband_downlink_kbps_to_34m_source": "MRO đạt 500 kbps tới ăng-ten DSN 34 m ở khoảng cách Trái Đất Sao Hỏa xa nhất, theo tài liệu Mars Relay Description của NASA LaRC.",
+    "xband_downlink_kbps_to_70m": 2600.0,
+    "xband_downlink_kbps_to_70m_source": "MRO đạt 2,6 Mbps tới ăng-ten DSN 70 m ở cùng khoảng cách, và tới 5,2 Mbps khi gần hơn, theo tài liệu Mars Relay Description của NASA LaRC.",
+    "uhf_band_mhz": [
+      390.0,
+      450.0
+    ],
+    "why_relay_vi": "NASA không phát thẳng từ mặt đất Sao Hỏa về Trái Đất vì ba lý do vật lý cộng lại. Thứ nhất là công suất: một bộ phát trên rover chỉ có vài chục oát điện, trong khi để tới Trái Đất qua 225 triệu km thì suy hao đường truyền khổng lồ, và ăng-ten trên rover không thể lớn. Thứ hai là băng thông: vệ tinh có ăng-ten độ lợi cao 3 m và bộ khuếch đại 100 W, đẩy được 500 kbps tới 2,6 Mbps về Trái Đất, gấp hàng nghìn lần một đường phát thẳng yếu ớt. Thứ ba là khí quyển: băng UHF quanh 400 MHz xuyên qua bụi và khí quyển mỏng của Sao Hỏa tốt hơn nhiều so với băng X, nên một gói tin nhỏ vẫn tới được vệ tinh ngay cả khi bụi dày. Cách làm hai chặng UHF rồi X-band cho ăng-ten nhỏ trên mặt đất mà vẫn có băng thông lớn về Trái Đất.",
+    "why_relay_en": "NASA does not transmit straight from the Martian surface to Earth for three physical reasons that stack up. First is power: a rover transmitter draws a few tens of watts, the path loss across 225 million km is enormous, and a rover cannot carry a big dish. Second is bandwidth: the orbiter has a 3 m high gain antenna and a 100 W amplifier that push 500 kbps to 2.6 Mbps to Earth, thousands of times what a weak direct link could carry. Third is atmosphere: UHF near 400 MHz punches through Martian dust and the thin atmosphere far better than X-band, so a small packet still reaches the orbiter even under thick dust. The two hop design, UHF then X-band, lets the ground side stay small while the Earth link stays wide."
+  },
+  "antenna_tuning": {
+    "_note_vi": "Đây là mô hình đơn giản hoá cho thanh trượt trong game, KHÔNG phải công thức link budget đầy đủ. Một link budget thật phải tính công suất phát, độ lợi hai ăng-ten, suy hao không gian tự do, tạp âm hệ thống và nhiệt độ tạp âm của bầu trời và mặt đất. Ở đây chỉ giữ lại hai biến mà người chơi điều khiển được: góc ngắm và tần số.",
+    "_note_en": "This is a simplified model for the in game sliders, NOT a full link budget. A real link budget needs transmit power, both antenna gains, free space loss, system noise figure and sky plus ground noise temperature. All that survives here is the two variables the player actually controls: elevation and frequency.",
+    "name_vi": "Căn ăng-ten UHF: góc ngắm và tần số",
+    "name_en": "UHF antenna tuning: elevation and frequency",
+    "elevation_min_deg": 55.0,
+    "elevation_max_deg": 80.0,
+    "elevation_target_deg": 68.0,
+    "elevation_source": "55 tới 80 độ là dải trượt của kịch bản game, đỉnh 68 độ là góc ngắm tốt nhất trong cửa sổ bay ngang. Không phải số của NASA. Góc cao giúp đường truyền xuyên ít khí quyển hơn, đó là lý do thật để đỉnh nằm ở góc cao.",
+    "freq_min_mhz": 399.0,
+    "freq_max_mhz": 404.0,
+    "freq_target_mhz": 401.5,
+    "freq_source": "Dải 399 tới 404 MHz là dải trượt của kịch bản game, nằm trong băng UHF 390 tới 450 MHz mà bộ phát Electra trên MRO hỗ trợ. Đỉnh 401,5 MHz khớp với uhf_freq_mhz.",
+    "snr_threshold_db": 15.0,
+    "snr_threshold_source": "15 dB là ngưỡng của kịch bản game. Với mã hoá và sửa lỗi thật, một khung dữ liệu vẫn giải được ở mức thấp hơn nhiều, nhưng mức 15 dB cho biên an toàn trước khi mất khung.",
+    "snr_max_db": 24.0,
+    "snr_max_source": "24 dB tại điểm ngắm hoàn hảo là ước tính của nhóm làm game.",
+    "model_vi": "Mô hình dùng hai số hạng phạt, một cho góc và một cho tần số. Công thức: snr_db = 24,0 trừ 0,35 nhân bình phương sai lệch góc tính bằng độ, trừ 2,60 nhân bình phương sai lệch tần số tính bằng MHz. Sai lệch góc dưới 5,1 độ và sai lệch tần số dưới 1,86 MHz thì vẫn đạt ngưỡng 15 dB. Đường bao của vùng đạt là một elip trong mặt phẳng góc và tần số.",
+    "model_en": "The model uses two penalty terms, one for angle and one for frequency. Formula: snr_db equals 24.0 minus 0.35 times the squared elevation error in degrees minus 2.60 times the squared frequency error in MHz. An elevation error under 5.1 degrees and a frequency error under 1.86 MHz still clear the 15 dB threshold. The passing region is an ellipse in the angle and frequency plane.",
+    "snr_lookup_table": [
+      {
+        "elevation_err_deg": 0.0,
+        "freq_err_mhz": 0.0,
+        "snr_db": 24.0,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 1.0,
+        "freq_err_mhz": 0.0,
+        "snr_db": 23.65,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 3.0,
+        "freq_err_mhz": 0.0,
+        "snr_db": 20.85,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 5.0,
+        "freq_err_mhz": 0.0,
+        "snr_db": 15.25,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 6.0,
+        "freq_err_mhz": 0.0,
+        "snr_db": 11.4,
+        "passes": false
+      },
+      {
+        "elevation_err_deg": 0.0,
+        "freq_err_mhz": 1.0,
+        "snr_db": 21.4,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 0.0,
+        "freq_err_mhz": 1.8,
+        "snr_db": 15.58,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 0.0,
+        "freq_err_mhz": 2.0,
+        "snr_db": 13.6,
+        "passes": false
+      },
+      {
+        "elevation_err_deg": 2.0,
+        "freq_err_mhz": 1.0,
+        "snr_db": 20.0,
+        "passes": true
+      },
+      {
+        "elevation_err_deg": 4.0,
+        "freq_err_mhz": 1.5,
+        "snr_db": 12.55,
+        "passes": false
+      },
+      {
+        "elevation_err_deg": 3.0,
+        "freq_err_mhz": 1.2,
+        "snr_db": 17.11,
+        "passes": true
+      }
+    ],
+    "snr_lookup_source": "Bảng tra tính đúng theo công thức ở trường model_vi và model_en. Toàn bộ mô hình là ước tính của nhóm làm game."
+  },
+  "telemetry_packets": {
+    "_note_vi": "Sáu gói, chọn tối đa ba gói, tổng không quá 16 byte. Có 14 tổ hợp ba gói hợp lệ trên 20 tổ hợp, nên không có một đáp án duy nhất. Gói nặng nhất chứa nhiều thông tin nhất nhưng ăn hết ngân sách, buộc phải bỏ một gói nặng khác.",
+    "_note_en": "Six packets, pick at most three, total no more than 16 bytes. Fourteen of the twenty three packet combinations are valid, so there is no single correct answer. The heaviest packet carries the most information but eats the budget and forces you to drop another heavy one.",
+    "name_vi": "Gói telemetry cầu cứu",
+    "name_en": "Distress telemetry packets",
+    "budget_bytes": 16,
+    "budget_source": "16 byte là luật của kịch bản game, không phải chuẩn của NASA. Lý do đặt ra: khung dữ liệu phải vừa một lượt phát ngắn ở tốc độ thấp để còn sống sót qua vài lần mất khung trong cửa sổ 90 giây.",
+    "packets": [
+      {
+        "id": "pkt_position",
+        "name_vi": "Toạ độ đổ bộ",
+        "name_en": "Landing position",
+        "bytes": 8,
+        "hex": "4D 52 53 31 38 2E 34 4E",
+        "ascii": "MRS18.4N",
+        "priority": 1,
+        "desc_vi": "Vĩ độ và kinh độ trạm Hab, tám ký tự ASCII. Đây là gói đắt nhất vì toạ độ phải chính xác tới phần mười độ thì tàu cứu hộ mới hạ cánh gần đủ.",
+        "desc_en": "Hab latitude and longitude, eight ASCII characters. This is the most expensive packet because the position must be accurate to a tenth of a degree for the rescue ship to land close enough.",
+        "consequence_vi": "Đội cứu hộ biết chính xác cần hạ cánh ở đâu. Không có gói này thì họ chỉ biết bạn ở đâu đó trong một vùng rộng hàng trăm ki-lô-mét và phải dò bằng ảnh quỹ đạo mất nhiều ngày.",
+        "consequence_en": "The rescue team knows exactly where to land. Without it they only know you are somewhere in a region hundreds of kilometres wide and have to search with orbital imagery for days.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game. Độ chính xác toạ độ một phần mười độ tương đương khoảng 11 km theo bán kính Sao Hỏa 3.390 km trong docs/11-NASA-RESOURCES.md mục 5.2 nhóm E."
+      },
+      {
+        "id": "pkt_vitals",
+        "name_vi": "Sinh hiệu phi hành gia",
+        "name_en": "Crew vital signs",
+        "bytes": 6,
+        "hex": "48 52 37 32 2F 53",
+        "ascii": "HR72/S",
+        "priority": 1,
+        "desc_vi": "Nhịp tim 72 và trạng thái tỉnh táo. Sáu byte vì phải gộp nhịp tim, nhiệt độ cơ thể và trạng thái ý thức vào một khung ngắn.",
+        "desc_en": "Heart rate 72 and consciousness state. Six bytes because heart rate, body temperature and awareness all have to fit in one short frame.",
+        "consequence_vi": "Đội cứu hộ biết còn một người sống và đang ổn định, nên đổi ưu tiên từ tìm kiếm sang tiếp tế. Đây là gói quyết định chuyện có gửi tàu hay không.",
+        "consequence_en": "The rescue team learns one person is alive and stable, which shifts their priority from search to resupply. This is the packet that decides whether a ship is sent at all.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game. Nhịp tim 72 là giá trị minh hoạ."
+      },
+      {
+        "id": "pkt_oxygen",
+        "name_vi": "Lượng oxy còn lại",
+        "name_en": "Remaining oxygen",
+        "bytes": 3,
+        "hex": "4F 32 4B",
+        "ascii": "O2K",
+        "priority": 2,
+        "desc_vi": "Một ký tự nhãn và một ký tự giá trị, cho biết oxy còn tính bằng giờ. Rẻ nhất trong nhóm gói thiết yếu.",
+        "desc_en": "One label character and one value character, giving remaining oxygen in hours. The cheapest of the life critical packets.",
+        "consequence_vi": "Đội cứu hộ tính được bạn còn sống được bao lâu, từ đó chọn cửa sổ phóng. Không có gói này họ phải giả định mức tệ nhất và phóng sớm hơn, tốn nhiên liệu.",
+        "consequence_en": "The rescue team can compute how long you have left and picks a launch window from that. Without it they assume the worst case and launch earlier, burning more propellant.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game."
+      },
+      {
+        "id": "pkt_pressure",
+        "name_vi": "Áp suất khoang",
+        "name_en": "Cabin pressure",
+        "bytes": 3,
+        "hex": "50 37 34",
+        "ascii": "P74",
+        "priority": 2,
+        "desc_vi": "Nhãn P và giá trị áp suất khoang. Ba byte đủ vì chỉ cần một chữ số hàng chục và một chữ số hàng đơn vị trên thang trăm pascal.",
+        "desc_en": "Label P and the cabin pressure value. Three bytes is enough because only tens and units digits are needed on a hundred pascal scale.",
+        "consequence_vi": "Đội cứu hộ biết vỏ trạm còn kín hay đang rò. Nếu áp suất tụt, họ biết phải gửi bộ vá trước khi gửi người.",
+        "consequence_en": "The rescue team learns whether the hull is still sealed or leaking. If pressure is falling they know to send a patch kit before sending people.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game."
+      },
+      {
+        "id": "pkt_storm_log",
+        "name_vi": "Nhật ký bão bụi",
+        "name_en": "Dust storm log",
+        "bytes": 7,
+        "hex": "44 55 53 54 31 2E 34",
+        "ascii": "DUST1.4",
+        "priority": 3,
+        "desc_vi": "Mã nhận dạng bão và độ sâu quang học đo được. Đắt thứ nhì vì phải mang cả nhãn chữ và con số thập phân.",
+        "desc_en": "Storm identifier and the measured optical depth. Second most expensive because it carries both a text label and a decimal value.",
+        "consequence_vi": "Đội cứu hộ biết bụi dày tới đâu, nên tính được tàu hạ cánh có nhìn thấy đất không và có nên chờ bão tan. Đây là gói thuần khoa học, giá trị cao nhưng không cứu mạng ngay.",
+        "consequence_en": "The rescue team learns how thick the dust is, so they can work out whether a lander will see the ground and whether to wait for the storm to clear. This is the pure science packet, high value but not immediately life saving.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game. Giá trị 1,4 khớp với optical_depth_tau trong meda_conditions."
+      },
+      {
+        "id": "pkt_soil",
+        "name_vi": "Dữ liệu đất bề mặt",
+        "name_en": "Surface soil data",
+        "bytes": 2,
+        "hex": "53 32",
+        "ascii": "S2",
+        "priority": 3,
+        "desc_vi": "Một ký tự nhãn và một ký tự mức đá. Rẻ nhất trong sáu gói, hai byte, dùng để lấp đầy ngân sách còn thừa.",
+        "desc_en": "One label character and one rock hazard level character. The cheapest of the six at two bytes, used to fill whatever budget is left over.",
+        "consequence_vi": "Đội cứu hộ biết mặt đất quanh trạm cứng hay mềm, nên chọn được chân đáp phù hợp. Giá trị thấp nhưng gần như miễn phí về dung lượng.",
+        "consequence_en": "The rescue team learns whether the ground around the Hab is firm or soft and picks the right landing legs. Low value but almost free in bandwidth.",
+        "source": "Số byte và chuỗi hex là ước tính của nhóm làm game."
+      }
+    ],
+    "combinations_vi": "Tổng dung lượng sáu gói là 29 byte. Ba gói rẻ nhất là dữ liệu đất 2, lượng oxy 3 và áp suất 3, tổng 8 byte. Ba gói đắt nhất nếu bỏ qua ngân sách là toạ độ 8, nhật ký bão 7 và sinh hiệu 6, tổng 21 byte, vượt ngân sách nên bất khả thi. Có đúng 14 tổ hợp ba gói hợp lệ trên 20 tổ hợp, và ba tổ hợp chạm đúng trần 16 byte là toạ độ cộng sinh hiệu cộng dữ liệu đất, sinh hiệu cộng lượng oxy cộng nhật ký bão, và sinh hiệu cộng áp suất cộng nhật ký bão.",
+    "combinations_en": "The six packets total 29 bytes. The three cheapest are soil 2, oxygen 3 and pressure 3, for 8 bytes. The three most expensive ignoring the budget are position 8, storm log 7 and vitals 6, for 21 bytes, which overruns the budget and is therefore impossible. Exactly 14 of the 20 three packet combinations are valid, and three of them land exactly on the 16 byte ceiling: position plus vitals plus soil, vitals plus oxygen plus storm log, and vitals plus pressure plus storm log.",
+    "valid_triple_count": 14,
+    "source": "Toàn bộ dung lượng gói và cách chia byte là ước tính của nhóm làm game. Không có chuẩn NASA nào quy định 16 byte."
+  },
+  "dsn_stations": {
+    "_note_vi": "Deep Space Network là mạng ăng-ten sâu của NASA do JPL quản lý, gồm ba trạm đặt cách nhau gần 120 độ kinh tuyến để lúc nào cũng có ít nhất một trạm nhìn thấy một điểm bất kỳ trên hoàng đạo. Cả ba trạm đều có một chảo 70 m.",
+    "_note_en": "The Deep Space Network is NASA's deep space antenna network, run by JPL, with three complexes spaced nearly 120 degrees of longitude apart so that at least one site always sees any point on the ecliptic. All three sites operate a 70 m dish.",
+    "name_vi": "Ba trạm Deep Space Network",
+    "name_en": "The three Deep Space Network complexes",
+    "spacing_note_vi": "Ba kinh độ thật là 116,78 độ tây, 4,25 độ tây và 148,98 độ đông, tức khoảng cách lần lượt 112,5 độ, 153,2 độ và 95,0 độ. Không đúng chính xác 120 độ nhưng đủ để luôn có trạm trực.",
+    "spacing_note_en": "The three real longitudes are 116.78 west, 4.25 west and 148.98 east, giving separations of 112.5, 153.2 and 95.0 degrees. Not exactly 120 degrees, but enough that one site is always in view.",
+    "stations": [
+      {
+        "id": "goldstone",
+        "name_vi": "Goldstone, California, Hoa Kỳ",
+        "name_en": "Goldstone, California, United States",
+        "location": "Mojave Desert, California, USA",
+        "longitude": -116.78,
+        "latitude": 35.43,
+        "antenna_name": "DSS-14",
+        "dish_size_m": 70.0,
+        "best_for_vi": "Tốt nhất khi Sao Hỏa nằm trên bầu trời châu Mỹ, tức khoảng nửa sau buổi tối giờ Thái Bình Dương. Đây là trạm gốc của mạng, cũng là chảo 70 m đầu tiên, khai trương năm 1966 và mở rộng lên 70 m năm 1988.",
+        "best_for_en": "Best when Mars is above the Americas, roughly the second half of the evening in Pacific time. This is the network's home station and its first 70 m dish, opened in 1966 and enlarged to 70 m in 1988.",
+        "source": "Kinh độ 116 độ 46 phút 44 giây tây, vĩ độ 35 độ 16 phút 53 giây bắc, chảo 70 m DSS-14, theo bảng 1.1 của DSN Radio Astronomy Users Guide và danh sách ăng-ten DSN của NASA."
+      },
+      {
+        "id": "madrid",
+        "name_vi": "Madrid, Tây Ban Nha",
+        "name_en": "Madrid, Spain",
+        "location": "Robledo de Chavela, Madrid, Spain",
+        "longitude": -4.25,
+        "latitude": 40.43,
+        "antenna_name": "DSS-63",
+        "dish_size_m": 70.0,
+        "best_for_vi": "Tốt nhất khi Sao Hỏa nằm trên bầu trời châu Âu và châu Phi. Chảo 70 m của Madrid là DSS-63, không phải DSS-43. DSS-43 là chảo 70 m của Canberra.",
+        "best_for_en": "Best when Mars is above Europe and Africa. Madrid's 70 m dish is DSS-63, not DSS-43. DSS-43 is the Canberra 70 m dish.",
+        "source": "Kinh độ 4 độ 14 phút 59 giây tây, vĩ độ 40 độ 25 phút 45 giây bắc, chảo 70 m DSS-63, theo bảng 1.1 của DSN Radio Astronomy Users Guide."
+      },
+      {
+        "id": "canberra",
+        "name_vi": "Canberra, Úc",
+        "name_en": "Canberra, Australia",
+        "location": "Tidbinbilla, Canberra, Australia",
+        "longitude": 148.98,
+        "latitude": -35.4,
+        "antenna_name": "DSS-43",
+        "dish_size_m": 70.0,
+        "best_for_vi": "Tốt nhất khi Sao Hỏa nằm trên bầu trời châu Á và châu Đại Dương, tức khoảng nửa đầu buổi tối giờ Việt Nam. DSS-43 là chảo 70 m lớn nhất Nam Bán Cầu và là ăng-ten duy nhất còn liên lạc được với Voyager 2.",
+        "best_for_en": "Best when Mars is above Asia and Oceania, roughly the first half of the evening in Vietnam time. DSS-43 is the largest steerable dish in the southern hemisphere and the only antenna still able to reach Voyager 2.",
+        "source": "Kinh độ 148 độ 58 phút 56 giây đông, vĩ độ 35 độ 24 phút 6 giây nam, chảo 70 m DSS-43, theo bảng 1.1 của DSN Radio Astronomy Users Guide."
+      }
+    ],
+    "role_in_phase_1_vi": "Trong màn chơi, DSN là đầu nhận cuối cùng. Gói tin đi từ ăng-ten UHF của Hab lên MRO, MRO đẩy xuống băng X về một trong ba trạm này, rồi trạm chuyển vào trung tâm điều khiển. Người chơi chọn trạm nào đang có Sao Hỏa cao nhất trên trời để biên tín hiệu tốt nhất.",
+    "role_in_phase_1_en": "In the mission screen the DSN is the final receiver. A packet goes from the Hab UHF antenna up to MRO, MRO pushes it down in X-band to one of these three sites, and the site forwards it to mission control. The player picks whichever station currently has Mars highest in its sky for the best link margin."
+  },
+  "signal_timing": {
+    "_note_vi": "Tín hiệu đi bằng tốc độ ánh sáng nên không có cách nào nhanh hơn. Con số 12,5 phút một chiều ứng với cấu hình trung bình, khi hai hành tinh cách nhau khoảng 225 triệu km.",
+    "_note_en": "The signal travels at the speed of light, so nothing can beat it. The 12.5 minute one way figure matches the average geometry, when the two planets sit about 225 million km apart.",
+    "name_vi": "Độ trễ tín hiệu Trái Đất tới Sao Hỏa",
+    "name_en": "Earth to Mars signal delay",
+    "light_speed_km_s": 299792.458,
+    "light_speed_source": "Tốc độ ánh sáng trong chân không, hằng số vật lý, dùng đúng giá trị đã ghi trong docs/11-NASA-RESOURCES.md mục 5.2 nhóm E.",
+    "distance_km": 225000000,
+    "one_way_light_time_min": 12.5,
+    "round_trip_light_time_min": 25.0,
+    "nominal_source": "Khoảng cách trung bình Trái Đất tới Sao Hỏa khoảng 225 triệu km, tức khoảng 140 triệu dặm, theo docs/11-NASA-RESOURCES.md mục 5.2 nhóm E. Trễ 12,5 phút một chiều và 25,0 phút khứ hồi là kết quả tính từ khoảng cách đó chia tốc độ ánh sáng.",
+    "cases": [
+      {
+        "id": "closest",
+        "name_vi": "Gần nhất, Sao Hỏa đối diện Trái Đất",
+        "name_en": "Closest, Mars at opposition",
+        "distance_km": 54600000,
+        "one_way_min": 3.0,
+        "round_trip_min": 6.1,
+        "explain_vi": "Khoảng 54,6 triệu km, trường hợp tốt nhất. Một lệnh gửi đi và phản hồi về sau khoảng 6 phút.",
+        "explain_en": "About 54.6 million km, the best case. A command goes out and the reply comes back in roughly 6 minutes."
+      },
+      {
+        "id": "average",
+        "name_vi": "Trung bình",
+        "name_en": "Average",
+        "distance_km": 225000000,
+        "one_way_min": 12.5,
+        "round_trip_min": 25.0,
+        "explain_vi": "Khoảng 225 triệu km, cấu hình dùng cho màn chơi này. Một lệnh và phản hồi mất khoảng 25 phút.",
+        "explain_en": "About 225 million km, the geometry used for this mission screen. A command and its reply take about 25 minutes."
+      },
+      {
+        "id": "farthest",
+        "name_vi": "Xa nhất, Sao Hỏa cùng phía Mặt Trời với Trái Đất",
+        "name_en": "Farthest, Mars on the far side of the Sun",
+        "distance_km": 401000000,
+        "one_way_min": 22.3,
+        "round_trip_min": 44.6,
+        "explain_vi": "Khoảng 401 triệu km, trường hợp xấu nhất. Gần như cả một giờ cho một vòng hỏi đáp, nên không thể sửa lệnh giữa chừng.",
+        "explain_en": "About 401 million km, the worst case. Nearly a full hour for one round trip, so a command cannot be corrected mid-flight."
+      }
+    ],
+    "cases_source": "Bảng ba trường hợp và các giá trị 3,0 / 12,5 / 22,3 phút một chiều lấy từ docs/11-NASA-RESOURCES.md mục 5.2 nhóm E, tính bằng khoảng cách chia tốc độ ánh sáng 299.792,458 km/s.",
+    "phase_1_implication_vi": "Trong màn cầu cứu, độ trễ này nghĩa là sau khi bấm phát, người chơi phải chờ 12,5 phút mô phỏng mới biết gói tin có tới DSN hay không. Không có cách nào hỏi lại giữa chừng, nên gói tin phải đúng ngay lần đầu.",
+    "phase_1_implication_en": "In the distress call screen this delay means that after pressing transmit the player waits 12.5 simulated minutes before learning whether the packet reached the DSN. There is no way to ask again in the middle, so the packet has to be right the first time."
+  }
+}

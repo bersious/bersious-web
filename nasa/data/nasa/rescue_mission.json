@@ -1,0 +1,312 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "dataset": "rescue_mission",
+    "title_vi": "Tham số sứ mệnh giải cứu Trái Đất tới Sao Hỏa",
+    "title_en": "Earth to Mars rescue mission parameters",
+    "primary_source_document": "docs/11-NASA-RESOURCES.md",
+    "source_note_vi": "Mọi con số ở đây lấy từ docs/11-NASA-RESOURCES.md hoặc tính trực tiếp từ hằng số vật lý đã ghi trong tài liệu đó. Trường 'confidence' cho biết con số thuộc loại nào: doc là trích nguyên từ tài liệu NASA, calculated là tính từ công thức và hằng số, estimate là ước tính của nhóm làm game và không có trong tài liệu NASA.",
+    "source_note_en": "Every number here comes from docs/11-NASA-RESOURCES.md or is computed from the physical constants recorded there. The 'confidence' field marks the origin: doc means quoted from a NASA document, calculated means derived from a formula and constants, estimate means a game-side approximation that is not in any NASA document.",
+    "unit_rules_vi": "delta_v_ms là mét trên giây, distance_km là ki-lô-mét, thời gian là ngày Trái Đất trừ khi ghi rõ là sol.",
+    "unit_rules_en": "delta_v_ms is metres per second, distance_km is kilometres, all durations are Earth days unless the field name says sol."
+  },
+
+  "delta_v_legs": [
+    {
+      "id": "leo_departure",
+      "order": 1,
+      "name_vi": "Khởi hành khỏi quỹ đạo Trái Đất thấp 400 km",
+      "name_en": "Departure from low Earth orbit at 400 km",
+      "delta_v_ms": 3570,
+      "confidence": "doc",
+      "additive_group": "vinfinity",
+      "explain_vi": "Từ LEO 400 km cần khoảng 3,57 km/s để thoát giếng hấp dẫn Trái Đất và đạt vận tốc vô cực 2,945 km/s. Con số này đã bao gồm phần thắng lại trọng lực và phần tăng vận tốc nhật tâm.",
+      "explain_en": "From a 400 km LEO you need about 3.57 km/s to climb out of Earth's gravity well and reach a hyperbolic excess velocity of 2.945 km/s. The figure already folds in the gravity loss and the heliocentric speed gain.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F (tính từ Basics of Space Flight chương 3 và bán trục lớn 1,0 AU với 1,523679 AU của bảng quỹ đạo NASA Mission Viz mục 4.5)"
+    },
+    {
+      "id": "heliocentric_transfer",
+      "order": 2,
+      "name_vi": "Chuyển tiếp nhật tâm Trái Đất tới Sao Hỏa",
+      "name_en": "Heliocentric transfer from Earth to Mars",
+      "delta_v_ms": 5594,
+      "confidence": "calculated",
+      "additive_group": "heliocentric",
+      "explain_vi": "Tổng hai lần đổi vận tốc đo trong hệ nhật tâm: 2,945 km/s lúc rời quỹ đạo Trái Đất cộng 2,649 km/s lúc tới quỹ đạo Sao Hỏa. Đây là cách đo khác của cùng một hành trình, không cộng dồn với hai chặng LEO và bắt quỹ đạo ở trên.",
+      "explain_en": "The sum of two velocity changes measured in the heliocentric frame: 2.945 km/s when leaving Earth's orbit plus 2.649 km/s when reaching Mars' orbit. This is another way of measuring the same trip and is not additive with the LEO departure and Mars capture legs below.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F (Hohmann transfer tính từ bán trục lớn 1,0 AU và 1,523679 AU, bảng quỹ đạo NASA Mission Viz mục 4.5)"
+    },
+    {
+      "id": "mars_capture",
+      "order": 3,
+      "name_vi": "Bắt vào quỹ đạo Sao Hỏa 400 km",
+      "name_en": "Capture into a 400 km Mars orbit",
+      "delta_v_ms": 2080,
+      "confidence": "doc",
+      "additive_group": "vinfinity",
+      "explain_vi": "Từ vận tốc vô cực 2,649 km/s, cần khoảng 2,08 km/s để hãm và vào quỹ đạo tròn 400 km quanh Sao Hỏa. Chặng này tiêu tốn nhiên liệu nhất trong toàn bộ hành trình có người.",
+      "explain_en": "Starting from a 2.649 km/s hyperbolic excess velocity, about 2.08 km/s of braking puts you in a circular 400 km orbit around Mars. This leg is the single biggest propellant cost of the crewed trip.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F"
+    },
+    {
+      "id": "mars_descent",
+      "order": 4,
+      "name_vi": "Hạ cánh xuống bề mặt Sao Hỏa",
+      "name_en": "Descent to the Mars surface",
+      "delta_v_ms": 1000,
+      "confidence": "estimate",
+      "additive_group": "vinfinity",
+      "explain_vi": "Ước tính của nhóm làm game, KHÔNG có trong tài liệu NASA. Từ quỹ đạo 400 km, một tàu có lá chắn nhiệt và dù mỏng cần khoảng 0,8 tới 1,2 km/s phần động cơ, nên lấy tròn 1,0 km/s. Khí quyển Sao Hỏa mỏng, chỉ bằng khoảng 1 phần trăm khí quyển Trái Đất, nên dù chỉ giúp được một phần và phần còn lại phải do động cơ gánh.",
+      "explain_en": "A game-side estimate, NOT taken from any NASA document. From a 400 km orbit a vehicle with a heat shield and a thin parachute needs roughly 0.8 to 1.2 km/s of powered descent, so the model uses a round 1.0 km/s. The Martian atmosphere is only about 1 percent as thick as Earth's, so the parachute does part of the job and the engines must cover the rest.",
+      "source": "Ước tính của nhóm làm game (docs/11-NASA-RESOURCES.md không có số liệu hạ cánh). Bối cảnh khí quyển mỏng lấy từ NASA Mars Facts, mục 4.10 tài liệu nguồn."
+    }
+  ],
+
+  "delta_v_budget": {
+    "additive_total_ms": 6650,
+    "additive_formula_vi": "3570 + 2080 + 1000 = 6650 m/s. Đây là ngân sách cộng dồn đúng để kiểm tra nhiên liệu, vì mỗi chặng là một lần đốt động cơ riêng.",
+    "additive_formula_en": "3570 + 2080 + 1000 = 6650 m/s. This is the correct additive budget for propellant checks because each leg is a separate engine burn.",
+    "heliocentric_reference_ms": 5594,
+    "heliocentric_note_vi": "5.594 km/s chỉ là số đo năng lượng của riêng phần chuyển tiếp trong hệ nhật tâm. Không cộng nó với 3,57 và 2,08 vì sẽ đếm hai lần cùng một năng lượng.",
+    "heliocentric_note_en": "5.594 km/s measures only the transfer energy in the heliocentric frame. Never add it to 3.57 and 2.08, that would count the same energy twice.",
+    "confidence": "calculated",
+    "source": "Tổng hợp từ bốn chặng ở trên, docs/11-NASA-RESOURCES.md mục 5.2 nhóm F"
+  },
+
+  "transfer": {
+    "flight_time_days": 258.9,
+    "flight_time_years": 0.71,
+    "synodic_period_days": 779.9,
+    "synodic_period_note_vi": "Chu kỳ giao hội Trái Đất Sao Hỏa khoảng 779,9 ngày, tức khoảng 2 năm 1 tháng rưỡi. Đây là khoảng cách giữa hai cửa sổ phóng liên tiếp, và cũng là lý do sứ mệnh giải cứu chỉ có một cơ hội rồi phải chờ hơn hai năm.",
+    "synodic_period_note_en": "The Earth Mars synodic period is about 779.9 days, roughly two years and a month and a half. That is the gap between two consecutive launch windows, and the reason a rescue mission gets one shot and then waits more than two years.",
+    "return_trip_days": 258.9,
+    "return_trip_note_vi": "Chuyến về dùng cùng hình học Hohmann nên thời gian bay tương đương, cộng thời gian chờ cửa sổ về.",
+    "return_trip_note_en": "The return leg uses the same Hohmann geometry, so the flight time is the same, plus the wait for the return window.",
+    "crew_surface_stay_days": 480,
+    "crew_surface_stay_note_vi": "Ước tính của nhóm làm game cho kịch bản giải cứu, không phải số liệu NASA.",
+    "crew_surface_stay_note_en": "A game-side estimate for the rescue scenario, not a NASA figure.",
+    "confidence": "doc (flight_time_days, synodic_period_days), estimate (crew_surface_stay_days)",
+    "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F cho thời gian bay 258,9 ngày và 0,71 năm. Chu kỳ giao hội 779,9 ngày suy ra từ chu kỳ quỹ đạo Trái Đất 365,25638 ngày và Sao Hỏa 686,971 ngày trong bảng quỹ đạo NASA Mission Viz mục 4.5."
+  },
+
+  "signal_delay_table": [
+    {
+      "id": "closest",
+      "name_vi": "Gần nhất (xấp xỉ)",
+      "name_en": "Closest approach (approximate)",
+      "distance_km": 54600000,
+      "distance_au": 0.365,
+      "one_way_minutes": 3.0,
+      "round_trip_minutes": 6.1,
+      "confidence": "calculated",
+      "note_vi": "Khoảng cách lấy từ bảng trễ tín hiệu trong tài liệu nguồn. Lệnh gửi đi và phản hồi mất khoảng 6 phút, người chơi vẫn có thể lái tàu gần như trực tiếp.",
+      "note_en": "Distance taken from the delay table in the source document. A command and its reply take about 6 minutes, so the player can still fly the ship almost in real time.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm E, bảng trễ tín hiệu"
+    },
+    {
+      "id": "average",
+      "name_vi": "Trung bình",
+      "name_en": "Average",
+      "distance_km": 225000000,
+      "distance_au": 1.504,
+      "one_way_minutes": 12.5,
+      "round_trip_minutes": 25.0,
+      "confidence": "calculated",
+      "note_vi": "Khoảng cách trung bình Trái Đất Sao Hỏa khoảng 225 triệu km, tương đương 140 triệu dặm theo NASA HRP. Một lệnh và phản hồi mất 25 phút, đủ để người chơi thấy mình đang điều khiển một cỗ máy ở rất xa.",
+      "note_en": "The average Earth Mars distance is about 225 million km, equivalent to the 140 million miles quoted by NASA HRP. A command and its reply take 25 minutes, long enough for the player to feel the distance.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm E, bảng trễ tín hiệu, gốc là NASA HRP Hazard: Distance From Earth mục 4.10"
+    },
+    {
+      "id": "farthest",
+      "name_vi": "Xa nhất (xấp xỉ)",
+      "name_en": "Farthest (approximate)",
+      "distance_km": 401000000,
+      "distance_au": 2.680,
+      "one_way_minutes": 22.3,
+      "round_trip_minutes": 44.6,
+      "confidence": "calculated",
+      "note_vi": "Trễ một chiều 22,3 phút. Tài liệu NASA HRP ghi trễ tối đa 20 phút, khớp với khoảng cách khoảng 360 triệu km, tức gần mức xa nhất này.",
+      "note_en": "One way delay of 22.3 minutes. NASA HRP states a maximum delay of 20 minutes, which corresponds to about 360 million km, close to this far end.",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm E, bảng trễ tín hiệu. Đối chiếu NASA HRP Hazard: Distance From Earth mục 4.10."
+    }
+  ],
+
+  "physical_constants": {
+    "speed_of_light_km_s": 299792.458,
+    "standard_gravity_m_s2": 9.80665,
+    "astronomical_unit_km": 149597870.7,
+    "mars_radius_km": 3390,
+    "mars_sol_hours": 24.6,
+    "mars_year_earth_days": 687,
+    "mars_year_sols": 669.6,
+    "mars_mean_distance_sun_au": 1.5237,
+    "mars_mean_distance_sun_km": 228000000,
+    "mars_surface_temp_max_c": 20,
+    "mars_surface_temp_min_c": -153,
+    "mars_atmosphere_co2_percent": 95,
+    "earth_orbit_velocity_km_s": 29.785,
+    "mars_orbit_velocity_km_s": 24.129,
+    "transfer_perihelion_velocity_km_s": 32.729,
+    "transfer_aphelion_velocity_km_s": 21.48
+  },
+
+  "physical_constants_meta": [
+    {
+      "key": "speed_of_light_km_s",
+      "name_vi": "Tốc độ ánh sáng trong chân không",
+      "name_en": "Speed of light in vacuum",
+      "confidence": "doc",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm E (giá trị dùng để tính bảng trễ tín hiệu)"
+    },
+    {
+      "key": "standard_gravity_m_s2",
+      "name_vi": "Gia tốc trọng trường chuẩn, dùng cho phương trình tên lửa",
+      "name_en": "Standard gravity, used in the rocket equation",
+      "confidence": "doc",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, công thức ve = Isp * g0"
+    },
+    {
+      "key": "astronomical_unit_km",
+      "name_vi": "Đơn vị thiên văn",
+      "name_en": "Astronomical unit",
+      "confidence": "defined",
+      "source": "Hằng số định nghĩa quốc tế, cần để đổi sma tính bằng AU trong bảng quỹ đạo NASA Mission Viz mục 4.5 sang km"
+    },
+    {
+      "key": "mars_radius_km",
+      "name_vi": "Bán kính Sao Hỏa",
+      "name_en": "Mars radius",
+      "confidence": "doc",
+      "source": "NASA Mars: Facts, mục 4.10 docs/11-NASA-RESOURCES.md"
+    },
+    {
+      "key": "mars_sol_hours",
+      "name_vi": "Độ dài một ngày Sao Hỏa (sol)",
+      "name_en": "Length of one Mars day (sol)",
+      "confidence": "doc",
+      "source": "NASA Mars: Facts, mục 4.10 docs/11-NASA-RESOURCES.md"
+    },
+    {
+      "key": "mars_year_earth_days",
+      "name_vi": "Một năm Sao Hỏa tính bằng ngày Trái Đất",
+      "name_en": "One Mars year in Earth days",
+      "confidence": "doc",
+      "source": "NASA Mars: Facts, mục 4.10 docs/11-NASA-RESOURCES.md"
+    },
+    {
+      "key": "mars_year_sols",
+      "name_vi": "Một năm Sao Hỏa tính bằng sol",
+      "name_en": "One Mars year in sols",
+      "confidence": "doc",
+      "source": "NASA Mars: Facts, mục 4.10 docs/11-NASA-RESOURCES.md"
+    },
+    {
+      "key": "mars_mean_distance_sun_au",
+      "name_vi": "Khoảng cách trung bình Sao Hỏa tới Mặt Trời",
+      "name_en": "Mean Mars distance to the Sun",
+      "confidence": "doc",
+      "source": "Bảng quỹ đạo NASA Mission Viz, mục 4.5 docs/11-NASA-RESOURCES.md, cột sma 1,523679 AU"
+    },
+    {
+      "key": "mars_mean_distance_sun_km",
+      "name_vi": "Khoảng cách trung bình Sao Hỏa tới Mặt Trời tính bằng km",
+      "name_en": "Mean Mars distance to the Sun in kilometres",
+      "confidence": "doc",
+      "source": "NASA Mars: Facts, mục 4.10 docs/11-NASA-RESOURCES.md (228 triệu km)"
+    },
+    {
+      "key": "mars_atmosphere_co2_percent",
+      "name_vi": "Tỷ lệ CO2 trong khí quyển Sao Hỏa, cơ sở cho thiết bị lọc MOXIE",
+      "name_en": "CO2 share of the Mars atmosphere, the basis for the MOXIE filter",
+      "confidence": "doc",
+      "source": "MOXIE trên Perseverance, NASA JPL, mục 4.10 docs/11-NASA-RESOURCES.md ghi khí quyển Sao Hỏa khoảng 95 phần trăm là CO2"
+    },
+    {
+      "key": "earth_orbit_velocity_km_s",
+      "name_vi": "Vận tốc quỹ đạo Trái Đất quanh Mặt Trời",
+      "name_en": "Earth orbital velocity around the Sun",
+      "confidence": "calculated",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, kết quả tính Hohmann"
+    },
+    {
+      "key": "mars_orbit_velocity_km_s",
+      "name_vi": "Vận tốc quỹ đạo Sao Hỏa quanh Mặt Trời",
+      "name_en": "Mars orbital velocity around the Sun",
+      "confidence": "calculated",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, kết quả tính Hohmann"
+    },
+    {
+      "key": "transfer_perihelion_velocity_km_s",
+      "name_vi": "Vận tốc quỹ đạo chuyển tiếp tại điểm cận nhật",
+      "name_en": "Transfer orbit velocity at perihelion",
+      "confidence": "calculated",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, kết quả tính Hohmann"
+    },
+    {
+      "key": "transfer_aphelion_velocity_km_s",
+      "name_vi": "Vận tốc quỹ đạo chuyển tiếp tại điểm viễn nhật",
+      "name_en": "Transfer orbit velocity at aphelion",
+      "confidence": "calculated",
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, kết quả tính Hohmann"
+    }
+  ],
+
+  "orbit_elements": {
+    "_note_vi": "Sao chép nguyên từ bảng tham số quỹ đạo của NASA Mission Viz. Góc tính bằng độ, sma tính bằng AU, period tính bằng ngày Trái Đất, tau là tham số pha của bảng gốc. Dùng để ước lượng khoảng cách Trái Đất Sao Hỏa theo thời gian.",
+    "_note_en": "Copied verbatim from the NASA Mission Viz orbital parameter table. Angles are degrees, sma is in AU, period is in Earth days, tau is the phase parameter of the source table. Used to estimate the Earth Mars distance over time.",
+    "source": "Bảng quỹ đạo 9 hành tinh, docs/11-NASA-RESOURCES.md mục 4.5, nguồn gốc https://nasa.github.io/mission-viz/RMarkdown/ontology_based_orrery_generated_from_R_code.html",
+    "bodies": {
+      "earth": {
+        "label": "Earth",
+        "eccentricity": 0.016708,
+        "inclination_deg": 7.155,
+        "omega_deg": -11.26064,
+        "period_days": 365.25638,
+        "raan_deg": 23.439281,
+        "sma_au": 1.0,
+        "tau": 114.20783
+      },
+      "mars": {
+        "label": "Mars",
+        "eccentricity": 0.0934,
+        "inclination_deg": 5.65,
+        "omega_deg": 49.558,
+        "period_days": 686.971,
+        "raan_deg": 317.68143,
+        "sma_au": 1.523679,
+        "tau": 286.502
+      }
+    }
+  },
+
+  "reference_values": {
+    "tsiolkovsky_test_case": {
+      "isp_s": 320,
+      "delta_v_ms": 5600,
+      "fuel_fraction_percent": 83.2,
+      "mass_ratio": 5.96,
+      "source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F, bảng khối lượng nhiên liệu theo phương trình tên lửa",
+      "note_vi": "Với động cơ hóa học Isp 320 và 5,6 km/s, có tới 83 phần trăm khối lượng phải là nhiên liệu. Đây là bài học đánh đổi mạnh nhất của cả game.",
+      "note_en": "With a 320 second chemical engine and 5.6 km/s, 83 percent of the mass has to be propellant. This is the single strongest trade-off lesson in the whole game."
+    },
+    "fuel_table": [
+      { "isp_s": 300, "delta_v_ms": 3600, "mass_ratio": 3.4, "fuel_fraction_percent": 70.6 },
+      { "isp_s": 300, "delta_v_ms": 5600, "mass_ratio": 6.71, "fuel_fraction_percent": 85.1 },
+      { "isp_s": 320, "delta_v_ms": 3600, "mass_ratio": 3.15, "fuel_fraction_percent": 68.3 },
+      { "isp_s": 320, "delta_v_ms": 5600, "mass_ratio": 5.96, "fuel_fraction_percent": 83.2 },
+      { "isp_s": 450, "delta_v_ms": 3600, "mass_ratio": 2.26, "fuel_fraction_percent": 55.8 },
+      { "isp_s": 450, "delta_v_ms": 5600, "mass_ratio": 3.56, "fuel_fraction_percent": 71.9 }
+    ],
+    "fuel_table_source": "docs/11-NASA-RESOURCES.md, mục 5.2 nhóm F"
+  },
+
+  "launch_window": {
+    "window_open_sol": 0,
+    "window_length_days": 30,
+    "window_length_note_vi": "Cửa sổ phóng thực tế kéo dài vài tuần quanh điểm giao hội. Con số 30 ngày là ước tính của nhóm làm game, không phải số liệu NASA.",
+    "window_length_note_en": "A real launch window spans a few weeks around the optimal geometry. The 30 day figure is a game-side estimate, not a NASA number.",
+    "next_window_days": 779.9,
+    "confidence": "estimate (window_length_days), doc (next_window_days)",
+    "source": "Chu kỳ giao hội 779,9 ngày suy ra từ bảng quỹ đạo NASA Mission Viz mục 4.5, docs/11-NASA-RESOURCES.md"
+  }
+}
