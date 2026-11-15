@@ -533,6 +533,7 @@ export function createMissionLog({ host, onNewlyDone } = {}) {
       window.clearInterval(pollTimer);
       if (typeof offLang === 'function') offLang();
       if (typeof unsubP2 === 'function') unsubP2();
+      if (typeof unWatch === 'function') unWatch();
     },
   };
 }
@@ -635,7 +636,10 @@ export function startMissionLogIntro({ logEl } = {}) {
       finished = true;
       writeFlag(INTRO_KEY);
       obs.disconnect();
+      window.clearInterval(settle);
+      window.clearTimeout(settleDone);
       window.removeEventListener('resize', layout);
+      window.removeEventListener('scroll', onScroll, true);
       document.removeEventListener('keydown', onKey, true);
       root.remove();
       resolve(true);
@@ -673,7 +677,19 @@ export function startMissionLogIntro({ logEl } = {}) {
       ro.observe(logEl);
     }
 
+    /* Bố cục của màn căn cứ chưa ổn định ngay khi widget vừa dựng: ảnh
+       nền, thanh công cụ và nhãn pha còn đổi chiều cao trong vài trăm
+       mili giây đầu, nên lỗ khoét đo ở khung hình đầu có thể lệch cả
+       nghìn điểm ảnh. Quét lại bố cục trong 1,2 giây đầu là cách rẻ
+       nhất để lỗ khoét luôn trùm đúng widget. */
+    let settle = 0;
+    const settleDone = window.setTimeout(() => { window.clearInterval(settle); }, 1200);
+    settle = window.setInterval(layout, 80);
+
+    function onScroll() { layout(); }
+
     window.addEventListener('resize', layout);
+    window.addEventListener('scroll', onScroll, true);
     document.addEventListener('keydown', onKey, true);
 
     /* Bấm ra vùng tối thì rung vòng khoanh thay vì im lặng: người chơi

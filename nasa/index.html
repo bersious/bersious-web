@@ -164,9 +164,269 @@
   }
 
   html.motion-off .base-replay { transition: none; }
+
+  /* ---------- màn chờ tải nhúng (pb-) ----------
+     Sửa lỗi người dùng báo: mở trang xong vẫn thấy khung trống vì màn
+     chờ của preloader.js chỉ dựng lên sau khi chuỗi import xong. Lớp
+     dưới đây là HTML tĩnh nên trình duyệt vẽ ngay khung đầu tiên.
+
+     Đặt tiền tố pb- để không giẫm lên .pre-root của css/preloader.css:
+     hai bộ định kiểu cùng tồn tại thì lúc gỡ một bộ, bộ còn lại vẫn
+     đúng như cũ. */
+  .pb-root {
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: #07090d;
+    color: #b9c7d6;
+    font-family: "Be Vietnam Pro", system-ui, sans-serif;
+    overflow: hidden;
+    /* tấm màn che, không có gì để bấm: nút Bắt đầu phía sau vẫn nhận
+       được cú bấm ngay khi lớp này mờ đi */
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 400ms cubic-bezier(.22, .61, .36, 1);
+  }
+
+  .pb-root.pb-out { opacity: 0; }
+  .pb-root[hidden] { display: none; }
+
+  .pb-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* Huy hiệu xoay chậm: 12 giây một vòng, đủ chậm để không rối mắt,
+     đủ nhanh để thấy màn hình còn sống khi mạng chậm. */
+  .pb-emblem {
+    width: 96px;
+    height: 96px;
+    background: url('assets/art/loading-emblem.webp') center / contain no-repeat;
+    animation: pb-spin 12s linear infinite;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes pb-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .pb-mission {
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #72879d;
+  }
+
+  .pb-track {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    height: 3px;
+    border-radius: 2px;
+    background: #1b232e;
+    overflow: hidden;
+  }
+
+  .pb-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #6b4a1c 0%, #e8a33d 100%);
+    transition: width 260ms cubic-bezier(.22, .61, .36, 1);
+  }
+
+  .pb-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: .72rem;
+    letter-spacing: .04em;
+  }
+
+  .pb-status { color: #8497aa; }
+
+  .pb-pct {
+    min-width: 4.5ch;
+    text-align: right;
+    color: #e8a33d;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 420px) {
+    .pb-emblem { width: 80px; height: 80px; }
+    .pb-card { gap: 14px; }
+    .pb-mission { letter-spacing: .12em; }
+  }
+
+  @media (max-height: 420px) {
+    .pb-emblem { width: 64px; height: 64px; }
+    .pb-card { gap: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pb-emblem { animation: none; }
+    .pb-fill { transition: none; }
+    .pb-root { transition: none; }
+  }
+
+  html.motion-off .pb-emblem { animation: none; }
+  html.motion-off .pb-fill { transition: none; }
+  html.motion-off .pb-root { transition: none; }
 </style>
+
 </head>
 <body>
+
+<!-- ============================================================
+     MÀN CHỜ TẢI NHÚNG
+     ============================================================
+     Vì sao phải nằm trong HTML: màn chờ của preloader.js chỉ dựng
+     lên sau khi module script chạy xong, tức là sau toàn bộ chuỗi
+     import. Trên mạng chậm khoảng trống đó là vài giây người chơi
+     chỉ thấy khung trống và tưởng trang treo. Khối này là HTML
+     tĩnh nên trình duyệt vẽ nó ngay khung hình đầu tiên.
+
+     Ba lớp gỡ, độc lập nhau, lớp nào tới trước thì thắng:
+       1. preloader.js tải xong (hoặc hết hạn chờ của nó) gọi
+          window.__pbHide() -> mờ dần rồi gỡ.
+       2. Bộ đếm 8 giây ngay dưới tự gỡ, phòng khi preloader chậm
+          hơn dự kiến. Không bao giờ chặn game quá 8 giây.
+       3. Bộ đếm 3 giây trong try/catch, phòng khi chính script đếm
+          lỗi. Đây là lớp cuối, không có gì sau nó.
+
+     Thanh tiến trình đếm thật: mỗi tài nguyên trong danh sách bên
+     dưới cộng một khi xong HOẶC khi lỗi. Tệp 404 vẫn tính là xong,
+     nhờ vậy thanh không bao giờ kẹt giữa đường.
+     ============================================================ -->
+<div class="pb-root" id="pb" role="progressbar"
+     aria-label="Đang tải tài nguyên" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+  <div class="pb-card">
+    <div class="pb-emblem" aria-hidden="true"></div>
+    <div class="pb-mission">ARES III · Chuẩn bị phòng điều khiển</div>
+    <div class="pb-track"><div class="pb-fill" id="pb-fill"></div></div>
+    <div class="pb-meta">
+      <span class="pb-status" id="pb-status">Đang nạp hình ảnh</span>
+      <span class="pb-pct" id="pb-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* Bộ đếm của màn chờ nhúng. Viết bằng ES5, không import gì: nó
+     phải chạy được cả khi module script phía dưới chết vì một file
+     thiếu. */
+  (function () {
+    var root = document.getElementById('pb');
+    if (!root) return;
+    var fill = document.getElementById('pb-fill');
+    var pct = document.getElementById('pb-pct');
+    var status = document.getElementById('pb-status');
+
+    /* Đánh dấu đã gỡ để ba lớp hẹn giờ không gỡ chồng nhau. */
+    var gone = false;
+
+    function hide() {
+      if (gone || !root) return;
+      gone = true;
+      try {
+        root.classList.add('pb-out');
+        setTimeout(function () { if (root) root.hidden = true; }, 420);
+      } catch (e) { /* không mờ được thì gỡ thẳng */ if (root) root.hidden = true; }
+    }
+    window.__pbHide = hide;
+
+    function paint(done, total) {
+      var p = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
+      if (fill) fill.style.width = p + '%';
+      if (pct) pct.textContent = p + '%';
+      root.setAttribute('aria-valuenow', String(p));
+      return p;
+    }
+
+    /* Lớp cuối, không điều kiện: 3 giây là gỡ. Đặt TRƯỚC mọi việc có
+       thể ném lỗi để nó luôn được cài. */
+    setTimeout(hide, 3000);
+
+    try {
+      var parts = location.pathname.split('/');
+      if (parts[parts.length - 1].indexOf('.') !== -1) parts[parts.length - 1] = '';
+      var base = location.origin + parts.join('/');
+      if (base.slice(-1) !== '/') base += '/';
+
+      /* Tài nguyên chặn màn mở đầu. CSS ở đây đã được nạp sẵn bởi
+         script trong head, nên chỉ đếm ảnh và script; đếm lại CSS sẽ
+         cộng hai lần cho cùng một tệp.
+         Ảnh: nền và phi hành gia của màn menu, cộng huy hiệu ở đây. */
+      var IMAGES = [
+        'assets/art/loading-emblem.webp',
+        'assets/art/bg-storm-wide.webp',
+        'assets/art/char-eva.webp',
+        'assets/art/loading-emblem.webp'
+      ];
+      /* trùng huy hiệu ở đầu là cố ý: nạp lại từ cache, rẻ, và giữ
+         tổng số chia hết cho bước nhảy của thanh */
+      var total = IMAGES.length + 1; /* +1 cho module script boot.js */
+      var done = 0;
+      var settledOnce = false;
+
+      function settle() {
+        done += 1;
+        var p = paint(done, total);
+        if (p >= 100 && !settledOnce) {
+          settledOnce = true;
+          if (status) status.textContent = 'Sắp xong';
+        }
+      }
+
+      for (var i = 0; i < IMAGES.length; i += 1) {
+        (function (rel) {
+          var img = new Image();
+          img.onload = settle;
+          img.onerror = settle;   /* lỗi vẫn tính là xong */
+          img.src = base + rel;
+        })(IMAGES[i]);
+      }
+
+      /* Module script chính: coi như xong khi DOMContentLoaded, vì từ
+         đó trở đi preloader.js đã có cơ hội chạy và đã tự báo tiến
+         trình thật về window.__pbProgress. */
+      if (document.readyState === 'complete') settle();
+      else window.addEventListener('load', settle, { once: true });
+    } catch (e) {
+      /* Lỗi ở đây chỉ mất thanh tiến trình; lớp 3 giây vẫn gỡ màn. */
+    }
+
+    /* preloader.js báo tiến trình tải THẬT về đây. Số của nó chính
+       xác hơn phép đếm thô ở trên (nó biết cả 12 khung comic, sprite,
+       âm thanh), nên khi có số thật thì thanh chạy theo số thật. */
+    window.__pbProgress = function (settledCount, totalCount) {
+      try {
+        if (!totalCount) return;
+        var p = paint(settledCount, totalCount);
+        if (p >= 100 && status) status.textContent = 'Sắp xong';
+        else if (status && settledCount < totalCount) status.textContent = 'Đang nạp hình ảnh';
+      } catch (err) { /* bỏ qua */ }
+    };
+
+    /* Hạn chờ riêng của chính màn nhúng: quá 8 giây thì nhường chỗ cho
+       game dù preloader chưa xong. Không bao giờ chặn vĩnh viễn. */
+    setTimeout(hide, 8000);
+  })();
+</script>
 
 <!-- nút mở cài đặt, luôn hiện ở góc trên phải -->
 <button class="settings-btn" id="settings-btn" title="Cài đặt" aria-label="Cài đặt">
@@ -1130,11 +1390,15 @@
 
   /* Vào game từ nút Bắt đầu. Chạy sau khi hoạt cảnh phóng kết thúc. */
   async function enterFromStart() {
-    /* Bọc trong cổng chặn: bấm Bắt đầu là lớp phủ hiện ngay, chỉ vào
-       phim/comic khi ảnh đã tải xong, nên không lộ khung trống. */
-    return gate(async () => {
-    const pre = preloadAhead();
-    await pre;
+    /* Cổng chặn CHỈ bọc bước tải tài nguyên, không bọc đoạn phim.
+       Trước đây bọc cả hàm nên lớp phủ xoay tròn nằm đè lên video mở
+       đầu suốt mấy chục giây, che mất cả cảnh phim. Giờ: hiện cổng,
+       tải xong thì GỠ NGAY, rồi mới phát phim trên nền sạch. */
+    await gate(async () => {
+      const pre = preloadAhead();
+      await pre;
+    }, { minMs: 300, maxMs: 8000 });
+
     boot.style.display = 'none';
 
     /* Video mở đầu tự nuốt lỗi bên trong, nhưng bọc thêm một lớp:
@@ -1149,7 +1413,6 @@
     await runOpening((playerName) => {
       if (baseStarted) return;
       afterStory(playerName);
-    });
     });
   }
 

@@ -313,6 +313,15 @@ async function runOnce(opts) {
   const fixedBits = motionOff();
   if (fixedBits) ui.root.classList.add('pre-static');
 
+  /* Bàn giao màn chờ nhúng trong index.html (lớp .pb-root) cho lớp phủ
+     này. Hai màn cùng che màn hình sẽ thành hai thanh tiến trình chồng
+     nhau, nên ngay khi lớp phủ thật đã dựng xong thì lớp nhúng mờ đi.
+     Gọi trong try/catch: trang nào không có lớp nhúng (hoặc file dựng
+     riêng cho test) thì hàm không tồn tại, không được ném lỗi. */
+  try {
+    if (typeof window.__pbHide === 'function') window.__pbHide();
+  } catch (e) { /* không có lớp nhúng thì thôi */ }
+
   /* Ảnh PHOTOS khai báo trong art.js. Nạp hỏng thì bỏ qua phần này
      chứ không làm hỏng cả màn chờ: PHOTOS chỉ là ảnh minh hoạ thêm. */
   let photos = [];
@@ -354,6 +363,13 @@ async function runOnce(opts) {
     if (onProgress) {
       try { onProgress(settled, total); } catch (e) { /* callback hỏng không chặn tải */ }
     }
+
+    /* Báo số liệu THẬT về thanh của màn chờ nhúng trong index.html,
+       cho trường hợp màn chờ thật chưa kịp dựng (mạng chậm) mà người
+       chơi đã nhìn thấy thanh kia. Không có lớp nhúng thì bỏ qua. */
+    try {
+      if (typeof window.__pbProgress === 'function') window.__pbProgress(settled, total);
+    } catch (e) { /* bỏ qua */ }
   };
   paint();
 

@@ -25,6 +25,10 @@ const AVATAR_SRC = BASE + 'assets/art/char-healthy.webp';
 const LOG_KEY = 'smdg.hud.logCollapsed';
 const SETTINGS_KEY = 'smdg.settings';
 
+/* Tiếng tích khi một mục tiêu vừa xong. Dùng file có sẵn trong
+   assets/audio/sfx/ qua audio-sfx.js, không tạo âm thanh mới. */
+const TICK_SFX = 'terminal-blip';
+
 /* Tám vạch cho mỗi chỉ số. Nhiều hơn thì cụm bên trái rộng ra và
    đẩy đồng hồ lệch khỏi giữa màn hình. */
 const SEGS = 8;
@@ -587,6 +591,7 @@ export function createCompactHud({
     logToggle.title = logCollapsed ? t('hud2.log.expand') : t('hud2.log.collapse');
     logToggleIco.innerHTML = logCollapsed ? ICONS.restore : ICONS.collapse;
     applyTabVisibility();
+    paintPeek();
     if (!logCollapsed) logBody.scrollTop = 0;
   }
 
@@ -663,6 +668,10 @@ export function createCompactHud({
      hai lần và huy hiệu hiện ba giây. Không chạy khi người chơi tắt
      chuyển động. */
   function flagNewGoal() {
+    /* Tiếng tích nhỏ khi vừa xong thêm một mục tiêu. Hàm âm thanh có
+       sẵn của dự án là playOneShotSfx ('terminal-blip'): nó tự tôn
+       trọng cài đặt sfx/volume và im lặng nếu âm thanh chưa mở khoá. */
+    try { playOneShotSfx(TICK_SFX); } catch { /* tiếng chỉ là phụ */ }
     if (!motionOn) return;
     const ico = q('.hud2-log-ico');
     if (ico) {

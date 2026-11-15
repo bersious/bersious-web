@@ -611,6 +611,12 @@
   top: calc(var(--hud2-bar-h, 78px) + 10px);
   bottom: auto;
   width: min(300px, 27vw);
+  /* Trần chiều cao: nhật ký là widget liếc mắt, không phải bảng toàn
+     màn. Không có trần thì checklist Giai đoạn 2 đẩy widget dài quá
+     nửa màn hình và đè lên cảnh. Thân widget tự cuộn bên trong. */
+  max-height: min(62vh, 560px);
+  display: flex;
+  flex-direction: column;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   border-radius: 7px;
   background: color-mix(in srgb, var(--bg-panel) 78%, transparent);
@@ -674,12 +680,24 @@
   padding: 6px 10px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* flex: 1 + min-height: 0 để thân widget co lại trong trần
+     max-height của .hud2-log và tự cuộn, thay vì tràn ra ngoài khung
+     và bị overflow: hidden cắt mất phần cuối. */
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: 34vh;
 }
 
 .hud2-log[data-collapsed="true"] .hud2-log-body {
   max-height: none;
   overflow: hidden;
+}
+
+/* Tab checklist dài hơn bốn dòng nhật ký, nên trần 34vh của thân
+   không đủ. Để thân co theo trần của cả widget (62vh): widget vẫn
+   gọn, mà người chơi đọc được trọn vài bước một lúc. */
+.hud2-log[data-collapsed="false"][data-tab="check"] .hud2-log-body {
+  max-height: none;
 }
 
 .hud2-log-list {

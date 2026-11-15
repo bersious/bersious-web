@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T21:51:25",
+  "generated": "2026-11-15T22:17:02",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -76,7 +76,7 @@
       "path": "assets/art/bg-im-01.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 181536
+      "bytes": 191662
     },
     {
       "id": "bg-im-02",
@@ -125,14 +125,14 @@
       "path": "assets/art/bg-im-08.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 100422
+      "bytes": 79712
     },
     {
       "id": "bg-im-09",
       "path": "assets/art/bg-im-09.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 84816
+      "bytes": 97864
     },
     {
       "id": "bg-im-10",
@@ -146,14 +146,14 @@
       "path": "assets/art/bg-im-11.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 172626
+      "bytes": 137540
     },
     {
       "id": "bg-im-12",
       "path": "assets/art/bg-im-12.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 80878
+      "bytes": 78556
     },
     {
       "id": "bg-im-13",

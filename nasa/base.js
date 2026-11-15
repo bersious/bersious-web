@@ -38,6 +38,7 @@ import {
 import {
   maybeShow, resetTutorials, registerPhase2Hooks,
 } from './onboarding.js';
+import { recordMissionAction } from './mission-log.js';
 import {
   DAY_LOG, IDLE_LINES, SLEEP_LINES, MORNING_LINES, NOTIFY,
 } from './base-flavor.js';
@@ -501,6 +502,9 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
 
   function onAction(id) {
     playClick();
+    /* Ghi nhận đã mở trạm nào, cho checklist mục tiêu trong nhật ký.
+       Hàm tự lọc: chỉ các trạm có mục tiêu tương ứng mới được ghi. */
+    try { recordMissionAction(id); } catch (err) { /* không chặn game */ }
     if (id === 'farm') {
       /* Nông trại chỉ mở khi đã đủ điều kiện. Nếu chưa đủ thì nói rõ
          thiếu gì, đừng chỉ nói "chưa mở" chung chung. */
@@ -1584,8 +1588,33 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
   /* ---------- hướng dẫn người chơi ---------- */
 
   /* Màn căn cứ vừa dựng xong là lúc hiện thẻ chào mừng (hab_intro),
-     nếu người chơi chưa từng xem. */
-  maybeShow({ trigger: 'firstEnter', screen: 'base' });
+     nếu người chơi chưa từng xem.
+
+     Lần đầu vào căn cứ thì lớp phủ nhật ký chạy trước, và thẻ chào
+     mừng đợi tới khi lớp phủ tan. Hai lớp phủ cùng lúc thì thẻ nằm
+     dưới và cú bấm của người chơi rơi vào tấm tối của lớp trên. */
+  function showBaseTutorial() {
+    maybeShow({ trigger: 'firstEnter', screen: 'base' });
+  }
+
+  /* ---------- lần đầu vào căn cứ: bắt buộc mở nhật ký ----------
+     Lớp phủ làm tối cả màn trừ widget nhật ký, mũi tên chỉ vào đó,
+     và chỉ tan khi người chơi mở rồi đóng nhật ký. Ghi cờ một lần
+     duy nhất vào smdg.missionLogIntro, lần sau vào căn cứ không hiện
+     lại. Lớp phủ nằm trong mission-log.js và dùng đúng cách khoanh
+     sáng bốn phía của onboarding.js, nên hai hệ thống trông như một. */
+  let introPromise = null;
+  try {
+    if (hud && typeof hud.startIntro === 'function') introPromise = hud.startIntro();
+  } catch (err) {
+    console.warn('[base] lớp phủ nhật ký lỗi, bỏ qua', err);
+  }
+
+  if (introPromise && typeof introPromise.then === 'function') {
+    introPromise.then((shown) => { if (shown) showBaseTutorial(); });
+  } else {
+    showBaseTutorial();
+  }
 
   /* Sổ tay đọc từ JSON nên cần hàm reset để test lại từ đầu. */
   window.__devOnboarding = { resetTutorials, registerPhase2Hooks };
