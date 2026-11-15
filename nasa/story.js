@@ -13,6 +13,7 @@ import { artFor } from './art.js';
 import { t, getLang, onLangChange } from './i18n.js';
 import { playClick } from './audio.js';
 import { playSceneSfx, playBeatSfx, stopAllSceneSfx } from './audio-sfx.js';
+import { applyBeatFx, resetFx, fxMotionOn } from './story-fx.js';
 
 const KEY_NAME = 'smdg.playerName';
 
@@ -34,6 +35,10 @@ export function startStory({ onFinish } = {}) {
   let transitionToken = 0;
   let watchdog = null;
   let lastRenderedBeat = -1;
+  /* Mốc khoá bấm nút cho cú đập ăng-ten ở lượt 25. Dùng mốc thời gian
+     riêng thay vì cờ busy, để không tranh chấp với quá trình chuyển
+     cảnh đang chạy song song. */
+  let fxLockUntil = 0;
 
   /* ---------- dựng khung ---------- */
   const el = document.createElement('div');
@@ -143,6 +148,22 @@ export function startStory({ onFinish } = {}) {
     }
     updateChrome();
 
+    /* Áp hiệu ứng hình ảnh cho lượt này. Tách riêng để không rải
+       lời gọi FX khắp các nhánh render bên dưới. */
+    function runFx() {
+      const overlay = el.querySelector('.fx-overlay');
+      applyBeatFx({
+        beatIndex: i,
+        beatType: beat.type,
+        artKey,
+        root: el,
+        body,
+        stage: el.querySelector('.story-stage'),
+        fxOverlay: overlay,
+      });
+      if (i === 25 && fxMotionOn()) fxLockUntil = Date.now() + 500;
+    }
+
     const hint = '<span class="story-next-hint"></span>';
 
     if (beat.type === 'name') {
@@ -170,11 +191,13 @@ export function startStory({ onFinish } = {}) {
         if (e.key === 'Enter') { e.preventDefault(); commitName(); }
       });
       go.addEventListener('click', commitName);
+      runFx();
       return;
     }
 
     if (beat.type === 'log') {
       body.innerHTML = `<div class="story-log">${fmt(pick(beat.text))}</div>${hint}`;
+      runFx();
       return;
     }
 
@@ -187,10 +210,12 @@ export function startStory({ onFinish } = {}) {
           <span class="role">${esc(pick(who?.role) || '')}</span>
         </div>
         <p class="story-line">${fmt(pick(beat.text))}</p>${hint}`;
+      runFx();
       return;
     }
 
     body.innerHTML = `<p class="story-line">${fmt(pick(beat.text))}</p>${hint}`;
+    runFx();
   }
 
   /* ---------- chuyển cảnh ----------
@@ -221,6 +246,9 @@ export function startStory({ onFinish } = {}) {
     const inMs  = cssMs('--st-fade-in-ms', 320);
 
     el.classList.add('is-fading');
+    /* Dọn hiệu ứng của lượt cũ trước khi vẽ lượt mới, để rung hay
+       nghiêng không sót sang lượt sau. */
+    resetFx(el);
     setTimeout(() => {
       if (token !== transitionToken) return;
       try {
@@ -269,6 +297,7 @@ export function startStory({ onFinish } = {}) {
        để transition() tự thoát vì đang bận thì số lượt bị nhảy cóc
        mà màn hình không vẽ, người chơi mất nội dung. */
     if (busy) return;
+    if (Date.now() < fxLockUntil) return;
     if (i >= STORY.length - 1) { finish(); return; }
     i++;
     transition();
@@ -276,6 +305,7 @@ export function startStory({ onFinish } = {}) {
 
   function prev() {
     if (busy) return;
+    if (Date.now() < fxLockUntil) return;
     if (i <= 0) return;
     i--;
     transition();

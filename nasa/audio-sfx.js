@@ -40,6 +40,13 @@ export const SFX_CONFIG = {
   'rocket-launch': { file: 'rocket-launch.mp3', loop: false, gain: 0.85, fadeMs: 250 },
   'hab-vent':      { file: 'hab-vent.mp3',      loop: true,  gain: 0.55, fadeMs: 600 },
   'radio-static':  { file: 'radio-static.mp3',  loop: false, gain: 0.70, fadeMs: 200 },
+  'shutter-click': { file: 'shutter-click.mp3', loop: false, gain: 0.85, fadeMs: 40  },
+  'terminal-blip': { file: 'terminal-blip.mp3', loop: false, gain: 0.70, fadeMs: 40  },
+  'warning-chime': { file: 'warning-chime.mp3', loop: false, gain: 0.85, fadeMs: 40  },
+  'switch-flip':   { file: 'switch-flip.mp3',   loop: false, gain: 0.80, fadeMs: 40  },
+  'pen-scribble':  { file: 'pen-scribble.mp3',  loop: false, gain: 0.75, fadeMs: 40  },
+  'headset-click': { file: 'headset-click.mp3', loop: false, gain: 0.75, fadeMs: 40  },
+  'door-hatch':    { file: 'door-hatch.mp3',    loop: false, gain: 0.85, fadeMs: 60  },
 };
 
 /* Ánh xạ thêm hiệu ứng sự kiện đi kèm khi bắt đầu một cảnh cụ thể
@@ -48,12 +55,21 @@ const SCENE_ONESHOT_ON_ENTER = {
   'storm-impact': 'metal-impact',
 };
 
-/* Ánh xạ một số lượt (beat index) có hiệu ứng sự kiện đặc thù trong nội dung */
+/* Ánh xạ một số lượt (beat index) có hiệu ứng sự kiện đặc thù trong nội dung.
+   Giá trị có thể là một tên SFX, hoặc một mảng tên khi lượt đó cần hai tiếng
+   chồng lên nhau (ví dụ lượt 19 vừa bíp máy vừa rung chuông cảnh báo). */
 export const BEAT_SFX = {
+  12: 'terminal-blip',  // Dòng LOG: đếm ngược phóng T−6 giờ
+  15: 'shutter-click',  // Johanssen chụp ảnh cả đội trước bệ phóng
+  16: 'terminal-blip',  // Dòng LOG: Sao Hỏa, SOL 6
+  19: ['terminal-blip', 'warning-chime'], // Dòng LOG cảnh báo bão cát: bíp máy + chuông khẩn hai nhịp
   25: 'metal-impact',   // Mảnh ăng-ten đập vào lưng nhân vật
   26: 'flatline',       // Bộ đo sinh hiệu đứt (flatlined)
-  32: 'rocket-launch',  // "Đốt tầng một."
+  32: ['switch-flip', 'rocket-launch'],   // Lewis gạt nắp bảo vệ công tắc rồi "Đốt tầng một."
+  34: 'headset-click',  // Vogel tháo tai nghe rồi đeo lại hai lần
+  35: ['terminal-blip', 'door-hatch'],    // Dòng LOG khoang Hab: bíp máy + nắp kim loại nặng
   38: 'radio-static',   // Bật đài thu phát suốt hai mươi phút, chỉ có tiếng nhiễu tĩnh điện
+  39: 'pen-scribble',   // Ghi số khẩu phần vào sổ tay và gạch dưới hai đường
 };
 
 const cache = new Map();
@@ -156,10 +172,12 @@ function startTrack(name, { resetTime = true } = {}) {
   } catch { /* bỏ qua êm nếu trình duyệt chưa cho phép */ }
 }
 
-/* Phát hiệu ứng một lần (va đập, flatline, radio-static, rocket-launch) */
-export function playOneShotSfx(name) {
+/* Phát hiệu ứng một lần (va đập, flatline, radio-static, rocket-launch).
+   overlay: true thì giữ nguyên tiếng đang phát và chồng tiếng mới lên,
+   dùng cho các lượt cần hai hiệu ứng cùng lúc (ví dụ bíp máy + chuông cảnh báo). */
+export function playOneShotSfx(name, { overlay = false } = {}) {
   if (!name || !SFX_CONFIG[name]) return;
-  if (activeOneShotName && activeOneShotName !== name) {
+  if (!overlay && activeOneShotName && activeOneShotName !== name) {
     stopTrack(activeOneShotName);
   }
   activeOneShotName = name;
@@ -226,17 +244,22 @@ export function playSceneSfx(sceneKey) {
   }
 }
 
-/* Phát hiệu ứng theo lượt (beat) cụ thể nếu lượt đó có điểm nhấn âm thanh riêng */
+/* Phát hiệu ứng theo lượt (beat) cụ thể nếu lượt đó có điểm nhấn âm thanh riêng.
+   BEAT_SFX[beatIndex] có thể là một tên SFX hoặc một mảng tên phát chồng nhau. */
 export function playBeatSfx(beatIndex) {
-  const sfxName = BEAT_SFX[beatIndex];
-  if (!sfxName) return;
-  /* Nếu vừa mới kích hoạt cùng one-shot này ở playSceneSfx (như lượt 25 metal-impact)
-     thì không cần reset lại từ đầu nếu đang phát dưới 150ms */
-  const el = cache.get(sfxName);
-  if (activeOneShotName === sfxName && el && !el.paused && el.currentTime < 0.15) {
-    return;
-  }
-  playOneShotSfx(sfxName);
+  const entry = BEAT_SFX[beatIndex];
+  if (!entry) return;
+  const names = Array.isArray(entry) ? entry : [entry];
+  names.forEach((sfxName, idx) => {
+    /* Nếu vừa mới kích hoạt cùng one-shot này ở playSceneSfx (như lượt 25 metal-impact)
+       thì không cần reset lại từ đầu nếu đang phát dưới 150ms */
+    const el = cache.get(sfxName);
+    if (activeOneShotName === sfxName && el && !el.paused && el.currentTime < 0.15) {
+      return;
+    }
+    /* Tiếng đầu thay thế tiếng cũ như trước, các tiếng sau chồng lên để không cắt tiếng trước */
+    playOneShotSfx(sfxName, { overlay: idx > 0 });
+  });
 }
 
 /* Dừng toàn bộ hiệu ứng phân cảnh (gọi khi kết thúc màn truyện hoặc tắt SFX) */

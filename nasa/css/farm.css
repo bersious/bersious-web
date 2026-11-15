@@ -1,0 +1,576 @@
+/* ============================================================
+   css/farm.css
+   Màn NÔNG TRẠI. Lớp phủ đè lên màn căn cứ.
+
+   Mọi màu, cỡ chữ, khoảng cách đọc từ css/tokens.css.
+   File này chỉ quyết định BỐ CỤC, HÌNH KHỐI và CHUYỂN ĐỘNG.
+
+   Bố cục: panel giữa màn, bốn hàng dọc (đầu, tài nguyên, lưới
+   khay, chân). Chỉ hàng lưới được cuộn, nên ở màn thấp người
+   chơi vẫn thấy thanh nước và nút đóng. Dùng dvh để thanh địa
+   chỉ của trình duyệt di động không cắt chân panel.
+   ============================================================ */
+
+.farm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding:
+    max(clamp(8px, 1.6vh, 18px), env(safe-area-inset-top))
+    max(clamp(8px, 1.6vw, 18px), env(safe-area-inset-right))
+    max(clamp(8px, 1.6vh, 18px), env(safe-area-inset-bottom))
+    max(clamp(8px, 1.6vw, 18px), env(safe-area-inset-left));
+  background: var(--st-overlay);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  color: var(--tx);
+  opacity: 0;
+  transition: opacity var(--st-dur-move) var(--st-ease-out);
+}
+
+.farm-overlay.is-open { opacity: 1; }
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.farm-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2vh, 14px);
+  width: min(620px, 100%);
+  max-height: calc(100dvh - max(clamp(16px, 3.2vh, 36px), env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  min-height: 0;
+  padding: clamp(12px, 1.6vw, 20px);
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(232, 163, 61, .07) 0%, transparent 60%),
+    linear-gradient(170deg, var(--bg-raise), var(--bg-panel) 46%, var(--bg-deep));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .62);
+  transform: translateY(10px) scale(.988);
+  transition:
+    opacity var(--st-dur-move) var(--st-ease-out),
+    transform var(--st-dur-move) var(--st-ease-out);
+}
+
+.farm-overlay.is-open .farm-panel {
+  transform: translateY(0) scale(1);
+}
+
+/* ============================================================
+   ĐẦU PANEL
+   ============================================================ */
+
+.farm-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  min-width: 0;
+}
+
+.farm-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.farm-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.1rem, .95rem + .85vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--tx-bright);
+}
+
+.farm-sub {
+  margin: 0;
+  font-size: var(--st-size-cap);
+  line-height: 1.45;
+  color: var(--tx-soft);
+  max-width: 42ch;
+}
+
+.farm-head-side {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1vw, 10px);
+}
+
+.farm-clock {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.farm-close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  color: var(--tx-soft);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--st-dur-fast), color var(--st-dur-fast);
+}
+
+/* ký tự × vẽ bằng CSS cho đồng nhất phông, giống nút đóng túi đồ */
+.farm-close::before {
+  content: '\00d7';
+  font-size: 1.4rem;
+}
+
+.farm-close:hover,
+.farm-close:focus-visible {
+  border-color: var(--amber);
+  color: var(--amber);
+  outline: none;
+}
+
+.farm-close:focus-visible {
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+/* ============================================================
+   HAI THANH TÀI NGUYÊN
+   ============================================================ */
+
+.farm-res {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr));
+  gap: clamp(8px, 1vw, 12px);
+}
+
+.farm-meter {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  grid-template-areas:
+    'icon name val'
+    'bar  bar  bar';
+  align-items: center;
+  gap: 2px clamp(6px, .8vw, 9px);
+  padding: clamp(7px, 1vh, 10px) clamp(9px, 1vw, 12px);
+  min-height: 44px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+}
+
+.farm-meter-icon {
+  grid-area: icon;
+  display: flex;
+  width: 18px;
+  height: 18px;
+  color: var(--cyan);
+}
+
+.farm-meter-seed .farm-meter-icon { color: var(--ok); }
+
+.farm-meter-icon svg { width: 100%; height: 100%; display: block; }
+
+.farm-meter-name {
+  grid-area: name;
+  min-width: 0;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.farm-meter-val {
+  grid-area: val;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.74rem, .68rem + .2vw, .88rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  color: var(--tx-bright);
+  white-space: nowrap;
+}
+
+.farm-meter-bar {
+  grid-area: bar;
+  display: block;
+  height: 3px;
+  margin-top: 4px;
+  background: var(--bg-void);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.farm-meter-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--cyan-dim), var(--cyan));
+  transition: width var(--st-dur-slow) var(--st-ease-out);
+}
+
+.farm-meter-seed .farm-meter-fill {
+  background: linear-gradient(90deg, var(--amber-dim), var(--ok));
+}
+
+/* cạn hàng: đổi màu thanh và số, không chỉ đổi sắc thái */
+.farm-meter.is-low .farm-meter-fill {
+  background: var(--fail);
+}
+
+.farm-meter.is-low .farm-meter-val { color: var(--fail); }
+.farm-meter.is-low .farm-meter-icon { color: var(--fail); }
+
+/* ============================================================
+   DÒNG NHẮC LÝ DO
+   ============================================================ */
+
+.farm-note {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 7px clamp(9px, 1vw, 12px);
+  background: var(--fail-glow);
+  border-left: 3px solid var(--fail);
+  border-radius: var(--st-radius);
+  font-size: var(--st-size-cap);
+  line-height: 1.45;
+  color: var(--tx-bright);
+}
+
+.farm-note[hidden] { display: none; }
+
+/* ============================================================
+   LƯỚI MƯỜI HAI KHAY
+   ============================================================ */
+
+.farm-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(88px, 100%), 1fr));
+  gap: clamp(8px, 1.2vw, 14px);
+  align-content: start;
+  width: 100%;
+  /* Chặn ở bốn cột. auto-fit chỉ tính theo bề rộng, mà khe hở co
+     xuống 9px trên màn 768 thì năm cột 88px vẫn lọt. Vì vậy trần
+     bề rộng phải nhỏ hơn 5 × 88 + 4 × 9 = 476px. Hẹp hơn 470px
+     thì lưới tự rơi xuống ba rồi hai cột. */
+  max-width: 470px;
+  margin: 0 auto;
+}
+
+.farm-plot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
+  min-height: 44px;
+  padding: clamp(6px, .9vw, 9px) clamp(5px, .7vw, 8px) clamp(4px, .6vw, 6px);
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg-inset), var(--bg-void));
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+  transition:
+    border-color var(--st-dur-move) var(--st-ease-out),
+    box-shadow var(--st-dur-move) var(--st-ease-out),
+    transform var(--st-dur-move) var(--st-ease-out);
+}
+
+.farm-plot:hover,
+.farm-plot:focus-visible {
+  border-color: var(--amber-dim);
+  outline: none;
+}
+
+.farm-plot:focus-visible {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+.farm-plot:active { transform: translateY(1px); }
+
+.farm-plot-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 64 / 56;
+}
+
+.farm-plot-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.farm-plot-tag {
+  display: block;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.56rem, .54rem + .14vw, .68rem);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- bốn giai đoạn ---------- */
+
+/* đất trống: nâu đỏ, hơi tối, không có gì mọc */
+.farm-soil        { fill: var(--st-bg-bottom); }
+.farm-soil-top    { fill: color-mix(in srgb, var(--st-bg-bottom) 62%, var(--amber-dim)); }
+.farm-furrow      { stroke: color-mix(in srgb, var(--st-bg-bottom) 55%, #000); stroke-width: 1.4; fill: none; }
+.farm-mound       { fill: color-mix(in srgb, var(--st-bg-bottom) 72%, var(--amber-dim)); }
+.farm-stem        { stroke: var(--ok); stroke-width: 1.8; stroke-linecap: round; fill: none; }
+.farm-leaf        { fill: color-mix(in srgb, var(--ok) 74%, #07200f); }
+.farm-tuber       { fill: color-mix(in srgb, var(--amber) 62%, var(--st-bg-bottom)); stroke: var(--amber); stroke-width: 1.1; }
+
+.farm-plot.is-empty .farm-soil,
+.farm-plot.is-empty .farm-soil-top { opacity: .82; }
+
+/* đã gieo: mầm nhỏ, mờ, chưa có sức sống */
+.farm-plot.is-planted .farm-plot-art { opacity: .78; }
+.farm-plot.is-planted .farm-plot-tag { color: var(--cyan); }
+
+/* đang lớn: cây xanh, sáng dần */
+.farm-plot.is-grown { border-color: var(--line-strong); }
+.farm-plot.is-grown .farm-plot-tag { color: var(--ok); }
+
+/* chín: viền hổ phách và quầng sáng, nhìn là biết bấm được */
+.farm-plot.is-ripe {
+  border-color: var(--amber);
+  background: linear-gradient(180deg, rgba(232, 163, 61, .10), var(--bg-void));
+  box-shadow: 0 0 0 1px var(--amber-dim), 0 0 18px var(--amber-glow);
+}
+
+.farm-plot.is-ripe .farm-plot-tag {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.farm-plot.is-ripe:hover,
+.farm-plot.is-ripe:focus-visible {
+  box-shadow: 0 0 0 2px var(--amber), 0 0 24px var(--amber-glow);
+}
+
+@keyframes farm-ripe-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--amber-dim), 0 0 14px var(--amber-glow); }
+  50%      { box-shadow: 0 0 0 2px var(--amber), 0 0 24px rgba(232, 163, 61, .30); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.motion-off) .farm-plot.is-ripe {
+    animation: farm-ripe-pulse 2.8s var(--st-ease-in-out) infinite;
+  }
+  html:not(.motion-off) .farm-plot:hover { transform: translateY(-2px); }
+}
+
+/* bị chặn vì hết nước hoặc hết hạt: vẫn bấm được để đọc lý do,
+   nhưng trông như đang đóng */
+.farm-plot.is-blocked {
+  border-style: dashed;
+  border-color: var(--line-hair);
+  background: linear-gradient(180deg, var(--bg-deep), var(--bg-void));
+}
+
+.farm-plot.is-blocked .farm-plot-art { opacity: .34; }
+.farm-plot.is-blocked .farm-plot-tag { color: var(--tx-ghost); }
+
+.farm-plot.is-blocked:hover,
+.farm-plot.is-blocked:focus-visible {
+  border-color: var(--line-strong);
+  box-shadow: none;
+}
+
+/* ============================================================
+   CHÂN PANEL
+   ============================================================ */
+
+.farm-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: clamp(6px, 1vh, 10px);
+  border-top: 1px solid var(--line-hair);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  text-align: center;
+}
+
+.farm-foot-sep { color: var(--tx-ghost); }
+
+.farm-foot-ripe { color: var(--amber); }
+
+/* ============================================================
+   THÔNG BÁO NGẮN
+   ============================================================ */
+
+.farm-toast {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(44px, 8vh, 78px);
+  transform: translate(-50%, 8px);
+  z-index: 5;
+  max-width: calc(100% - 2 * clamp(12px, 1.6vw, 20px));
+  padding: 9px 14px;
+  background: var(--bg-raise);
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--st-radius);
+  color: var(--tx-bright);
+  font-size: var(--st-size-cap);
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55);
+  opacity: 0;
+  transition: opacity .2s var(--st-ease-out), transform .2s var(--st-ease-out);
+}
+
+.farm-toast[hidden] { display: none; }
+
+.farm-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ============================================================
+   MÀN HẸP: đầu panel xuống hai hàng, chữ nhỏ lại một bậc
+   ============================================================ */
+
+@media (max-width: 560px) {
+  .farm-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .farm-head-side {
+    justify-content: space-between;
+    flex-direction: row-reverse;
+  }
+
+  .farm-sub { max-width: none; }
+
+  .farm-clock { font-size: var(--st-size-label); }
+
+  .farm-res {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .farm-meter {
+    grid-template-columns: 16px minmax(0, 1fr);
+    grid-template-areas:
+      'icon name'
+      'val  val'
+      'bar  bar';
+    padding: 7px 9px;
+    row-gap: 1px;
+  }
+
+  .farm-meter-val {
+    grid-area: val;
+    font-size: .78rem;
+    color: var(--tx);
+  }
+
+  .farm-foot-rule { display: none; }
+  .farm-foot-sep:first-of-type { display: none; }
+}
+
+/* ============================================================
+   MÀN THẤP: bỏ dòng mô tả, thu đệm để lưới vẫn thấy đủ ba hàng
+   ============================================================ */
+
+@media (max-height: 660px) {
+  .farm-panel { gap: 7px; }
+  .farm-sub { display: none; }
+  .farm-foot { padding-top: 5px; }
+  .farm-plot-art { aspect-ratio: 64 / 46; }
+}
+
+@media (max-height: 560px) {
+  .farm-panel {
+    padding: clamp(9px, 1.2vw, 14px);
+    gap: 6px;
+    width: min(720px, 100%);
+  }
+  .farm-title { font-size: clamp(1rem, .9rem + .6vw, 1.25rem); }
+  .farm-close { width: 44px; height: 44px; }
+  .farm-note {
+    padding: 5px 9px;
+    font-size: var(--st-size-label);
+    line-height: 1.35;
+  }
+  .farm-grid {
+    gap: 7px;
+    max-width: 560px;
+    grid-template-columns: repeat(auto-fit, minmax(min(80px, 100%), 1fr));
+  }
+  .farm-plot { padding: 5px 6px 3px; }
+  .farm-plot-art { aspect-ratio: 64 / 40; }
+  .farm-foot { font-size: calc(var(--st-size-label) * .92); }
+}
+
+/* màn thấp và hẹp cùng lúc: giữ chân panel lại, bỏ phần quy tắc */
+@media (max-height: 460px) {
+  .farm-foot-rule,
+  .farm-foot-esc,
+  .farm-foot-esc-sep { display: none; }
+}
+
+/* ============================================================
+   NGƯỜI CHƠI TẮT CHUYỂN ĐỘNG
+   ============================================================ */
+
+html.motion-off .farm-overlay,
+html.motion-off .farm-panel,
+html.motion-off .farm-toast,
+html.motion-off .farm-meter-fill {
+  transition: none;
+}
+
+html.motion-off .farm-plot.is-ripe { animation: none; }
