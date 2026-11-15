@@ -974,6 +974,23 @@
   text-transform: uppercase;
 }
 
+/* Tên tệp tài liệu là liên kết mở trên GitHub: phải trông bấm được và
+   có vùng chạm đủ rộng trên điện thoại. */
+.rescue-src-link {
+  color: var(--cyan);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--cyan) 45%, transparent);
+  text-underline-offset: 2px;
+  padding: 0 1px;
+}
+
+.rescue-src-link:hover,
+.rescue-src-link:focus-visible {
+  color: var(--amber);
+  text-decoration-color: currentColor;
+  outline: none;
+}
+
 .rescue-info-impact {
   padding: 12px 14px;
   background: color-mix(in srgb, var(--cyan) 6%, var(--bg-panel));

@@ -481,6 +481,19 @@ export function startRescueDesigner({ container, onDone } = {}) {
       .replace(/"/g, '&quot;');
   }
 
+  /* Dòng "Nguồn" của mỗi module ghi tên tệp tài liệu trong repo
+     (docs/11-NASA-RESOURCES.md). Bản deploy chỉ chứa phần chạy được của
+     src/, không kèm docs/, nên nếu để nguyên văn thì giám khảo đọc thấy
+     một đường dẫn mà bấm vào không mở được ở đâu cả. Đổi tên tệp thành
+     liên kết thẳng tới tệp đó trên GitHub công khai. */
+  const DOC_BASE = 'https://github.com/tranminhngoc171-bot/space-mission-design-game/blob/main/';
+  function linkifySource(s) {
+    return escapeHtml(s).replace(
+      /(docs\/[0-9A-Za-z-]+\.md)/g,
+      '<a class="rescue-src-link" href="' + DOC_BASE + '$1" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+  }
+
   /* ============================================================
      3. CỘT PHẢI / SUMMARY, BARS, ACTIONS
      ============================================================ */
@@ -840,7 +853,7 @@ export function startRescueDesigner({ container, onDone } = {}) {
            <h4>${escapeHtml(pick(mod, 'name'))}</h4>
            <p class="rescue-info-label">${t('rescue.info.tradeoff')}</p>
            <p class="rescue-info-tradeoff">${escapeHtml(pick(mod, 'tradeoff'))}</p>
-           <p class="rescue-info-source"><span class="rescue-info-key">${t('rescue.info.source')}:</span> ${escapeHtml(mod.source || '')}</p>
+           <p class="rescue-info-source"><span class="rescue-info-key">${t('rescue.info.source')}:</span> ${linkifySource(mod.source || '')}</p>
          </div>`
       : `<div class="rescue-info-mod">
            <h4>${tr('rescue.opt.none')}</h4>
