@@ -250,7 +250,18 @@ html[data-motion="off"] .save-chip.is-leaving {
 
 .save-confirm[hidden] { display: none; }
 
+.save-confirm-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: .92rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fail);
+}
+
 .save-confirm-text {
+  margin: 0;
   font-family: var(--st-font-body);
   font-size: .85rem;
   line-height: 1.55;
@@ -267,23 +278,18 @@ html[data-motion="off"] .save-chip.is-leaving {
 html.motion-off .save-btn { transition: none; }
 
 /* ============================================================
-   NÚT LƯU TRONG THANH TRÊN CỦA MÀN CĂN CỨ
-   Nằm cạnh nhãn ngày/đêm. Kiểu dáng đặt ở đây chứ không ở base.css
-   để toàn bộ phần lưu gom một chỗ.
+   NÚT LƯU Ở CHÂN MÀN CĂN CỨ
+   Nằm trong .base-foot, cạnh dòng "đã sống sót N ngày". Kiểu dáng
+   đặt ở đây chứ không ở base.css để toàn bộ phần lưu gom một chỗ.
+   Chọn chân màn hình vì thanh trên bị css/base.css ẩn khối bên phải
+   ở bề rộng dưới 620px, đặt nút ở đó là mất trên điện thoại.
    ============================================================ */
-
-.base-top-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  min-width: 0;
-}
 
 .base-save {
   min-height: 44px;
   min-width: 44px;
-  padding: 0 10px;
+  padding: 0 12px;
+  margin-left: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -291,7 +297,7 @@ html.motion-off .save-btn { transition: none; }
 
   font-family: var(--st-font-mono);
   font-size: var(--st-size-label);
-  letter-spacing: var(--st-track-label);
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--tx-soft);
 
@@ -318,9 +324,9 @@ html.motion-off .save-btn { transition: none; }
 
 .base-save:active { background-color: var(--amber-glow); }
 
-/* Màn hẹp: chỉ giữ icon, nhãn chữ ẩn đi để thanh trên không bị tràn.
-   Nút vẫn đủ 44px nên bấm được trên cảm ứng. */
-@media (max-width: 720px) {
+/* Màn hẹp: nhãn chữ chuyển sang chỉ đọc cho trình đọc màn hình, nút
+   co lại còn icon. Vùng bấm vẫn đủ 44px nên không bấm trượt. */
+@media (max-width: 560px) {
   .base-save { padding: 0 11px; }
   .base-save-label {
     position: absolute;
@@ -330,7 +336,6 @@ html.motion-off .save-btn { transition: none; }
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .base-save { position: relative; }
 }
 
 html.motion-off .base-save { transition: none; }

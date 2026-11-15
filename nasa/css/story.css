@@ -96,7 +96,10 @@
   left: 26px;
   z-index: 3;
   font-family: var(--st-font-mono);
-  font-size: var(--st-size-label);
+  /* --st-size-label có sàn 9,6px, quá nhỏ cho chữ hoa giãn rộng. Nhãn
+     này là chữ duy nhất trên khung tranh nên phải đọc được trên điện
+     thoại; đặt sàn 12px. */
+  font-size: max(12px, var(--st-size-label));
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--st-caption);
@@ -215,16 +218,21 @@
   bottom: 2px;
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid var(--st-accent);
+  /* 7x10 thay cho 5x7: mũi tên 5x7 ở góc dưới khung đọc như một hạt
+     bụi. Cạnh đáy 14px (7 mỗi bên) và cao 10px là mức nhìn ra được
+     hình tam giác mà không lấn vào dòng chữ. */
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--st-accent);
   opacity: 0;
   animation: hint-blink 1.15s ease-in-out infinite;
   animation-delay: .5s;
 }
 @keyframes hint-blink {
-  0%, 100% { opacity: .15; transform: translateY(0); }
-  50%      { opacity: .85; transform: translateY(2px); }
+  /* đáy 0,55 chứ không 0,15: ở 0,15 mũi tên gần như tàng hình trên
+     nền tối, người chơi không biết còn phải bấm tiếp. */
+  0%, 100% { opacity: .55; transform: translateY(0); }
+  50%      { opacity: 1; transform: translateY(2px); }
 }
 
 .story-body.typing .story-next-hint { animation: none; opacity: 0; }
@@ -344,6 +352,9 @@
 .name-card .go {
   margin-top: 16px;
   width: 100%;
+  /* 44px là ngưỡng chạm tối thiểu, áp cho mọi bề rộng màn hình chứ
+     không chỉ điện thoại: nút này cao 40px khi chỉ dựa vào padding. */
+  min-height: 44px;
   font-family: var(--st-font-display);
   font-size: .84rem;
   letter-spacing: .16em;
@@ -406,7 +417,7 @@
     border-top: 1px solid var(--line-hair);
   }
   .story-btn { height: var(--st-btn-h-sm); padding: 0 14px; font-size: .74rem; flex: 0 0 auto; }
-  .story-caption { top: 14px; left: 14px; font-size: .6rem; }
+  .story-caption { top: 14px; left: 14px; font-size: max(12px, .6rem); }
   .story-speaker { margin-bottom: 7px; }
 }
 

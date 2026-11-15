@@ -149,7 +149,16 @@
   overflow-y: auto;
   overflow-x: hidden;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(64px, 100%), 1fr));
+  /* auto-fill chứ không auto-fit: auto-fit gộp các cột rỗng nên số cột
+     phụ thuộc số ô, hàng cuối bị kéo giãn lệch hẳn so với các hàng
+     trên. auto-fill giữ nguyên bề rộng cột cho mọi hàng, hàng cuối chỉ
+     còn trống bên phải.
+
+     Sàn 96px thay cho 64px: ở 64px lưới nhét được 11 cột trên panel
+     rộng, ô chỉ còn 71x76px, tên địa điểm hai dòng bị cắt và ngón tay
+     chạm vào ô bên cạnh. 96px cho ra 7 tới 8 cột, ô vuông vức hơn và
+     vẫn trên ngưỡng chạm 44px. */
+  grid-template-columns: repeat(auto-fill, minmax(min(96px, 100%), 1fr));
   gap: clamp(6px, .8vw, 10px);
   align-content: start;
   padding: 2px;

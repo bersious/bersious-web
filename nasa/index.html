@@ -123,7 +123,9 @@
     text-transform: uppercase;
     color: var(--tx-soft, #8497aa);
     background: transparent;
-    border: 1px solid transparent;
+    /* viền mờ để đọc ra là nút bấm được, không phải một dòng chữ trang trí.
+       Cùng độ đậm với nút "Lưu ngay" bên cạnh nên hai nút cân nhau. */
+    border: 1px solid var(--line, #223041);
     border-radius: var(--st-radius, 3px);
     cursor: pointer;
     transition: color .15s ease, border-color .15s ease;
@@ -192,6 +194,11 @@
       <h1 data-i18n="app.title">Space Mission Design Game</h1>
       <p data-i18n="app.tagline">Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.</p>
       <button class="btn-start" id="start" data-i18n="app.start">Bắt đầu</button>
+      <!-- Nút Tiếp tục chỉ hiện khi có bản lưu. Ẩn mặc định, JS bật lên
+           sau khi kiểm hasSave(). Đặt cạnh nút Bắt đầu thay vì thay thế
+           nó, để người chơi vẫn chọn được chơi lại từ đầu. -->
+      <button class="btn-resume" id="resume" data-i18n="app.continue" hidden>Tiếp tục</button>
+      <p class="boot-save-note" id="save-note" hidden></p>
     </div>
 
     <aside class="boot-brief">
@@ -225,13 +232,41 @@
   if (_p[_p.length - 1].indexOf('.') !== -1) _p[_p.length - 1] = '';
   const BASE = location.origin + _p.join('/').replace(/\/?$/, '/');
 
-  const { startStory }      = await import(BASE + 'story.js');
-  const { startBase }       = await import(BASE + 'base.js');
+  /* Màn kể chuyện cũ chỉ được nạp khi thật sự cần: nó là đường dự phòng
+     cho prologue, và là đường chính khi prologue không nạp được. Nạp
+     muộn cũng làm khung khởi động nhẹ hơn, vì story.js kéo theo
+     story-data.js và story-fx.js. */
+  let _startStory = null;
+  async function getStartStory() {
+    if (_startStory) return _startStory;
+    const mod = await import(BASE + 'story.js');
+    if (!mod || typeof mod.startStory !== 'function') throw new Error('story.js không export startStory');
+    _startStory = mod.startStory;
+    return _startStory;
+  }
+
+  /* Prologue là màn mở đầu mới: mười hai khung truyện tranh, không lời
+     thoại. Nếu file không nạp được, hoặc nạp xong mà không dựng được
+     lớp .prologue-root, hàm dưới trả null và nơi gọi quay về story.
+     Không để một lỗi ở màn mở đầu làm kẹt cả game. */
+  async function getStartPrologue() {
+    try {
+      const mod = await import(BASE + 'prologue.js');
+      if (mod && typeof mod.startPrologue === 'function') return mod.startPrologue;
+    } catch (e) {
+      /* thiếu file, sai cú pháp, hay 404 trên production: nuốt lỗi và
+         để đường dự phòng chạy */
+    }
+    return null;
+  }
+
+  const { startBase, resumeFromSave } = await import(BASE + 'base.js');
+  const { hasSave, getSaveInfo }     = await import(BASE + 'save-game.js');
   const { startComms }      = await import(BASE + 'comms.js');
   const { startRescueDesigner } = await import(BASE + 'rescue-designer.js');
   const { startFlight }     = await import(BASE + 'flight.js');
   const { playIntro }       = await import(BASE + 'intro-video.js');
-  const { applyToDom, onLangChange, t } = await import(BASE + 'i18n.js');
+  const { applyToDom, onLangChange, t, getLang } = await import(BASE + 'i18n.js');
   const { loadSettings }    = await import(BASE + 'settings.js');
   const { initAudio, bindClickSounds, playClick } = await import(BASE + 'audio.js');
   const { openSettings }    = await import(BASE + 'settings-ui.js');
@@ -266,6 +301,12 @@
      gọi comms.destroy() rồi gỡ lớp phủ trước khi đi tiếp, nhờ vậy
      không bao giờ còn khung trắng hay panel nằm lại trên màn căn cứ. */
   function openStage1({ onDone, onSkip }) {
+    /* Chặn mở hai lần. onFinish của màn truyện có thể chạy lặp nếu
+       người chơi bấm dồn ở lượt cuối, và mỗi lần gọi sẽ dựng thêm một
+       lớp phủ chồng lên lớp trước, khiến cú bấm rơi vào panel bên dưới
+       và trạng thái ba bước bị lệch. */
+    if (document.querySelector('.comms-host')) return null;
+
     const host = document.createElement('div');
     host.className = 'comms-host';
     document.body.appendChild(host);
@@ -391,6 +432,159 @@
 
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
+  /* ---------- nút Tiếp tục ----------
+     Chỉ hiện khi trình duyệt này đã có bản lưu. Người chơi vẫn giữ được
+     lựa chọn chơi lại từ đầu bằng nút Bắt đầu bên cạnh, nên nút này
+     không bao giờ thay thế nút kia. */
+  const btnResume = document.getElementById('resume');
+  const saveNote = document.getElementById('save-note');
+
+  (function setupResume() {
+    let info = null;
+    try {
+      /* getSaveInfo đọc bản lưu, trả thông tin tóm tắt, không ném lỗi
+         khi bản lưu hỏng mà trả rỗng. Chỉ hiện nút khi thật sự có bản
+         lưu đọc được, để người chơi không bấm vào một nút dẫn vào hư
+         không. */
+      if (!hasSave()) { btnResume.hidden = true; return; }
+      info = getSaveInfo();
+    } catch (e) { info = null; }
+    if (!info) { btnResume.hidden = true; return; }
+
+    btnResume.hidden = false;
+    if (saveNote) {
+      /* Ghi ngày trong game và lúc lưu, để người chơi biết mình sẽ tiếp
+         tục từ đâu chứ không phải bấm mù. */
+      const when = info.savedAt ? new Date(info.savedAt) : null;
+      const timeStr = when && !isNaN(when)
+        ? when.toLocaleString(getLang() === 'en' ? 'en-US' : 'vi-VN',
+            { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+        : '';
+      saveNote.textContent = t('save.bootNote')
+        .replace('{day}', String(info.day || 1))
+        .replace('{when}', timeStr);
+      saveNote.hidden = false;
+    }
+  })();
+
+  btnResume.addEventListener('click', () => {
+    if (btnResume.dataset.started === '1') return;
+    btnResume.dataset.started = '1';
+    playClick();
+    const r = resumeFromSave();
+    if (!r || !r.ok) {
+      /* Bản lưu hỏng giữa chừng thì đừng treo màn hình, quay lại nút
+         Bắt đầu và nói rõ. */
+      btnResume.dataset.started = '';
+      btnResume.hidden = true;
+      if (saveNote) saveNote.hidden = true;
+      return;
+    }
+    boot.style.display = 'none';
+    /* phase 'comms' nghĩa là bản lưu được tạo lúc chưa qua Giai đoạn 1,
+       nên phải vào lại đúng chỗ đó thay vì nhảy thẳng vào căn cứ. */
+    if (r.phase === 'comms') afterStory(r.playerName || '');
+    else enterBase(r.playerName || '');
+  });
+
+  /* ---------- hỏi tên sau màn mở đầu ----------
+     prologue.js không có ô nhập tên (màn đó không lời thoại), còn màn
+     căn cứ và bản lưu đều cần tên phi hành gia. Khối này là bước duy
+     nhất còn chữ trước khi vào game. Dùng đúng lớp .name-card của
+     css/story.css đã nạp sẵn ở khung khởi động, nên không phải thêm
+     kiểu mới và chữ vẫn theo i18n. */
+  const NAME_KEY = 'smdg.playerName';
+
+  function savedName() {
+    try { return (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) { return ''; }
+  }
+
+  function askName(onReady) {
+    const known = savedName();
+    if (known) { onReady(known); return null; }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'story-screen';
+    wrap.innerHTML = `
+      <div class="story-sub" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;min-height:0;">
+        <div class="name-card">
+          <div class="ask">${t('name.prompt')}</div>
+          <label class="field">
+            <span class="field-label">${t('name.label')}</span>
+            <input class="inp" type="text" maxlength="18" autocomplete="off"
+                   spellcheck="false" placeholder="${t('name.placeholder')}" value="">
+          </label>
+          <div class="hint">${t('name.hint')}</div>
+          <button class="go" type="button" disabled>${t('name.sign')}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+
+    const inp = wrap.querySelector('.inp');
+    const go = wrap.querySelector('.go');
+
+    function commit() {
+      const v = inp.value.trim();
+      if (!v) return;
+      try { localStorage.setItem(NAME_KEY, v); } catch (e) { /* chặn ghi thì vẫn chơi tiếp */ }
+      wrap.remove();
+      onReady(v);
+    }
+
+    inp.addEventListener('input', () => { go.disabled = inp.value.trim().length === 0; });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+    go.addEventListener('click', commit);
+    setTimeout(() => { try { inp.focus(); } catch (e) { /* màn cảm ứng không cần focus */ } }, 30);
+
+    return { destroy: () => wrap.remove() };
+  }
+
+  /* Chạy màn mở đầu. Ưu tiên prologue; hỏng thì quay về story cũ. */
+  async function runOpening(onFinish) {
+    const startPrologue = await getStartPrologue();
+
+    if (startPrologue) {
+      let settled = false;
+      let inst = null;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        persistNameNote();
+        askName((name) => { if (!baseStarted) onFinish(name); });
+      };
+      try {
+        inst = startPrologue({ container: document.body, onDone: done });
+        /* Không dựng được lớp phủ nghĩa là prologue lỗi ngay từ đầu:
+           dọn phần còn lại rồi đi đường story. */
+        if (!document.querySelector('.prologue-root')) throw new Error('prologue không dựng được lớp phủ');
+        if (!inst || typeof inst.destroy !== 'function') throw new Error('prologue không trả destroy');
+        return;
+      } catch (e) {
+        settled = true;
+        /* destroy gỡ cả listener bàn phím và lớp phủ. Gọi destroy trước,
+           chỉ khi nó ném lỗi mới gỡ tay phần tử, để không còn một
+           listener keydown mồ côi bắt phím trong màn hình sau. */
+        try {
+          if (inst && typeof inst.destroy === 'function') inst.destroy();
+        } catch (_) { /* destroy hỏng thì gỡ tay bên dưới */ }
+        try {
+          const r = document.querySelector('.prologue-root');
+          if (r) r.remove();
+        } catch (_) { /* đã gỡ rồi */ }
+      }
+    }
+
+    /* đường dự phòng: màn kể chuyện 24 lượt, có sẵn ô nhập tên */
+    const startStory = await getStartStory();
+    startStory({ onFinish: ({ playerName }) => { onFinish(playerName); } });
+  }
+
+  /* Ghi chú cờ đã xem màn mở đầu. Chỉ là dấu vết, không dùng để chặn
+     hiển thị, nên lỗi ghi không ảnh hưởng luồng. */
+  function persistNameNote() {
+    try { localStorage.setItem('smdg.prologueDone', '1'); } catch (e) { /* bỏ qua */ }
+  }
+
   btn.addEventListener('click', async () => {
     /* Chặn bấm hai lần. Không có cờ này, double-click tạo ra hai màn
        truyện chồng nhau và hai listener bàn phím cùng chạy. */
@@ -400,15 +594,18 @@
     playClick();
     boot.style.display = 'none';
     await playIntro();
-    startStory({
-      onFinish: ({ playerName }) => {
-        /* Màn mở đầu xong thì mở Giai đoạn 1 rồi mới vào căn cứ.
-           Cờ baseStarted ở phạm vi ngoài chặn trường hợp onFinish bị
-           gọi hai lần, tránh hai màn căn cứ chồng lên nhau. */
+    try {
+      await runOpening((playerName) => {
         if (baseStarted) return;
         afterStory(playerName);
-      },
-    });
+      });
+    } catch (e) {
+      /* Cả prologue lẫn story đều không chạy được: đừng để người chơi
+         nhìn màn hình đen. Trả lại nút Bắt đầu và vào thẳng căn cứ. */
+      btn.dataset.started = '';
+      if (baseStarted) return;
+      afterStory(savedName());
+    }
   });
 
   /* ---------- chơi lại Giai đoạn 1 từ màn căn cứ ----------

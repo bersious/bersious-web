@@ -121,6 +121,7 @@ export const STRINGS = {
 
     /* ---------- lưu tiến trình ---------- */
     'save.chip.saved': 'Đã lưu · Ngày {n}',
+    'save.bootNote': 'Bản lưu ngày {day} · {when}',
     'save.chip.failed': 'Không lưu được, trình duyệt đang chặn',
     'save.status.label': 'Bản lưu',
     'save.status.savedAt': 'Đã lưu lúc {time}',
@@ -140,7 +141,6 @@ export const STRINGS = {
     'save.clear.body': 'Toàn bộ tiến trình, chỉ số sinh tồn, nông trại và thám hiểm sẽ mất. Trang sẽ tải lại về màn khởi động.',
     'save.clear.confirm': 'Xác nhận xoá',
     'save.clear.cancel': 'Huỷ',
-    'save.cleared': 'Đã xoá tiến trình',
     'save.continue': 'Tiếp tục ván đã lưu',
     'save.continue.desc': 'Có bản lưu trên máy này. Tiếp tục từ chỗ đã dừng.',
 
@@ -180,6 +180,9 @@ export const STRINGS = {
     'base.craft.desc': 'Ghép vật tư thành thứ dùng được.',
     'base.radio': 'Liên lạc',
     'base.radio.desc': 'Gọi về Trái Đất qua đĩa sóng.',
+    'base.rescue': 'Thiết kế tàu cứu hộ',
+    'base.rescue.desc': 'Chọn module, cân tiền, tải trọng và delta-v.',
+    'base.rescue.disabled': 'Chưa mở được phòng thiết kế ở màn này.',
 
     'base.footer.survived': 'Đã sống sót {n} ngày',
     'base.footer.survived.one': 'Đã sống sót {n} ngày',
@@ -214,6 +217,13 @@ export const STRINGS = {
     'comms.on': 'Bật',
     'comms.off': 'Tắt',
     'comms.skip': 'Bỏ qua màn này',
+
+    /* ---------- màn mở đầu dạng truyện tranh, không lời thoại ----------
+       Màn này cố ý KHÔNG có chữ trên hình. Chỉ còn nút Bỏ qua hiện ra,
+       cộng hai nhãn cho trình đọc màn hình là không hiện trên hình. */
+    'prologue.skip': 'Bỏ qua',
+    'prologue.aria.stage': 'Mười hai khung truyện mở đầu, không lời thoại',
+    'prologue.aria.progress': 'Tiến trình màn mở đầu',
     'comms.step1': 'Cân bằng điện',
     'comms.step2': 'Bắt nhịp vệ tinh',
     'comms.step3': 'Đóng gói và phát',
@@ -614,6 +624,7 @@ export const STRINGS = {
 
     /* ---------- progress save ---------- */
     'save.chip.saved': 'Saved · Day {n}',
+    'save.bootNote': 'Saved day {day} · {when}',
     'save.chip.failed': 'Could not save, the browser is blocking storage',
     'save.status.label': 'Save slot',
     'save.status.savedAt': 'Saved at {time}',
@@ -633,7 +644,6 @@ export const STRINGS = {
     'save.clear.body': 'All progress, survival stats, the greenhouse and every survey will be lost. The page reloads to the start screen.',
     'save.clear.confirm': 'Yes, delete it',
     'save.clear.cancel': 'Cancel',
-    'save.cleared': 'Progress deleted',
     'save.continue': 'Continue saved run',
     'save.continue.desc': 'This machine has a save. Pick up where you stopped.',
 
@@ -673,6 +683,9 @@ export const STRINGS = {
     'base.craft.desc': 'Turn spare parts into working gear.',
     'base.radio': 'Comms',
     'base.radio.desc': 'Call Earth through the dish.',
+    'base.rescue': 'Rescue ship design',
+    'base.rescue.desc': 'Pick modules, weigh budget, payload and delta-v.',
+    'base.rescue.disabled': 'The design bay cannot open from this screen.',
 
     'base.footer.survived': 'Survived {n} days',
     'base.footer.survived.one': 'Survived {n} day',
@@ -707,6 +720,13 @@ export const STRINGS = {
     'comms.on': 'On',
     'comms.off': 'Off',
     'comms.skip': 'Skip this screen',
+
+    /* ---------- wordless comic prologue ----------
+       Deliberately no on-screen text. Only the Skip button appears,
+       plus two screen reader labels that are never drawn. */
+    'prologue.skip': 'Skip',
+    'prologue.aria.stage': 'Twelve opening comic panels, no dialogue',
+    'prologue.aria.progress': 'Prologue progress',
     'comms.step1': 'Balance the load',
     'comms.step2': 'Catch the orbiter',
     'comms.step3': 'Pack and transmit',

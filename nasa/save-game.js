@@ -87,22 +87,41 @@ function byteLength(str) {
 
 /* ---------- ngày trong game ----------
    Chỉ số sinh tồn giữ tổng số phút game đã trôi (totalMinutes), nên
-   ngày suy ra được từ đó mà không phải lưu thêm biến đếm riêng. */
+   ngày và giờ trong ngày đều suy ra được từ đó mà không phải lưu thêm
+   biến đếm riêng. */
 
-function dayFromStatsRaw(raw) {
-  if (typeof raw !== 'string' || !raw) return 1;
+function clockFromStatsRaw(raw) {
+  if (typeof raw !== 'string' || !raw) return { day: 1, minutes: 8 * 60 };
   try {
     const d = JSON.parse(raw);
     const total = Number(d && d.stats && d.stats.totalMinutes);
-    if (!Number.isFinite(total) || total < 0) return 1;
-    return Math.floor(total / MINUTE_PER_DAY) + 1;
+    if (!Number.isFinite(total) || total < 0) return { day: 1, minutes: 8 * 60 };
+    const whole = Math.floor(total);
+    return {
+      day: Math.floor(whole / MINUTE_PER_DAY) + 1,
+      minutes: whole % MINUTE_PER_DAY,
+    };
   } catch {
-    return 1;
+    return { day: 1, minutes: 8 * 60 };
   }
+}
+
+function dayFromStatsRaw(raw) {
+  return clockFromStatsRaw(raw).day;
 }
 
 export function currentDay() {
   return dayFromStatsRaw(readKey('smdg.stats'));
+}
+
+/* Giờ/ngày suy từ chỉ số đang lưu, dùng khi không có bản lưu để khôi
+   phục nhưng chỉ số đã ở một ngày nào đó. Không có hàm này thì màn căn
+   cứ mở lại ở ngày 1 trong khi chỉ số đã ở ngày 6, và dòng "đã sống
+   sót" hiện sai so với bản lưu.
+   Chỉ số không biết lúc đó mấy giờ, nên giờ trong ngày lấy mốc 08:00
+   của ngày hôm đó. */
+export function clockFromStats() {
+  return clockFromStatsRaw(readKey('smdg.stats'));
 }
 
 /* ---------- đồng hồ đang chạy ----------
@@ -155,9 +174,17 @@ export function saveGame({ reason = 'manual' } = {}) {
     if (v !== null) data[key] = v;
   }
 
+  /* Mốc giờ cho bản lưu.
+     Ngày lấy theo totalMinutes của chỉ số vì đó là con số tích luỹ
+     thật; đồng hồ chỉ giữ giờ trong ngày và có thể đã dừng từ lâu.
+     Nếu vì lý do nào đó đồng hồ đang chạy ở ngày xa hơn (người chơi
+     vừa ngủ nhiều lần), lấy ngày lớn hơn để không ghi lùi tiến trình.
+     Giờ trong ngày thì lấy theo đồng hồ đang chạy, vì chỉ số không
+     biết lúc đó là mấy giờ. */
+  const statsClock = clockFromStatsRaw(data['smdg.stats']);
   const meta = liveClock
-    ? { day: liveClock.day, minutes: liveClock.minutes }
-    : { day: currentDay(), minutes: 8 * 60 };
+    ? { day: Math.max(liveClock.day, statsClock.day), minutes: liveClock.minutes }
+    : statsClock;
 
   const record = {
     version: SAVE_VERSION,
@@ -231,7 +258,7 @@ export function applySave(save) {
       minutes: Math.min(MINUTE_PER_DAY - 1, Math.max(0, Math.round(Number(m.minutes)))),
     };
   } else {
-    pendingClock = { day: dayFromStatsRaw(save.data['smdg.stats']), minutes: 8 * 60 };
+    pendingClock = clockFromStatsRaw(save.data['smdg.stats']);
   }
   liveClock = { ...pendingClock };
 
@@ -263,10 +290,15 @@ export function getSaveInfo() {
   const data = rec.data;
   const playerName = typeof data['smdg.playerName'] === 'string' ? data['smdg.playerName'] : '';
 
+  /* Ngày trong game lấy theo chỉ số, không theo meta: meta chỉ là ảnh
+     chụp đồng hồ lúc lưu và có thể thấp hơn nếu đồng hồ bị dựng lại.
+     Chỉ số là con số tích luỹ nên luôn đúng chiều tăng. */
+  const statsClock = clockFromStatsRaw(data['smdg.stats']);
   const metaDay = Number(rec.meta && rec.meta.day);
-  const day = Number.isFinite(metaDay) && metaDay > 0
-    ? Math.round(metaDay)
-    : dayFromStatsRaw(data['smdg.stats']);
+  const day = Math.max(
+    statsClock.day,
+    Number.isFinite(metaDay) && metaDay > 0 ? Math.round(metaDay) : 1,
+  );
 
   /* Thứ tự kiểm quan trọng: còn cờ lastFlight nghĩa là đã bay xong,
      nên phải xét trước cờ qua Giai đoạn 1. */
@@ -461,11 +493,6 @@ const ICON_DISK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
   <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
 </svg>`;
 
-const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M4 12.5 9.5 18 20 6.5"/>
-</svg>`;
-
 const ICON_WARN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M12 4 2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.5h.01"/>
@@ -481,7 +508,19 @@ function ensureChipCss() {
 }
 
 function ensureChip() {
+  /* Tìm trong DOM trước, không chỉ dựa vào biến module: nếu module
+     này bị nạp hai lần (đường dẫn có query khác nhau, hoặc trình
+     duyệt tải lại một phần), mỗi bản sẽ giữ một biến riêng và màn
+     hình sẽ có hai chip chồng nhau. Dùng lại phần tử đã có là cách
+     duy nhất đúng trong cả hai trường hợp. */
   if (chipEl && chipEl.isConnected) return chipEl;
+
+  const existing = document.querySelector('.save-chip');
+  if (existing) {
+    chipEl = existing;
+    return chipEl;
+  }
+
   ensureChipCss();
   chipEl = document.createElement('div');
   chipEl.className = 'save-chip';
@@ -545,4 +584,4 @@ export function saveNow({ reason = 'manual', day = null } = {}) {
   return ok;
 }
 
-export { ICON_DISK, ICON_CHECK };
+export { ICON_DISK };

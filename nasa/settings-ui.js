@@ -145,14 +145,16 @@ export function openSettings() {
             </div>
 
             <div class="save-actions">
-              <button type="button" class="save-btn is-primary" data-act="save-now">
+              <button type="button" class="save-btn is-primary" data-act="save-now"
+                      data-i18n-title="save.now.hint">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
                 </svg>
                 <span data-i18n="save.now"></span>
               </button>
-              <button type="button" class="save-btn is-danger" data-act="save-clear">
+              <button type="button" class="save-btn is-danger" data-act="save-clear"
+                      data-i18n-title="save.clear.hint">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M4 7h16"/><path d="M9 7V4h6v3"/>
@@ -165,6 +167,7 @@ export function openSettings() {
             <!-- Hàng xác nhận: ẩn cho tới khi bấm nút xoá lần đầu, để
                  một cú bấm nhầm không xoá mất cả ván. -->
             <div class="save-confirm" data-save-confirm hidden>
+              <p class="save-confirm-title" data-i18n="save.clear.title"></p>
               <p class="save-confirm-text" data-i18n="save.clear.body"></p>
               <div class="save-actions">
                 <button type="button" class="save-btn is-danger" data-act="save-clear-yes"
@@ -188,6 +191,28 @@ export function openSettings() {
   ensureSaveCss();
   refresh();
   renderSaveBlock();
+
+  /* ---------- lớp mờ đáy báo còn nội dung ----------
+     Panel cao tối đa 92dvh nên trên điện thoại thân bảng luôn cuộn
+     được. Không có dấu hiệu này người chơi tưởng bảng hết nội dung ở
+     chỗ bị cắt. Bật lớp .is-scrollable khi còn cuộn được, tắt khi đã
+     tới đáy. Không dùng IntersectionObserver: chỉ cần nghe sự kiện
+     scroll và một lần đo lúc mở, rẻ hơn và không phụ thuộc layout. */
+  const bodyEl = panel.querySelector('.settings-body');
+  const panelEl = panel.querySelector('.settings-panel');
+
+  function updateScrollFade() {
+    if (!bodyEl || !panelEl) return;
+    const overflow = bodyEl.scrollHeight - bodyEl.clientHeight;
+    panelEl.classList.toggle('is-scrollable', overflow > 4);
+    panelEl.classList.toggle('is-at-end', bodyEl.scrollTop >= overflow - 4);
+  }
+  bodyEl?.addEventListener('scroll', updateScrollFade, { passive: true });
+  updateScrollFade();
+  /* Nội dung đổi chiều cao sau khi ảnh và nhãn i18n vào chỗ (đổi ngôn
+     ngữ làm nhãn dài ra), nên đo lại một nhịp sau khi mở. */
+  setTimeout(updateScrollFade, 60);
+  setTimeout(updateScrollFade, 320);
 
   /* ---------- đóng ---------- */
   const close = () => {
@@ -289,6 +314,14 @@ export function openSettings() {
   clearBtn.addEventListener('click', () => {
     confirmBox.hidden = false;
     clearBtn.setAttribute('aria-expanded', 'true');
+    /* Hàng xác nhận nằm cuối vùng cuộn, mở ra là bị mép dưới cắt mất
+       hai nút. scrollIntoView với block:'nearest' không cuộn vì nó coi
+       phần đã lộ là đủ, nên đẩy thẳng thân bảng xuống đáy: hộp xác
+       nhận mới là phần tử cuối, cuộn hết là thấy trọn hai nút. */
+    if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+    updateScrollFade();
+    setTimeout(updateScrollFade, 60);
+    setTimeout(updateScrollFade, 260);
     const yes = confirmBox.querySelector('[data-act="save-clear-yes"]');
     if (yes) yes.focus();
   });
@@ -385,6 +418,13 @@ function refresh() {
   panel.querySelectorAll('[data-i18n]').forEach((el) => {
     const val = t(el.getAttribute('data-i18n'));
     if (val) el.textContent = val;
+  });
+
+  /* Nhãn phụ dạng title: nút lưu và nút xoá có tên rất ngắn, phần
+     giải thích hậu quả nằm ở đây để không làm nút cao thêm. */
+  panel.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    const val = t(el.getAttribute('data-i18n-title'));
+    if (val) el.setAttribute('title', val);
   });
 
   const s = getSettings();

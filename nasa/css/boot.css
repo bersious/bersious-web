@@ -483,3 +483,61 @@ html.motion-off .boot .btn-start:hover::after { animation: none; opacity: 0; }
   .boot .btn-start { animation: none; }
   .boot .btn-start:hover::after { animation: none; opacity: 0; }
 }
+
+/* ============================================================
+   Nút Tiếp tục và dòng ghi chú bản lưu trên màn khởi động.
+   Chỉ hiện khi trình duyệt đã có bản lưu đọc được. Nút này xếp ngay
+   dưới nút Bắt đầu, kiểu viền rỗng để không tranh sự chú ý với nút
+   chính, nhưng vẫn đủ 44px chạm và tương phản AA.
+   ============================================================ */
+
+.boot .btn-resume {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: clamp(10px, 1.6vh, 14px);
+  /* 44px là ngưỡng chạm tối thiểu, không được nhỏ hơn. */
+  min-height: 44px;
+  padding: .7rem clamp(1.5rem, 2.6vw, 2.2rem);
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: clamp(.78rem, .28vw + .7rem, .92rem);
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  border: 1px solid rgba(232, 163, 61, .55);
+  border-radius: var(--st-radius, 3px);
+  background-color: rgba(232, 163, 61, .1);
+  color: #f0c07a;
+  cursor: pointer;
+  transition: background-color .18s ease,
+              border-color .18s ease,
+              color .18s ease,
+              transform .18s ease;
+}
+
+.boot .btn-resume:hover {
+  background-color: rgba(232, 163, 61, .2);
+  border-color: #e8a33d;
+  color: #ffe0b0;
+}
+
+.boot .btn-resume:active {
+  transform: translateY(2px);
+}
+
+.boot .btn-resume:focus-visible {
+  outline: 2px solid #e8a33d;
+  outline-offset: 3px;
+}
+
+/* Dòng ghi chú: ngày trong game và lúc lưu. Chữ nhỏ, mờ, để người chơi
+   biết mình tiếp tục từ đâu mà không phải bấm mù. */
+.boot .boot-save-note {
+  margin: clamp(8px, 1.2vh, 12px) 0 0;
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: clamp(.62rem, .26vw + .56rem, .74rem);
+  letter-spacing: .1em;
+  /* #8fa1b5 đạt khoảng 7,4:1 trên nền tối, vượt AA. */
+  color: #8fa1b4;
+  text-align: left;
+}

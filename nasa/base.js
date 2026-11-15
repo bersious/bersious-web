@@ -20,7 +20,7 @@ import { getSettings } from './settings.js';
 import { playClick } from './audio.js';
 import { playMemory } from './memories.js';
 import {
-  applySave, loadGame, hasSave, saveGame,
+  applySave, loadGame, hasSave, saveGame, getSaveInfo, clockFromStats,
   takePendingClock, initSaveWatchers, bindClockAutoSave, showSaveChip,
 } from './save-game.js';
 import {
@@ -133,6 +133,12 @@ const ICONS = {
     <path d="M7.8 7.8a6 6 0 0 0 0 8.4"/><path d="M16.2 16.2a6 6 0 0 0 0-8.4"/>
     <path d="M5 5a10 10 0 0 0 0 14"/><path d="M19 19a10 10 0 0 0 0-14"/>
   </svg>`,
+  rescue: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 2.5c2.6 2.4 4 6 4 10l-8 0c0-4 1.4-7.6 4-10z"/>
+    <path d="M8 12.5 5 16v3.5l3-1.4"/><path d="M16 12.5 19 16v3.5l-3-1.4"/>
+    <circle cx="12" cy="9" r="1.4"/><path d="M10 18.5 12 22l2-3.5"/>
+  </svg>`,
   sleep: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>
@@ -203,7 +209,7 @@ const ITEM_ICONS = {
 
 /* ============================================================ */
 
-export function startBase({ container, playerName = '', onExit } = {}) {
+export function startBase({ container, playerName = '', onExit, onLaunchRescue } = {}) {
   injectCss();
   injectSaveCss();
 
@@ -211,14 +217,16 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   /* Ngày bắt đầu lúc 08:00 chứ không phải 06:00. Màn căn cứ mở ra khi
      người chơi đã thức, nên nếu để 06:00 thì lần ngủ đầu chỉ nhảy được
      một tiếng trong cùng ngày, không sang ngày mới. 08:00 cũng cho
-     người chơi một ngày đủ dài trước khi trời tối.
-
-     Nếu vừa khôi phục một bản lưu thì lấy đúng giờ/ngày đã ghi, không
-     quay về 08:00 ngày 1 trong khi chỉ số đã ở ngày 7. */
-  const restoredClock = takePendingClock();
+     người chơi một ngày đủ dài trước khi trời tối. */
+  /* Ưu tiên giờ/ngày của bản lưu. Không có bản lưu thì vẫn phải đọc
+     chỉ số đang lưu: chỉ số tự khôi phục từ localStorage ngay trong
+     createStats() bên dưới, nên nếu đồng hồ cứng ở ngày 1 thì màn căn
+     cứ hiện "đã sống sót 1 ngày" trong khi chỉ số đã ở ngày 6, và mỗi
+     lần qua ngày sẽ lệch thêm. */
+  const restoredClock = takePendingClock() || clockFromStats();
   const clock = createClock({
-    startMinute: restoredClock ? restoredClock.minutes : 8 * 60,
-    day: restoredClock ? restoredClock.day : 1,
+    startMinute: restoredClock.minutes,
+    day: restoredClock.day,
   });
 
   /* Bộ chỉ số sinh tồn, tách khỏi giao diện. Chỉ số tự lưu vào
@@ -241,17 +249,6 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
       <div class="base-top-right">
         <span class="base-phase"></span>
-        <!-- Nút lưu tay. Tự động lưu chạy nền, nhưng người chơi vẫn
-             cần một chỗ bấm chắc chắn trước khi đóng tab. -->
-        <button type="button" class="base-save" data-action="save">
-          <span class="base-save-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
-            </svg>
-          </span>
-          <span class="base-save-label"></span>
-        </button>
       </div>
     </header>
 
@@ -277,6 +274,21 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       <span class="base-foot-sep" aria-hidden="true">·</span>
       <span class="base-foot-items"></span>
       <button type="button" class="base-replay" data-action="comms"></button>
+
+      <!-- Nút lưu tay. Đặt ở chân màn hình chứ không ở thanh trên vì
+           trên màn hẹp thanh trên chỉ còn hai ô và css/base.css ẩn
+           khối bên phải đi; chân màn hình thì hiện đủ ở mọi bề rộng.
+           Tự động lưu vẫn chạy nền, nút này để người chơi chủ động
+           chắc chắn trước khi đóng tab. -->
+      <button type="button" class="base-save" data-action="save">
+        <span class="base-save-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/>
+          </svg>
+        </span>
+        <span class="base-save-label"></span>
+      </button>
     </footer>
 
     <div class="base-toast" role="status" aria-live="polite" hidden></div>
@@ -335,6 +347,7 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     { id: 'explore', locked: false },
     { id: 'craft',   locked: false },
     { id: 'radio',   locked: false },
+    { id: 'rescue',  locked: false },
     { id: 'sleep',   locked: false },
   ];
 
@@ -489,6 +502,17 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       openRadioScreen();
       return;
     }
+    if (id === 'rescue') {
+      /* Chuyển sang màn thiết kế tàu cứu hộ ở index.html. base.js không
+         import rescue-designer.js để giữ hai màn độc lập; nơi dựng màn
+         là index.html và nó biết phải làm gì sau khi thiết kế xong. */
+      if (typeof onLaunchRescue === 'function') {
+        onLaunchRescue();
+      } else {
+        showToast(t('base.rescue.disabled'));
+      }
+      return;
+    }
     if (id === 'save') {
       /* Lưu tay: ghi rồi hiện chip. Hàm hiện chip nằm trong
          save-game.js để mọi nơi gọi lưu đều báo cùng một kiểu. */
@@ -526,12 +550,23 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   const unClockSave = bindClockAutoSave(clock);
   const unWatchers = initSaveWatchers();
 
+  /* Người chơi bấm "Xoá tiến trình" trong cài đặt: dừng đồng hồ và
+     ngừng ghi chỉ số NGAY, trước khi settings-ui.js xoá khoá. Không
+     có bước này, nhịp đồng hồ kế tiếp ghi lại 'smdg.stats' và tiến
+     trình vừa xoá sống dậy ngay giây sau đó. */
+  let cleared = false;
+  const onClearSave = () => {
+    cleared = true;
+    clock.stop();
+    unTick();
+    unClockSave();
+    unWatchers();
+  };
+  window.addEventListener('smdg:clear-save', onClearSave);
+
   /* Vừa vào căn cứ là một mốc đáng lưu: người chơi có thể đóng tab
      ngay sau khi màn hiện ra. */
-  autoSaveOnEnter();
-  function autoSaveOnEnter() {
-    saveGame({ reason: 'auto' });
-  }
+  saveGame({ reason: 'auto' });
 
   /* ---------- màn con: nông trại và thám hiểm ---------- */
 
@@ -953,10 +988,16 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     unWatchers();
     clock.stop();
     if (hud && typeof hud.destroy === 'function') hud.destroy();
-    stats.save();
-    /* Ghi bản lưu tổng lần cuối trước khi tháo màn, để chỉ số và giờ
-       vừa đổi ở giây cuối không bị mất. */
-    saveGame({ reason: 'auto' });
+    window.removeEventListener('smdg:clear-save', onClearSave);
+    /* Vừa bấm xoá tiến trình thì destroy() cũng phải im lặng: màn căn
+       cứ bị tháo sau khi xoá, và nếu ghi ở đây thì khoá vừa xoá sống
+       lại đúng lúc trang đang tải lại. */
+    if (!cleared) {
+      stats.save();
+      /* Ghi bản lưu tổng lần cuối trước khi tháo màn, để chỉ số và giờ
+         vừa đổi ở giây cuối không bị mất. */
+      saveGame({ reason: 'auto' });
+    }
     clearTimeout(toastTimer);
     stopIdle();
     clearSleepTimers();

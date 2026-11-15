@@ -51,7 +51,11 @@
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--st-gap-sm);
-  padding: clamp(10px, 1.4vh, 16px) var(--st-pad-x);
+  /* Chừa thêm 56px bên phải: nút cài đặt là position fixed ở góc trên
+     phải (44px + 12px lề), nên cột phải của topbar chạy xuống dưới nó.
+     Không chừa thì nhãn BAN NGÀY ở 1024x768 bị bánh răng đè mất 21px. */
+  padding: clamp(10px, 1.4vh, 16px) calc(var(--st-pad-x) + 56px)
+           clamp(10px, 1.4vh, 16px) var(--st-pad-x);
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, var(--bg-raise), var(--bg-deep));
   position: relative;
@@ -193,10 +197,10 @@
 
 .base-grid {
   display: grid;
-  /* Sáu thẻ hành động: ba cột hai hàng trên màn rộng. Trước đây
-     một hàng sáu cột thì mỗi thẻ chỉ còn ~150px, tên bị xuống dòng
-     và cả khung cao thêm 70px. */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Bảy thẻ hành động. Bốn cột trên màn rộng cho ra hai hàng (4 + 3)
+     và vẫn vừa một khung 900px mà không phải cuộn mới thấy nút cuối.
+     Ba cột thì thành ba hàng và hàng cuối bị chân màn che. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(10px, 1.4vw, 18px);
   align-content: start;
   width: 100%;
@@ -700,6 +704,12 @@ html.motion-off .base-clock-fill { transition: none; }
   .base-foot { padding: 6px var(--st-pad-x); }
 }
 
+/* Màn hẹp: bốn cột thì thẻ chỉ còn ~80px, tên hai dòng bị cắt. Về hai
+   cột để thẻ đủ rộng cho tên dài nhất ("Thiết kế tàu cứu hộ"). */
+@media (max-width: 720px) {
+  .base-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* ---------- vị trí thanh chỉ số sinh tồn ---------- */
 
 /* Thanh chỉ số là phần tử đầu của vùng chính. Cho nó dính lên trên
@@ -862,10 +872,11 @@ html.motion-off .base-clock-fill { transition: none; }
   max-width: 1180px;
   margin: 0 auto;
   aspect-ratio: 16 / 9;
-  /* Giảm từ 42dvh xuống 32dvh: ở 1440x900 khung vẫn tràn và phải
-     cuộn. Màn căn cứ nên vừa một khung hình, không bắt người chơi
-     lăn chuột mới thấy nút hành động. */
-  max-height: 27dvh;
+  /* 36dvh chứ không 27dvh: ở 27dvh khung ảnh trên màn 900px chỉ còn
+     cao 243px, trong khi bề ngang 1180px, tỉ lệ thật bị bóp còn
+     4,86:1 và ảnh cảnh bị nghiến thành dải. 36dvh giữ được khoảng
+     16:5, vẫn chừa chỗ cho lưới nút và thanh trên dưới. */
+  max-height: 36dvh;
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: var(--st-radius-lg);
   overflow: hidden;

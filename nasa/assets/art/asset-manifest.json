@@ -1,117 +1,117 @@
 {
-  "generated": "2026-11-15T15:19:00",
+  "generated": "2026-11-15T16:50:04",
   "scenes": [
     {
       "id": "bg-airlock",
-      "path": "assets/art/bg-airlock.jpg",
+      "path": "assets/art/bg-airlock.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 160708
+      "bytes": 83584
     },
     {
       "id": "bg-crew-running",
-      "path": "assets/art/bg-crew-running.jpg",
+      "path": "assets/art/bg-crew-running.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 154472
+      "bytes": 83708
     },
     {
       "id": "bg-entering-hab",
-      "path": "assets/art/bg-entering-hab.jpg",
+      "path": "assets/art/bg-entering-hab.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 187632
+      "bytes": 107202
     },
     {
       "id": "bg-face-closeup",
-      "path": "assets/art/bg-face-closeup.jpg",
+      "path": "assets/art/bg-face-closeup.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 140559
+      "bytes": 73224
     },
     {
       "id": "bg-fall-buried",
-      "path": "assets/art/bg-fall-buried.jpg",
+      "path": "assets/art/bg-fall-buried.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 138906
+      "bytes": 73654
     },
     {
       "id": "bg-farewell-door",
-      "path": "assets/art/bg-farewell-door.jpg",
+      "path": "assets/art/bg-farewell-door.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 120853
+      "bytes": 54656
     },
     {
       "id": "bg-farm",
-      "path": "assets/art/bg-farm.jpg",
+      "path": "assets/art/bg-farm.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 231304
+      "bytes": 152898
     },
     {
       "id": "bg-hab",
-      "path": "assets/art/bg-hab.jpg",
+      "path": "assets/art/bg-hab.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 178862
+      "bytes": 99650
     },
     {
       "id": "bg-houston-kitchen",
-      "path": "assets/art/bg-houston-kitchen.jpg",
+      "path": "assets/art/bg-houston-kitchen.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 135321
+      "bytes": 64984
     },
     {
       "id": "bg-mars-orbit",
-      "path": "assets/art/bg-mars-orbit.jpg",
+      "path": "assets/art/bg-mars-orbit.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 100373
+      "bytes": 47224
     },
     {
       "id": "bg-moving-boxes",
-      "path": "assets/art/bg-moving-boxes.jpg",
+      "path": "assets/art/bg-moving-boxes.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 128667
+      "bytes": 61642
     },
     {
       "id": "bg-radio",
-      "path": "assets/art/bg-radio.jpg",
+      "path": "assets/art/bg-radio.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 173276
+      "bytes": 96280
     },
     {
       "id": "bg-running-pov",
-      "path": "assets/art/bg-running-pov.jpg",
+      "path": "assets/art/bg-running-pov.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 122677
+      "bytes": 58408
     },
     {
       "id": "bg-storm-wide",
-      "path": "assets/art/bg-storm-wide.jpg",
+      "path": "assets/art/bg-storm-wide.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 103139
+      "bytes": 48102
     },
     {
       "id": "bg-waking-eyes",
-      "path": "assets/art/bg-waking-eyes.jpg",
+      "path": "assets/art/bg-waking-eyes.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 188855
+      "bytes": 106804
     },
     {
       "id": "bg-workbench",
-      "path": "assets/art/bg-workbench.jpg",
+      "path": "assets/art/bg-workbench.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 148043
+      "bytes": 77018
     }
   ],
   "icons": [
@@ -127,9 +127,7 @@
       "path": "assets/art/icon-dsn-dish.webp",
       "width": 128,
       "height": 128,
-      "bytes": 5482,
-      "transparent": true,
-      "note": "icon: chảo thu Deep Space Network"
+      "bytes": 5482
     },
     {
       "id": "icon-electronics",
@@ -157,9 +155,7 @@
       "path": "assets/art/icon-hex-packet.webp",
       "width": 128,
       "height": 128,
-      "bytes": 5560,
-      "transparent": true,
-      "note": "icon: gói tin dữ liệu hex"
+      "bytes": 5560
     },
     {
       "id": "icon-hydrazine",
@@ -180,9 +176,7 @@
       "path": "assets/art/icon-mro-satellite.webp",
       "width": 128,
       "height": 128,
-      "bytes": 3016,
-      "transparent": true,
-      "note": "icon: vệ tinh Mars Reconnaissance Orbiter"
+      "bytes": 3016
     },
     {
       "id": "icon-potato",
@@ -231,9 +225,7 @@
       "path": "assets/art/icon-uhf-transmitter.webp",
       "width": 128,
       "height": 128,
-      "bytes": 4774,
-      "transparent": true,
-      "note": "icon: bộ phát UHF gắn trên trạm"
+      "bytes": 4774
     },
     {
       "id": "icon-water",
@@ -241,6 +233,92 @@
       "width": 128,
       "height": 128,
       "bytes": 1338
+    }
+  ],
+  "panels": [
+    {
+      "id": "screen-01",
+      "path": "assets/art/screen-01.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 154912
+    },
+    {
+      "id": "screen-02",
+      "path": "assets/art/screen-02.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 201542
+    },
+    {
+      "id": "screen-03",
+      "path": "assets/art/screen-03.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 161280
+    },
+    {
+      "id": "screen-04",
+      "path": "assets/art/screen-04.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 192004
+    },
+    {
+      "id": "screen-05",
+      "path": "assets/art/screen-05.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 138636
+    },
+    {
+      "id": "screen-06",
+      "path": "assets/art/screen-06.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 160810
+    },
+    {
+      "id": "screen-07",
+      "path": "assets/art/screen-07.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 85596
+    },
+    {
+      "id": "screen-08",
+      "path": "assets/art/screen-08.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 189348
+    },
+    {
+      "id": "screen-09",
+      "path": "assets/art/screen-09.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 172766
+    },
+    {
+      "id": "screen-10",
+      "path": "assets/art/screen-10.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 155092
+    },
+    {
+      "id": "screen-11",
+      "path": "assets/art/screen-11.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 70442
+    },
+    {
+      "id": "screen-12",
+      "path": "assets/art/screen-12.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 139388
     }
   ]
 }
