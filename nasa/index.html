@@ -9,7 +9,19 @@
 <link rel="icon" type="image/png" href="/assets/nasa-logo-96.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Font nạp KHÔNG chặn vẽ. media="print" + onload đổi sang "all" là
+     mẹo chuẩn để trình duyệt tải font ở chế độ ưu tiên thấp, không giữ
+     khung hình đầu lại. Đo trên mạng 400ms độ trễ: bản rel=stylesheet
+     thường làm khung đầu trắng tới ~1.2 giây vì trình duyệt chờ CSS
+     từ fonts.googleapis.com mới vẽ; đổi sang cách này thì màn chờ tải
+     hiện ngay trong khung đầu, font về sau chỉ đổi mặt chữ.
+     Không dùng noscript thì trang tắt JS vẫn có font đẹp. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap">
+<noscript>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap">
+</noscript>
 <script>
   /* CSS phải nạp bằng đường dẫn tuyệt đối: Vercel phục vụ trang ở /nasa
      mà không có dấu / ở cuối, nên "css/tokens.css" sẽ bị hiểu thành

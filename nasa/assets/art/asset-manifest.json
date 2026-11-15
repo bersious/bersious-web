@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T22:17:02",
+  "generated": "2026-11-15T22:44:38",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -76,7 +76,7 @@
       "path": "assets/art/bg-im-01.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 191662
+      "bytes": 181536
     },
     {
       "id": "bg-im-02",
@@ -97,7 +97,7 @@
       "path": "assets/art/bg-im-04.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 76504
+      "bytes": 78622
     },
     {
       "id": "bg-im-05",
@@ -118,7 +118,7 @@
       "path": "assets/art/bg-im-07.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 124430
+      "bytes": 133086
     },
     {
       "id": "bg-im-08",

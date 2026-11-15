@@ -177,8 +177,29 @@
   to   { transform: translate3d(1.6%, 0, 0) scale(1.05); }
 }
 
-/* ---------- ô cửa sổ + hạt bụi ---------- */
+/* ---------- ô cửa sổ + hạt bụi ----------
+   Lỗi người dùng báo: khung cửa sổ tròn có vòng sáng CSS chồng lên
+   khung thép đã vẽ sẵn trong ảnh nền, thành hai vòng lệch nhau.
 
+   Hai nguyên nhân, sửa cả hai:
+
+   1. Vòng sáng. Bản cũ vẽ vòng bằng box-shadow inset 0 0 0 2px khi
+      đêm/bão. Khung thép trong bg-hab.webp đã có sẵn, nên vòng CSS
+      luôn là vòng thứ hai, và vì nó bám theo hình học của phần tử
+      chứ không theo nét vẽ tay trong tranh nên lệch hẳn. Bỏ vòng
+      đó. Đêm và bão vẫn cần làm tối lòng kính, nhưng làm bằng một
+      quầng mờ, không có độ dày viền: quầng mờ không bao giờ đọc ra
+      thành "vòng" nên không đụng gì tới khung trong tranh.
+
+   2. Hình học. Bản cũ đặt left 23.5%, top 37.5%, width 10.1%, suy ra
+      tâm (28.55%, 46.48%) và đường kính 10.1% bề rộng ảnh. Đo trực
+      tiếp trên bg-hab.webp (1600 x 900) bằng mặt nạ độ sáng và quét
+      gradient theo bán kính: lòng kính sáng có tâm (29.0%, 45.1%) và
+      đường kính 6.94% bề rộng, tức 111 px. Khung thép ngoài rộng
+      hơn lòng kính, nên vòng CSS cũ vừa to hơn vừa lệch xuống dưới
+      sang trái. Đặt lại đúng lòng kính: phần tử chỉ nên phủ vùng
+      kính, để hạt bụi và quầng sáng nằm trong kính chứ không tràn
+      lên khung thép. */
 .bs-glass {
   position: absolute;
   z-index: 3;
@@ -188,17 +209,14 @@
   border-radius: 50%;
   overflow: hidden;
   pointer-events: none;
-  /* Ban ngày ô kính gần như vô hình, để tranh tự nói: khung thép đã
-     có sẵn trong ảnh, vẽ thêm viền đậm là thành hình bầu dục lạc tông.
-     Đêm và bão mới cần khung này vì có lớp phủ tối lên trên. */
   transition: box-shadow var(--st-dur-slow) var(--st-ease-in-out);
 }
 
+/* Đêm và bão: chỉ làm tối lòng kính. Không spread, không viền đặc,
+   nên không có vòng nào để lệch với khung trong tranh. */
 .bs-root[data-phase="night"] .bs-glass,
 .bs-root[data-phase="storm"] .bs-glass {
-  box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--line-strong) 72%, transparent),
-    inset 0 0 22px color-mix(in srgb, var(--bg-void) 62%, transparent);
+  box-shadow: inset 0 0 18px 6px color-mix(in srgb, var(--bg-void) 58%, transparent);
 }
 
 .bs-glass-glow {

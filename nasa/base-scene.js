@@ -425,13 +425,31 @@ export function createBaseScene({ container, stats, clock, onAction } = {}) {
   syncMotion();
   window.addEventListener('focus', syncMotion);
 
-  /* Ô cửa sổ: bám đúng cửa sổ tròn trong tranh (tâm 28,5% / 44,5%,
-     đường kính khoảng 10% bề rộng ảnh). Đặt bằng phần trăm nên co
-     giãn cùng ảnh, không cần đo lại mỗi lần đổi kích thước. */
+  /* Ô cửa sổ: bám đúng LÒNG KÍNH trong tranh. Số đo trên bg-hab.webp
+     (1600 x 900) bằng mặt nạ độ sáng, quét gradient theo bán kính để
+     tìm chỗ độ sáng rơi mạnh nhất: tâm (464, 406) px và bán kính
+     55.5 px, tức 111 px đường kính.
+
+     Đổi ra phần trăm của khung ảnh:
+       tâm ngang   464 / 1600 = 29.00%
+       tâm dọc      406 / 900 = 45.11%
+       đường kính   111 / 1600 = 6.94%
+
+     Suy ra toạ độ đặt phần tử:
+       left   = 29.00 - 6.94/2 = 25.53%
+       top    = 45.11 - 6.94/2 = 38.64%   (tính theo chiều cao khung:
+                6.94% bề rộng = 6.94*1600/900 = 12.34% chiều cao,
+                nên top = 45.11 - 12.34/2 = 38.94%)
+       width  = 6.94%   (chiều cao suy ra từ aspect-ratio: 1)
+
+     Vì sao dùng left/top tính từ tâm chứ không phải tâm trực tiếp:
+     phần tử định vị bằng góc trên trái, nên phải trừ nửa đường kính.
+     Bản cũ để 23.5% / 37.5% / 10.1% - phỏng chừng theo khung thép
+     chứ không đo, nên vừa to hơn lòng kính 45% vừa lệch xuống. */
   function placeGlass() {
-    glassEl.style.left = '23.5%';
-    glassEl.style.top = '37.5%';
-    glassEl.style.width = '10.1%';
+    glassEl.style.left = '25.53%';
+    glassEl.style.top = '38.94%';
+    glassEl.style.width = '6.94%';
   }
 
   /* ---------- pha ---------- */

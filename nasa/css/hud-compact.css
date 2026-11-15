@@ -114,8 +114,33 @@
 .hud2-center { flex-direction: column; align-items: center; gap: 3px; }
 .hud2-right { gap: 10px; justify-content: flex-end; }
 
-/* ---------- chân dung ---------- */
+/* ---------- chân dung ----------
+   Lỗi người dùng báo: avatar tròn 38px dùng object-fit: cover với
+   ảnh nhân vật cả người, nên chỉ thấy thân giữa, mất đầu và chân.
 
+   Số đo trên ảnh thật (assets/art/char-healthy.webp, 246 x 512 px,
+   tỉ lệ 0.4805):
+     - đỉnh đầu ở hàng 5, cằm ở hàng ~78, vai mở rộng từ hàng ~82
+       và đạt hết bề ngang ở hàng ~128.
+     - nội dung ảnh nằm trong cột x 2..244.
+
+   Khung tròn cạnh 38px, object-fit: cover trên ảnh dọc thì phóng
+   ảnh lên bằng bề ngang (38/246 = 0.1545), ra 38 x 79.1 px. Phần
+   ảnh cao hơn khung 41.1 px, và object-position quyết định lấy dải
+   nào trong 41.1 px đó:
+     - 50% (giá trị cũ) lấy dải 20.5..58.5 px của khung phóng, tức
+       hàng 133..379 của ảnh gốc: đúng vùng bụng và đùi, mất sạch
+       đầu - chính là lỗi người chơi thấy.
+     - 0% lấy hàng 0..246: đỉnh đầu, mặt, vai và cả hai tay đều vào
+       khung, chỉ dư một chút ngực.
+
+   Chọn 50% 6%: dải hàng 16..262. So với 0% thì mất 11 hàng trên
+   cùng (11/512 = 2.1% bề cao ảnh), vẫn còn nguyên đỉnh đầu ở hàng
+   5 cộng 11 hàng đệm phía trên, còn phía dưới lấy thêm ngực và
+   khoảng hở cho vai - chân dung đọc ra là mặt và vai chứ không
+   phải mặt sát mép. Đây là số đã thử bằng mắt qua 4 phương án
+   (0%, 1.5px, 3px, contain) và 6% là phương án cho khuôn mặt to
+   nhất mà đỉnh đầu vẫn còn đệm. */
 .hud2-avatar {
   position: relative;
   flex: 0 0 auto;
@@ -135,8 +160,21 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* giữ cover: contain sẽ thu cả người vào 38px, mặt chỉ còn vài
+     điểm ảnh và mất hẳn tính chân dung */
   object-fit: cover;
+  /* 50% theo trục ngang (nhân vật đứng giữa ảnh), 6% theo trục dọc
+     để lấy đầu và vai thay vì bụng. Lý do con số: xem khối chú
+     thích đầu mục. */
+  object-position: 50% 6%;
   display: none;
+}
+
+/* Nền tối phía sau, lộ ra ở bốn góc tròn khi tỉ lệ ảnh khác 1:1.
+   Không đặt trên chính <img> mà trên khung, để ảnh vẫn phủ kín
+   phần giữa và không có viền sáng quanh đầu. */
+.hud2.has-avatar .hud2-avatar {
+  background: color-mix(in srgb, var(--bg-void) 88%, var(--bg-raise));
 }
 
 .hud2.has-avatar .hud2-avatar-img { display: block; }
@@ -1235,10 +1273,17 @@
   /* Trần chiều cao của widget cũ chừa đúng 20,5 phần trăm khung nhìn,
      đủ cho bốn dòng nhật ký. Checklist mục tiêu dài hơn nhiều, và ở
      màn hẹp người chơi mở nhật ký để làm theo thì cần đọc được trọn
-     một bước, nên mở rộng trần và cho widget trôi lên trên chân nhân
-     vật. Đáy vẫn neo thanh công cụ nên không đè nút nào. */
+     một bước.
+
+     Mở rộng thì neo ĐỈNH chứ không neo đáy: neo đáy mà cao 600 điểm
+     ảnh thì widget trôi lên và nuốt mất hàng dưới của thanh HUD (đo
+     được 21 điểm ảnh đè lên nút tốc độ ở 390x844). Neo đỉnh dưới
+     thanh HUD, chặn đáy trên thanh công cụ: không bao giờ chạm cả
+     hai thanh, dù thanh HUD cao bao nhiêu. */
   .hud2-log[data-collapsed="false"] {
-    max-height: calc(100dvh - var(--hud2-bar-h, 78px) - var(--base-toolbar-h, 64px) - 34px);
+    top: calc(var(--hud2-bar-h, 78px) + 8px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    max-height: calc(100dvh - var(--hud2-bar-h, 78px) - var(--base-toolbar-h, 64px) - 26px);
   }
 }
 

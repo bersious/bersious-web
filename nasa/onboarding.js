@@ -575,6 +575,19 @@ export async function openHandbook({ onClose } = {}) {
   `;
   document.body.appendChild(root);
 
+  /* Lớp phủ "mở nhật ký lần đầu" (ml-intro, z 125) chặn Esc và nuốt
+     click. Nếu nó đang mở mà người chơi bấm nút [?], sách nằm dưới và
+     mọi thao tác rơi vào lớp phủ kia, cảm giác như sách tự đóng sau
+     một giây. Gỡ nó ra và ghi cờ đã xem: người chơi đã chủ động mở
+     sổ tay thì coi như đã đọc nhật ký, không cần ép nữa. */
+  const introLayer = document.querySelector('.ml-intro');
+  if (introLayer) {
+    try {
+      localStorage.setItem('smdg.missionLogIntro', '1');
+    } catch (_) { /* trình duyệt chặn lưu, bỏ qua */ }
+    introLayer.remove();
+  }
+
   const titleEl = root.querySelector('.onb-book-title');
   const subEl = root.querySelector('.onb-book-sub');
   const bodyEl = root.querySelector('.onb-book-body');

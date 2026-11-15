@@ -42,7 +42,7 @@ const TEXT = {
     phase1: 'Giai đoạn 1 · Trạm Hab Sao Hỏa',
     phase2: 'Giai đoạn 2 · Xưởng Thiết kế và Giải cứu',
     count: '{done}/{total} mục tiêu',
-    urgent: 'Khẩn cấp: Mặc đồ bay ra cửa Airlock, cầm đèn hiệu dẫn đường bãi đáp.',
+    urgent: 'Khẩn cấp: mặc đồ bay, ra Cửa khóa khí và cắm đèn hiệu dẫn đường bãi đáp.',
     peekNone: 'Đã xong mọi mục tiêu đang mở',
     boxTodo: '[ ]',
     boxDone: '[x]',
@@ -59,16 +59,16 @@ const TEXT = {
         g: 'Kiểm tra tình trạng sinh tồn và vật tư còn lại.',
       },
       p1s2: {
-        t: 'Ổn định điện và đường khí',
-        g: 'Bấm vào Hệ thống Duy trì Sự sống (MOXIE/ECLSS), đảm bảo Oxy và Nhiệt độ ở mức an toàn.',
+        t: 'Ổn định điện và dưỡng khí',
+        g: 'Bấm vào trạm Hệ thống sống, cấp điện cho máy tạo Oxy và máy lọc nước, giữ Oxy và nhiệt độ ở mức an toàn.',
       },
       p1s3: {
-        t: 'Bắt sóng về vệ tinh MRO',
-        g: 'Bấm vào Trạm Viễn thông, chỉnh góc ăng-ten cho vạch tín hiệu SNR lên vùng Xanh.',
+        t: 'Bắt sóng vệ tinh MRO',
+        g: 'Bấm vào Bàn liên lạc, chỉnh góc ăng-ten cho vạch tín hiệu chạm vùng xanh.',
       },
       p1s4: {
         t: 'Gửi tín hiệu về Trái Đất',
-        g: 'Chọn tối đa 3 gói dữ liệu sống còn (Tọa độ, Sinh hiệu, Vật tư) và bấm Phát tín hiệu.',
+        g: 'Chọn tối đa ba gói dữ liệu sống còn rồi bấm nút Phát tín hiệu trên bảng liên lạc.',
       },
       p2s1: {
         t: 'Lắp ráp đủ 6 bộ phận tàu',
@@ -94,7 +94,7 @@ const TEXT = {
     phase1: 'Phase 1 · Mars Hab Station',
     phase2: 'Phase 2 · Design Bay & Rescue',
     count: '{done}/{total} objectives',
-    urgent: 'Emergency: suit up, head for the Airlock and take the landing beacon.',
+    urgent: 'Emergency: suit up, head out the Airlock and plant the landing beacon.',
     peekNone: 'Every open objective is done',
     boxTodo: '[ ]',
     boxDone: '[x]',
@@ -112,15 +112,15 @@ const TEXT = {
       },
       p1s2: {
         t: 'Stabilize power and the air loop',
-        g: 'Open Life Support (MOXIE/ECLSS) and keep Oxygen and Temperature in the safe band.',
+        g: 'Open the Life Support station, power the oxygen generator and water recycler, and keep oxygen and temperature in the safe band.',
       },
       p1s3: {
         t: 'Acquire the MRO satellite',
-        g: 'Open the Comms Station and turn the antenna until the SNR bar climbs into the green zone.',
+        g: 'Open the Comms Console and turn the antenna until the signal bar climbs into the green zone.',
       },
       p1s4: {
         t: 'Send the signal to Earth',
-        g: 'Pick up to 3 survival packets (coordinates, vitals, supplies) and press Transmit.',
+        g: 'Pick up to three survival data packets, then press the Transmit button on the comms board.',
       },
       p2s1: {
         t: 'Assemble all 6 ship systems',
