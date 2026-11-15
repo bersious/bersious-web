@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Radioisotope generator">
+  <!-- thân trụ chứa đồng vị -->
+  <rect x="8.4" y="6.2" width="7.2" height="11.6" rx="1.6"/>
+  <!-- cánh tản nhiệt bốn lớp -->
+  <path d="M8.4 8.6H4.6"/>
+  <path d="M8.4 11.4H4.6"/>
+  <path d="M8.4 14.2H4.6"/>
+  <path d="M15.6 8.6h3.8"/>
+  <path d="M15.6 11.4h3.8"/>
+  <path d="M15.6 14.2h3.8"/>
+  <!-- mặt cắt đồng vị bên trong -->
+  <path d="M12 9.6v4.8"/>
+  <!-- chân đế -->
+  <path d="M9.6 17.8 8 20.4"/>
+  <path d="M14.4 17.8 16 20.4"/>
+  <!-- tia phóng xạ nhỏ phía trên -->
+  <path d="M10.4 3.4l1.2 1.8"/>
+  <path d="M13.6 3.4l-1.2 1.8"/>
+</svg>

@@ -1,0 +1,394 @@
+/* ============================================================
+   phase2/css-assembly-ui.css
+   Lớp phủ nâng cấp cho màn xưởng lắp ráp (cml3).
+   Overlay upgrade for the assembly workshop screen.
+
+   Lớp này KHÔNG vẽ lại con tàu. Nó chỉ đặt thêm: sáu nút chỉ
+   dẫn kỹ thuật quanh tàu, bảng thông tin tổng, đồng hồ đếm
+   ngược sinh tồn và nút NEXT. Mọi màu đọc từ tokens.css.
+   This layer does NOT redraw the ship. It only adds: six
+   engineering callout nodes around the ship, the summary panel,
+   the survival countdown and the NEXT button. All colors come
+   from tokens.css.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+.asm-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  color: var(--tx);
+}
+
+.asm-ui *,
+.asm-ui *::before,
+.asm-ui *::after { box-sizing: border-box; }
+
+/* ---------- đường dẫn chỉ dẫn (leader lines) ---------- */
+
+.asm-leader {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.asm-leader path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--cyan) 62%, transparent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke var(--st-dur-fast) ease, opacity var(--st-dur-fast) ease;
+  opacity: .78;
+}
+
+.asm-leader path.is-hot {
+  stroke: var(--amber);
+  opacity: 1;
+}
+
+.asm-leader circle {
+  fill: var(--cyan);
+  transition: fill var(--st-dur-fast) ease;
+}
+
+.asm-leader circle.is-hot { fill: var(--amber); }
+
+/* ---------- nút chỉ dẫn kỹ thuật / callout nodes ---------- */
+
+.asm-callout {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+/* Cột trái: nút sát con tàu, nhãn đẩy ra phía mép khung. Neo bằng
+   right nên nút (phần tử đầu trong DOM) phải nằm ở mút phải của cụm,
+   vì vậy dùng row-reverse. Cột phải thì ngược lại.
+   Left column: node near the ship, label pushed outward. The anchor is
+   right, so the node has to be the rightmost item, hence row-reverse.
+   The right column is the mirror. */
+.asm-callout.is-left  { flex-direction: row-reverse; }
+.asm-callout.is-right { flex-direction: row; }
+
+.asm-node {
+  position: relative;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg-panel) 86%, transparent);
+  color: var(--tx-soft);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    border-color var(--st-dur-fast) ease,
+    color var(--st-dur-fast) ease,
+    background-color var(--st-dur-fast) ease,
+    box-shadow var(--st-dur-fast) ease;
+}
+
+.asm-node svg {
+  width: 22px;
+  height: 22px;
+  color: currentColor;
+}
+
+.asm-node:hover,
+.asm-node:focus-visible {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, var(--bg-panel));
+  box-shadow: 0 0 0 3px var(--amber-glow);
+  outline: none;
+}
+
+.asm-node:focus-visible {
+  box-shadow: 0 0 0 3px var(--amber-glow), 0 0 0 1px var(--amber);
+}
+
+/* chấm trạng thái 8px ở góc nút */
+.asm-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tx-ghost);
+  box-shadow: 0 0 0 2px var(--bg-void);
+  transition: background-color var(--st-dur-fast) ease;
+}
+
+.asm-dot.is-done { background: var(--ok); }
+
+/* nhãn chữ bên ngoài nút */
+.asm-label {
+  max-width: 96px;
+  font-size: var(--st-size-cap);
+  line-height: 1.25;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--tx-soft);
+  pointer-events: none;
+  transition: color var(--st-dur-fast) ease, font-weight var(--st-dur-fast) ease;
+}
+
+.asm-callout:hover .asm-label,
+.asm-callout:focus-within .asm-label {
+  color: var(--tx-bright);
+  font-weight: 600;
+}
+
+/* ---------- bảng thông tin tổng / summary panel ---------- */
+
+.asm-summary {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: min(300px, 46%);
+  padding: 10px 12px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius-lg);
+  background: color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.asm-summary-title {
+  margin: 0 0 8px;
+  font-family: var(--st-font-display);
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.asm-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  border-top: 1px solid var(--line-hair);
+  font-size: .74rem;
+  color: var(--tx-soft);
+}
+
+.asm-row:first-of-type { border-top: 0; }
+
+.asm-row .asm-k { min-width: 0; }
+
+.asm-row .asm-v {
+  font-family: var(--st-font-mono);
+  font-size: .78rem;
+  color: var(--tx-bright);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.asm-v.is-flash { animation: asm-flash .2s ease; }
+
+@keyframes asm-flash {
+  0% { color: var(--amber); }
+  100% { color: var(--tx-bright); }
+}
+
+/* dòng cảnh báo sinh tồn */
+.asm-survive {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 7px;
+  padding: 7px 9px;
+  border: 1px solid var(--ok);
+  border-radius: var(--st-radius);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+  font-size: .72rem;
+  line-height: 1.4;
+  color: var(--tx);
+}
+
+.asm-survive.is-late {
+  border-color: var(--fail);
+  background: color-mix(in srgb, var(--fail) 12%, transparent);
+}
+
+.asm-survive-mark {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+.asm-survive-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--ok);
+}
+
+.asm-survive.is-late .asm-survive-icon { color: var(--fail); }
+
+/* ---------- đồng hồ đếm ngược sinh tồn / crew counter ---------- */
+
+.asm-crew {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius-lg);
+  background: color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.asm-avatar {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  color: var(--tx-soft);
+}
+
+.asm-crew-lines { min-width: 0; }
+
+.asm-crew-top {
+  margin: 0;
+  font-size: var(--st-size-cap);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.asm-crew-sols {
+  margin: 1px 0 0;
+  font-family: var(--st-font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.asm-crew-bar {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 5px;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--line) 70%, transparent);
+  overflow: hidden;
+}
+
+.asm-crew-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: var(--cyan);
+  transition: width var(--st-dur-move) ease, background-color var(--st-dur-move) ease;
+}
+
+.asm-crew-bar i.is-tight { background: var(--fail); }
+
+/* ---------- nút NEXT ---------- */
+
+.asm-next {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px;
+  border: 1px solid var(--amber);
+  border-radius: var(--st-radius-btn);
+  background: var(--amber);
+  color: var(--bg-void);
+  font-family: var(--st-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: filter var(--st-dur-fast) ease, transform var(--st-dur-fast) ease;
+}
+
+.asm-next svg {
+  width: 20px;
+  height: 20px;
+}
+
+.asm-next:hover:not(:disabled),
+.asm-next:focus-visible {
+  filter: brightness(1.12);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--amber-glow);
+}
+
+.asm-next:active:not(:disabled) { transform: translateY(1px); }
+
+.asm-next:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* ---------- bố cục hẹp / compact layout ---------- */
+
+.asm-ui.is-compact .asm-summary { width: min(300px, 62%); }
+.asm-ui.is-compact .asm-row.is-extra { display: none; }
+
+/* Dưới 900px: sáu nút rời hai cột, xếp thành hai hàng ở đáy sân
+   khấu. Hàng dưới thấp hơn, hàng trên lệch một chút.
+   Under 900px the six nodes leave the columns and form two rows at
+   the bottom of the stage. */
+.asm-ui.is-compact .asm-callout,
+.asm-ui.is-compact .asm-callout.is-left,
+.asm-ui.is-compact .asm-callout.is-right {
+  flex-direction: column;
+  gap: 4px;
+  transform: none;
+}
+
+.asm-ui.is-compact .asm-label { font-size: .58rem; max-width: 76px; }
+.asm-ui.is-compact .asm-leader { opacity: .5; }
+
+/* ---------- giảm chuyển động / reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .asm-ui *,
+  .asm-ui *::before,
+  .asm-ui *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+html.motion-off .asm-ui *,
+html.motion-off .asm-ui *::before,
+html.motion-off .asm-ui *::after {
+  animation: none !important;
+  transition-duration: 1ms !important;
+}

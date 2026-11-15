@@ -1,0 +1,1413 @@
+/* ============================================================
+   phase2/css-cml1.css
+   Bước 1: bắt sóng cầu cứu và chốt mục tiêu giải cứu.
+
+   Toàn bộ màu đọc từ src/css/tokens.css. Không có mã màu nào được
+   viết thẳng ở đây, chỉ có color-mix pha ra từ biến.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+.cml1-root {
+  --cml1-void:    var(--bg-void);
+  --cml1-panel:   var(--bg-panel);
+  --cml1-raise:   var(--bg-raise);
+  --cml1-line:    var(--line);
+  --cml1-sweep:   var(--cyan);
+  --cml1-hot:     var(--amber);
+  --cml1-radius:  var(--st-radius-lg);
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.5vw, 20px);
+  min-height: 100dvh;
+  padding: clamp(14px, 2vw, 28px) clamp(14px, 2.4vw, 36px) clamp(16px, 2vw, 26px);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  color: var(--tx);
+  /* Chỉ còn màu dự phòng + hai vệt màu khí. Ảnh phòng điều khiển nằm ở
+     lớp ::before bên dưới, lớp tối nằm ở ::after. Tách ba lớp như vậy vì
+     ảnh cần chạy hiệu ứng Ken Burns (phải là phần tử riêng), còn lớp tối
+     phải phủ LÊN ảnh chứ không nằm dưới. */
+  background-color: var(--bg-void);
+  background-image:
+    radial-gradient(120% 80% at 18% 0%, color-mix(in srgb, var(--cyan) 9%, transparent), transparent 62%),
+    radial-gradient(90% 70% at 92% 18%, color-mix(in srgb, var(--amber) 7%, transparent), transparent 60%);
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Ảnh nền: phòng điều khiển DSN ban đêm. Đây là lớp dưới cùng của màn
+   bắt sóng; radar SVG và toàn bộ panel nằm trên nó.
+   Phóng nhẹ 1.0 tới 1.04 trong 30 giây rồi lặp ngược, để nền không chết
+   như một tấm ảnh dán. Biên độ rất nhỏ nên không gây chóng mặt.
+   transform-origin đặt hơi lệch xuống dưới để khi phóng, mép trên không
+   hở ra khoảng trống. */
+.cml1-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-color: var(--bg-void);
+  background-image: url('./assets/p2-radar-room.webp');
+  background-size: cover;
+  background-position: center 42%;
+  background-repeat: no-repeat;
+  /* Ảnh gốc vốn là phòng tối ban đêm, phủ thêm lớp tối vừa phải là đủ
+     chìm hẳn. Kéo sáng nhẹ để màn hình xanh và các dãy bàn còn đọc ra
+     được phía sau radar, mà vẫn giữ chất đêm. */
+  filter: brightness(1.30) saturate(1.06);
+  transform-origin: 50% 62%;
+  animation: cml1-kenburns 30s ease-in-out infinite alternate;
+}
+
+/* Lớp tối phủ lên ảnh: trung bình khoảng 55 phần trăm, đậm hơn ở hai mép
+   để chữ trên đầu màn và dưới chân màn đạt tương phản AA, loãng hơn ở
+   giữa để bức ảnh còn nhìn thấy. */
+.cml1-root::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 108%, color-mix(in srgb, var(--bg-void) 62%, transparent) 0%, transparent 58%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--bg-void) 56%, transparent) 0%,
+      color-mix(in srgb, var(--bg-void) 32%, transparent) 34%,
+      color-mix(in srgb, var(--bg-void) 28%, transparent) 62%,
+      color-mix(in srgb, var(--bg-void) 58%, transparent) 100%);
+}
+
+.cml1-root *,
+.cml1-root *::before,
+.cml1-root *::after { box-sizing: border-box; }
+
+/* Lưới nền mờ, tạo cảm giác màn hình kỹ thuật chứ không phải hộp đen. */
+.cml1-bg-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--line) 62%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--line) 62%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 88%);
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* ---------- đầu màn ---------- */
+
+.cml1-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-gap-md);
+  padding-bottom: clamp(10px, 1.2vw, 16px);
+  border-bottom: 1px solid var(--cml1-line);
+}
+
+.cml1-head-left { min-width: 0; }
+
+.cml1-eyebrow {
+  margin: 0 0 4px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.cml1-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.35rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  line-height: 1.05;
+  color: var(--tx-bright);
+}
+
+.cml1-head-right {
+  display: flex;
+  align-items: center;
+  gap: var(--st-gap-sm);
+  flex: 0 0 auto;
+}
+
+.cml1-step {
+  padding: 6px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  font-size: var(--st-size-label);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  white-space: nowrap;
+}
+
+.cml1-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 42%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cyan) 10%, var(--bg-inset));
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .1em;
+  color: var(--cyan);
+}
+
+.cml1-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--cyan) 60%, transparent);
+  animation: cml1-pulse 1.9s ease-out infinite;
+}
+
+@keyframes cml1-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cyan) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 8px color-mix(in srgb, var(--cyan) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cyan) 0%, transparent); }
+}
+
+/* ---------- thân: radar bên trái, bản ghi bên phải ---------- */
+
+.cml1-body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+  gap: clamp(16px, 2vw, 30px);
+  align-items: stretch;
+}
+
+.cml1-radar-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+  min-width: 0;
+}
+
+.cml1-radar-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(12px, 1.6vw, 20px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--cml1-radius);
+  /* Nền khung radar để hở một phần cho ảnh phòng điều khiển lộ qua: nếu
+     đặc như trước thì ảnh bị che mất gần hết, chỉ còn thấy ở khe giữa
+     các panel. Giữ đủ đục để cung radar vẫn tương phản. */
+  background:
+    linear-gradient(168deg,
+      color-mix(in srgb, var(--bg-raise) 86%, transparent),
+      color-mix(in srgb, var(--bg-panel) 80%, transparent) 58%,
+      color-mix(in srgb, var(--bg-deep) 84%, transparent));
+  box-shadow: inset 0 0 60px color-mix(in srgb, var(--bg-void) 70%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Bốn góc vát kiểu thiết bị dã chiến. */
+.cml1-radar-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid color-mix(in srgb, var(--cyan) 65%, transparent);
+  pointer-events: none;
+}
+.cml1-rn { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
+.cml1-rs { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+.cml1-rw { bottom: 6px; left: 6px; border-right: 0; border-top: 0; }
+.cml1-re { top: 6px; right: 6px; border-left: 0; border-bottom: 0; }
+
+.cml1-radar-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  transition: max-width var(--st-dur-slow) var(--st-ease-out);
+  width: 100%;
+  max-width: 436px;
+  /* Giữ ô radar luôn vuông: thiếu dòng này thì cột cao sẽ kéo
+     các vòng tròn đồng tâm thành hình bầu dục. */
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: 4px;
+  min-height: 0;
+}
+
+.cml1-radar-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--cml1-sweep);
+  filter: saturate(.9);
+}
+
+.cml1-grid circle,
+.cml1-grid line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--cyan) 26%, transparent);
+  stroke-width: 1;
+}
+
+.cml1-grid .cml1-tick {
+  stroke: color-mix(in srgb, var(--cyan) 55%, transparent);
+  stroke-width: 2;
+}
+
+.cml1-az-l,
+.cml1-rg-l {
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .07em;
+  fill: var(--tx-ghost);
+}
+
+.cml1-rg-l { font-size: 8.5px; fill: color-mix(in srgb, var(--cyan) 42%, transparent); }
+
+.cml1-sweep {
+  transform-origin: 210px 210px;
+  animation: cml1-rotate 4.4s linear infinite;
+}
+
+@keyframes cml1-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.cml1-sweep-cone { fill: url(#cml1-sweep-grad); }
+.cml1-sweep-edge {
+  stroke: color-mix(in srgb, var(--cyan) 78%, transparent);
+  stroke-width: 1.6;
+}
+
+/* Vệt nhiễu tĩnh: chỉ hiện khi chưa khoá sóng. */
+.cml1-static {
+  opacity: .14;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transition: opacity var(--st-dur-slow) var(--st-ease-out);
+}
+
+.cml1-ring-mark circle {
+  fill: none;
+  stroke: color-mix(in srgb, var(--amber) 40%, transparent);
+  stroke-width: 1.2;
+}
+.cml1-ring-mark circle:last-child { fill: var(--amber); stroke: none; }
+
+/* Điểm sáng Sao Hỏa: ẩn trước khi bắt được sóng. */
+.cml1-blip { opacity: 0; transition: opacity var(--st-dur-slow) var(--st-ease-out); }
+
+.cml1-blip-core { fill: var(--amber); }
+
+.cml1-blip-ring {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.4;
+  transform-origin: 283.9px 115.4px;
+}
+
+.cml1-blip-lead {
+  stroke: color-mix(in srgb, var(--amber) 62%, transparent);
+  stroke-width: 1.2;
+}
+
+.cml1-blip-label {
+  fill: var(--amber);
+  font-family: var(--st-font-mono);
+  font-size: 12px;
+  letter-spacing: .22em;
+}
+
+.cml1-root.is-locked .cml1-blip { opacity: 1; }
+.cml1-root.is-locked .cml1-blip-core { animation: cml1-blink 1.35s steps(1, end) infinite; }
+.cml1-root.is-locked .cml1-blip-ring { animation: cml1-ping 2.1s ease-out infinite; }
+.cml1-root.is-locked .cml1-static { opacity: 0; }
+.cml1-root.is-locked .cml1-sweep { animation-duration: 7s; }
+
+@keyframes cml1-blink {
+  0%, 55%  { opacity: 1; }
+  56%, 84% { opacity: .28; }
+  85%, 100% { opacity: 1; }
+}
+
+@keyframes cml1-ping {
+  0%   { transform: scale(.45); opacity: .95; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+.cml1-radar-cap {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: var(--st-size-cap);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.cml1-scan-state {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 24px;
+  padding: 8px 14px;
+  border-left: 3px solid var(--cyan);
+  border-radius: var(--st-radius);
+  background: color-mix(in srgb, var(--cyan) 8%, var(--bg-panel));
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  transition: color var(--st-dur-move), border-color var(--st-dur-move),
+              background-color var(--st-dur-move);
+}
+
+.cml1-root.is-locked .cml1-scan-state {
+  border-left-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, var(--bg-panel));
+}
+
+.cml1-lead {
+  margin: 0;
+  max-width: 62ch;
+  font-size: .95rem;
+  line-height: 1.66;
+  color: var(--tx-soft);
+}
+
+/* ---------- dải bốn chặng của chiến dịch ----------
+   Vùng này lấp đáy cột trái và cho người chơi biết mình đang ở đâu
+   trong cả bốn bước, thay vì để lại một khoảng đen. */
+
+.cml1-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--cml1-radius);
+  background: var(--line-hair);
+  overflow: hidden;
+}
+
+.cml1-tk {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 11px 11px;
+  min-height: 66px;
+  background: var(--bg-deep);
+  transition: background-color var(--st-dur-move);
+}
+
+.cml1-tk.is-now { background: color-mix(in srgb, var(--amber) 10%, var(--bg-deep)); }
+
+.cml1-tk.is-done { background: color-mix(in srgb, var(--ok) 8%, var(--bg-deep)); }
+
+.cml1-tk-n {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--tx-ghost);
+}
+
+.cml1-tk.is-now .cml1-tk-n { color: var(--amber); }
+.cml1-tk.is-done .cml1-tk-n { color: var(--ok); }
+
+.cml1-tk-t {
+  font-size: .72rem;
+  line-height: 1.42;
+  color: var(--tx-dim);
+}
+
+.cml1-tk.is-now .cml1-tk-t { color: var(--tx-bright); font-weight: 600; }
+
+.cml1-root.is-picking .cml1-lead { color: var(--tx-dim); }
+
+/* ---------- cột phải: bản ghi thu sóng ---------- */
+
+.cml1-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+  min-width: 0;
+}
+
+.cml1-readout {
+  padding: clamp(14px, 1.5vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: var(--cml1-radius);
+  /* cùng lý do với khung radar: để hở một phần cho ảnh nền */
+  background: linear-gradient(170deg,
+    color-mix(in srgb, var(--bg-panel) 88%, transparent),
+    color-mix(in srgb, var(--bg-deep) 84%, transparent));
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.cml1-panel-h {
+  margin: 0 0 12px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.cml1-ro {
+  display: grid;
+  gap: 1px;
+  margin: 0 0 14px;
+  background: var(--line-hair);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.cml1-ro > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  background: var(--bg-inset);
+}
+
+.cml1-ro dt {
+  font-size: .78rem;
+  color: var(--tx-soft);
+  white-space: nowrap;
+}
+
+.cml1-ro dd {
+  margin: 0;
+  text-align: right;
+  font-size: .8rem;
+  color: var(--tx-bright);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--st-dur-move);
+}
+
+.cml1-ro dd.is-hot { color: var(--amber); }
+
+.cml1-log {
+  margin: 0;
+  padding: 0 0 0 2px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 168px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.cml1-log-line {
+  position: relative;
+  padding-left: 16px;
+  font-family: var(--st-font-mono);
+  font-size: .72rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+  animation: cml1-login var(--st-dur-move) var(--st-ease-out) both;
+}
+
+.cml1-log-line::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: .55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cyan) 70%, transparent);
+}
+
+.cml1-log-line:last-child { color: var(--tx); }
+.cml1-root.is-locked .cml1-log-line:last-child::before { background: var(--amber); }
+
+@keyframes cml1-login {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- ba trạm DSN + phổ thu ---------- */
+
+.cml1-stations {
+  padding: clamp(14px, 1.5vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: var(--cml1-radius);
+  background: linear-gradient(170deg, var(--bg-panel), var(--bg-deep));
+}
+
+.cml1-st-list {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cml1-st {
+  display: grid;
+  grid-template-columns: 20px minmax(70px, auto) minmax(0, 1fr) 42px;
+  gap: 9px;
+  align-items: center;
+  padding: 7px 9px;
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  transition: border-color var(--st-dur-move), background-color var(--st-dur-move);
+}
+
+.cml1-st.is-hot {
+  border-color: color-mix(in srgb, var(--amber) 45%, var(--line));
+  background: color-mix(in srgb, var(--amber) 8%, var(--bg-inset));
+}
+
+.cml1-st-ico {
+  width: 20px;
+  height: 20px;
+  color: var(--cyan);
+}
+
+.cml1-st.is-hot .cml1-st-ico { color: var(--amber); }
+
+.cml1-st-name {
+  font-size: .76rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--tx);
+  white-space: nowrap;
+}
+
+.cml1-st-bar {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-void);
+  overflow: hidden;
+}
+
+.cml1-st-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--cyan) 55%, var(--bg-void)),
+    var(--cyan));
+  transition: width 400ms var(--st-ease-out);
+}
+
+.cml1-st.is-hot .cml1-st-bar i {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--amber) 55%, var(--bg-void)),
+    var(--amber));
+}
+
+.cml1-st-val {
+  text-align: right;
+  font-size: .7rem;
+  color: var(--tx-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.cml1-st.is-hot .cml1-st-val { color: var(--amber); }
+
+.cml1-st-note {
+  margin: 0 0 14px;
+  font-size: .72rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+}
+
+.cml1-spectrum {
+  padding-top: 12px;
+  border-top: 1px solid var(--line-hair);
+}
+
+.cml1-spec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.cml1-spec-lbl {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.cml1-spec-val {
+  font-size: .7rem;
+  color: var(--tx-dim);
+}
+
+.cml1-spec-val.is-peak { color: var(--amber); }
+
+.cml1-spec-svg {
+  display: block;
+  width: 100%;
+  height: 84px;
+  border-radius: var(--st-radius);
+  background:
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--cyan) 7%, transparent) 100%),
+    var(--bg-void);
+}
+
+.cml1-spec-floor {
+  fill: none;
+  stroke: color-mix(in srgb, var(--line-strong) 90%, transparent);
+  stroke-width: 1.2;
+}
+
+.cml1-spec-noise {
+  fill: none;
+  stroke: color-mix(in srgb, var(--cyan) 72%, transparent);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+.cml1-spec-peak {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity var(--st-dur-slow) var(--st-ease-out);
+}
+
+.cml1-root.is-locked .cml1-spec-peak { opacity: 1; }
+
+.cml1-spec-axis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.cml1-spec-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 9.5px;
+  letter-spacing: .05em;
+  color: var(--tx-ghost);
+}
+
+/* ---------- khối báo động ---------- */
+
+.cml1-lock {
+  padding: clamp(14px, 1.5vw, 20px);
+  border: 1px solid color-mix(in srgb, var(--amber) 46%, var(--line));
+  border-radius: var(--cml1-radius);
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--amber) 16%, transparent), transparent 70%),
+    var(--bg-panel);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--amber) 10%, transparent);
+}
+
+.cml1-lock.cml1-in { animation: cml1-rise var(--st-dur-slow) var(--st-ease-out) both; }
+
+@keyframes cml1-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cml1-lock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 5px 11px;
+  border: 1px solid color-mix(in srgb, var(--amber) 60%, transparent);
+  border-radius: 999px;
+  background: var(--amber-glow);
+  font-size: var(--st-size-cap);
+  letter-spacing: .16em;
+  color: var(--amber);
+}
+
+.cml1-alert {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+}
+
+.cml1-alert-icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  color: var(--amber);
+}
+
+.cml1-alert-head {
+  margin: 0 0 6px;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.1rem, .95rem + .6vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  line-height: 1.15;
+  color: var(--tx-bright);
+}
+
+.cml1-alert-body {
+  margin: 0 0 6px;
+  font-size: .95rem;
+  line-height: 1.6;
+  color: var(--tx);
+}
+
+.cml1-alert-crew {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+}
+
+/* ---------- phần chọn mục tiêu ---------- */
+
+.cml1-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+  padding: clamp(16px, 1.8vw, 24px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--cml1-radius);
+  background:
+    linear-gradient(170deg, color-mix(in srgb, var(--bg-raise) 92%, var(--cyan) 8%), var(--bg-panel) 62%, var(--bg-deep));
+}
+
+.cml1-picker[hidden] { display: none; }
+.cml1-picker.cml1-in { animation: cml1-rise var(--st-dur-slow) var(--st-ease-out) both; }
+
+.cml1-pick-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-gap-md);
+  flex-wrap: wrap;
+}
+
+.cml1-pick-title {
+  margin: 0 0 5px;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.15rem, 1rem + .8vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.cml1-pick-sub {
+  margin: 0;
+  max-width: 74ch;
+  font-size: .92rem;
+  line-height: 1.6;
+  color: var(--tx-soft);
+}
+
+.cml1-nasa-tag {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px dashed color-mix(in srgb, var(--line-strong) 90%, transparent);
+  border-radius: var(--st-radius);
+  font-size: var(--st-size-cap);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  align-self: flex-start;
+}
+
+/* ---------- hai thẻ ---------- */
+
+.cml1-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--st-gap-md);
+}
+
+.cml1-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: var(--st-gap-md);
+  align-items: start;
+  padding: clamp(14px, 1.6vw, 20px);
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--cml1-radius);
+  background: linear-gradient(168deg, var(--bg-panel), var(--bg-deep));
+  cursor: pointer;
+  transition: border-color var(--st-dur-move) var(--st-ease-out),
+              background-color var(--st-dur-move) var(--st-ease-out),
+              transform var(--st-dur-move) var(--st-ease-out),
+              box-shadow var(--st-dur-move) var(--st-ease-out);
+}
+
+.cml1-card:hover {
+  border-color: color-mix(in srgb, var(--cyan) 55%, var(--line-strong));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--bg-void) 55%, transparent);
+}
+
+.cml1-card:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.cml1-card.is-picked {
+  border-color: var(--amber);
+  background:
+    radial-gradient(110% 90% at 0% 0%, color-mix(in srgb, var(--amber) 15%, transparent), transparent 68%),
+    linear-gradient(168deg, var(--bg-raise), var(--bg-panel));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 45%, transparent),
+              0 12px 30px color-mix(in srgb, var(--bg-void) 60%, transparent);
+}
+
+.cml1-card-art {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 34%, var(--line));
+  border-radius: var(--st-radius);
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--cyan) 16%, transparent), transparent 72%),
+              var(--bg-inset);
+  color: var(--cyan);
+  transition: color var(--st-dur-move), border-color var(--st-dur-move),
+              background-color var(--st-dur-move);
+}
+
+.cml1-card.is-picked .cml1-card-art {
+  color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 55%, var(--line));
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--amber) 18%, transparent), transparent 72%),
+              var(--bg-inset);
+}
+
+.cml1-ico { width: 52px; height: 52px; }
+
+.cml1-card-main { min-width: 0; overflow: hidden; }
+
+.cml1-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+  min-width: 0;
+}
+
+.cml1-card-title {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.02rem, .92rem + .45vw, 1.28rem);
+  font-weight: 600;
+  letter-spacing: .03em;
+  line-height: 1.2;
+  color: var(--tx-bright);
+}
+
+.cml1-card-sub {
+  margin: 0 0 6px;
+  font-size: .86rem;
+  line-height: 1.55;
+  color: var(--tx-soft);
+}
+
+.cml1-card-nasa {
+  margin: 0 0 10px;
+  font-size: var(--st-size-cap);
+  letter-spacing: .05em;
+  color: var(--tx-dim);
+}
+
+.cml1-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+  padding-top: 9px;
+  border-top: 1px solid var(--line-hair);
+}
+
+.cml1-card-meta {
+  font-size: .78rem;
+  letter-spacing: .04em;
+  color: var(--amber);
+}
+
+.cml1-card-pick {
+  font-size: var(--st-size-cap);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  transition: color var(--st-dur-move);
+}
+
+.cml1-card.is-picked .cml1-card-pick { color: var(--amber); }
+
+/* Nút [?]. 44px là mức bấm tối thiểu. */
+.cml1-q {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg-inset);
+  color: var(--cyan);
+  font-family: var(--st-font-mono);
+  font-size: 15px;
+  font-style: italic;
+  cursor: pointer;
+  transition: color var(--st-dur-move), border-color var(--st-dur-move),
+              background-color var(--st-dur-move);
+}
+
+.cml1-q:hover {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+  background: color-mix(in srgb, var(--amber) 12%, var(--bg-inset));
+}
+
+.cml1-q:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+/* ---------- thước đo thời gian ---------- */
+
+.cml1-ruler {
+  padding: clamp(14px, 1.6vw, 20px);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--cml1-radius);
+  background: var(--bg-inset);
+  transition: border-color var(--st-dur-move) var(--st-ease-out),
+              background-color var(--st-dur-move) var(--st-ease-out);
+}
+
+.cml1-ruler[data-state="ok"] {
+  border-left-color: var(--ok);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ok) 10%, var(--bg-inset)), var(--bg-inset) 62%);
+}
+
+.cml1-ruler[data-state="fail"] {
+  border-left-color: var(--fail);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--fail) 12%, var(--bg-inset)), var(--bg-inset) 62%);
+}
+
+.cml1-ruler-pop { animation: cml1-shake var(--st-dur-slow) var(--st-ease-out) both; }
+
+@keyframes cml1-shake {
+  0%   { transform: translateX(0); }
+  24%  { transform: translateX(-3px); }
+  52%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.cml1-ruler-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.cml1-ruler-title {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.cml1-ruler-verdict {
+  margin: 0;
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--tx-dim);
+  transition: color var(--st-dur-move);
+}
+
+.cml1-ruler-verdict[data-tone="ok"] { color: var(--ok); }
+.cml1-ruler-verdict[data-tone="fail"] { color: var(--fail); }
+
+.cml1-ruler-body { display: flex; flex-direction: column; gap: 8px; }
+
+.cml1-ruler-track {
+  position: relative;
+  height: 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-void);
+  overflow: hidden;
+}
+
+.cml1-ruler-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--cyan) 65%, var(--bg-void)),
+    color-mix(in srgb, var(--cyan) 92%, var(--bg-void)));
+  transition: width var(--st-dur-slow) var(--st-ease-out),
+              background-color var(--st-dur-move);
+}
+
+.cml1-ruler[data-state="ok"] .cml1-ruler-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--ok) 55%, var(--bg-void)),
+    var(--ok));
+}
+
+.cml1-ruler[data-state="fail"] .cml1-ruler-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--fail) 55%, var(--bg-void)),
+    var(--fail));
+}
+
+.cml1-ruler-life,
+.cml1-ruler-trip {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 0;
+  transition: left var(--st-dur-slow) var(--st-ease-out);
+  pointer-events: none;
+}
+
+.cml1-ruler-life i,
+.cml1-ruler-trip i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+}
+
+.cml1-ruler-life i {
+  background: var(--amber);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--amber) 70%, transparent);
+}
+
+.cml1-ruler-trip i {
+  background: var(--tx-bright);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--tx-bright) 55%, transparent);
+}
+
+.cml1-ruler[data-state="fail"] .cml1-ruler-life i {
+  background: var(--fail);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--fail) 75%, transparent);
+}
+
+.cml1-ruler-scale {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  height: 14px;
+  font-size: var(--st-size-cap);
+  letter-spacing: .06em;
+  color: var(--tx-ghost);
+}
+
+.cml1-scale-mid {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.cml1-ruler-legend {
+  display: flex;
+  gap: var(--st-gap-md);
+  margin: 6px 0 0;
+  flex-wrap: wrap;
+}
+
+.cml1-ruler-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cml1-ruler-legend dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .78rem;
+  color: var(--tx-soft);
+}
+
+.cml1-ruler-legend dt i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.cml1-leg-trip dt i { background: var(--tx-bright); }
+.cml1-leg-life dt i { background: var(--amber); }
+.cml1-ruler[data-state="fail"] .cml1-leg-life dt i { background: var(--fail); }
+
+.cml1-ruler-legend dd {
+  margin: 0;
+  font-size: .84rem;
+  color: var(--tx-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- chân: nút sang bước 2 ---------- */
+
+.cml1-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-gap-md);
+  flex-wrap: wrap;
+}
+
+.cml1-hint {
+  margin: 0;
+  font-size: .82rem;
+  color: var(--tx-dim);
+}
+
+.cml1-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--st-radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 92%, white 8%), var(--amber));
+  /* Chữ trên nền hổ phách đặc: dùng nền tối nhất của bảng màu,
+     không phát minh màu mới, và vẫn đạt tương phản trên 8:1. */
+  color: var(--bg-void);
+  font-family: var(--st-font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform var(--st-dur-move) var(--st-ease-out),
+              box-shadow var(--st-dur-move) var(--st-ease-out),
+              filter var(--st-dur-move);
+}
+
+.cml1-next svg { width: 18px; height: 18px; }
+
+.cml1-next:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--amber) 30%, transparent);
+}
+
+.cml1-next:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+.cml1-next:disabled {
+  background: var(--bg-inset);
+  border-color: var(--line);
+  color: var(--tx-ghost);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------- modal [?] ---------- */
+
+.cml1-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.cml1-modal[hidden] { display: none; }
+
+.cml1-modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--st-overlay);
+  backdrop-filter: blur(10px);
+}
+
+.cml1-modal-panel {
+  position: relative;
+  width: min(560px, 100%);
+  padding: clamp(18px, 2.2vw, 28px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--cml1-radius);
+  background: linear-gradient(172deg, var(--bg-raise), var(--bg-panel) 60%, var(--bg-deep));
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--bg-void) 72%, transparent);
+  animation: cml1-rise var(--st-dur-move) var(--st-ease-out) both;
+}
+
+.cml1-modal-title {
+  margin: 0 0 10px;
+  font-family: var(--st-font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.cml1-modal-body {
+  margin: 0 0 12px;
+  font-size: .94rem;
+  line-height: 1.68;
+  color: var(--tx);
+}
+
+.cml1-modal-src {
+  margin: 0 0 18px;
+  font-family: var(--st-font-mono);
+  font-size: .7rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+}
+
+.cml1-modal-ok {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  color: var(--tx-bright);
+  font-family: var(--st-font-body);
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+.cml1-modal-ok:hover { border-color: var(--amber-dim); color: var(--amber); }
+.cml1-modal-ok:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.cml1-fatal {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--fail);
+  border-radius: var(--st-radius);
+  color: var(--fail);
+  font-size: .9rem;
+}
+
+.cml1-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   MÀN HẸP
+   ============================================================ */
+
+@media (max-width: 1040px) {
+  .cml1-body { grid-template-columns: minmax(0, 1fr); }
+  .cml1-radar-wrap { max-width: 340px; }
+}
+
+@media (max-width: 760px) {
+  .cml1-cards { grid-template-columns: minmax(0, 1fr); }
+  .cml1-card { grid-template-columns: 64px minmax(0, 1fr); }
+  .cml1-card-art { width: 64px; height: 64px; }
+  .cml1-ico { width: 42px; height: 42px; }
+  .cml1-radar-wrap { max-width: 290px; }
+  .cml1-head { flex-direction: column; gap: 10px; }
+  .cml1-head-right { width: 100%; justify-content: space-between; }
+  .cml1-next { width: 100%; justify-content: center; }
+  .cml1-ruler-head { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 460px) {
+  .cml1-root { padding: 12px 12px 22px; }
+  .cml1-card { grid-template-columns: minmax(0, 1fr); }
+  .cml1-q { margin: 0; }
+  .cml1-card-art { width: 100%; height: 62px; }
+  .cml1-ico { width: 40px; height: 40px; }
+  .cml1-card-top { margin-top: 0; }
+}
+
+/* ============================================================
+   GIẢM CHUYỂN ĐỘNG
+   ============================================================ */
+
+/* Ken Burns của ảnh nền phòng điều khiển. Biên độ 4 phần trăm trong 30
+   giây: mắt gần như không thấy đang phóng, chỉ thấy nền không đứng im. */
+@keyframes cml1-kenburns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cml1-root::before { animation: none; }
+  .cml1-root .cml1-sweep,
+  .cml1-root .cml1-blip-core,
+  .cml1-root .cml1-blip-ring,
+  .cml1-root .cml1-live i {
+    animation: none;
+  }
+  .cml1-root .cml1-live i { opacity: 1; }
+  .cml1-root .cml1-static { display: none; }
+  .cml1-root * { transition-duration: 1ms !important; }
+  .cml1-root .cml1-in,
+  .cml1-root .cml1-ruler-pop,
+  .cml1-root .cml1-log-line { animation: none !important; }
+}
+
+html.motion-off .cml1-sweep,
+html.motion-off .cml1-blip-core,
+html.motion-off .cml1-blip-ring,
+html.motion-off .cml1-root::before,
+html.motion-off .cml1-live i { animation: none; }
+
+html.motion-off .cml1-static { display: none; }
+
+html.motion-off .cml1-root *,
+html.motion-off .cml1-in,
+html.motion-off .cml1-ruler-pop,
+html.motion-off .cml1-log-line { animation: none !important; transition-duration: 1ms !important; }

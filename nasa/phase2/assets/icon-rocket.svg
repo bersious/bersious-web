@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Rocket">
+  <!-- thân tên lửa -->
+  <path d="M12 2.6c2.6 2.2 4 4.9 4 8.2v5.1H8v-5.1c0-3.3 1.4-6 4-8.2z"/>
+  <!-- vây hai bên -->
+  <path d="M8 11.4 5.4 14v3.9h2.6z"/>
+  <path d="M16 11.4 18.6 14v3.9H16z"/>
+  <!-- cửa sổ khoang -->
+  <circle cx="12" cy="9" r="1.7"/>
+  <!-- cụm phụt -->
+  <path d="M9.6 17.5v3.2"/>
+  <path d="M14.4 17.5v3.2"/>
+  <path d="M12 17.5v2.1"/>
+</svg>

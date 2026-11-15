@@ -1,0 +1,1438 @@
+/* ============================================================
+   phase2/phase2.css
+   Trung tâm Điều khiển Sứ mệnh, Giai đoạn 2.
+
+   Toàn bộ màu, cỡ chữ, khoảng cách, thời lượng chuyển động đọc từ
+   ../src/css/tokens.css. File này không tự định nghĩa bảng màu riêng,
+   chỉ khai báo biến cục bộ suy ra từ biến gốc bằng color-mix.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+/* ---------- biến cục bộ, suy ra từ token gốc ---------- */
+
+.p2-root {
+  /* thanh trên cùng: đúng 56px theo yêu cầu, không vượt 60px */
+  --p2-top-h: 56px;
+
+  /* lớp nền mờ cho thanh trên và thanh dưới */
+  --p2-glass: color-mix(in srgb, var(--bg-panel) 62%, transparent);
+  --p2-glass-strong: color-mix(in srgb, var(--bg-raise) 82%, transparent);
+
+  /* lớp phủ nhẹ dùng cho sân khấu */
+  --p2-veil: color-mix(in srgb, var(--bg-void) 52%, transparent);
+  --p2-veil-deep: color-mix(in srgb, var(--bg-void) 76%, transparent);
+
+  /* màu trạng thái dạng nền loãng */
+  --p2-ok-wash: color-mix(in srgb, var(--ok) 16%, transparent);
+  --p2-warn-wash: color-mix(in srgb, var(--warn) 16%, transparent);
+  --p2-fail-wash: color-mix(in srgb, var(--fail) 16%, transparent);
+  --p2-amber-wash: color-mix(in srgb, var(--amber) 14%, transparent);
+  --p2-cyan-wash: color-mix(in srgb, var(--cyan) 14%, transparent);
+
+  --p2-line-soft: color-mix(in srgb, var(--line) 78%, transparent);
+
+  /* đệm ngang co theo bề rộng, dùng chung cho cả ba vùng */
+  --p2-pad-x: clamp(12px, 2.2vw, 32px);
+
+  /* bán kính và tốc độ */
+  --p2-r: var(--st-radius);
+  --p2-r-lg: var(--st-radius-lg);
+  --p2-dur: var(--st-dur-move);
+  --p2-ease: var(--st-ease-out);
+}
+
+/* ============================================================
+   KHUNG NGOÀI
+   Ba hàng cố định: thanh trên, sân khấu, thanh thao tác.
+   Toàn trang đúng một khung nhìn, không cuộn.
+   ============================================================ */
+
+.p2-root,
+.p2-root * {
+  box-sizing: border-box;
+}
+
+.p2-root {
+  position: relative;
+  display: grid;
+  /* Thanh trên đúng 56px, sân khấu khoảng 60 phần trăm, thanh thao tác
+     khoảng 35 phần trăm. Tỉ lệ dùng fr nên ba vùng luôn vừa đúng một
+     khung nhìn ở mọi chiều cao, không có hàng nào bị đẩy ra ngoài.
+     Đo ở 1440x900: 56px trên, 60,2 phần trăm giữa, 32,6 phần trăm dưới. */
+  grid-template-rows: var(--p2-top-h) minmax(0, 1.72fr) minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  font-size: calc(var(--st-size-base) * var(--st-scale, 1));
+  background-color: var(--bg-void);
+  /* Nền chung của cả Giai đoạn 2 là một bức tranh trời sao thật, không
+     còn là màu đen đặc. Hai lớp radial màu ở trên giữ nguyên tác dụng
+     tạo khí, chỉ đổi lớp đáy từ gradient đặc sang ảnh.
+     background-color đứng riêng để khi ảnh không tải được vẫn có nền
+     tối, không bao giờ lộ ra một khoảng trắng. */
+  background-image:
+    radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--amber) 6%, transparent) 0%, transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-void) 62%, transparent) 0%,
+                    color-mix(in srgb, var(--bg-deep) 58%, transparent) 42%,
+                    color-mix(in srgb, var(--bg-panel) 62%, transparent) 100%),
+    url('./assets/p2-stars-bg.webp');
+  background-size: auto, auto, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+/* lớp hạt nhiễu rất nhạt, cho nền không phẳng lì. Không bắt sự kiện. */
+.p2-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ============================================================
+   VÙNG 1: THANH TRẠNG THÁI TRÊN CÙNG (56px)
+   ============================================================ */
+
+.p2-top {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  /* Bốn cột: nhận diện, cụm chỉ số co giãn, bốn chấm bước, nút công cụ.
+     Trước đây để ba cột nên cụm bước rơi xuống hàng ngầm và đẩy thanh
+     cao hơn 56px. */
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(8px, 1.2vw, 20px);
+  height: var(--p2-top-h);
+  padding: 0 var(--p2-pad-x);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--p2-glass-strong), var(--p2-glass));
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+}
+
+/* vạch nhấn mảnh dưới thanh trên, kiểu bảng điều khiển */
+.p2-top::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--amber-dim) 22%,
+    var(--amber-dim) 46%,
+    transparent 100%);
+  opacity: .55;
+  pointer-events: none;
+}
+
+/* ---------- nhận diện sứ mệnh ---------- */
+
+.p2-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.p2-brand-mark {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--amber);
+}
+
+.p2-brand-mark svg,
+.p2-brand-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.p2-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.p2-brand-eyebrow {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p2-brand-name {
+  font-family: var(--st-font-display);
+  font-size: clamp(.92rem, .78rem + .45vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1.1;
+  color: var(--tx-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- cụm chỉ số giữa thanh ---------- */
+
+.p2-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.1vw, 16px);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.p2-stat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 3px 9px;
+  border: 1px solid var(--p2-line-soft);
+  border-radius: var(--p2-r);
+  background: color-mix(in srgb, var(--bg-inset) 62%, transparent);
+  white-space: nowrap;
+  /* Cắt phần tràn. Không có dòng này thì khi thanh trên hết chỗ, chữ
+     của ô này tràn ra ngoài hộp và in đè lên ô bên cạnh. */
+  overflow: hidden;
+}
+
+.p2-stat-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tx-soft);
+}
+
+.p2-stat-icon svg,
+.p2-stat-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.p2-stat-body {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.p2-stat-label {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.p2-stat-value {
+  font-family: var(--st-font-mono);
+  font-size: clamp(.78rem, .72rem + .2vw, .92rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+  letter-spacing: .01em;
+}
+
+/* chấm sóng DSN: xanh khi khoá, vàng khi đang quét, đỏ khi mất sóng */
+.p2-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tx-dim);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tx-dim) 22%, transparent);
+}
+
+.p2-stat.is-scanning { border-color: color-mix(in srgb, var(--amber) 42%, transparent); }
+.p2-stat.is-scanning .p2-stat-icon { color: var(--amber); }
+.p2-stat.is-scanning .p2-dot {
+  background: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-glow);
+  animation: p2-pulse 2.4s var(--st-ease-in-out) infinite;
+}
+.p2-stat.is-scanning .p2-stat-value { color: var(--amber); }
+
+.p2-stat.is-locked { border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+.p2-stat.is-locked .p2-stat-icon { color: var(--ok); }
+.p2-stat.is-locked .p2-dot {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-glow);
+}
+.p2-stat.is-locked .p2-stat-value { color: var(--ok); }
+
+.p2-stat.is-lost { border-color: color-mix(in srgb, var(--fail) 46%, transparent); }
+.p2-stat.is-lost .p2-stat-icon { color: var(--fail); }
+.p2-stat.is-lost .p2-dot {
+  background: var(--fail);
+  box-shadow: 0 0 0 3px var(--fail-glow);
+}
+.p2-stat.is-lost .p2-stat-value { color: var(--fail); }
+
+/* đồng hồ đếm ngược sinh tồn: đổi màu theo ngưỡng */
+.p2-stat.is-caution .p2-dot { background: var(--warn); box-shadow: 0 0 0 3px var(--p2-warn-wash); }
+.p2-stat.is-caution .p2-stat-value { color: var(--warn); }
+.p2-stat.is-critical { border-color: color-mix(in srgb, var(--fail) 50%, transparent); }
+.p2-stat.is-critical .p2-dot { background: var(--fail); box-shadow: 0 0 0 3px var(--fail-glow); }
+.p2-stat.is-critical .p2-stat-value { color: var(--fail); }
+
+/* ---------- bốn chấm bước thiết kế ---------- */
+
+.p2-steps {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, .7vw, 10px);
+  min-width: 0;
+  padding: 4px 4px 4px 2px;
+}
+
+.p2-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  color: var(--tx-dim);
+  cursor: default;
+  transition:
+    border-color var(--p2-dur) var(--p2-ease),
+    color var(--p2-dur) var(--p2-ease),
+    background-color var(--p2-dur) var(--p2-ease);
+}
+
+/* chấm số thứ tự */
+.p2-step-dot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-inset);
+  font-family: var(--st-font-mono);
+  font-size: .62rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--tx-dim);
+  transition:
+    border-color var(--p2-dur) var(--p2-ease),
+    background-color var(--p2-dur) var(--p2-ease),
+    color var(--p2-dur) var(--p2-ease);
+}
+
+.p2-step-name {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* đã qua */
+.p2-step.is-done {
+  color: var(--tx-soft);
+}
+.p2-step.is-done .p2-step-dot {
+  border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+  background: var(--p2-ok-wash);
+  color: var(--ok);
+}
+
+/* đang ở bước này */
+.p2-step.is-current {
+  color: var(--tx-bright);
+  border-color: color-mix(in srgb, var(--amber) 42%, transparent);
+  background: var(--p2-amber-wash);
+}
+.p2-step.is-current .p2-step-dot {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: var(--bg-void);
+}
+
+/* vạch nối giữa các bước */
+.p2-step-sep {
+  flex: 0 0 auto;
+  width: clamp(6px, .9vw, 16px);
+  height: 1px;
+  background: var(--line-strong);
+}
+
+/* ---------- nút công cụ bên phải ---------- */
+
+.p2-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.p2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p2-r);
+  background: color-mix(in srgb, var(--bg-panel) 78%, transparent);
+  color: var(--tx);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--st-dur-fast) var(--p2-ease),
+    color var(--st-dur-fast) var(--p2-ease),
+    background-color var(--st-dur-fast) var(--p2-ease);
+}
+
+.p2-btn:hover:not(:disabled),
+.p2-btn:focus-visible:not(:disabled) {
+  border-color: color-mix(in srgb, var(--amber) 62%, transparent);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, var(--bg-panel));
+  outline: none;
+}
+
+.p2-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+.p2-btn:disabled {
+  border-color: var(--line-strong);
+  color: var(--tx-soft);
+  cursor: not-allowed;
+  /* Nút bị khoá vẫn phải đọc ra là nút. Để mờ gần như tàng hình thì
+     vùng đáy trông như khoảng trống, không phải như một nút chưa bấm
+     được. Dùng viền đứt và chữ mức --tx-soft để vẫn thấy hình nút. */
+  background: color-mix(in srgb, var(--bg-inset) 52%, transparent);
+  border-style: dashed;
+  opacity: 1;
+}
+
+.p2-btn-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  /* Nút quay lại dùng ký tự mũi tên chứ không dùng tệp SVG, nên cỡ chữ
+     phải khai ở đây, nếu không ký tự co theo cỡ chữ mặc định và nhỏ
+     hơn vùng 18px rất nhiều. */
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.p2-btn-icon svg,
+.p2-btn-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.p2-btn-text {
+  white-space: nowrap;
+}
+
+/* nút chuyển ngôn ngữ: hai chữ cái cạnh nhau, cái đang chọn sáng lên */
+.p2-lang {
+  min-width: 64px;
+  padding: 0 10px;
+  font-family: var(--st-font-mono);
+  font-size: .74rem;
+  letter-spacing: .1em;
+}
+
+.p2-lang-on { color: var(--amber); font-weight: 700; }
+.p2-lang-off { color: var(--tx-dim); }
+
+/* ============================================================
+   VÙNG 2: SÂN KHẤU TRUNG TÂM
+   Chiếm phần lớn chiều cao. Ảnh nền Sao Hỏa nằm dưới, nội dung
+   từng bước do feature dựng vào lớp .p2-stage-inner.
+   ============================================================ */
+
+.p2-main {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0;
+  overflow: hidden;
+}
+
+.p2-stage {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ảnh nền: phủ kín sân khấu, luôn có hình dù feature chưa nạp */
+.p2-stage-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--bg-deep);
+  background-image: url('./assets/backdrop-mars.svg');
+  background-size: cover;
+  background-position: center 64%;
+  background-repeat: no-repeat;
+}
+
+/* lớp phủ tối để chữ trên sân khấu luôn đạt tương phản AA */
+.p2-stage-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(110% 78% at 50% 108%, var(--p2-veil-deep) 0%, transparent 62%),
+    linear-gradient(180deg, var(--p2-veil) 0%, transparent 34%, transparent 66%, var(--p2-veil-deep) 100%);
+}
+
+/* lưới toạ độ mờ, gợi màn hình điều khiển */
+.p2-stage-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .22;
+  background-image:
+    linear-gradient(to right, var(--line-hair) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-hair) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(88% 76% at 50% 46%, var(--bg-void) 24%, transparent 100%);
+  -webkit-mask-image: radial-gradient(88% 76% at 50% 46%, var(--bg-void) 24%, transparent 100%);
+}
+
+/* lớp chứa nội dung feature dựng vào.
+   Không có đệm riêng: mỗi feature tự đặt đệm của nó, thêm đệm ở đây
+   sẽ cộng dồn và ăn mất chiều cao của sân khấu. */
+.p2-stage-inner {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+  height: 100%;
+  /* Nội dung từng bước có thể cao hơn sân khấu ở màn thấp. Cho cuộn
+     bên trong chính nó, để không mất nội dung mà cả trang vẫn đứng
+     yên, không có thanh cuộn của tài liệu. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.p2-stage-inner::-webkit-scrollbar { width: 8px; }
+.p2-stage-inner::-webkit-scrollbar-track { background: transparent; }
+.p2-stage-inner::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 4px;
+}
+
+/* feature có thể tự cuộn bên trong, nhưng cả trang thì không cuộn */
+.p2-stage-inner > * {
+  min-height: 0;
+}
+
+/* Khi feature đã dựng nội dung, đầu sân khấu của app phải ẩn đi: mỗi
+   feature tự vẽ đầu màn của nó (mã bước, tên bước, tiêu đề). Để cả hai
+   thì chữ chồng lên nhau và mất một dải chiều cao. */
+.p2-stage.has-feature .p2-stage-head {
+  display: none;
+}
+
+/* ---------- đầu sân khấu: số bước và tên bước ---------- */
+
+.p2-stage-head {
+  position: absolute;
+  top: clamp(8px, 1.4vh, 16px);
+  left: var(--p2-pad-x);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.p2-stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent);
+  border-radius: var(--p2-r);
+  background: var(--p2-cyan-wash);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.p2-stage-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.05rem, .9rem + .8vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  text-shadow: 0 2px 14px color-mix(in srgb, var(--bg-void) 78%, transparent);
+}
+
+/* ============================================================
+   KHUNG CHỜ: hiện khi feature chưa nạp được
+   Cố ý có nội dung thật (icon, tên bước, ghi chú, vạch quét)
+   để không bao giờ là một hộp đen rỗng.
+   ============================================================ */
+
+.p2-wait {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.8vh, 18px);
+  margin: clamp(34px, 6vh, 56px) 0 0;
+  padding: clamp(18px, 3vh, 32px) clamp(16px, 3vw, 40px);
+  min-height: 0;
+  overflow: hidden;
+  border: 1px dashed color-mix(in srgb, var(--line-strong) 88%, transparent);
+  border-radius: var(--p2-r-lg);
+  background:
+    linear-gradient(170deg,
+      color-mix(in srgb, var(--bg-panel) 58%, transparent) 0%,
+      color-mix(in srgb, var(--bg-deep) 72%, transparent) 100%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  text-align: center;
+}
+
+/* vạch sáng chạy ngang, báo đang chờ */
+.p2-wait::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cyan) 42%,
+    var(--amber) 58%,
+    transparent 100%);
+  opacity: .55;
+  animation: p2-sweep 3.2s linear infinite;
+}
+
+.p2-wait-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(44px, 5.6vh, 64px);
+  height: clamp(44px, 5.6vh, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+  border-radius: 50%;
+  background: var(--p2-amber-wash);
+  color: var(--amber);
+}
+
+.p2-wait-icon svg,
+.p2-wait-icon img {
+  width: 58%;
+  height: 58%;
+  display: block;
+}
+
+.p2-wait-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 52ch;
+}
+
+.p2-wait-name {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.1rem, .95rem + .8vw, 1.65rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.p2-wait-note {
+  margin: 0;
+  font-size: var(--st-size-cap);
+  line-height: 1.6;
+  color: var(--tx-soft);
+}
+
+/* danh sách việc đang chờ, mỗi dòng có chấm nhỏ */
+.p2-wait-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.p2-wait-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: 1px solid var(--p2-line-soft);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-inset) 66%, transparent);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  white-space: nowrap;
+}
+
+.p2-wait-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber-dim);
+}
+
+/* ============================================================
+   VÙNG 3: THANH THAO TÁC DƯỚI
+   Chứa bảng bốn thanh đo an toàn do app dựng, một khe cho feature
+   tự thêm điều khiển, và hàng nút điều hướng. Không để khoảng chết.
+   ============================================================ */
+
+.p2-actions {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1vh, 10px);
+  padding: clamp(9px, 1.4vh, 16px) var(--p2-pad-x) clamp(9px, 1.6vh, 16px);
+  border-top: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, var(--p2-glass) 0%, var(--p2-glass-strong) 100%);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  overflow: hidden;
+}
+
+/* ---------- bảng bốn thanh đo an toàn ---------- */
+
+.p2-board {
+  /* Giãn hết phần còn lại của thanh thao tác, để không có dải trống
+     dưới đáy. Bốn thẻ căn giữa theo chiều dọc, có trần chiều cao để
+     không bị kéo dài thành ô rỗng. */
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Thẻ đo cao đúng phần còn lại của thanh thao tác. Có trần chiều cao
+     thì phần dư nằm lại thành một dải trống ngay dưới bốn thẻ. */
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: clamp(6px, 1vw, 12px);
+}
+
+.p2-gauge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-height: 0;
+  min-width: 0;
+  padding: clamp(7px, 1.1vh, 13px) clamp(9px, 1.1vw, 14px);
+  border: 1px solid var(--p2-line-soft);
+  border-radius: var(--p2-r);
+  background:
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--bg-panel) 74%, transparent) 0%,
+      color-mix(in srgb, var(--bg-inset) 82%, transparent) 100%);
+  overflow: hidden;
+}
+
+/* vạch màu bên trái cho biết trạng thái, không phải chữ */
+.p2-gauge::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ok);
+}
+
+.p2-gauge.is-warn::before { background: var(--warn); }
+.p2-gauge.is-fail::before { background: var(--fail); }
+
+.p2-gauge-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.p2-gauge-label {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p2-gauge-num {
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.72rem, .68rem + .18vw, .86rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+  white-space: nowrap;
+}
+
+.p2-gauge.is-warn .p2-gauge-num { color: var(--warn); }
+.p2-gauge.is-fail .p2-gauge-num { color: var(--fail); }
+
+/* thanh đo: nền lõm, phần đầy đổi màu theo trạng thái */
+.p2-gauge-track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-inset);
+  box-shadow: inset 0 0 0 1px var(--line-hair);
+  overflow: hidden;
+}
+
+.p2-gauge-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--ok) 62%, transparent),
+    var(--ok));
+  transition: width var(--st-dur-slow) var(--p2-ease);
+}
+
+.p2-gauge.is-warn .p2-gauge-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--warn) 62%, transparent),
+    var(--warn));
+}
+
+.p2-gauge.is-fail .p2-gauge-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--fail) 62%, transparent),
+    var(--fail));
+}
+
+/* vạch mốc giới hạn ở 100 phần trăm */
+.p2-gauge-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: color-mix(in srgb, var(--tx-ghost) 82%, transparent);
+}
+
+.p2-gauge-sub {
+  font-family: var(--st-font-mono);
+  font-size: .62rem;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- khe cho feature tự thêm điều khiển ---------- */
+
+.p2-actions-inner {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1vh, 10px);
+  overflow: hidden;
+}
+
+.p2-actions-inner:empty {
+  display: none;
+}
+
+.p2-actions-inner > * {
+  min-height: 0;
+}
+
+/* dòng gợi ý mặc định khi feature không dựng gì vào thanh thao tác */
+.p2-actions-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+  padding: 7px 11px;
+  border: 1px solid var(--p2-line-soft);
+  border-left: 2px solid var(--amber-dim);
+  border-radius: var(--p2-r);
+  background: color-mix(in srgb, var(--bg-inset) 58%, transparent);
+  font-size: var(--st-size-cap);
+  line-height: 1.45;
+  color: var(--tx-soft);
+}
+
+.p2-actions-hint-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--amber);
+}
+
+.p2-actions-hint-icon svg,
+.p2-actions-hint-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* hàng nút điều hướng dưới cùng của thanh thao tác */
+.p2-navrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.p2-navrow-left,
+.p2-navrow-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* nhãn bước ở góc phải hàng nút, không phải nút bấm */
+.p2-navstep {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  padding-right: 2px;
+}
+
+/* nút chính: nền vàng, chữ tối, đủ 44px */
+.p2-btn-primary {
+  border-color: var(--amber);
+  background-color: var(--amber);
+  color: var(--bg-void);
+  font-family: var(--st-font-display);
+  font-size: clamp(.8rem, .72rem + .3vw, .95rem);
+  font-weight: 700;
+  letter-spacing: .14em;
+  padding: 0 20px;
+  text-transform: uppercase;
+}
+
+.p2-btn-primary:hover:not(:disabled),
+.p2-btn-primary:focus-visible:not(:disabled) {
+  background-color: var(--amber);
+  border-color: var(--tx-bright);
+  color: var(--bg-void);
+  filter: brightness(1.08);
+}
+
+/* nút phụ: viền rỗng */
+.p2-btn-ghost {
+  border-color: var(--line-strong);
+  background: transparent;
+  color: var(--tx-soft);
+}
+
+.p2-btn-ghost:hover:not(:disabled),
+.p2-btn-ghost:focus-visible:not(:disabled) {
+  border-color: color-mix(in srgb, var(--cyan) 55%, transparent);
+  color: var(--cyan);
+  background: var(--p2-cyan-wash);
+}
+
+/* ============================================================
+   THÔNG BÁO NGẮN (toast)
+   ============================================================ */
+
+.p2-toast {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--p2-top-h) + 14px);
+  z-index: 40;
+  transform: translate(-50%, -8px);
+  max-width: min(560px, calc(100vw - 2 * var(--p2-pad-x)));
+  padding: 10px 16px;
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--p2-r);
+  background: var(--bg-raise);
+  color: var(--tx-bright);
+  font-size: var(--st-size-cap);
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--bg-void) 72%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--p2-dur) var(--p2-ease),
+    transform var(--p2-dur) var(--p2-ease);
+}
+
+.p2-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.p2-toast.is-ok { border-color: color-mix(in srgb, var(--ok) 55%, transparent); border-left-color: var(--ok); }
+.p2-toast.is-fail { border-color: color-mix(in srgb, var(--fail) 55%, transparent); border-left-color: var(--fail); }
+
+/* ============================================================
+   BẢNG CÀI ĐẶT
+   ============================================================ */
+
+.p2-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--p2-pad-x);
+  background: color-mix(in srgb, var(--bg-void) 72%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.p2-modal[hidden] {
+  display: none;
+}
+
+.p2-modal-panel {
+  width: min(520px, 100%);
+  max-height: min(84dvh, 620px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(16px, 2.4vh, 24px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p2-r-lg);
+  background: linear-gradient(170deg, var(--bg-raise), var(--bg-panel));
+  box-shadow: 0 24px 64px color-mix(in srgb, var(--bg-void) 78%, transparent);
+}
+
+.p2-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.p2-modal-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.02rem, .92rem + .45vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.p2-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: var(--st-size-cap);
+  line-height: 1.6;
+  color: var(--tx-soft);
+}
+
+.p2-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--p2-line-soft);
+  border-radius: var(--p2-r);
+  background: color-mix(in srgb, var(--bg-inset) 60%, transparent);
+}
+
+.p2-set-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.p2-set-label b {
+  font-family: var(--st-font-body);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+.p2-set-label span {
+  font-size: .74rem;
+  line-height: 1.45;
+  color: var(--tx-dim);
+}
+
+.p2-switch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p2-r);
+  background: transparent;
+  color: var(--tx-soft);
+  font-family: var(--st-font-mono);
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.p2-switch:hover,
+.p2-switch:focus-visible {
+  border-color: var(--amber);
+  color: var(--amber);
+  outline: none;
+}
+
+.p2-switch.is-on {
+  border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+  color: var(--ok);
+}
+
+.p2-switch-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ============================================================
+   CHUYỂN ĐỘNG
+   ============================================================ */
+
+@keyframes p2-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 3px var(--amber-glow); }
+  50%      { opacity: .55; box-shadow: 0 0 0 6px color-mix(in srgb, var(--amber) 0%, transparent); }
+}
+
+@keyframes p2-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+@keyframes p2-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* nội dung feature hiện lên nhẹ khi đổi bước */
+.p2-stage-inner > .p2-step-host {
+  animation: p2-fade-up var(--st-dur-slow) var(--p2-ease) both;
+}
+
+/* ---------- lớp phủ bước 3: bảng đèn và bảng đồng hồ ----------
+   Bảng đèn kiểm duyệt và bảng đồng hồ cùng có công tắc và nút phóng.
+   Khi lớp phủ đồng hồ gắn vào, app gắn lớp p2-dup-hidden lên bảng đèn
+   để ẩn phần trùng. Nền của hai bảng cũng phải trong suốt: cả hai đều
+   đang đặt nền đặc, phủ lên ảnh nền sân khấu, nên màn chỉ còn một
+   khối đen đặc.
+   The review lightboard and the gauge panel both carry the switches
+   and the launch button. The app flags the lightboard so the duplicate
+   column and footer disappear. Both panels also paint an opaque
+   background over the stage artwork, which is why the screen read as
+   a flat black block. */
+.cm4.p2-dup-hidden .cm4-col-side,
+.cm4.p2-dup-hidden .cm4-foot {
+  display: none;
+}
+
+.cm4.p2-dup-hidden {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.cm4.p2-dup-hidden > .cm4-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html.motion-off .p2-stat.is-scanning .p2-dot,
+html.motion-off .p2-wait::after,
+html.motion-off .p2-stage-inner > .p2-step-host {
+  animation: none;
+}
+
+html.motion-off .p2-toast,
+html.motion-off .p2-step,
+html.motion-off .p2-step-dot {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p2-stat.is-scanning .p2-dot,
+  .p2-wait::after,
+  .p2-stage-inner > .p2-step-host {
+    animation: none;
+  }
+  .p2-toast,
+  .p2-step,
+  .p2-step-dot,
+  .p2-btn {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* --- dưới 1500px: bớt nhãn chữ của các ô chỉ số, giữ số ---
+   Bốn cụm trên thanh trên cần khoảng 1595px nếu giữ đủ nhãn. Ở
+   1440 thì cụm chỉ số bị bóp và chữ tràn sang cụm bước, nên nhãn
+   chữ nhường chỗ trước, còn số thì luôn hiện. */
+@media (max-width: 1500px) {
+  .p2-stat-label { display: none; }
+  /* Bóp đệm và khoảng cách trong ô chỉ số. Nếu không, ba ô cần hơn
+     460px trong khi cột chỉ còn khoảng 342px ở màn 1440, và flex sẽ
+     ép mỗi ô nhỏ hơn nội dung của nó, gây cắt chữ. */
+  .p2-stat { gap: 5px; padding: 3px 7px; }
+  .p2-statusbar { gap: 6px; }
+}
+
+/* --- dưới 900px: thanh trên dồn thành hai hàng --- */
+@media (max-width: 900px) {
+  .p2-root {
+    /* thanh trên cao hơn vì hai hàng, các vùng còn lại chia lại */
+    --p2-top-h: 88px;
+    grid-template-rows: var(--p2-top-h) minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  .p2-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'brand tools'
+      'status status';
+    row-gap: 4px;
+    align-content: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .p2-brand { grid-area: brand; }
+  .p2-tools { grid-area: tools; }
+  .p2-statusbar {
+    grid-area: status;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .p2-statusbar::-webkit-scrollbar { display: none; }
+
+  /* bốn chấm bước thu lại thành chấm tròn, bỏ tên bước */
+  .p2-steps {
+    position: absolute;
+    right: var(--p2-pad-x);
+    bottom: -1px;
+    transform: translateY(50%);
+    padding: 3px 6px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-panel);
+    z-index: 4;
+  }
+  .p2-step { padding: 3px 4px; }
+  .p2-step-name { display: none; }
+  .p2-step-sep { width: 5px; }
+  .p2-step.is-current { border-color: transparent; background: transparent; }
+  .p2-step.is-current .p2-step-dot { box-shadow: 0 0 0 3px var(--amber-glow); }
+}
+
+/* --- dưới 720px: bỏ chữ ở nút công cụ, chỉ còn icon --- */
+@media (max-width: 720px) {
+  .p2-btn-text { display: none; }
+  .p2-btn { padding: 0 9px; }
+  .p2-brand-eyebrow { display: none; }
+  .p2-actions-hint { font-size: .76rem; }
+}
+
+/* --- dưới 600px: ẩn nhãn, chỉ giữ icon và số --- */
+@media (max-width: 600px) {
+  .p2-root {
+    --p2-top-h: 84px;
+    --p2-pad-x: 12px;
+    grid-template-rows: var(--p2-top-h) minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+
+  /* Bốn thẻ thanh đo xuống hai cột hai hàng. Giữ bốn cột ở 390px thì
+     mỗi thẻ chỉ còn 90px, dòng phụ "% trên ..." bị cắt giữa từ. Hai
+     cột đủ rộng cho cả số lẫn dòng phụ. */
+  .p2-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: stretch;
+  }
+
+  .p2-gauge {
+    max-height: none;
+    gap: 3px;
+    padding: 6px 8px;
+  }
+
+  .p2-gauge-label { font-size: .58rem; letter-spacing: .08em; }
+  .p2-gauge-num { font-size: .74rem; }
+  .p2-gauge-sub { font-size: .58rem; }
+  .p2-gauge-track { height: 5px; }
+
+  .p2-brand-name { font-size: .84rem; }
+  .p2-brand-mark { width: 22px; height: 22px; }
+
+  /* ô chỉ số: chỉ còn icon và số, sát nhau */
+  .p2-stat {
+    gap: 5px;
+    padding: 3px 7px;
+    border-radius: var(--p2-r);
+  }
+  .p2-stat-label { display: none; }
+  .p2-stat-value { font-size: .76rem; }
+  .p2-stat-icon { width: 15px; height: 15px; }
+
+  /* chấm bước chỉ còn chấm, chữ số giữ nguyên vì nó là số */
+  .p2-step-dot { width: 18px; height: 18px; font-size: .58rem; }
+
+  .p2-stage-inner { padding: 8px 12px; }
+  .p2-stage-head { top: 6px; left: 12px; gap: 6px; }
+  .p2-stage-title { font-size: .92rem; }
+  .p2-stage-badge { padding: 3px 7px; font-size: .56rem; }
+
+  .p2-wait {
+    margin-top: 30px;
+    padding: 14px 12px;
+    gap: 8px;
+  }
+  .p2-wait-list { gap: 6px 8px; }
+  .p2-wait-list li { font-size: .56rem; padding: 3px 7px; }
+  .p2-wait-note { font-size: .74rem; line-height: 1.5; }
+
+  .p2-actions { padding: 8px 12px 10px; gap: 6px; }
+  .p2-navrow { gap: 6px; }
+  .p2-navrow-left,
+  .p2-navrow-right { gap: 6px; }
+  .p2-btn-primary { padding: 0 14px; font-size: .76rem; letter-spacing: .1em; }
+
+  .p2-toast {
+    top: calc(var(--p2-top-h) + 8px);
+    font-size: .76rem;
+    padding: 8px 12px;
+  }
+}
+
+/* --- màn rất hẹp 390px --- */
+@media (max-width: 420px) {
+  .p2-statusbar { gap: 4px; }
+  .p2-stat { padding: 2px 5px; gap: 4px; }
+  .p2-stat-value { font-size: .7rem; }
+  .p2-brand-name { font-size: .78rem; }
+  .p2-step-sep { width: 3px; }
+  .p2-navrow .p2-btn-text { display: none; }
+}
+
+/* --- màn thấp: thu đệm để cả ba vùng vẫn vừa khung nhìn --- */
+@media (max-height: 700px) {
+  .p2-wait {
+    margin-top: 26px;
+    padding: 14px 16px;
+    gap: 9px;
+  }
+  .p2-wait-icon { width: 40px; height: 40px; }
+  .p2-wait-name { font-size: 1.05rem; }
+  .p2-actions { padding-top: 8px; padding-bottom: 8px; }
+}
+
+@media (max-height: 560px) {
+  .p2-wait-list { display: none; }
+  .p2-wait-note { font-size: .72rem; }
+  .p2-stage-head { display: none; }
+}

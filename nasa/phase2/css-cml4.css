@@ -1,0 +1,1003 @@
+/* ============================================================
+   css-cml4.css
+   Bảng đèn kiểm duyệt an toàn trước khi phóng, bước 3.
+
+   Phòng điều khiển: nền tối, panel xám xanh, hổ phách cho hành
+   động chính, xanh lơ cho nhãn kỹ thuật. Ba màu đèn xanh vàng đỏ
+   dùng đúng nghĩa giao thông.
+
+   Mọi màu lấy từ src/css/tokens.css. Vài sắc độ trong suốt được
+   dẫn xuất bằng color-mix từ biến gốc, không khai báo màu mới.
+
+   Bố cục hai cột: danh sách đèn bên trái, công tắc và nút phóng
+   bên phải. Dưới 940px thì một cột, nút phóng xuống dưới cùng.
+   ============================================================ */
+
+.cm4 {
+  /* ba màu đèn, mượn đúng biến trạng thái của dự án */
+  --cm4-green: var(--ok);
+  --cm4-yellow: var(--warn);
+  --cm4-red: var(--fail);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--st-gap-md);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm4 *,
+.cm4 *::before,
+.cm4 *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- đầu bảng ---------- */
+
+.cm4-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  padding-bottom: var(--st-gap-sm);
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.cm4-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cm4-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.cm4-tag-sep {
+  width: 1px;
+  height: 10px;
+  background: var(--line-strong);
+}
+
+.cm4-tag-en {
+  color: var(--tx-dim);
+  letter-spacing: .1em;
+}
+
+.cm4-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.cm4-title-vi {
+  font-family: var(--st-font-display);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.cm4-title-en {
+  font-family: var(--st-font-mono);
+  font-size: .6em;
+  font-weight: 400;
+  letter-spacing: .08em;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+.cm4-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: .86rem;
+  color: var(--tx-soft);
+}
+
+.cm4-sub-nasa {
+  font-family: var(--st-font-mono);
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  border-radius: 2px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* đếm ba loại đèn */
+
+.cm4-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm4-count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  font-family: var(--st-font-mono);
+  font-size: .66rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  white-space: nowrap;
+}
+
+.cm4-count b {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--tx-bright);
+}
+
+.cm4-count.is-ok b { color: var(--cm4-green); }
+.cm4-count.is-warn b { color: var(--cm4-yellow); }
+.cm4-count.is-fail b { color: var(--cm4-red); }
+
+/* ---------- thân hai cột ---------- */
+
+.cm4-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(260px, 30%, 360px);
+  gap: var(--st-gap-md);
+  align-items: start;
+}
+
+.cm4-col-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-sm);
+  min-width: 0;
+}
+
+.cm4-col-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-sm);
+  min-width: 0;
+  position: sticky;
+  top: var(--st-gap-sm);
+}
+
+/* ---------- đèn tròn ---------- */
+
+.cm4-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--tx-ghost);
+  /* mọi đèn đều có viền tối phía ngoài, để trên nền sáng vẫn thấy
+     rõ là một cái đèn chứ không phải chấm màu dính vào chữ */
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .35);
+}
+
+.cm4-dot.is-green {
+  background: var(--cm4-green);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .35),
+              0 0 10px color-mix(in srgb, var(--cm4-green) 70%, transparent),
+              inset 0 0 0 2px color-mix(in srgb, var(--cm4-green) 55%, white);
+}
+
+.cm4-dot.is-yellow {
+  background: var(--cm4-yellow);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .35), 0 0 9px color-mix(in srgb, var(--cm4-yellow) 50%, transparent);
+}
+
+.cm4-dot.is-red {
+  background: var(--cm4-red);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .35), 0 0 10px color-mix(in srgb, var(--cm4-red) 55%, transparent);
+}
+
+/* nhịp thở của đèn đỏ: đèn nguy hiểm phải hút mắt trước tiên */
+.cm4-dot.is-red {
+  animation: cm4-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes cm4-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .58; }
+}
+
+/* ---------- danh sách mục kiểm tra ---------- */
+
+.cm4-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm4-item {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-hair);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  transition: border-color var(--st-dur-move) var(--st-ease-out),
+              background var(--st-dur-move) var(--st-ease-out);
+}
+
+.cm4-item.is-green { border-left-color: color-mix(in srgb, var(--cm4-green) 70%, transparent); }
+.cm4-item.is-yellow { border-left-color: color-mix(in srgb, var(--cm4-yellow) 80%, transparent); }
+.cm4-item.is-red {
+  border-left-color: var(--cm4-red);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cm4-red) 9%, var(--bg-panel)) 0%, var(--bg-panel) 60%);
+}
+
+.cm4-item.is-open {
+  border-color: var(--line-strong);
+  background: var(--bg-raise);
+}
+
+.cm4-item.is-red.is-open {
+  border-color: color-mix(in srgb, var(--cm4-red) 45%, var(--line-strong));
+}
+
+/* dòng chính: vùng bấm cao 52px, vượt mức 44px tối thiểu */
+
+.cm4-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto 34px;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 10px 8px 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.cm4-row:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--cyan);
+  border-radius: 2px;
+}
+
+.cm4-row:hover {
+  background: color-mix(in srgb, var(--tx-bright) 4%, transparent);
+}
+
+.cm4-light {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm4-row-text {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 0 8px;
+  min-width: 0;
+}
+
+.cm4-row-label {
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+  line-height: 1.35;
+}
+
+.cm4-row-label-en {
+  font-family: var(--st-font-mono);
+  font-size: .64rem;
+  font-style: normal;
+  letter-spacing: .03em;
+  color: var(--tx-soft);
+}
+
+.cm4-row-nasa {
+  grid-column: 1 / -1;
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  letter-spacing: .05em;
+  color: var(--tx-soft);
+  opacity: .86;
+  text-transform: uppercase;
+}
+
+.cm4-row-status {
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  border: 1px solid var(--line-strong);
+  color: var(--tx-dim);
+  white-space: nowrap;
+}
+
+.cm4-item.is-green .cm4-row-status {
+  color: var(--cm4-green);
+  border-color: color-mix(in srgb, var(--cm4-green) 40%, transparent);
+}
+
+.cm4-item.is-yellow .cm4-row-status {
+  color: var(--cm4-yellow);
+  border-color: color-mix(in srgb, var(--cm4-yellow) 40%, transparent);
+}
+
+.cm4-item.is-red .cm4-row-status {
+  color: var(--cm4-red);
+  border-color: color-mix(in srgb, var(--cm4-red) 45%, transparent);
+  background: color-mix(in srgb, var(--cm4-red) 12%, transparent);
+}
+
+/* nút [?] */
+
+.cm4-help {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tx-bright) 5%, transparent);
+  /* Nhãn [?] là lối vào phần giải thích, nên nó phải đọc được chứ
+     không chìm vào nền. --tx-soft trên --bg-panel đạt trên 4,5:1. */
+  color: var(--tx-soft);
+  font-family: var(--st-font-mono);
+  font-size: .76rem;
+  font-weight: 700;
+  cursor: pointer;
+  /* vùng bấm thật rộng 44px nhờ lớp đệm trong suốt bên ngoài, để
+     nút nhỏ vẫn dễ bấm trên điện thoại mà không phình to dòng */
+  position: relative;
+}
+
+.cm4-help::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+
+.cm4-help:hover,
+.cm4-help:focus-visible {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  outline: none;
+}
+
+.cm4-item.is-red .cm4-help {
+  color: var(--cm4-red);
+  border-color: color-mix(in srgb, var(--cm4-red) 45%, transparent);
+}
+
+/* ---------- thẻ giải thích ---------- */
+
+.cm4-detail {
+  padding: 2px 14px 14px 48px;
+  border-top: 1px dashed var(--line-hair);
+  margin-top: 2px;
+  animation: cm4-slide var(--st-dur-move) var(--st-ease-out);
+}
+
+@keyframes cm4-slide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cm4-detail-k {
+  margin: 10px 0 4px;
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.cm4-detail-vi {
+  margin: 0 0 6px;
+  font-size: .88rem;
+  line-height: 1.62;
+  color: var(--tx);
+  max-width: 62ch;
+}
+
+.cm4-detail-en {
+  margin: 0;
+  font-size: .76rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+  max-width: 68ch;
+}
+
+.cm4-detail-warn {
+  margin: 10px 0 0;
+  padding: 7px 10px;
+  border-left: 2px solid var(--cm4-red);
+  background: color-mix(in srgb, var(--cm4-red) 8%, transparent);
+  font-size: .8rem;
+  color: var(--cm4-red);
+}
+
+.cm4-back {
+  appearance: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: 1px solid var(--amber);
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--amber);
+  font-family: var(--st-font-body);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--st-dur-fast) var(--st-ease-out);
+}
+
+.cm4-back em {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  font-style: normal;
+  letter-spacing: .08em;
+  opacity: .72;
+}
+
+.cm4-back:hover,
+.cm4-back:focus-visible {
+  background: var(--amber-glow);
+  outline: none;
+}
+
+.cm4-back:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 4px var(--amber);
+}
+
+/* ---------- chú giải ba màu ---------- */
+
+.cm4-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+}
+
+.cm4-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .72rem;
+  color: var(--tx-soft);
+  line-height: 1.4;
+}
+
+.cm4-empty {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg-inset);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--st-radius);
+  color: var(--tx-soft);
+  font-size: .84rem;
+}
+
+/* ---------- cột phải: công tắc ---------- */
+
+.cm4-switches {
+  padding: var(--st-gap-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+}
+
+.cm4-side-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.cm4-side-title em {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  font-style: normal;
+  letter-spacing: .1em;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+.cm4-side-sub {
+  margin: 5px 0 12px;
+  font-size: .74rem;
+  color: var(--tx-soft);
+  line-height: 1.45;
+}
+
+.cm4-switch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cm4-switch {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: flex-start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.cm4-switch:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* công tắc: cả cụm là một nút cao 44px */
+
+.cm4-sw {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tx-dim);
+  cursor: pointer;
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.cm4-sw-track {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  transition: background var(--st-dur-move) var(--st-ease-out),
+              border-color var(--st-dur-move) var(--st-ease-out);
+}
+
+.cm4-sw-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--tx-dim);
+  transition: transform var(--st-dur-move) var(--st-ease-out),
+              background var(--st-dur-move) var(--st-ease-out);
+}
+
+.cm4-sw[aria-checked="true"] .cm4-sw-track {
+  background: color-mix(in srgb, var(--cm4-green) 22%, var(--bg-inset));
+  border-color: color-mix(in srgb, var(--cm4-green) 60%, transparent);
+}
+
+.cm4-sw[aria-checked="true"] .cm4-sw-knob {
+  transform: translateX(20px);
+  background: var(--cm4-green);
+}
+
+.cm4-sw[aria-checked="true"] .cm4-sw-state {
+  color: var(--cm4-green);
+}
+
+.cm4-sw:focus-visible {
+  outline: none;
+}
+
+.cm4-sw:focus-visible .cm4-sw-track {
+  box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 4px var(--cyan);
+}
+
+.cm4-sw-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cm4-sw-name {
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+  line-height: 1.35;
+}
+
+.cm4-sw-nasa {
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.cm4-sw-why {
+  margin: 4px 0 0;
+  font-size: .74rem;
+  line-height: 1.5;
+  color: var(--tx-soft);
+}
+
+.cm4-switch-note {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--cyan-dim);
+  background: var(--bg-inset);
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--tx-dim);
+}
+
+/* ---------- nút phóng ---------- */
+
+.cm4-launch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--st-gap-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+}
+
+.cm4-launch-btn {
+  appearance: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 68px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--st-radius);
+  /* Màu chữ của nút bị khoá dùng --tx-dim chứ không --tx-ghost:
+     --tx-ghost trên --bg-panel chỉ khoảng 2:1, dưới mức 4,5:1 của
+     WCAG AA. Nút khoá vẫn phải đọc được. */
+  background: var(--bg-inset);
+  color: var(--tx-dim);
+  cursor: not-allowed;
+  font-family: var(--st-font-display);
+  /* Viền đứt nét và nền lõm là tín hiệu thị giác của một nút khoá,
+     để nó không bị đọc thành một dòng tiêu đề tĩnh. */
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5);
+  opacity: .82;
+  transition: background var(--st-dur-move) var(--st-ease-out),
+              border-color var(--st-dur-move) var(--st-ease-out),
+              box-shadow var(--st-dur-move) var(--st-ease-out),
+              opacity var(--st-dur-move) var(--st-ease-out);
+}
+
+/* Ổ khoá nhỏ trong nút: nói rõ nút đang bị chặn, không cần đọc chữ.
+   Ẩn khi nút đã sẵn sàng phóng. */
+.cm4-launch-lock {
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  opacity: .8;
+}
+
+.cm4-launch-btn.is-ready .cm4-launch-lock {
+  display: none;
+}
+
+.cm4-launch-label {
+  font-size: clamp(1.1rem, .95rem + .7vw, 1.45rem);
+  font-weight: 700;
+  letter-spacing: .1em;
+  line-height: 1.1;
+}
+
+.cm4-launch-sub {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+/* sẵn sàng: hổ phách đặc, chữ tối, có quầng */
+
+.cm4-launch-btn.is-ready {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--bg-void);
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--amber-glow), 0 8px 26px var(--amber-glow);
+}
+
+.cm4-launch-btn.is-ready:hover {
+  background: color-mix(in srgb, var(--amber) 86%, white);
+  box-shadow: 0 0 0 1px var(--amber-glow), 0 10px 32px color-mix(in srgb, var(--amber) 30%, transparent);
+}
+
+.cm4-launch-btn.is-ready:active {
+  transform: translateY(1px);
+}
+
+.cm4-launch-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 4px var(--cyan);
+}
+
+/* nhịp sáng nhẹ khi đã đủ điều kiện, nhắc mắt người chơi */
+
+.cm4-launch-btn.is-ready {
+  animation: cm4-ready 3.2s ease-in-out infinite;
+}
+
+@keyframes cm4-ready {
+  0%, 100% { box-shadow: 0 0 0 1px var(--amber-glow), 0 8px 26px var(--amber-glow); }
+  50% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 45%, transparent), 0 8px 34px color-mix(in srgb, var(--amber) 32%, transparent); }
+}
+
+/* đang phóng: hổ phách chuyển sang đỏ rồi tắt */
+
+.cm4-launch-btn.is-firing {
+  background: var(--fail);
+  border-color: var(--fail);
+  color: var(--bg-void);
+  animation: cm4-fire .5s ease-out;
+}
+
+@keyframes cm4-fire {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--fail) 70%, transparent); }
+  to { box-shadow: 0 0 0 18px color-mix(in srgb, var(--fail) 0%, transparent); }
+}
+
+.cm4-block-msg {
+  margin: 0;
+  min-height: 2.4em;
+  font-size: .74rem;
+  line-height: 1.5;
+  color: var(--tx-soft);
+}
+
+.cm4-block-msg.is-block {
+  color: var(--cm4-red);
+}
+
+.cm4-block-msg.is-block::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--cm4-red);
+  vertical-align: baseline;
+}
+
+/* ---------- chân bảng: một dòng nói rõ nguồn gốc bảng đèn ---------- */
+
+.cm4-foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: var(--st-gap-sm);
+  border-top: 1px solid var(--line-hair);
+}
+
+.cm4-foot-rule {
+  flex: none;
+  width: 2px;
+  align-self: stretch;
+  min-height: 24px;
+  background: var(--cyan-dim);
+  border-radius: 1px;
+}
+
+.cm4-foot-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: .72rem;
+  line-height: 1.55;
+  color: var(--tx-soft);
+  max-width: 92ch;
+}
+
+.cm4-foot-note em {
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  font-style: normal;
+  letter-spacing: .03em;
+  color: var(--tx-dim);
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 940px) {
+  .cm4-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cm4-col-side {
+    position: static;
+    flex-direction: column;
+  }
+
+  /* Trên một cột, nút phóng phải nằm cuối nhưng vẫn thấy ngay.
+     Đảo thứ tự để công tắc trước, nút phóng sau, không dùng fixed
+     vì fixed che mất dòng đèn cuối. */
+  .cm4-launch {
+    order: 2;
+  }
+}
+
+@media (max-width: 620px) {
+  .cm4 {
+    padding: var(--st-gap-sm);
+    gap: var(--st-gap-sm);
+  }
+
+  .cm4-title-vi {
+    font-size: 1.2rem;
+  }
+
+  .cm4-counts {
+    width: 100%;
+  }
+
+  .cm4-count {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 6px 4px;
+    font-size: .58rem;
+  }
+
+  /* Dòng đèn trên điện thoại: chữ trạng thái xuống dưới nhãn thay vì
+     biến mất. Giữ chữ là bắt buộc, vì đèn màu một mình thì người mù
+     màu đỏ lục không phân biệt được xanh với đỏ. */
+  .cm4-row {
+    grid-template-columns: 24px minmax(0, 1fr) 34px;
+    gap: 6px 8px;
+    padding: 10px 8px 10px 10px;
+    min-height: 56px;
+  }
+
+  .cm4-row-status {
+    grid-column: 2;
+    justify-self: start;
+    font-size: .5rem;
+    padding: 1px 5px;
+    margin-top: 1px;
+  }
+
+  .cm4-row-text {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+  }
+
+  .cm4-row-label-en {
+    display: none;
+  }
+
+  .cm4-row-label {
+    font-size: .86rem;
+  }
+
+  .cm4-detail {
+    padding: 2px 12px 12px 12px;
+  }
+
+  .cm4-legend {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cm4-launch-btn {
+    min-height: 64px;
+  }
+}
+
+/* ---------- giảm chuyển động ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cm4-dot.is-red,
+  .cm4-launch-btn.is-ready,
+  .cm4-launch-btn.is-firing,
+  .cm4-detail {
+    animation: none !important;
+  }
+
+  .cm4-item,
+  .cm4-sw-track,
+  .cm4-sw-knob,
+  .cm4-launch-btn {
+    transition: none !important;
+  }
+}
+
+html.motion-off .cm4-dot.is-red,
+html.motion-off .cm4-launch-btn.is-ready,
+html.motion-off .cm4-launch-btn.is-firing,
+html.motion-off .cm4-detail {
+  animation: none !important;
+}
+
+html.motion-off .cm4-item,
+html.motion-off .cm4-sw-track,
+html.motion-off .cm4-sw-knob,
+html.motion-off .cm4-launch-btn {
+  transition: none !important;
+}
+
+/* ---------- màn rất thấp, ví dụ điện thoại nằm ngang ---------- */
+
+@media (max-height: 560px) and (min-width: 941px) {
+  .cm4-col-side {
+    position: static;
+  }
+
+  .cm4-launch-btn {
+    min-height: 56px;
+  }
+}

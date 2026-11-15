@@ -1,0 +1,602 @@
+/* ============================================================
+   phase2/css-gauges.css
+   CSS của bảng kiểm duyệt phóng: ghi chú giáo dục, bốn đồng hồ
+   vòng cung, công tắc tuân thủ, nút PHÓNG TÀU và dải cảnh báo.
+
+   Mọi màu đọc từ tokens.css, không hardcode màu nào ngoài các
+   biến đó. Hit target mọi nút >= 44px. Tôn trọng
+   prefers-reduced-motion và html.motion-off: kim nhảy thẳng,
+   không xoay mượt.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+/* ---------- khung tổng ---------- */
+
+.fg-panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.6vw, 22px);
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+}
+
+.fg-panel *,
+.fg-panel *::before,
+.fg-panel *::after { box-sizing: border-box; }
+
+/* ---------- ghi chú giáo dục ---------- */
+
+.fg-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--cyan);
+  border-radius: var(--st-radius-lg);
+  background: color-mix(in srgb, var(--cyan) 6%, var(--bg-deep));
+}
+
+.fg-note-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--cyan);
+}
+
+.fg-note-text {
+  margin: 0;
+  min-width: 0;
+  font-size: clamp(.8rem, .76rem + .2vw, .9rem);
+  line-height: 1.55;
+}
+
+.fg-note-vi {
+  display: block;
+  color: var(--tx);
+}
+
+.fg-note-en {
+  display: block;
+  margin-top: 3px;
+  font-size: .92em;
+  color: var(--tx-soft);
+}
+
+/* ---------- tiêu đề khối ---------- */
+
+.fg-head { margin: 0; }
+
+.fg-title {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.5rem);
+  line-height: 1.15;
+  color: var(--tx-bright);
+}
+
+.fg-title-vi { color: var(--tx-bright); }
+
+.fg-title-en {
+  font-style: normal;
+  font-size: .8em;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+/* ---------- bốn đồng hồ ---------- */
+
+.fg-gauges {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.2vw, 16px);
+}
+
+/* Mỗi đồng hồ rộng khoảng 140px, tối đa để vòng cung không phình
+   quá mức trên màn rộng. */
+.fg-gauge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  background: var(--bg-deep);
+  max-width: 190px;
+  width: 100%;
+  margin: 0 auto;
+  transition: border-color var(--st-dur-fast);
+}
+
+.fg-gauge.is-fail { border-color: color-mix(in srgb, var(--fail) 55%, var(--line)); }
+.fg-gauge.is-warn { border-color: color-mix(in srgb, var(--warn) 55%, var(--line)); }
+.fg-gauge.is-ok   { border-color: var(--line); }
+
+.fg-dial {
+  width: 140px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+/* Vòng cung nền xám mờ, vòng cung giá trị đổi màu theo ngưỡng. */
+.fg-arc-bg {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 10;
+  stroke-linecap: round;
+  opacity: .45;
+}
+
+.fg-arc-val {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 10;
+  stroke-linecap: round;
+  /* Không đặt transition cho stroke: Chrome có lỗi giữ nguyên màu cũ
+     khi transition stroke của SVG nhận giá trị từ biến CSS, khiến
+     vòng cung đỏ/vàng vẫn hiện xanh. Đổi màu tức thì là đúng ý đồ
+     và cũng hợp chế độ giảm chuyển động. */
+}
+
+.fg-gauge.is-fail .fg-arc-val { stroke: var(--fail); }
+.fg-gauge.is-warn .fg-arc-val { stroke: var(--warn); }
+.fg-gauge.is-ok   .fg-arc-val { stroke: var(--ok); }
+
+/* Vạch chia ở mốc đỏ, vàng, xanh. */
+.fg-tick {
+  stroke: var(--tx-soft);
+  stroke-width: 2;
+  opacity: .8;
+}
+
+/* Kim: xoay bằng thuộc tính transform của SVG, transition mượt khi
+   có class is-animated. motion-off thì tắt transition, kim nhảy thẳng. */
+.fg-needle-g {
+  transition: none;
+}
+
+.fg-needle-g.is-animated {
+  transition: transform .6s var(--st-ease-out);
+}
+
+.fg-needle {
+  stroke: var(--amber);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+
+/* Quầng tối mảnh dưới kim để kim nổi rõ trên cả vòng cung nền lẫn
+   vòng cung giá trị, không bị chìm khi giá trị đang ở mức xanh. */
+.fg-needle-g {
+  filter: drop-shadow(0 0 1.5px rgba(7, 9, 13, .95));
+}
+
+.fg-hub {
+  fill: var(--bg-panel);
+  stroke: var(--amber);
+  stroke-width: 2;
+}
+
+/* Số lớn đặt trong lòng vòng cung, canh giữa theo chiều ngang. Kim
+   có thể chĩa xuống tới y = 88 trong hệ toạ độ 140 của SVG, nên
+   khối số bắt đầu ngay dưới mốc đó: không bao giờ đè lên kim ở bất
+   kỳ góc nào. */
+.fg-readout {
+  position: absolute;
+  top: 102px;      /* 12px đệm thẻ + 90px trong hệ SVG */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  text-align: center;
+}
+
+.fg-value {
+  font-family: var(--st-font-mono);
+  font-size: clamp(1.25rem, 1.05rem + .5vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--tx-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.fg-unit {
+  margin-top: 3px;
+  font-size: .62rem;
+  letter-spacing: .05em;
+  color: var(--tx-dim);
+  white-space: nowrap;
+}
+
+/* Nhãn dưới đồng hồ. */
+.fg-label {
+  margin: 2px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  text-align: center;
+}
+
+.fg-label-vi {
+  font-size: clamp(.76rem, .72rem + .15vw, .86rem);
+  font-weight: 600;
+  color: var(--tx);
+  line-height: 1.25;
+}
+
+.fg-label-nasa {
+  font-style: normal;
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.fg-threshold {
+  margin: 2px 0 0;
+  min-height: 2.6em;   /* giữ chỗ hai dòng để nhãn ngưỡng không đẩy
+                          các thẻ lệch chân nhau */
+  font-size: .68rem;
+  line-height: 1.3;
+  color: var(--tx-dim);
+  text-align: center;
+}
+
+.fg-threshold-val {
+  font-family: var(--st-font-mono);
+  color: var(--tx-soft);
+  font-weight: 600;
+}
+
+/* ---------- công tắc tuân thủ ---------- */
+
+.fg-switches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  background: var(--bg-deep);
+}
+
+.fg-sw-title {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-family: var(--st-font-display);
+  font-size: clamp(1rem, .92rem + .4vw, 1.25rem);
+  color: var(--tx-bright);
+}
+
+.fg-sw-title em {
+  font-style: normal;
+  font-size: .8em;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.fg-sw-sub {
+  margin: 0;
+  font-size: .8rem;
+  color: var(--tx-soft);
+}
+
+.fg-sw-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.fg-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+}
+
+/* Nút công tắc: vùng bấm tối thiểu 44px. */
+.fg-sw {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.fg-sw:focus-visible {
+  outline: none;
+  border-radius: var(--st-radius);
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+/* Track 56x28, knob tròn 22px, bật thì track ho phach và knob
+   sáng phải, transition mượt. */
+.fg-sw-track {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  border: 1px solid var(--line-strong);
+  transition: background var(--st-dur-move), border-color var(--st-dur-move);
+}
+
+.fg-sw-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--tx-soft);
+  transition: transform var(--st-dur-move) var(--st-ease-out),
+              background var(--st-dur-move);
+}
+
+/* Bật: track ho phach, knob sáng phải. */
+.fg-sw[aria-checked="true"] .fg-sw-track {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.fg-sw[aria-checked="true"] .fg-sw-knob {
+  transform: translateX(28px);
+  background: var(--bg-void);
+}
+
+/* Chưa bật: viền vàng và dấu chấm than. */
+.fg-sw[aria-checked="false"] .fg-sw-track {
+  border-color: var(--warn);
+}
+
+.fg-sw-alert {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--warn);
+  color: var(--bg-void);
+  font-family: var(--st-font-mono);
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.fg-sw[aria-checked="false"] .fg-sw-alert { display: block; }
+
+.fg-sw-state {
+  min-width: 64px;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--tx-soft);
+  text-align: left;
+}
+
+.fg-sw[aria-checked="true"] .fg-sw-state { color: var(--amber); }
+
+.fg-sw-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.fg-sw-name {
+  display: inline;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+}
+
+.fg-sw-nasa {
+  font-family: var(--st-font-mono);
+  font-size: .62rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-left: 6px;
+}
+
+.fg-sw-why {
+  margin: 4px 0 0;
+  font-size: .76rem;
+  line-height: 1.45;
+  color: var(--tx-soft);
+}
+
+.fg-sw-note {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--cyan-dim);
+  background: var(--bg-inset);
+  font-size: .76rem;
+  color: var(--tx-soft);
+}
+
+/* ---------- nút PHÓNG TÀU ---------- */
+
+.fg-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.fg-launch-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  max-width: 420px;
+  min-height: 56px;
+  padding: 8px 20px;
+  border: 1px solid var(--amber);
+  border-radius: var(--st-radius-lg);
+  background: var(--amber);
+  color: var(--bg-void);
+  font-family: var(--st-font-display);
+  cursor: pointer;
+  transition: background var(--st-dur-fast), opacity var(--st-dur-fast),
+              box-shadow var(--st-dur-fast);
+}
+
+.fg-launch-btn:hover:not(:disabled),
+.fg-launch-btn:focus-visible:not(:disabled) {
+  background: color-mix(in srgb, var(--amber) 84%, var(--bg-void));
+  outline: none;
+  box-shadow: 0 0 0 3px var(--amber-glow);
+}
+
+.fg-launch-btn:disabled {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--amber) 22%, var(--bg-panel));
+  border-color: var(--amber-dim);
+  color: color-mix(in srgb, var(--amber) 65%, var(--tx-dim));
+}
+
+.fg-launch-btn.is-ready {
+  background: var(--amber);
+  color: var(--bg-void);
+  border-color: var(--amber);
+}
+
+.fg-launch-label {
+  font-size: clamp(1.2rem, 1.05rem + .5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1.1;
+}
+
+.fg-launch-sub {
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+
+/* Ổ khoá đặt sát mép phải nút, canh giữa theo chiều dọc, để nhãn
+   chữ luôn ở giữa nút dù có khoá hay không. */
+.fg-launch-lock {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  display: none;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  opacity: .85;
+}
+
+/* Khoá: hiện ổ khoá, nút đã mờ sẵn ở trạng thái :disabled. */
+.fg-launch-btn:disabled .fg-launch-lock { display: block; }
+
+.fg-launch-btn.is-firing {
+  animation: fg-firing .5s var(--st-ease-out);
+}
+
+@keyframes fg-firing {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
+.fg-block-msg {
+  margin: 0;
+  max-width: 420px;
+  text-align: center;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--tx-soft);
+}
+
+.fg-block-msg.is-block {
+  color: var(--fail);
+}
+
+/* ---------- dải cảnh báo vàng ---------- */
+
+.fg-risk {
+  margin: 0;
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--st-radius);
+  background: color-mix(in srgb, var(--warn) 12%, var(--bg-deep));
+  color: var(--warn);
+  font-size: .8rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.fg-risk[hidden] { display: none; }
+
+/* ---------- màn hẹp dưới 700px: hai đồng hồ một hàng ---------- */
+
+@media (max-width: 700px) {
+  .fg-gauges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fg-gauge {
+    max-width: 170px;
+    padding: 10px 6px 8px;
+  }
+  .fg-dial { width: 120px; }
+  .fg-readout { top: 88px; }   /* 10px đệm + 78px trong hệ SVG */
+  .fg-value { font-size: 1.15rem; }
+  .fg-switch { flex-wrap: wrap; }
+  .fg-sw-text { flex-basis: 100%; }
+}
+
+/* ---------- giảm chuyển động: kim nhảy thẳng, không xoay mượt,
+   không hiệu ứng nút ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-needle-g,
+  .fg-needle-g.is-animated { transition: none; }
+  .fg-sw-track,
+  .fg-sw-knob,
+  .fg-arc-val { transition: none; }
+  .fg-launch-btn.is-firing { animation: none; }
+}
+
+html.motion-off .fg-needle-g,
+html.motion-off .fg-needle-g.is-animated { transition: none; }
+html.motion-off .fg-sw-track,
+html.motion-off .fg-sw-knob,
+html.motion-off .fg-arc-val { transition: none; }
+html.motion-off .fg-launch-btn.is-firing { animation: none; }

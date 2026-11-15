@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../src/css/tokens.css">
+<title>TEST act-intro</title>
+<style>
+  html, body { margin:0; padding:0; background:#07090d; color:#b9c7d6;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif; height:100%; }
+</style>
+</head>
+<body>
+<div id="stage" style="height:100vh"></div>
+<script type="module">
+  const BASE = new URL('.', import.meta.url).href;
+  const q = new URLSearchParams(location.search);
+  if (q.get('motion') === 'off') document.documentElement.classList.add('motion-off');
+
+  window.__R = { errs: [], marks: {}, done: 0 };
+  window.addEventListener('error', (e) => window.__R.errs.push(String(e.message)));
+  window.addEventListener('unhandledrejection', (e) => window.__R.errs.push('rej:' + String(e.reason)));
+
+  try {
+    const engMod = await import(BASE + 'phase2-engine.js');
+    const engine = engMod.phase2Engine;
+    window.phase2Engine = engine;
+    try { engine.initFromPhase1({ solsRemaining: 287, crewOnMars: 1, signalStrength: 0.74 }); } catch (e) {}
+    window.__R.engineSols = engine.getState().solsRemaining;
+
+    const intro = await import(BASE + 'feature-act-intro.js');
+    const t0 = performance.now();
+    window.__R.mountedAt = t0;
+
+    window.__R.handle = intro.mountActIntro({
+      container: document.getElementById('stage'),
+      engine: engine,
+      onDone: () => {
+        window.__R.done += 1;
+        window.__R.doneAt = performance.now() - t0;
+      },
+    });
+
+    /* Ghi mốc màn 2 hiện bằng MutationObserver, không dùng rAF vì
+       trình duyệt headless đóng băng khung hình. */
+    const brief = document.querySelector('.act-intro-screen-brief');
+    const obs = new MutationObserver(() => {
+      if (!brief.hidden && !window.__R.marks.brief) {
+        window.__R.marks.brief = performance.now() - t0;
+      }
+    });
+    obs.observe(brief, { attributes: true, attributeFilter: ['hidden'] });
+    if (!brief.hidden) window.__R.marks.brief = performance.now() - t0;
+
+    /* Đồng hồ đối chứng: cũng 2400ms. Nếu nó cũng trễ thì độ trễ là do
+       trình duyệt headless bóp timer, không phải do module. */
+    setTimeout(() => { window.__R.marks.control2400 = performance.now() - t0; }, 2400);
+    /* Lấy mẫu 30ms một lần để bắt thời điểm màn 2 hiện, không phụ thuộc
+       callback của MutationObserver. */
+    const poll = setInterval(() => {
+      if (!brief.hidden && !window.__R.marks.briefPoll) {
+        window.__R.marks.briefPoll = performance.now() - t0;
+        clearInterval(poll);
+      }
+    }, 30);
+  } catch (err) {
+    window.__R.errs.push('FATAL ' + err.message + ' :: ' + err.stack);
+  }
+</script>
+</body>
+</html>

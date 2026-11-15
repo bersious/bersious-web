@@ -1,0 +1,1279 @@
+/* ============================================================
+   css-execution.css
+   Màn bay, truyền lệnh, hạ cánh và bảng tổng kết sứ mệnh.
+
+   Bốn phần xếp dọc, mỗi lúc chỉ một phần hiện. Phần 1 nhúng bản đồ
+   quỹ đạo của src/mission-viz.js kèm dải số liệu riêng. Phần 2 là
+   đường sóng lệnh SVG. Phần 3 là khung vẽ hạ cánh và ba thẻ mốc.
+   Phần 4 là bảng so sánh.
+
+   Mọi màu lấy từ src/css/tokens.css. Không khai báo màu mới, chỉ
+   vài sắc độ trong suốt dẫn xuất từ biến gốc bằng color-mix.
+   ============================================================ */
+
+.exv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-md);
+
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--st-gap-md);
+  /* Nền khung ngoài để hở cho ảnh trời sao của .p2-root lộ qua: trước đây
+     màu đặc ở đây che mất nền chung, làm cả màn thành một tấm phẳng. */
+  background: color-mix(in srgb, var(--bg-deep) 74%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.exv *,
+.exv *::before,
+.exv *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- đầu màn ---------- */
+
+.exv-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--st-gap-sm);
+  padding-bottom: var(--st-gap-sm);
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.exv-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.exv-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.exv-tag-sep {
+  width: 1px;
+  height: 10px;
+  background: var(--line-strong);
+}
+
+.exv-tag-en {
+  color: var(--tx-dim);
+  letter-spacing: .1em;
+}
+
+.exv-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.exv-title-vi {
+  font-family: var(--st-font-display);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.exv-title-en {
+  font-family: var(--st-font-mono);
+  font-size: .6em;
+  font-weight: 400;
+  letter-spacing: .08em;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+/* dải bốn chip giai đoạn */
+
+.exv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exv-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-panel);
+  font-family: var(--st-font-mono);
+  font-size: .62rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  white-space: nowrap;
+}
+
+.exv-chip i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  font-style: normal;
+  font-size: .56rem;
+  color: var(--tx-dim);
+}
+
+.exv-chip.is-active {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, var(--bg-panel));
+}
+
+.exv-chip.is-active i {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: var(--bg-void);
+  font-weight: 700;
+}
+
+.exv-chip.is-done {
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  color: var(--ok);
+}
+
+.exv-chip.is-done i {
+  border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--ok);
+}
+
+/* ---------- khung chung từng phần ---------- */
+
+.exv-phase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap-sm);
+  min-width: 0;
+}
+
+.exv-phase[hidden] {
+  display: none !important;
+}
+
+/* ---------- PHẦN 1: bản đồ + dải số liệu ---------- */
+
+.exv-viz-host {
+  min-width: 0;
+}
+
+/* bản đồ của mission-viz đã có khung riêng, bỏ viền ngoài cho khỏi
+   hai lớp viền chồng nhau */
+.exv-viz-host .mviz {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+/* ---------- ẢNH NỀN BẢN ĐỒ QUỸ ĐẠO ----------
+   Bức tranh Trái Đất tới Sao Hỏa nằm sau khung vẽ, độ mờ 0.85. Phải là
+   một lớp ::before riêng vì thuộc tính opacity không áp được cho một
+   lớp background-image đơn lẻ.
+   Canvas của mission-viz tự tô một nền gradient đặc ở draw(). Không được
+   sửa JS của nó, nên cách duy nhất để ảnh lộ ra là đổi chế độ hoà trộn
+   của canvas sang screen: pixel tối gần như trong suốt, pixel sáng (sao,
+   đường quỹ đạo, nhãn) vẫn nổi lên trên ảnh. Đây là kỹ thuật CSS thuần,
+   không đụng một dòng JS nào.
+   Kết quả: bầu trời của ảnh là nền, đường bay và nhãn của canvas vẽ đè
+   lên, đúng ý đồ "canvas nằm trên ảnh". */
+.exv-viz-host .mviz-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .85;
+  background-color: var(--bg-void);
+  background-image: url('./assets/p2-orbit-map.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.exv-viz-host .mviz-stage .mviz-canvas,
+.exv-viz-host .mviz-stage .exv-fallback-canvas {
+  position: relative;
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+
+/* viền trong của khung phải nằm trên cả ảnh lẫn canvas */
+.exv-viz-host .mviz-stage::after {
+  z-index: 2;
+}
+
+.exv-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr);
+  gap: 8px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.exv-strip-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 10px;
+  border-left: 2px solid var(--line-hair);
+}
+
+.exv-strip-block:first-child {
+  border-left: 0;
+  padding-left: 4px;
+}
+
+.exv-strip-k {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.exv-strip-k em {
+  font-style: normal;
+  font-size: .92em;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: var(--tx-ghost);
+}
+
+.exv-strip-k.is-small {
+  letter-spacing: .04em;
+  text-transform: none;
+  font-size: .6rem;
+  color: var(--tx-soft);
+}
+
+.exv-strip-k.is-small b {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.exv-strip-v {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.exv-strip-v b {
+  font-family: var(--st-font-mono);
+  font-size: clamp(1.05rem, .9rem + .5vw, 1.35rem);
+  font-weight: 700;
+  color: var(--tx-bright);
+  line-height: 1;
+}
+
+.exv-strip-v u {
+  font-family: var(--st-font-mono);
+  font-size: .72rem;
+  text-decoration: none;
+  color: var(--tx-soft);
+}
+
+.exv-strip-v i {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  font-style: normal;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.exv-strip-block.is-delay .exv-strip-v b {
+  color: var(--amber);
+}
+
+/* thanh tiến trình bay, có vạch mốc 75 phần trăm */
+
+.exv-strip-block.is-prog {
+  justify-content: center;
+  gap: 8px;
+}
+
+.exv-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: 3px;
+  overflow: visible;
+}
+
+.exv-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--cyan) 70%, var(--amber) 100%);
+  transition: width var(--st-dur-fast) linear;
+}
+
+.exv-bar-mark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  left: 75%;
+  background: var(--amber);
+  opacity: .45;
+  border-radius: 1px;
+}
+
+.exv-bar-mark.is-passed {
+  opacity: 1;
+  box-shadow: 0 0 8px var(--amber-glow);
+}
+
+.exv-fallback-note {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 8%, transparent);
+  font-size: .74rem;
+  color: var(--warn);
+}
+
+/* bản vẽ dự phòng khi không nạp được mission-viz */
+
+.exv-fallback {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  background: radial-gradient(120% 100% at 50% 45%, #0b1017 0%, #080c12 55%, var(--bg-void) 100%);
+}
+
+.exv-fallback-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- PHẦN 2: truyền lệnh ---------- */
+
+.exv-cmd {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--st-gap-md);
+  align-items: center;
+  padding: var(--st-gap-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+}
+
+.exv-cmd-visual {
+  min-width: 0;
+}
+
+.exv-wave {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.exv-wave-path {
+  stroke: url(#exv-wave-grad);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 6;
+}
+
+.exv-wave-dot {
+  fill: var(--amber);
+  filter: drop-shadow(0 0 5px rgba(232, 163, 61, .8));
+}
+
+.exv-planet {
+  filter: drop-shadow(0 0 12px rgba(0, 0, 0, .6));
+}
+
+.exv-planet-ring {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: .6;
+}
+
+.exv-planet-name {
+  font-family: var(--st-font-mono);
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  fill: var(--tx-dim);
+}
+
+.exv-cmd-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.exv-cmd-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.05rem, .9rem + .7vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  line-height: 1.15;
+}
+
+.exv-cmd-title em {
+  font-family: var(--st-font-mono);
+  font-size: .58em;
+  font-style: normal;
+  letter-spacing: .06em;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+.exv-cmd-body {
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--tx);
+  max-width: 54ch;
+}
+
+.exv-cmd-body.is-en {
+  font-size: .78rem;
+  color: var(--tx-dim);
+  line-height: 1.5;
+}
+
+.exv-cmd-note {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--amber);
+  background: color-mix(in srgb, var(--amber) 7%, transparent);
+  font-size: .76rem;
+  line-height: 1.5;
+  color: var(--tx-soft);
+}
+
+.exv-cmd-progress {
+  height: 4px;
+  background: var(--bg-inset);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.exv-cmd-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan), var(--amber));
+  transition: width 120ms linear;
+}
+
+.exv-btn {
+  appearance: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 48px;
+  margin: 0;
+  padding: 10px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: var(--bg-raise);
+  color: var(--tx);
+  cursor: pointer;
+  font-family: var(--st-font-body);
+  font-size: .88rem;
+  font-weight: 600;
+  transition: background var(--st-dur-move) var(--st-ease-out),
+              border-color var(--st-dur-move) var(--st-ease-out);
+}
+
+.exv-btn em {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  font-style: normal;
+  letter-spacing: .08em;
+  opacity: .62;
+}
+
+.exv-btn:hover,
+.exv-btn:focus-visible {
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--tx-bright) 8%, var(--bg-raise));
+  outline: none;
+}
+
+.exv-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 4px var(--cyan);
+}
+
+.exv-btn.is-primary {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--bg-void);
+  box-shadow: 0 0 0 1px var(--amber-glow), 0 8px 22px var(--amber-glow);
+}
+
+.exv-btn.is-primary:hover,
+.exv-btn.is-primary:focus-visible {
+  background: color-mix(in srgb, var(--amber) 86%, white);
+}
+
+.exv-btn.is-primary em {
+  opacity: .8;
+}
+
+.exv-btn:disabled,
+.exv-btn.is-done {
+  background: var(--bg-inset);
+  border-color: var(--line-strong);
+  color: var(--tx-dim);
+  cursor: default;
+  box-shadow: none;
+}
+
+.exv-cmd-ack {
+  margin: 0;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--ok);
+}
+
+/* ---------- PHẦN 3: hạ cánh ---------- */
+
+.exv-edl-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.exv-edl-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.1rem, .95rem + .8vw, 1.55rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  line-height: 1.15;
+}
+
+.exv-edl-title em {
+  font-family: var(--st-font-mono);
+  font-size: .55em;
+  font-style: normal;
+  letter-spacing: .06em;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+.exv-edl-title u {
+  font-family: var(--st-font-mono);
+  font-size: .46em;
+  text-decoration: none;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  border-radius: 2px;
+  padding: 2px 6px;
+}
+
+.exv-edl-sub {
+  flex: 1 1 100%;
+  margin: 4px 0 0;
+  font-size: .8rem;
+  line-height: 1.55;
+  color: var(--tx-soft);
+  max-width: 78ch;
+}
+
+.exv-edl-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--st-gap-md);
+  align-items: start;
+}
+
+.exv-edl-stage-wrap {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  background-color: var(--bg-void);
+  box-shadow: inset 0 0 44px rgba(0, 0, 0, .6);
+  /* Ảnh bầu trời Sao Hỏa lúc hạ cánh nằm ở lớp ::before, canvas vẽ dù,
+     lửa, bụi nằm trên. Canvas tự tô bầu trời gradient đặc nên dùng
+     mix-blend-mode screen cho nó: mảng tối biến mất, dù và lửa vẫn nổi. */
+  isolation: isolate;
+}
+
+.exv-edl-stage-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--bg-void);
+  background-image:
+    /* lớp tối 25 phần trăm, cộng thêm hai mép đậm hơn cho HUD dễ đọc */
+    linear-gradient(180deg,
+      rgba(7, 9, 13, .42) 0%,
+      rgba(7, 9, 13, .25) 34%,
+      rgba(7, 9, 13, .30) 66%,
+      rgba(7, 9, 13, .55) 100%),
+    url('./assets/p2-edl-sky.webp');
+  background-size: auto, cover;
+  background-position: center, center 46%;
+  background-repeat: no-repeat, no-repeat;
+}
+
+.exv-edl-canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen;
+}
+
+.exv-edl-hud { z-index: 2; }
+
+.exv-edl-stage-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  z-index: 3;
+  border: 1px solid rgba(53, 69, 90, .2);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* đồng hồ tốc độ và độ cao nổi trên khung vẽ */
+
+.exv-edl-hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.exv-hud-speed,
+.exv-hud-alt {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 10px;
+  background: color-mix(in srgb, var(--bg-void) 82%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  backdrop-filter: blur(2px);
+}
+
+.exv-hud-speed {
+  border-left: 2px solid var(--amber);
+}
+
+.exv-hud-alt {
+  border-left: 2px solid var(--cyan);
+}
+
+.exv-hud-k {
+  font-family: var(--st-font-mono);
+  font-size: .54rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.exv-hud-speed b {
+  font-family: var(--st-font-mono);
+  font-size: clamp(.95rem, .8rem + .5vw, 1.2rem);
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.exv-hud-alt b {
+  font-family: var(--st-font-mono);
+  font-size: clamp(.8rem, .7rem + .4vw, 1rem);
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1;
+}
+
+.exv-hud-speed i,
+.exv-hud-alt i {
+  font-family: var(--st-font-mono);
+  font-size: .54rem;
+  font-style: normal;
+  letter-spacing: .06em;
+  color: var(--tx-dim);
+}
+
+/* ba thẻ mốc */
+
+.exv-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exv-stage {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 6px 10px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-hair);
+  border-left: 3px solid var(--line-hair);
+  border-radius: var(--st-radius);
+  transition: border-color var(--st-dur-move) var(--st-ease-out),
+              background var(--st-dur-move) var(--st-ease-out);
+}
+
+.exv-stage-no {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  font-family: var(--st-font-mono);
+  font-size: .64rem;
+  color: var(--tx-dim);
+}
+
+.exv-stage-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.exv-stage-text b {
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+  line-height: 1.35;
+}
+
+.exv-stage-text em {
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  font-style: normal;
+  letter-spacing: .06em;
+  color: var(--tx-dim);
+}
+
+.exv-stage-text p {
+  margin: 4px 0 0;
+  font-size: .74rem;
+  line-height: 1.5;
+  color: var(--tx-soft);
+}
+
+.exv-stage-speed {
+  grid-column: 2;
+  font-family: var(--st-font-mono);
+  font-size: .68rem;
+  letter-spacing: .05em;
+  color: var(--amber);
+}
+
+.exv-stage-state {
+  grid-column: 2;
+  font-family: var(--st-font-mono);
+  font-size: .54rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.exv-stage.is-running {
+  border-left-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 7%, var(--bg-panel));
+}
+
+.exv-stage.is-running .exv-stage-no {
+  border-color: var(--amber);
+  color: var(--amber);
+  box-shadow: 0 0 10px var(--amber-glow);
+}
+
+.exv-stage.is-running .exv-stage-state {
+  color: var(--amber);
+}
+
+.exv-stage.is-done {
+  border-left-color: color-mix(in srgb, var(--ok) 60%, transparent);
+}
+
+.exv-stage.is-done .exv-stage-no {
+  border-color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--ok);
+}
+
+.exv-stage.is-done .exv-stage-state {
+  color: var(--ok);
+}
+
+/* ---------- PHẦN 4: tổng kết ---------- */
+
+.exv-summary {
+  gap: var(--st-gap-sm);
+}
+
+.exv-sum-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.exv-sum-badge {
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ok);
+  border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent);
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
+  border-radius: 2px;
+  padding: 3px 8px;
+}
+
+.exv-sum-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.1rem, .95rem + .8vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.exv-sum-title em {
+  font-family: var(--st-font-mono);
+  font-size: .55em;
+  font-style: normal;
+  letter-spacing: .06em;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+
+.exv-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.exv-table thead th {
+  padding: 8px 12px;
+  text-align: left;
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+}
+
+.exv-tr th {
+  width: 30%;
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.exv-tr th b {
+  display: block;
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+  line-height: 1.35;
+}
+
+.exv-tr th em {
+  font-family: var(--st-font-mono);
+  font-size: .54rem;
+  font-style: normal;
+  letter-spacing: .05em;
+  color: var(--tx-dim);
+}
+
+.exv-td-nasa,
+.exv-td-player {
+  padding: 11px 12px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-hair);
+  border-left: 1px solid var(--line-hair);
+  font-family: var(--st-font-mono);
+  font-size: .8rem;
+  line-height: 1.6;
+  color: var(--tx-soft);
+}
+
+.exv-td-nasa b {
+  font-size: .95rem;
+  color: var(--tx);
+  font-weight: 700;
+}
+
+.exv-td-player b {
+  font-size: .95rem;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.exv-td-nasa i,
+.exv-td-player i {
+  font-style: normal;
+  font-size: .6rem;
+  letter-spacing: .06em;
+  color: var(--tx-dim);
+}
+
+.exv-td-player u {
+  display: block;
+  margin-top: 2px;
+  text-decoration: none;
+  font-size: .62rem;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+}
+
+.exv-tr.is-verdict th,
+.exv-tr.is-verdict td {
+  border-bottom: 0;
+}
+
+.exv-verdict-cell {
+  margin: 0;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  max-width: 62ch;
+}
+
+.exv-verdict-cell.is-en {
+  margin-top: 4px;
+  font-size: .74rem;
+  color: var(--tx-dim);
+}
+
+.exv-td-note {
+  padding: 14px 12px;
+  color: var(--tx-soft);
+  font-size: .82rem;
+}
+
+.exv-sum-note {
+  margin: 0;
+  padding: 9px 11px;
+  border-left: 2px solid var(--line-strong);
+  background: var(--bg-inset);
+  font-size: .72rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+  max-width: 84ch;
+}
+
+.exv-sum-verdict {
+  margin: 0;
+}
+
+.exv-sum-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 1020px) {
+  .exv-cmd,
+  .exv-edl-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .exv-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exv-strip-block.is-prog {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .exv {
+    padding: var(--st-gap-sm);
+    gap: var(--st-gap-sm);
+  }
+
+  .exv-title-vi {
+    font-size: 1.2rem;
+  }
+
+  .exv-chips {
+    width: 100%;
+  }
+
+  .exv-chip {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 5px 6px;
+    font-size: .54rem;
+  }
+
+  .exv-chip i {
+    display: none;
+  }
+
+  .exv-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 8px;
+  }
+
+  .exv-strip-block {
+    border-left: 0;
+    border-top: 1px solid var(--line-hair);
+    padding: 8px 4px;
+  }
+
+  .exv-strip-block:first-child {
+    border-top: 0;
+  }
+
+  .exv-strip-v b {
+    font-size: 1.15rem;
+  }
+
+  /* Ba thẻ mốc trên điện thoại: số và trạng thái xuống dưới tên,
+     vẫn đọc được thứ tự 1 2 3 */
+  .exv-edl-hud {
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    gap: 4px;
+  }
+
+  .exv-hud-speed,
+  .exv-hud-alt {
+    padding: 4px 7px;
+  }
+
+  .exv-stage {
+    padding: 9px 10px;
+  }
+
+  /* bảng tổng kết thành ba khối xếp dọc, không cuộn ngang */
+  .exv-table,
+  .exv-table thead,
+  .exv-table tbody,
+  .exv-table tr,
+  .exv-table th,
+  .exv-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .exv-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .exv-tr {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line-hair);
+  }
+
+  .exv-tr th {
+    width: 100%;
+    padding: 0 0 6px;
+    border-bottom: 0;
+  }
+
+  .exv-td-nasa,
+  .exv-td-player {
+    position: relative;
+    padding: 4px 0 4px 92px;
+    border-left: 0;
+    border-bottom: 0;
+    min-height: 24px;
+  }
+
+  .exv-td-nasa::before,
+  .exv-td-player::before {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    font-family: var(--st-font-mono);
+    font-size: .54rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--tx-dim);
+  }
+
+  .exv-td-nasa::before {
+    content: 'THAM CHIẾU';
+  }
+
+  .exv-td-player::before {
+    content: 'THIẾT KẾ';
+  }
+
+  .exv-tr.is-verdict td {
+    padding: 0;
+  }
+
+  .exv-sum-actions {
+    flex-direction: column-reverse;
+  }
+
+  .exv-sum-actions .exv-btn {
+    width: 100%;
+  }
+}
+
+/* ---------- giảm chuyển động ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .exv-bar-fill,
+  .exv-cmd-progress span,
+  .exv-stage {
+    transition: none !important;
+  }
+
+  .exv-wave-dot {
+    filter: none;
+  }
+}
+
+html.motion-off .exv-bar-fill,
+html.motion-off .exv-cmd-progress span,
+html.motion-off .exv-stage {
+  transition: none !important;
+}
+
+html.motion-off .exv-wave-dot {
+  filter: none;
+}
+
+/* ---------- in ấn: chỉ giữ bảng tổng kết ---------- */
+
+@media print {
+  .exv-phase[hidden] {
+    display: none !important;
+  }
+
+  .exv-table {
+    border-color: var(--line-strong);
+  }
+}
+
+
+/* Nút phụ "Hạ cánh ngay": cùng kích thước nút chính nhưng viền mảnh,
+   để người chơi thấy đây là lựa chọn mạo hiểm chứ không phải nút
+   được khuyến nghị. */
+.exv-btn-ghost {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--line-strong) 65%, transparent);
+  color: var(--tx-dim);
+}
+
+.exv-btn-ghost:hover,
+.exv-btn-ghost:focus-visible {
+  background: color-mix(in srgb, var(--fail) 14%, transparent);
+  border-color: color-mix(in srgb, var(--fail) 55%, transparent);
+  color: var(--tx-bright);
+}
+
+.exv-btn-ghost:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}

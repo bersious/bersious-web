@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Solar panel">
+  <!-- khung tấm pin nghiêng -->
+  <path d="M3.2 9.4h13.9l1.7 5.9H1.5z"/>
+  <!-- chia ô -->
+  <path d="M8.1 9.4 6.9 15.3"/>
+  <path d="M13 9.4l1.2 5.9"/>
+  <path d="M1.9 12.3h14.9"/>
+  <!-- cột đỡ -->
+  <path d="M10.4 15.3V20"/>
+  <!-- đế -->
+  <path d="M7.4 20h6"/>
+  <!-- thân máy gắn bên phải -->
+  <path d="M18.6 8v8.4"/>
+  <path d="M18.6 8h2.6v8.4h-2.6"/>
+</svg>

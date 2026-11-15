@@ -1,0 +1,479 @@
+/* ============================================================
+   phase2/css-trajectory.css
+   CSS của cửa sổ chọn quỹ đạo bay.
+
+   Modal rộng tối đa 760px, cao tối đa 88% chiều cao màn hình, cuộn
+   bên trong. Mọi màu đọc từ tokens.css. Hit target mọi nút >= 44px.
+   Tôn trọng prefers-reduced-motion và html.motion-off.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+/* ---------- lớp phủ và khung ---------- */
+
+.tj-root {
+  position: fixed;
+  inset: 0;
+  z-index: 910;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 2vw, 24px);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  color: var(--tx);
+  animation: tj-fade var(--st-dur-move) var(--st-ease-out);
+}
+
+.tj-root *,
+.tj-root *::before,
+.tj-root *::after { box-sizing: border-box; }
+
+.tj-scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg-void) 80%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.tj-modal {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: 88dvh;
+  display: grid;
+  grid-template-rows: max-content minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius-lg);
+  background: var(--bg-panel);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55), 0 0 0 1px var(--line-hair);
+  animation: tj-rise var(--st-dur-move) var(--st-ease-out);
+}
+
+@keyframes tj-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tj-rise {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- đầu modal ---------- */
+
+.tj-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 16px 12px 20px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg-raise), var(--bg-panel));
+}
+
+.tj-head-text { min-width: 0; flex: 1; }
+
+.tj-eyebrow {
+  margin: 0 0 2px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.tj-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.25rem, 1.05rem + .8vw, 1.7rem);
+  line-height: 1.15;
+  color: var(--tx-bright);
+}
+
+.tj-sub {
+  margin: 6px 0 0;
+  font-size: clamp(.8rem, .76rem + .2vw, .9rem);
+  line-height: 1.5;
+  color: var(--tx-soft);
+}
+
+.tj-x {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  color: var(--tx);
+  cursor: pointer;
+  transition: border-color var(--st-dur-fast), color var(--st-dur-fast);
+}
+
+.tj-x svg { width: 20px; height: 20px; }
+
+.tj-x:hover,
+.tj-x:focus-visible {
+  border-color: var(--amber);
+  color: var(--amber);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+/* ---------- vùng cuộn ---------- */
+
+.tj-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 16px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.tj-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- một thẻ quỹ đạo ---------- */
+
+.tj-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius-lg);
+  background: var(--bg-deep);
+  transition: border-color var(--st-dur-fast), background var(--st-dur-fast);
+}
+
+.tj-card:hover { border-color: var(--line-strong); }
+
+.tj-card.is-picked {
+  border: 2px solid var(--amber);
+  padding: 13px 15px 11px;
+  background: color-mix(in srgb, var(--amber) 7%, var(--bg-deep));
+}
+
+.tj-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tj-name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.05rem, .95rem + .4vw, 1.28rem);
+  line-height: 1.2;
+  color: var(--tx-bright);
+}
+
+.tj-name-en {
+  font-style: normal;
+  font-family: var(--st-font-mono);
+  font-size: .66rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+/* Nút Chọn / Gỡ, cùng dáng với nút Chọn của cửa sổ linh kiện. */
+.tj-pick {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: var(--bg-raise);
+  color: var(--tx-bright);
+  font-family: var(--st-font-body);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--st-dur-fast), background var(--st-dur-fast);
+}
+
+.tj-pick:hover,
+.tj-pick:focus-visible {
+  border-color: var(--amber);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+.tj-pick.is-on {
+  border: 2px solid var(--amber);
+  background: color-mix(in srgb, var(--amber) 16%, var(--bg-raise));
+  color: var(--amber);
+}
+
+/* ---------- ba con số ---------- */
+
+.tj-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.tj-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  min-width: 0;
+}
+
+.tj-stat dt {
+  margin: 0;
+  font-size: .66rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+
+.tj-stat dd {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.86rem, .8rem + .2vw, .98rem);
+  color: var(--amber);
+  overflow-wrap: anywhere;
+}
+
+.tj-stat dd.is-in-time { color: var(--ok); }
+.tj-stat dd.is-late { color: var(--fail); }
+
+/* ---------- cảnh báo sinh tồn ---------- */
+
+.tj-survival {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  font-size: .8rem;
+  line-height: 1.45;
+  color: var(--tx-soft);
+}
+
+.tj-survival.is-in-time {
+  border-left-color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 40%, var(--line));
+  background: color-mix(in srgb, var(--ok) 10%, var(--bg-inset));
+  color: var(--ok);
+}
+
+.tj-survival.is-late {
+  border-left-color: var(--fail);
+  border-color: color-mix(in srgb, var(--fail) 40%, var(--line));
+  background: color-mix(in srgb, var(--fail) 10%, var(--bg-inset));
+  color: var(--fail);
+}
+
+/* ---------- dòng đánh đổi song ngữ ---------- */
+
+.tj-trade {
+  margin: 0;
+  font-size: clamp(.78rem, .74rem + .15vw, .86rem);
+  line-height: 1.5;
+  color: var(--tx);
+}
+
+.tj-trade-en { color: var(--tx-soft); }
+
+.tj-lang {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--cyan-dim);
+  border-radius: 3px;
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  letter-spacing: .05em;
+  color: var(--cyan);
+  vertical-align: .12em;
+}
+
+.tj-txt { display: inline; }
+
+.tj-dvnote {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--cyan-dim);
+  font-size: .74rem;
+  line-height: 1.5;
+  color: var(--tx-dim);
+}
+
+/* ---------- biểu đồ SVG ---------- */
+
+.tj-chart-wrap {
+  margin-top: 4px;
+  padding: 6px 4px;
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+  background: radial-gradient(ellipse at 12% 50%, var(--bg-inset), var(--bg-void) 78%);
+  overflow: hidden;
+}
+
+.tj-chart {
+  display: block;
+  width: 100%;
+  height: 150px;
+}
+
+/* Quỹ đạo Trái Đất: nét đứt xanh lơ. Sao Hỏa: nét đứt đỏ cam, bán
+   kính lớn hơn. */
+.tj-orbit {
+  fill: none;
+  stroke-dasharray: 5 7;
+  stroke-width: 1.3;
+}
+
+.tj-orbit-earth {
+  stroke: color-mix(in srgb, var(--cyan) 62%, transparent);
+}
+
+.tj-orbit-mars {
+  stroke: color-mix(in srgb, var(--fail) 55%, transparent);
+}
+
+.tj-orbit-tag { display: none; }
+
+/* Mặt Trời: vòng tròn ho phách có quầng sáng. */
+.tj-sun {
+  fill: var(--amber);
+}
+
+.tj-sun-glow {
+  fill: var(--amber);
+  opacity: .07;
+}
+
+.tj-sun-glow2 {
+  fill: var(--amber);
+  opacity: .14;
+}
+
+/* Đường bay: nét liền 2px ho phách, mũi tên ở đầu. */
+.tj-flight {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--amber-glow));
+}
+
+.tj-arrow-head { fill: var(--amber); }
+
+/* Nhãn tên quỹ đạo viết nhỏ, mờ, đặt ở đỉnh mỗi elip. */
+.tj-tag-orbit {
+  fill: var(--tx-ghost);
+  font-size: 9px;
+}
+
+/* Trái Đất: chấm xanh. Sao Hỏa: chấm đỏ, to hơn. */
+.tj-dot {
+  stroke: none;
+}
+
+.tj-dot-earth { fill: var(--cyan); }
+.tj-dot-mars { fill: var(--fail); }
+
+.tj-dot-halo {
+  fill: none;
+  stroke-width: 1.2;
+  opacity: .55;
+}
+
+.tj-dot-halo-earth { stroke: var(--cyan); }
+.tj-dot-halo-mars { stroke: var(--fail); }
+
+.tj-tag {
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  fill: var(--tx-soft);
+}
+
+.tj-tag-earth { fill: var(--cyan); }
+.tj-tag-mars { fill: var(--fail); }
+.tj-tag-sun { fill: var(--amber); }
+
+.tj-caption {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+  text-align: right;
+}
+
+/* ---------- hai dòng chú thích cuối ---------- */
+
+.tj-note,
+.tj-footnote {
+  margin: 14px 2px 0;
+  font-size: .76rem;
+  line-height: 1.55;
+  color: var(--tx-dim);
+}
+
+.tj-footnote {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-hair);
+  font-size: .72rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 620px) {
+  .tj-root { padding: 6px; }
+  .tj-modal { max-height: 92dvh; }
+  .tj-head { padding: 12px 12px 10px 14px; }
+  .tj-scroll { padding: 10px 10px 12px; }
+  .tj-card { padding: 12px 12px 10px; gap: 9px; }
+  .tj-card.is-picked { padding: 11px 11px 9px; }
+  .tj-card-head { flex-wrap: wrap; }
+  .tj-pick { width: 100%; }
+  .tj-stats { grid-template-columns: 1fr; }
+  .tj-stat { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .tj-chart { height: 118px; }
+  .tj-caption { text-align: left; }
+}
+
+/* ---------- giảm chuyển động ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tj-root,
+  .tj-modal { animation: none; }
+  .tj-card,
+  .tj-pick,
+  .tj-x { transition: none; }
+}
+
+html.motion-off .tj-root,
+html.motion-off .tj-modal { animation: none; }
+html.motion-off .tj-card,
+html.motion-off .tj-pick,
+html.motion-off .tj-x { transition: none; }

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Giai đoạn 2 · Trung tâm Điều khiển Sứ mệnh</title>
+
+<!--
+  TRANG CHẠY THỬ ĐỘC LẬP cho khung Giai đoạn 2.
+
+  Thanh công cụ giả lập ở trên cùng CHỈ ĐỂ TEST. Nó mô phỏng hai sự kiện
+  mà Giai đoạn 1 và tab Sao Hỏa sẽ phát khi nối vào game thật:
+    - mars:sos-received   (bấm nút 1, gọi bridge.simulateSosFromPhase1)
+    - mars:beacon-deployed (bấm nút 2, gọi bridge.deployBeacon)
+  Khi nối vào game thật thì xoá nguyên khối <div class="p2-harness"> này
+  cùng đoạn script cuối trang, không đụng gì tới phase2-app.js.
+-->
+
+<link rel="stylesheet" href="./phase2.css">
+
+<style>
+  /* Chỉ phục vụ trang test. Không nằm trong phase2.css vì file đó là
+     CSS gốc của ứng dụng, không được chứa đồ của khung thử. */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #07090d;
+    color: #b9c7d6;
+    font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  /* Thanh giả lập chiếm một dải riêng phía trên, đẩy khung ứng dụng
+     xuống dưới. max-content là bắt buộc: với auto, hàng đầu bị chia
+     phần và nút giả lập bị cắt cụt ở mép trên khi màn hẹp. */
+  body {
+    display: grid;
+    grid-template-rows: max-content minmax(0, 1fr);
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .p2-harness {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid #26313f;
+    background: linear-gradient(180deg, #0b0f15, #07090d);
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: .66rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #72879d;
+  }
+
+  .p2-harness-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 1px dashed #35455a;
+    border-radius: 3px;
+    color: #8497aa;
+    white-space: nowrap;
+  }
+
+  .p2-harness-tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e8a33d;
+  }
+
+  .p2-harness button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #35455a;
+    border-radius: 3px;
+    background: #111721;
+    color: #b9c7d6;
+    font: inherit;
+    font-size: .66rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+  }
+
+  .p2-harness button:hover,
+  .p2-harness button:focus-visible {
+    border-color: #e8a33d;
+    color: #e8a33d;
+    background: #161d29;
+    outline: none;
+  }
+
+  .p2-harness-status {
+    margin-left: auto;
+    color: #6fbf8a;
+    white-space: nowrap;
+  }
+
+  /* Khung ứng dụng nhận phần chiều cao còn lại.
+     Ghi đè chiều cao 100dvh của phase2.css: ở trang thử có thêm dải
+     giả lập phía trên, nên khung phải co lại đúng phần còn lại, nếu
+     không đáy thanh thao tác bị đẩy ra ngoài khung nhìn. */
+  #phase2-root.p2-root {
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  @media (max-width: 620px) {
+    .p2-harness { font-size: .58rem; gap: 6px; padding: 5px 8px; }
+    .p2-harness button { font-size: .58rem; padding: 0 8px; }
+    .p2-harness-status { margin-left: 0; flex-basis: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== THANH GIẢ LẬP, CHỈ ĐỂ TEST, SẼ BỎ KHI NỐI VÀO GAME THẬT ===== -->
+<div class="p2-harness" role="group" aria-label="Bảng giả lập sự kiện, chỉ dùng khi chạy thử">
+  <span class="p2-harness-tag">Giả lập, sẽ bỏ khi nối game</span>
+  <button type="button" id="sim-sos">Giả lập nhận tín hiệu SOS từ Sao Hỏa</button>
+  <button type="button" id="sim-beacon">Giả lập cắm xong đèn hiệu bãi đáp</button>
+  <span class="p2-harness-status" id="sim-status" aria-live="polite"></span>
+</div>
+<!-- ===== HẾT THANH GIẢ LẬP ===== -->
+
+<div id="phase2-root"></div>
+
+<script type="module">
+  /* Đường dẫn tuyệt đối tính từ chính tệp này. Không dùng location.href. */
+  const BASE = new URL('.', import.meta.url).href;
+
+  const status = document.getElementById('sim-status');
+
+  let api = null;
+
+  try {
+    const mod = await import(BASE + 'phase2-app.js');
+    const mount = mod.mountPhase2 || window.mountPhase2;
+    api = await mount({ container: document.getElementById('phase2-root') });
+  } catch (err) {
+    status.textContent = 'Lỗi nạp khung: ' + err.message;
+    status.style.color = '#d9694f';
+  }
+
+  /* ---------- hai nút giả lập, chỉ để test ----------
+     Gọi qua bridge của ứng dụng. Nếu bridge không có thì gọi thẳng
+     engine, để trang thử vẫn có phản ứng thật khi sub A chưa xong. */
+  function bridge() {
+    return (api && api.bridge) || window.phase2Bridge || null;
+  }
+
+  function engine() {
+    return (api && api.engine) || window.phase2Engine || null;
+  }
+
+  document.getElementById('sim-sos').addEventListener('click', () => {
+    const b = bridge();
+    if (b && typeof b.simulateSosFromPhase1 === 'function') {
+      b.simulateSosFromPhase1({ solsRemaining: 288, crewOnMars: 1, signalStrength: 0.72 });
+      status.textContent = 'Đã phát mars:sos-received';
+      return;
+    }
+    const e = engine();
+    if (e && typeof e.initFromPhase1 === 'function') {
+      e.initFromPhase1({ solsRemaining: 288, crewOnMars: 1, signalStrength: 0.72 });
+      status.textContent = 'Đã gọi thẳng engine qua initFromPhase1';
+      return;
+    }
+    status.textContent = 'Không có bridge lẫn engine';
+  });
+
+  document.getElementById('sim-beacon').addEventListener('click', () => {
+    const b = bridge();
+    if (b && typeof b.deployBeacon === 'function') {
+      b.deployBeacon({ ok: true });
+      status.textContent = 'Đã phát mars:beacon-deployed';
+      return;
+    }
+    const e = engine();
+    if (e && typeof e.completeMarsGroundPrep === 'function') {
+      e.completeMarsGroundPrep();
+      status.textContent = 'Đã gọi thẳng engine qua completeMarsGroundPrep';
+      return;
+    }
+    status.textContent = 'Không có bridge lẫn engine';
+  });
+</script>
+
+</body>
+</html>

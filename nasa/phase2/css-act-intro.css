@@ -1,0 +1,584 @@
+/* ============================================================
+   phase2/css-act-intro.css
+   Màn mở đầu Hồi 1: thẻ tiêu đề hồi và hồ sơ sứ mệnh NASA.
+
+   Toàn bộ màu đọc từ src/css/tokens.css. Không có mã màu nào
+   viết thẳng ở đây, chỉ có color-mix pha ra từ biến.
+   ============================================================ */
+
+@import url('../src/css/tokens.css');
+
+/* ============================================================
+   LỚP PHỦ
+   ============================================================ */
+
+.act-intro {
+  --ai-amber:      var(--amber);
+  --ai-amber-dim:  var(--amber-dim);
+  --ai-amber-glow: var(--amber-glow);
+  --ai-panel:      var(--bg-panel);
+  --ai-deep:       var(--bg-deep);
+  --ai-void:       var(--bg-void);
+  --ai-line:       var(--line);
+  --ai-line-soft:  var(--line-hair);
+  --ai-line-hi:    var(--line-strong);
+  --ai-bright:     var(--tx-bright);
+  --ai-tx:         var(--tx);
+  --ai-soft:       var(--tx-soft);
+  --ai-dim:        var(--tx-dim);
+
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 48px);
+  font-family: var(--st-font-body);
+  color: var(--ai-tx);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--ai-amber) 5%, transparent), transparent 58%),
+    radial-gradient(100% 80% at 50% 100%, color-mix(in srgb, var(--cyan) 4%, transparent), transparent 62%),
+    color-mix(in srgb, var(--ai-void) 97%, #000);
+  box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.act-intro *,
+.act-intro *::before,
+.act-intro *::after { box-sizing: border-box; }
+
+/* Lưới kỹ thuật rất mờ phía sau, để nền không phải một tấm đen trơn. */
+.act-intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ai-line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ai-line) 55%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(120% 90% at 50% 45%, #000 18%, transparent 82%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 45%, #000 18%, transparent 82%);
+  opacity: .34;
+}
+
+/* ============================================================
+   HAI MÀN
+   ============================================================ */
+
+.act-intro-screen {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  max-width: 1160px;
+  justify-items: center;
+}
+
+.act-intro-screen[hidden] { display: none; }
+
+/* ============================================================
+   MÀN 1: THẺ TIÊU ĐỀ HỒI
+   ============================================================ */
+
+.act-intro-screen-title {
+  align-content: center;
+  gap: clamp(28px, 5vh, 56px);
+  min-height: min(72vh, 560px);
+  cursor: pointer;
+}
+
+/* Dải sáng ngang mảnh, mờ hai đầu, có vệt quét trái sang phải.
+   Dải phải rộng bằng cả màn hình, nên nó thoát ra khỏi khung
+   max-width của màn và bám vào khung nhìn. */
+.act-intro-band {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      color-mix(in srgb, var(--ai-amber) 16%, transparent) 14%,
+      color-mix(in srgb, var(--ai-amber) 40%, transparent) 50%,
+      color-mix(in srgb, var(--ai-amber) 16%, transparent) 86%,
+      transparent 100%
+    );
+  mask-image: linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
+}
+
+/* Vệt quét: một làn sáng hẹp chạy ngang qua dải. */
+.act-intro-band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--ai-amber) 46%, transparent) 45%,
+      color-mix(in srgb, var(--ai-bright) 30%, transparent) 50%,
+      color-mix(in srgb, var(--ai-amber) 46%, transparent) 55%,
+      transparent
+    );
+  transform: translateX(-100%);
+  animation: act-intro-sweep 2.4s var(--st-ease-in-out) .15s;
+}
+
+/* Hai đường kẻ mảnh trên và dưới dải, tạo cảm giác thước đo. */
+.act-intro-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ai-amber) 22%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ai-amber) 22%, transparent);
+}
+
+@keyframes act-intro-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* ---------- chữ tiêu đề ---------- */
+
+.act-intro-titlebox {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: clamp(6px, 1.2vh, 14px);
+  text-align: center;
+  padding: 0 clamp(12px, 3vw, 32px);
+}
+
+.act-intro-act {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 9vw, 5rem);
+  line-height: .96;
+  letter-spacing: clamp(.08em, .16em, .2em);
+  color: var(--ai-amber);
+  text-shadow: 0 0 34px var(--ai-amber-glow), 0 1px 0 color-mix(in srgb, #000 40%, transparent);
+  opacity: 1;
+  transform: none;
+  transition: opacity .5s var(--st-ease-out), transform .5s var(--st-ease-out);
+}
+
+/* Trạng thái gốc của chữ LUÔN là hiện rõ. Lớp is-pre hạ chữ xuống
+   12px và ẩn đi một nhịp, gỡ lớp là chữ trượt lên và hiện ra. Nếu
+   trình duyệt không chạy transition thì gỡ lớp vẫn đủ để chữ hiện,
+   nên không bao giờ có màn hình trống. */
+.act-intro-act.is-pre {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.act-intro-sub {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-weight: 600;
+  font-size: clamp(.78rem, 1.6vw, 1.1rem);
+  line-height: 1.2;
+  letter-spacing: clamp(.24em, .42em, .5em);
+  text-indent: clamp(.24em, .42em, .5em);
+  color: var(--ai-bright);
+  opacity: 1;
+  transform: none;
+  transition: opacity .5s var(--st-ease-out), transform .5s var(--st-ease-out);
+}
+
+.act-intro-sub.is-pre {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* ---------- dòng gợi ý ở đáy ---------- */
+
+.act-intro-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 1;
+  margin: 0;
+  transform: translateX(-50%);
+  font-family: var(--st-font-mono);
+  font-size: clamp(.64rem, .82vw, .74rem);
+  letter-spacing: .26em;
+  text-indent: .26em;
+  text-transform: uppercase;
+  color: var(--ai-tx);
+  white-space: nowrap;
+  animation: act-intro-hint-pulse 2.6s var(--st-ease-in-out) .9s infinite;
+}
+
+@keyframes act-intro-hint-pulse {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: 1; }
+}
+
+/* ============================================================
+   MÀN 2: HỒ SƠ SỨ MỆNH
+   ============================================================ */
+
+.act-intro-screen-brief {
+  align-content: center;
+}
+
+.act-intro-card {
+  position: relative;
+  display: grid;
+  gap: clamp(12px, 1.6vh, 18px);
+  width: 100%;
+  max-width: 560px;
+  padding: clamp(22px, 3.4vw, 34px) clamp(20px, 3.4vw, 34px) clamp(24px, 3.4vw, 34px);
+  border: 1px solid var(--ai-line);
+  border-top: 3px solid var(--ai-amber);
+  border-radius: var(--st-radius-lg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ai-panel) 96%, transparent), color-mix(in srgb, var(--ai-deep) 98%, transparent)),
+    var(--ai-panel);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--ai-bright) 6%, transparent) inset,
+    0 22px 60px -22px color-mix(in srgb, #000 80%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ai-amber) 4%, transparent);
+  outline: none;
+  opacity: 1;
+  transform: none;
+  transition: opacity .38s var(--st-ease-out), transform .38s var(--st-ease-out);
+}
+
+.act-intro-card:focus-visible { outline: none; }
+
+/* Thẻ vào bằng hiệu ứng trượt lên 20px và mờ dần trong 380ms.
+   Trạng thái gốc của thẻ LUÔN là hiện rõ. Lớp is-pre hạ thẻ xuống
+   20px và mờ đi, gỡ lớp là transition đưa thẻ về vị trí. Lớp
+   is-no-motion tắt transition cho chế độ giảm chuyển động, gỡ lớp
+   is-pre vẫn đủ để thẻ hiện tức thì. */
+.act-intro-card.is-pre {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.act-intro-card.is-no-motion {
+  transition: none;
+}
+
+/* Hoa văn kẻ ô mờ góc dưới, gợi giấy kỹ thuật. */
+.act-intro-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ai-line) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ai-line) 50%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(80% 60% at 100% 100%, #000, transparent 72%);
+  -webkit-mask-image: radial-gradient(80% 60% at 100% 100%, #000, transparent 72%);
+  opacity: .5;
+}
+
+/* Hai dấu góc kiểu mốc căn lề bản vẽ, đặt ở bốn góc thẻ. Rõ hơn
+   một chút so với ban đầu để đọc được như dấu bản vẽ thật. */
+.act-intro-card::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 3px;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 0 0 / 16px 2px no-repeat,
+    linear-gradient(to bottom, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 0 0 / 2px 16px no-repeat,
+    linear-gradient(to left, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 100% 0 / 16px 2px no-repeat,
+    linear-gradient(to bottom, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 100% 0 / 2px 16px no-repeat,
+    linear-gradient(to right, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 0 100% / 16px 2px no-repeat,
+    linear-gradient(to top, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 0 100% / 2px 16px no-repeat,
+    linear-gradient(to left, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 100% 100% / 16px 2px no-repeat,
+    linear-gradient(to top, color-mix(in srgb, var(--ai-amber) 62%, transparent) 1px, transparent 1px) 100% 100% / 2px 16px no-repeat;
+}
+
+.act-intro-card > * { position: relative; z-index: 1; }
+
+/* ---------- ô đóng dấu cũ (đã dời vào hàng đầu thẻ) ---------- */
+
+/* ---------- đầu thẻ ---------- */
+
+/* ---------- đầu thẻ: nhãn trái, dấu đóng phải, cùng trục ---------- */
+
+.act-intro-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.act-intro-kicker {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.6rem, .78vw, .68rem);
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--ai-soft);
+}
+
+.act-intro-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px dashed color-mix(in srgb, var(--ai-amber) 52%, transparent);
+  border-radius: 2px;
+  font-family: var(--st-font-mono);
+  font-size: clamp(.5rem, .62vw, .56rem);
+  letter-spacing: .14em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ai-amber) 70%, var(--ai-soft));
+  background: color-mix(in srgb, var(--ai-amber) 5%, transparent);
+  transform: rotate(-3.5deg);
+  white-space: nowrap;
+}
+
+.act-intro-brief-title {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4.2vw, 2.1rem);
+  line-height: 1.05;
+  letter-spacing: clamp(.16em, .3em, .34em);
+  color: var(--ai-amber);
+  text-shadow: 0 0 22px var(--ai-amber-glow);
+}
+
+/* Khoảng cách giữa tiêu đề và thân bài nới ra một chút cho đều
+   nhịp với khoảng cách thân bài tới bảng chỉ số. */
+.act-intro-body {
+  margin: 4px 0 0;
+  max-width: 46ch;
+  font-size: clamp(.92rem, 1.02vw, 1.02rem);
+  line-height: 1.72;
+  color: var(--ai-tx);
+  text-wrap: pretty;
+}
+
+/* ---------- ba dòng chỉ số ---------- */
+
+.act-intro-stats {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--ai-line-soft);
+}
+
+.act-intro-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ai-line-soft);
+}
+
+.act-intro-stat-label {
+  font-family: var(--st-font-body);
+  font-size: clamp(.74rem, .84vw, .82rem);
+  letter-spacing: .04em;
+  color: var(--ai-soft);
+}
+
+.act-intro-stat-value {
+  font-family: var(--st-font-mono);
+  font-weight: 700;
+  font-size: clamp(.86rem, 1vw, .98rem);
+  letter-spacing: .04em;
+  color: var(--ai-bright);
+  white-space: nowrap;
+}
+
+/* ---------- nút bắt đầu ---------- */
+
+.act-intro-start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  margin-top: clamp(6px, 1vh, 12px);
+  padding: 0 18px;
+  border: 1px solid var(--ai-amber);
+  border-radius: var(--st-radius);
+  background: var(--ai-amber);
+  color: var(--ai-void);
+  font-family: var(--st-font-display);
+  font-weight: 700;
+  font-size: clamp(.98rem, 1.3vw, 1.14rem);
+  letter-spacing: .16em;
+  text-indent: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--st-dur-fast) ease, color var(--st-dur-fast) ease,
+              box-shadow var(--st-dur-fast) ease, transform var(--st-dur-fast) ease;
+}
+
+.act-intro-start:hover {
+  background: color-mix(in srgb, var(--ai-amber) 88%, var(--ai-bright));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ai-amber) 26%, transparent);
+}
+
+.act-intro-start:active { transform: translateY(1px); }
+
+.act-intro-start:focus-visible {
+  outline: 2px solid var(--ai-bright);
+  outline-offset: 3px;
+}
+
+/* Chốt an toàn: khi root có is-settled thì tắt hẳn transition và
+   ép mọi phần tử về trạng thái hiện rõ, bất kể lớp is-pre còn hay
+   không. Chỉ trình duyệt không chạy được transition mới cần nó. */
+.act-intro.is-settled .act-intro-act,
+.act-intro.is-settled .act-intro-sub,
+.act-intro.is-settled .act-intro-card {
+  transition: none !important;
+}
+
+.act-intro.is-settled .act-intro-act.is-pre,
+.act-intro.is-settled .act-intro-sub.is-pre,
+.act-intro.is-settled .act-intro-card.is-pre {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ============================================================
+   MÀN HẸP
+   ============================================================ */
+
+@media (max-width: 560px) {
+  .act-intro {
+    padding: 18px 16px;
+  }
+
+  .act-intro-screen-title {
+    min-height: min(64vh, 460px);
+    gap: 24px;
+  }
+
+  .act-intro-band { height: 96px; }
+
+  .act-intro-card {
+    padding: 22px 18px 22px;
+  }
+
+  .act-intro-head {
+    flex-wrap: wrap;
+  }
+
+  .act-intro-stamp {
+    transform: rotate(-2.5deg);
+  }
+
+  .act-intro-stat {
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+}
+
+/* Màn thấp: thu khoảng cách để thẻ không tràn dọc. */
+@media (max-height: 720px) {
+  .act-intro-screen-title {
+    min-height: 0;
+    gap: 20px;
+  }
+
+  .act-intro-card {
+    gap: 10px;
+    padding-top: clamp(20px, 3.2vw, 30px);
+  }
+
+  .act-intro-body { line-height: 1.6; }
+
+  .act-intro-stat { padding: 7px 0; }
+}
+
+/* Màn rất thấp: cho thẻ tự cuộn thay vì cắt mất nút bấm. */
+@media (max-height: 520px) {
+  .act-intro-screen-brief {
+    align-content: start;
+    max-height: 100%;
+    overflow-y: auto;
+    padding-block: 6px;
+  }
+
+  .act-intro-card {
+    max-width: 520px;
+    padding: 16px 18px 16px;
+    gap: 8px;
+  }
+
+  .act-intro-body { font-size: .86rem; line-height: 1.5; }
+
+  .act-intro-stat { padding: 5px 0; }
+
+  .act-intro-start { min-height: 48px; }
+
+  .act-intro-act { font-size: clamp(2rem, 7vh, 2.8rem); }
+}
+
+/* ============================================================
+   GIẢM CHUYỂN ĐỘNG
+   Hệ điều hành bật giảm chuyển động, hoặc người chơi tắt trong
+   bảng cài đặt của game (html.motion-off).
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .act-intro-band::after,
+  .act-intro-hint {
+    animation: none !important;
+  }
+
+  .act-intro-act,
+  .act-intro-sub,
+  .act-intro-card {
+    transition: none !important;
+  }
+
+  .act-intro-act.is-pre,
+  .act-intro-sub.is-pre,
+  .act-intro-card.is-pre {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.motion-off .act-intro-band::after,
+html.motion-off .act-intro-hint {
+  animation: none !important;
+}
+
+html.motion-off .act-intro-act,
+html.motion-off .act-intro-sub,
+html.motion-off .act-intro-card {
+  transition: none !important;
+}
+
+html.motion-off .act-intro-act.is-pre,
+html.motion-off .act-intro-sub.is-pre,
+html.motion-off .act-intro-card.is-pre {
+  opacity: 1;
+  transform: none;
+}
+
+html.motion-off .act-intro-start {
+  transition: none;
+}

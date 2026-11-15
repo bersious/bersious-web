@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Settings">
+  <!-- bánh răng: vành ngoài, lỗ tâm, tám răng -->
+  <circle cx="12" cy="12" r="3.2"/>
+  <path d="M12 2.6v2.6"/>
+  <path d="M12 18.8v2.6"/>
+  <path d="M2.6 12h2.6"/>
+  <path d="M18.8 12h2.6"/>
+  <path d="M5.4 5.4 7.2 7.2"/>
+  <path d="M16.8 16.8l1.8 1.8"/>
+  <path d="M18.6 5.4 16.8 7.2"/>
+  <path d="M7.2 16.8 5.4 18.6"/>
+  <circle cx="12" cy="12" r="7.4" stroke-dasharray="1.6 2.1"/>
+</svg>

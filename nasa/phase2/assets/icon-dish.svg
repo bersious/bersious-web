@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Antenna dish">
+  <!-- chảo parabol -->
+  <path d="M3.6 11.2a8.4 8.4 0 0 1 16.8 0"/>
+  <path d="M3.6 11.2h16.8"/>
+  <!-- vành ngoài dày hơn để đọc ra hình chảo -->
+  <path d="M5.2 8.4a7 7 0 0 1 13.6 0"/>
+  <!-- trụ đỡ và bộ phát ở tiêu điểm -->
+  <path d="M12 11.2v2.4"/>
+  <path d="M10.2 13.6h3.6"/>
+  <path d="M12 13.6V20"/>
+  <!-- đế xoay -->
+  <path d="M8.4 20h7.2"/>
+  <!-- sóng phát ra từ chảo -->
+  <path d="M8 4.2 9.4 5.6"/>
+  <path d="M16 4.2 14.6 5.6"/>
+</svg>
