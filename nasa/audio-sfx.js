@@ -21,7 +21,10 @@ const SFX_DIR = BASE + 'assets/audio/sfx/';
 
 /* Bản đồ ánh xạ từ key cảnh (art key) sang file hiệu ứng chính */
 export const SCENE_SFX = {
-  'earth-home':   'wind-far',
+  /* Bếp Trái Đất và lúc chia tay là cảnh trong nhà, yên tĩnh. Gán
+     wind-far (gió sao Hỏa) vào đây là sai bối cảnh, người chơi nghe
+     tiếng gió hoang trên Hỏa tinh khi đang ở Houston. */
+  'earth-home':   null,
   'farewell':     null,
   'launchpad':    'wind-far',
   'mars-surface': 'wind-far',

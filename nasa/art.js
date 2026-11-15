@@ -940,12 +940,24 @@ const SVG_ART = {
   'awake': awake,
 };
 
+/* Base URL của thư mục chứa module này, tính theo vị trí file thật.
+   Phải có tiền tố này vì Vercel serve trang ở /nasa mà không có dấu
+   gạch chéo cuối. Khai báo "assets/mars-surface.jpg" trần thì trình
+   duyệt phân giải thành https://site/assets/... và 404, làm 5 ảnh cảnh
+   Sao Hỏa biến mất, chỉ còn nền đen. */
+const BASE_URL = new URL('.', import.meta.url).href;
+
 /* Chọn ảnh: ưu tiên ảnh thật nếu PHOTOS có khai báo.
    Trả về chuỗi HTML để story.js gán bằng innerHTML. */
 export function artFor(key) {
   const photo = PHOTOS[key];
   if (photo) {
-    return `<img class="story-art story-art-photo" src="${photo}" alt="" decoding="async">`;
+    /* Giữ nguyên nếu đã là đường dẫn tuyệt đối, còn không thì ghép
+       base để chạy đúng ở mọi thư mục deploy. */
+    const src = photo.startsWith('http') || photo.startsWith('/') || photo.startsWith('data:')
+      ? photo
+      : BASE_URL + photo;
+    return `<img class="story-art story-art-photo" src="${src}" alt="" decoding="async">`;
   }
   return SVG_ART[key] || '';
 }
