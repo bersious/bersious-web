@@ -453,7 +453,19 @@ export async function showTutorial({ id, onDone, readOnly = false } = {}) {
   paintDims(spot);
   paintCard(spot);
 
+  /* Chốt an toàn: thẻ hướng dẫn tự đóng sau 40 giây nếu người chơi
+     không bấm gì. Mục đích không phải ép đọc nhanh, mà để một lỗi bất
+     ngờ (script chết, trình duyệt chặn sự kiện) không nhốt được người
+     chơi vào thẻ không có đường ra. Nút Để sau và phím Esc vẫn đóng
+     ngay. Khai báo ở đây, ngay trước finish, để không vướng vùng chết
+     tạm thời. */
+  const watchdog = window.setTimeout(() => {
+    console.warn('[onboarding] thẻ hướng dẫn quá 40 giây, tự đóng để không chặn game');
+    finish(false);
+  }, 40000);
+
   const finish = (seen) => {
+    window.clearTimeout(watchdog);
     if (seen && !readOnly) markSeen(item.id);
     ui.root.hidden = true;
     ui.root.dataset.mode = '';

@@ -102,6 +102,7 @@ const TEXT = {
     introText: 'Hold on! Before touching any controls, open your Mission Log to check the Hab status and your first survival checklist.',
     introStep2: 'Good. Once you have read it, press again to close the log and get to work.',
     introOpen: 'Open the log',
+    introSkip: 'Skip the guide',
     introClose: 'Close the log',
     a11yDone: 'done',
     a11yTodo: 'to do',
@@ -569,6 +570,7 @@ export function startMissionLogIntro({ logEl } = {}) {
         </span>
         <span class="ml-eyebrow" id="ml-card-title"></span>
         <p class="ml-text" id="ml-card-text"></p>
+        <button type="button" class="ml-skip"></button>
       </div>
     `;
     document.body.appendChild(root);
@@ -584,6 +586,15 @@ export function startMissionLogIntro({ logEl } = {}) {
     const eyebrow = root.querySelector('.ml-eyebrow');
     const textEl = root.querySelector('.ml-text');
     const arrow = root.querySelector('.ml-arrow');
+    const skipBtn = root.querySelector('.ml-skip');
+    if (skipBtn) {
+      skipBtn.type = 'button';
+      skipBtn.textContent = L('introSkip');
+      skipBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        finish();
+      });
+    }
 
     let expandedOnce = logEl.dataset.collapsed !== 'true';
     let finished = false;
@@ -646,13 +657,23 @@ export function startMissionLogIntro({ logEl } = {}) {
     }
 
     function onKey(e) {
-      /* Lớp phủ này không có đường tắt: mục đích là ép đọc nhật ký.
-         Chặn Esc để không lỡ tay đóng rồi tưởng game bị treo. */
-      e.stopPropagation();
-      e.preventDefault();
-      ring.classList.remove('is-nudge');
-      void ring.offsetWidth;
-      ring.classList.add('is-nudge');
+      /* Lớp phủ nhắc mở nhật ký KHÔNG được phép nhốt người chơi.
+         Trước đây nó chặn cả Esc, nên ai lỡ đóng nhật ký sai cách là
+         kẹt vĩnh viễn, không chơi được. Giờ Esc đóng được, và có nút
+         Bỏ qua hướng dẫn hiện sẵn trên thẻ. */
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.preventDefault();
+        finish();
+        return;
+      }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        ring.classList.remove('is-nudge');
+        void ring.offsetWidth;
+        ring.classList.add('is-nudge');
+      }
     }
 
     function inspect() {

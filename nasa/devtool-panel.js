@@ -163,7 +163,7 @@ const STRINGS = {
     'tool.water50.d': 'Đặt nước của phi hành gia về đúng 50 để test thanh nước nông trại.',
     'tool.water0': 'Xả sạch nước',
     'tool.water0.d': 'Đặt nước về 0 để test câu chặn gieo khi không đủ nước.',
-    'tool.guide': 'Đặt lại hướng dẫn',
+    'tool.guideEscape': 'Thoát hướng dẫn bị kẹt', 'tool.guideEscape.d': 'Gỡ mọi lớp phủ hướng dẫn còn sót và đánh dấu đã xem. Dùng khi màn hình bị chặn, bấm gì cũng không ăn.', 'tool.guide': 'Đặt lại hướng dẫn',
     'tool.guide.d': 'Gọi resetTutorials() của onboarding.js nếu module đó có, để xem lại các hộp hướng dẫn từ đầu.',
 
     'water.missing': 'Chưa có màn căn cứ nào mở, nên chưa có chỉ số để sửa. Vào căn cứ trước rồi bấm lại.',
@@ -276,7 +276,7 @@ const STRINGS = {
     'tool.water50.d': 'Sets the astronaut water to exactly 50 to test the farm water meter.',
     'tool.water0': 'Drain all water',
     'tool.water0.d': 'Sets water to 0 to test the sowing block when water is short.',
-    'tool.guide': 'Reset guides',
+    'tool.guideEscape': 'Escape stuck guides', 'tool.guideEscape.d': 'Removes any leftover guide overlays and marks them seen. Use when the screen is blocked.', 'tool.guide': 'Reset guides',
     'tool.guide.d': 'Calls resetTutorials() of onboarding.js when that module exists, so the guide popups play again from the start.',
 
     'water.missing': 'No base screen is open, so there are no stats to edit. Open the base first, then press again.',
@@ -715,7 +715,27 @@ export function openDevMode({ onJump, onEvent, onTool } = {}) {
      chạy, nên nạp mềm: thiếu file hay thiếu hàm thì báo toast, không
      ném lỗi ra ngoài. Đây là chỗ DUY NHẤT gọi resetTutorials, và nó
      được gọi từ bảng dev chứ không phải từ luồng chơi. */
-  function resetGuides() {
+  /* Gỡ mọi lớp phủ hướng dẫn còn sót. Dùng khi màn hình bị chặn: thẻ
+   hướng dẫn hoặc lớp phủ nhắc mở nhật ký không tự đóng, bấm gì cũng
+   không ăn. Nạp mềm guide-escape.js để không phụ thuộc module đó. */
+function escapeGuides() {
+  import(new URL('guide-escape.js', import.meta.url).href)
+    .then((mod) => {
+      if (!mod || typeof mod.escapeGuides !== 'function') {
+        toast(t('guide.missing'));
+        return false;
+      }
+      const r = mod.escapeGuides();
+      toast(t('done', { name: t('tool.guideEscape') }));
+      return !!(r && r.ok);
+    })
+    .catch(() => {
+      toast(t('guide.missing'));
+      return false;
+    });
+}
+
+function resetGuides() {
     return import('./onboarding.js').then((mod) => {
       if (!mod || typeof mod.resetTutorials !== 'function') {
         toast(t('guide.missing'));
@@ -760,6 +780,10 @@ export function openDevMode({ onJump, onEvent, onTool } = {}) {
       return label;
     }
     if (kind === 'guide') {
+      if (id === 'guide:escape') {
+        escapeGuides();
+        return label;
+      }
       resetGuides();
       return label;
     }

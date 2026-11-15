@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T23:14:50",
+  "generated": "2026-11-15T23:27:28",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -83,7 +83,7 @@
       "path": "assets/art/bg-im-02.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 152964
+      "bytes": 177312
     },
     {
       "id": "bg-im-03",
@@ -160,7 +160,7 @@
       "path": "assets/art/bg-im-13.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 164384
+      "bytes": 154286
     },
     {
       "id": "bg-kid-doorway",

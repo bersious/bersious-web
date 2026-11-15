@@ -1357,3 +1357,36 @@
     animation: none !important;
   }
 }
+
+
+/* Nút Bỏ qua hướng dẫn trên thẻ nhắc mở nhật ký.
+   Vì sao bắt buộc phải có: lớp phủ nhắc mở nhật ký chặn toàn bộ thao
+   tác cho tới khi người chơi mở rồi đóng nhật ký. Nếu vì lý do gì đó
+   nhật ký không mở được (lỗi script, màn hình quá nhỏ, trình duyệt
+   chặn), người chơi sẽ kẹt vĩnh viễn và không chơi tiếp được. Một nút
+   thoát rõ ràng trên thẻ là lưới an toàn cho tình huống đó. */
+.ml-skip {
+  align-self: flex-end;
+  margin-top: 4px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 70%, transparent);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .05);
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--tx-dim);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.ml-skip:hover,
+.ml-skip:focus-visible {
+  background: color-mix(in srgb, var(--amber) 18%, transparent);
+  border-color: color-mix(in srgb, var(--amber) 62%, transparent);
+  color: var(--tx-bright);
+  outline: none;
+}
