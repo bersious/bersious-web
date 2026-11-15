@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T23:27:28",
+  "generated": "2026-11-16T00:06:32",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -605,35 +605,56 @@
       "path": "assets/art/true-ending-01.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 156050
+      "bytes": 156334
     },
     {
       "id": "true-ending-02",
       "path": "assets/art/true-ending-02.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 87544
+      "bytes": 86776
     },
     {
       "id": "true-ending-03",
       "path": "assets/art/true-ending-03.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 86916
+      "bytes": 86652
     },
     {
       "id": "true-ending-04",
       "path": "assets/art/true-ending-04.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 121538
+      "bytes": 121970
     },
     {
       "id": "true-ending-05",
       "path": "assets/art/true-ending-05.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 130456
+      "bytes": 129108
+    },
+    {
+      "id": "true-ending-06",
+      "path": "assets/art/true-ending-06.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 149318
+    },
+    {
+      "id": "true-ending-07",
+      "path": "assets/art/true-ending-07.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 116592
+    },
+    {
+      "id": "true-ending-08",
+      "path": "assets/art/true-ending-08.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 150870
     }
   ]
 }

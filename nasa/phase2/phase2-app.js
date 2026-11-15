@@ -970,6 +970,32 @@ function buildSummary(state) {
 }
 
 /* ============================================================
+   NẠP CSS
+   Phase 2 gồm một tệp phase2.css chính và vài tệp phụ do từng feature
+   nạp lấy. Tệp chính trước đây chỉ được khai báo trong trang demo, nên
+   mở Phase 2 bằng đường khác là mất sạch style. Hàm dưới đây nạp đúng
+   một lần, dùng thuộc tính data để không chèn trùng khi mở lại.
+   ============================================================ */
+
+let cssLoaded = false;
+
+function loadPhase2Css() {
+  if (cssLoaded || document.querySelector('link[data-phase2-css]')) return;
+  cssLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = BASE + 'phase2.css';
+  link.dataset.phase2Css = '1';
+  link.addEventListener('error', () => {
+    console.warn('[phase2] không nạp được phase2.css, giao diện sẽ thiếu style');
+    /* Bỏ cờ để lần mở sau còn thử lại được. */
+    cssLoaded = false;
+    link.remove();
+  });
+  document.head.appendChild(link);
+}
+
+/* ============================================================
    MOUNT
    ============================================================ */
 
@@ -977,6 +1003,13 @@ export async function mountPhase2(options) {
   const opts = options || {};
   const container = opts.container || document.querySelector('#phase2-root');
   if (!container) throw new Error('mountPhase2: thiếu container');
+
+  /* Tự nạp CSS của Giai đoạn 2. Trước đây chỉ phase2-demo.html khai
+     báo link tới phase2.css, nên khi mở Phase 2 từ nút bảng dev (dựng
+     thẳng mountPhase2) thì DOM có đủ nhưng không có một dòng style
+     nào, giao diện vỡ hoàn toàn. Nạp ở đây để mọi đường vào đều có
+     style. */
+  loadPhase2Css();
 
   const frame = buildFrame(container);
 

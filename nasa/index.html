@@ -505,7 +505,7 @@
       <div class="menu-bg">
         <img class="menu-bg-img" id="menu-bg-img"
              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-             data-asset="assets/art/bg-storm-wide.webp"
+             data-asset="assets/art/menu-mars-hero.webp"
              alt="" aria-hidden="true" decoding="async" fetchpriority="high">
       </div>
     </div>
@@ -513,117 +513,13 @@
     <div class="menu-grain" aria-hidden="true"></div>
 
     <!-- lớp 3: tàu MAV, ba chân đáp, cửa sổ tròn -->
-    <div class="menu-ship-anchor">
+    <!-- Tàu MAV và phi hành gia giờ nằm sẵn trong ảnh nền
+         menu-mars-hero.webp, không vẽ sprite chồng lên nữa. Giữ lại
+         khối lửa và khói bên dưới để hoạt cảnh phóng vẫn chạy: lửa
+         phụt ra từ đúng chỗ chân tàu trong ảnh. -->
+    <div class="menu-ship-anchor" aria-hidden="true">
       <div class="menu-ship" id="menu-ship">
-        <!-- vệt khói dọc đường bay, chỉ hiện lúc tàu rời đất -->
         <div class="menu-trail" aria-hidden="true"></div>
-
-        <svg class="mav" viewBox="0 0 240 300" role="img"
-             aria-label="Tàu MAV đứng trên ba chân đáp" focusable="false">
-          <defs>
-            <linearGradient id="mav-body" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#3a3f46"/>
-              <stop offset=".16" stop-color="#6f767e"/>
-              <stop offset=".38" stop-color="#c8cfd6"/>
-              <stop offset=".58" stop-color="#e4e9ee"/>
-              <stop offset=".80" stop-color="#9aa2aa"/>
-              <stop offset="1" stop-color="#41464d"/>
-            </linearGradient>
-            <linearGradient id="mav-upper" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#4a4238"/>
-              <stop offset=".22" stop-color="#8d8578"/>
-              <stop offset=".44" stop-color="#d9d3c6"/>
-              <stop offset=".70" stop-color="#a9a294"/>
-              <stop offset="1" stop-color="#4d463c"/>
-            </linearGradient>
-            <linearGradient id="mav-cone" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#b9b2a5"/>
-              <stop offset=".55" stop-color="#8e887c"/>
-              <stop offset="1" stop-color="#5d574d"/>
-            </linearGradient>
-            <linearGradient id="mav-skirt" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#2a2d33"/>
-              <stop offset=".34" stop-color="#5c626a"/>
-              <stop offset=".62" stop-color="#7d848c"/>
-              <stop offset="1" stop-color="#26292e"/>
-            </linearGradient>
-            <linearGradient id="mav-leg" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#2f3238"/>
-              <stop offset=".45" stop-color="#868d95"/>
-              <stop offset="1" stop-color="#33363c"/>
-            </linearGradient>
-            <linearGradient id="mav-band" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#8a4a1e"/>
-              <stop offset=".42" stop-color="#e8a33d"/>
-              <stop offset="1" stop-color="#7c411a"/>
-            </linearGradient>
-            <radialGradient id="mav-glass" cx=".36" cy=".3" r=".82">
-              <stop offset="0" stop-color="#ffe6bb"/>
-              <stop offset=".34" stop-color="#f0a94f"/>
-              <stop offset=".72" stop-color="#8c4a1c"/>
-              <stop offset="1" stop-color="#241610"/>
-            </radialGradient>
-          </defs>
-
-          <!-- chân giữa, nằm sau thân nên vẽ trước -->
-          <g stroke="url(#mav-leg)" stroke-width="9" stroke-linecap="round">
-            <line x1="120" y1="206" x2="116" y2="286"/>
-          </g>
-          <ellipse cx="116" cy="289" rx="13" ry="5" fill="#1d1f24"/>
-
-          <!-- hai chân trước, chĩa ra hai bên -->
-          <g fill="url(#mav-leg)">
-            <path d="M94 200 L50 286 L64 291 L104 204 Z"/>
-            <path d="M146 200 L190 286 L176 291 L136 204 Z"/>
-          </g>
-          <!-- thanh giằng chân -->
-          <g stroke="#4b5158" stroke-width="3" stroke-linecap="round" opacity=".85">
-            <line x1="97" y1="232" x2="63" y2="258"/>
-            <line x1="143" y1="232" x2="177" y2="258"/>
-          </g>
-          <ellipse cx="57" cy="290" rx="16" ry="5" fill="#1d1f24"/>
-          <ellipse cx="183" cy="290" rx="16" ry="5" fill="#1d1f24"/>
-
-          <!-- thân dưới: khoang động cơ -->
-          <path d="M88 214 L152 214 L146 238 L94 238 Z" fill="url(#mav-skirt)"/>
-          <!-- loa phụt -->
-          <path d="M100 238 L140 238 L151 262 L89 262 Z" fill="#191b1f"/>
-          <path d="M104 240 L136 240 L145 259 L95 259 Z" fill="#2c2f34"/>
-
-          <!-- thân chính: trụ đứng -->
-          <rect x="88" y="62" width="64" height="154" fill="url(#mav-body)"/>
-          <!-- đai hổ phách giữa thân -->
-          <rect x="88" y="136" width="64" height="9" fill="url(#mav-band)" opacity=".92"/>
-          <rect x="88" y="160" width="64" height="3" fill="#7d858d" opacity=".55"/>
-          <!-- đường nhấn sáng bên trái -->
-          <rect x="99" y="64" width="3" height="150" fill="#ffffff" opacity=".22"/>
-
-          <!-- khoang trên: hẹp hơn một nhịp -->
-          <rect x="92" y="40" width="56" height="24" fill="url(#mav-upper)"/>
-          <rect x="92" y="56" width="56" height="6" fill="#d8d2c4" opacity=".5"/>
-
-          <!-- chóp tàu -->
-          <path d="M120 4 C 132 20 143 32 148 40 L92 40 C 97 32 108 20 120 4 Z"
-                fill="url(#mav-cone)"/>
-          <path d="M120 4 C 126 14 133 26 138 40 L120 40 Z" fill="#ffffff" opacity=".12"/>
-
-          <!-- cửa sổ tròn -->
-          <circle cx="120" cy="104" r="17" fill="#2a2c31"/>
-          <circle cx="120" cy="104" r="14" fill="url(#mav-glass)"/>
-          <circle cx="120" cy="104" r="14" fill="none" stroke="#cfd6dd" stroke-width="2" opacity=".65"/>
-          <path d="M112 96 A 11 11 0 0 1 126 95" stroke="#fff8e8" stroke-width="2"
-                fill="none" opacity=".55" stroke-linecap="round"/>
-
-          <!-- vài chi tiết kỹ thuật: đèn tín hiệu, nắp van, ăng ten ngắn -->
-          <circle cx="146" cy="124" r="2.6" fill="#ff9b3d" opacity=".9"/>
-          <circle cx="146" cy="132" r="2.6" fill="#4fb8c9" opacity=".55"/>
-          <rect x="96" y="176" width="20" height="14" rx="2" fill="#6d747c"/>
-          <rect x="99" y="179" width="14" height="8" rx="1" fill="#3e444b"/>
-          <line x1="132" y1="40" x2="132" y2="20" stroke="#9aa1a9" stroke-width="2"/>
-          <circle cx="132" cy="18" r="2.4" fill="#e8a33d"/>
-        </svg>
-
-        <!-- cột lửa, chỉ hiện khi động cơ khai hoả -->
         <div class="menu-flame" aria-hidden="true"></div>
       </div>
     </div>
@@ -637,14 +533,7 @@
       <div class="menu-puff" style="--i:4; --dx:-1.8"></div>
     </div>
 
-    <!-- lớp 2: phi hành gia tiền cảnh bên phải -->
-    <div class="menu-astro" id="menu-astro">
-      <div class="menu-astro-shadow" aria-hidden="true"></div>
-      <img class="menu-astro-img" id="menu-astro-img"
-           src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-           data-asset="assets/art/char-healthy.webp"
-           alt="" aria-hidden="true" decoding="async">
-    </div>
+    <!-- Phi hành gia đã nằm trong ảnh nền, bỏ sprite rời. -->
 
     <!-- lớp 4: hạt bụi đỏ, vẽ bằng canvas -->
     <canvas class="menu-dust" id="menu-dust" aria-hidden="true"></canvas>
