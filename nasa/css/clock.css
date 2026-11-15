@@ -1,0 +1,312 @@
+/* ============================================================
+   clock.css
+   Khung đồng hồ LCD dã chiến: màn hình tinh thể lỏng đơn sắc,
+   ô tròn báo ngày hoặc đêm, và ba nút tốc độ nổi khối.
+
+   Màu chữ LCD là hổ phách trên nền tối xanh, giống đồng hồ điện
+   tử thật: tương phản cao nhưng không chói.
+   ============================================================ */
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ---------- màn hình LCD ---------- */
+
+.clock-lcd {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(245, 158, 11, .34);
+  background:
+    linear-gradient(180deg, rgba(34, 41, 49, .95), rgba(9, 13, 18, .97));
+  /* Viền kép: một sáng ở trong tạo cảm giác khung có độ dày như
+     tấm kim loại, cộng bóng ngoài để tách khỏi nền. */
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, .6),
+    0 1px 0 rgba(255, 255, 255, .09) inset,
+    0 0 0 3px rgba(20, 26, 33, .9),
+    0 10px 26px rgba(0, 0, 0, .55);
+  /* vát góc để ra dáng thiết bị, không phải ô chữ nhật phẳng */
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%);
+}
+
+/* Bốn ốc vít ở góc, vẽ bằng bốn hình tròn nhỏ có rãnh ở giữa.
+   Bán kính 3px là mức nhỏ nhất còn đọc ra được sau khi ảnh nén,
+   1,4px thì mất hẳn. */
+.clock-lcd::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 7px 7px,
+      #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at calc(100% - 7px) 7px,
+      #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at 7px calc(100% - 7px),
+      #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px),
+      #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px);
+}
+
+/* Rãnh vít: một vạch chéo mảnh trên mỗi đầu vít, rất mờ. */
+.clock-lcd::before {
+  background-image:
+    linear-gradient(45deg, transparent 46%, rgba(10,14,20,.6) 46% 54%, transparent 54%),
+    radial-gradient(circle at 7px 7px, #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at calc(100% - 7px) 7px, #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at 7px calc(100% - 7px), #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), #5a6470 0 2.6px, #1a2028 2.6px 3.2px, transparent 3.3px);
+  background-size: 16px 16px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 7px 7px, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat;
+}
+
+/* vạch quét của màn hình tinh thể lỏng, rất mờ, chỉ để có chất */
+.clock-lcd::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, .22) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: .5;
+}
+
+.clock-sol {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.clock-sol-label {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: .55rem;
+  letter-spacing: .16em;
+  color: rgba(245, 158, 11, .62);
+}
+
+.clock-sol-num {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: .86rem;
+  font-weight: 700;
+  color: #F59E0B;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-sep {
+  width: 1px;
+  height: 17px;
+  background: rgba(245, 158, 11, .24);
+}
+
+.clock-time {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: clamp(1.05rem, .95rem + .5vw, 1.42rem);
+  font-weight: 700;
+  letter-spacing: .045em;
+  line-height: 1;
+  color: #F59E0B;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 12px rgba(245, 158, 11, .48);
+}
+
+/* ---------- ô tròn ngày/đêm ---------- */
+
+.clock-orb {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 158, 11, .34);
+  background: rgba(245, 158, 11, .1);
+  color: #F59E0B;
+  transition: color .5s ease, background-color .5s ease, border-color .5s ease,
+    transform .5s cubic-bezier(.2, .8, .3, 1);
+}
+
+.clock-orb-icon {
+  display: flex;
+  width: 12px;
+  height: 12px;
+}
+
+.clock-orb-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* đêm: ô tròn chuyển xanh lạnh và xoay nửa vòng */
+.clock.is-night .clock-orb {
+  color: #38BDF8;
+  background: rgba(56, 189, 248, .12);
+  border-color: rgba(56, 189, 248, .36);
+  transform: rotate(180deg);
+}
+
+.clock.is-night .clock-time,
+.clock.is-night .clock-sol-num {
+  color: #7FC8E8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, .4);
+}
+
+/* ---------- thanh tiến trình trong ngày ---------- */
+
+.clock-progress {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(245, 158, 11, .14);
+  overflow: hidden;
+}
+
+.clock-progress-fill {
+  display: block;
+  height: 100%;
+  width: var(--p, 0%);
+  background: linear-gradient(90deg, rgba(245, 158, 11, .6), #F59E0B);
+  transition: width .3s linear;
+}
+
+.clock.is-night .clock-progress-fill {
+  background: linear-gradient(90deg, rgba(56, 189, 248, .55), #38BDF8);
+}
+
+/* ---------- ba nút tốc độ ---------- */
+
+.clock-speeds {
+  display: flex;
+  gap: 4px;
+  /* Rộng bằng khung LCD để cả cụm đọc như một thiết bị, không phải
+     thanh điều khiển rời treo lơ lửng. */
+  width: 100%;
+}
+
+.clock-speed-btn { flex: 1 1 0; }
+
+/* Nút nổi khối: viền dưới dày hơn viền trên để có cảm giác bấm được,
+   và lún xuống khi đang chọn. */
+.clock-speed-btn {
+  min-width: 44px;
+  /* 32px là mức đủ chạm cho nút phụ. Nút chính của game vẫn 44px,
+     còn đây là điều khiển phụ nên 32 vừa đủ mà không chiếm chỗ. */
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(226, 232, 240, .16);
+  border-bottom-width: 2px;
+  background-color: rgba(30, 36, 43, .85);
+  color: #94A3B8;
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: background-color .14s ease, color .14s ease, border-color .14s ease,
+    transform .08s ease;
+}
+
+.clock-speed-btn:hover {
+  border-color: rgba(226, 232, 240, .3);
+  color: #E2E8F0;
+}
+
+.clock-speed-btn:active { transform: translateY(1px); }
+
+.clock-speed-btn:focus-visible {
+  outline: 2px solid rgba(245, 158, 11, .85);
+  outline-offset: 2px;
+  color: #F59E0B;
+}
+
+/* Emoji ⏩ mặc định màu xanh, lạc tông cam của cả cụm. Dùng
+   filter để kéo về hệ hổ phách. */
+.clock-speed-btn.is-active,
+.clock-speed-btn {
+  font-variant-emoji: text;
+}
+
+.clock-speed-btn.is-active {
+  background-color: rgba(245, 158, 11, .18);
+  border-color: rgba(245, 158, 11, .55);
+  color: #F59E0B;
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 720px) {
+  .clock-lcd { padding: 5px 10px 8px; gap: 7px; }
+  .clock-time { font-size: 1.02rem; }
+  .clock-speed-btn { min-width: 40px; min-height: 30px; font-size: .66rem; padding: 0 8px; }
+}
+
+@media (max-width: 460px) {
+  .clock-sol-label { display: none; }
+  .clock-orb { width: 18px; height: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clock-orb { transition: none; }
+  .clock-progress-fill { transition: none; }
+}
+
+
+/* ---------- màn hẹp: xếp ngang, không xuống dòng ---------- */
+
+/* Trên điện thoại, đồng hồ và ba nút tốc độ xếp cùng một hàng ngang
+   thay vì hai hàng dọc. Tiết kiệm 40px chiều cao topbar, đủ để màn
+   dọc không phải cuộn. */
+@media (max-width: 720px) {
+  .clock {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .clock-lcd {
+    padding: 4px 9px 7px;
+    gap: 6px;
+    grid-template-columns: auto auto auto;
+  }
+
+  .clock-orb { width: 17px; height: 17px; }
+  .clock-orb-icon { width: 10px; height: 10px; }
+  .clock-sep { height: 13px; }
+  .clock-progress { left: 8px; right: 8px; bottom: 3px; }
+
+  .clock-speeds {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .clock-speed-btn {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding: 0 6px;
+    font-size: .58rem;
+  }
+
+  /* Nút thứ ba chỉ còn mũi tên, bỏ chữ, để hàng nút vừa bề ngang */
+  .clock-speed-btn:last-child { max-width: 34px; overflow: hidden; }
+}
+
+@media (max-width: 460px) {
+  .clock-time { font-size: .92rem; }
+  .clock-sol-num { font-size: .76rem; }
+  .clock-speed-btn { min-height: 28px; font-size: .55rem; padding: 0 5px; }
+}

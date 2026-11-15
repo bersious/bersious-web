@@ -1,67 +1,61 @@
 /* ============================================================
-   css/hud.css
-   Thanh chỉ số sinh tồn. Màu lấy từ tokens.css.
+   hud.css
+   Thanh chỉ số kiểu Máy tính bảng dã chiến NASA.
+
+   Mỗi chỉ số là một ô có khung kim loại vát góc, bên trong là
+   thanh chia mười vạch. Khi chỉ số xuống dưới ngưỡng cảnh báo, cả
+   khung chuyển đỏ và hiện sọc chéo công trường nhấp nháy.
+
+   Màu từng chỉ số do hud.js đẩy vào qua biến --stat-color, nên
+   file này không cần biết chỉ số nào màu gì.
    ============================================================ */
 
 .hud {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(8px, 1.2vh, 14px);
-  padding: clamp(10px, 1.4vh, 16px) clamp(14px, 2vw, 24px);
-  background: linear-gradient(180deg,
-    rgba(11, 15, 21, .92) 0%,
-    rgba(11, 15, 21, .78) 100%);
-  border-bottom: 1px solid var(--line, #26313f);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  --hud-line: rgba(226, 232, 240, .14);
+  --hud-bg: rgba(12, 17, 23, .78);
+  --hud-seg-empty: rgba(226, 232, 240, .11);
+
+  width: 100%;
 }
 
 .hud-groups {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(14px, 2.4vw, 36px);
+  gap: clamp(14px, 2.4vw, 34px);
   align-items: flex-start;
 }
 
-.hud-group {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  /* Hai nhóm phải cùng độ dài thanh. Trước đây flex: 1 1 auto để
-     nội dung quyết định, khiến nhóm 4 chỉ số ngắn hơn nhóm 3 chỉ số
-     và 80 Thể lực trông "ít" hơn 60 Điện. Chia đều theo cột thì
-     mọi thanh cùng track, số đọc đúng bằng mắt. */
-  flex: 1 1 0;
-  min-width: min(240px, 100%);
-}
+/* ---------- nhóm ---------- */
 
-/* Trong một nhóm, các ô xếp thành lưới đều cột để mọi thanh chỉ số
-   cùng bề rộng. Nhóm 4 ô thành 2x2, nhóm 3 ô thành 3 cột, như vậy
-   không nhóm nào có thanh dài hơn nhóm kia. */
 .hud-group {
+  /* box-sizing bắt buộc: không có nó thì min-width 100 phần trăm cộng
+     thêm padding hai bên và viền, khung rộng hơn màn hình đúng bằng
+     phần padding. Trên điện thoại 390px khung phình lên 410px, đẩy số
+     và thanh chỉ số tràn ra ngoài mép phải. */
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
-  gap: 7px 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(118px, 100%), 1fr));
+  gap: 7px 12px;
   align-content: start;
+  flex: 1 1 0;
+  min-width: min(250px, 100%);
+  padding: 9px 11px 11px;
+  border: 1px solid var(--hud-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(30, 36, 43, .55), rgba(12, 17, 23, .7));
+  /* khung kim loại: vát góc trên phải cho ra dáng thiết bị dã chiến */
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 }
 
 .hud-group-label {
   grid-column: 1 / -1;
-}
-
-.hud-group-label {
-  font-family: var(--st-font-mono, monospace);
-  font-size: clamp(.56rem, .52rem + .1vw, .66rem);
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: clamp(.56rem, .52rem + .1vw, .65rem);
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: var(--cyan, #4fb8c9);
-  opacity: .75;
-}
-
-.hud-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(96px, 100%), 1fr));
-  gap: clamp(8px, 1.2vw, 18px);
+  color: #38BDF8;
+  opacity: .8;
 }
 
 /* ---------- một ô chỉ số ---------- */
@@ -71,116 +65,154 @@
   flex-direction: column;
   gap: 5px;
   min-width: 0;
+  padding: 5px 6px 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: border-color .2s ease, background-color .2s ease;
 }
 
 .hud-cell-head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.hud-icon {
+  flex: 0 0 auto;
+  display: flex;
+  width: 13px;
+  height: 13px;
+  color: var(--stat-color, #94A3B8);
+  opacity: .95;
+}
+
+.hud-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .hud-name {
-  font-family: var(--st-font-body, sans-serif);
-  font-size: clamp(.68rem, .64rem + .2vw, .78rem);
-  color: var(--tx-soft, #8497aa);
-  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(.62rem, .58rem + .1vw, .7rem);
+  letter-spacing: .02em;
+  color: #A8B4C2;
 }
 
 .hud-value {
-  font-family: var(--st-font-mono, monospace);
-  font-size: clamp(.76rem, .7rem + .24vw, .9rem);
-  font-weight: 500;
-  color: var(--tx-bright, #eaf1f8);
-  font-variant-numeric: tabular-nums;
   flex: 0 0 auto;
+  /* Bề ngang cố định để số luôn thẳng cột. Nếu không, ô Điện có thêm
+     mũi tên sạc/xả sẽ đẩy số sang trái vài pixel, nhìn lệch hàng. */
+  min-width: 2.1em;
+  text-align: right;
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: clamp(.72rem, .68rem + .12vw, .82rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #E2E8F0;
 }
 
-/* ---------- thanh nền ---------- */
+/* mũi tên sạc hay xả của chỉ số Điện. Rộng cố định bằng 0 để ô
+   không có mũi tên vẫn giữ nguyên bố cục, và chiều rộng luôn dành
+   sẵn một chỗ nên số không nhảy qua lại khi mũi tên xuất hiện. */
+.hud-trend:empty { display: none; }
+
+.hud-trend {
+  flex: 0 0 auto;
+  min-width: .7em;
+  font-size: .58rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.hud-trend.is-up { color: #22C55E; }
+.hud-trend.is-down { color: #F59E0B; }
+
+/* ---------- thanh mười vạch ---------- */
 
 .hud-bar {
   position: relative;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(38, 49, 63, .8);
-  overflow: hidden;
+  width: 100%;
+  height: 7px;
 }
 
-/* Dùng transform thay vì width: animate width buộc trình duyệt
-   tính lại bố cục mỗi khung hình, chạy nhiều thanh sẽ giật. */
-.hud-fill {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-color: var(--color, #e8a33d);
-  transform-origin: left center;
-  transform: scaleX(calc(var(--fill, 0%) / 100%));
-  transition: transform .45s var(--st-ease-out, cubic-bezier(.22,.61,.36,1)),
-              background-color .3s ease;
-  will-change: transform;
+.hud-segs {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.hud-seg {
+  border-radius: 1px;
+  background: var(--hud-seg-empty);
+  transition: background-color .22s ease, box-shadow .22s ease;
+}
+
+.hud-seg.is-on {
+  background: var(--stat-color, #94A3B8);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--stat-color, #94A3B8) 55%, transparent);
 }
 
 /* ---------- trạng thái ---------- */
 
-.hud-cell.is-low .hud-value {
-  color: var(--warn, #e8c05a);
+.hud-cell.is-low .hud-value { color: #F59E0B; }
+
+.hud-cell.is-danger {
+  border-color: rgba(229, 72, 77, .5);
+  background-color: rgba(229, 72, 77, .09);
 }
 
-.hud-cell.is-danger .hud-value {
-  color: var(--fail, #d9694f);
+.hud-cell.is-danger .hud-value { color: #F2777A; }
+
+.hud-cell.is-danger .hud-name { color: #F0B4B5; }
+
+/* Sọc chéo công trường: chỉ hiện khi máu nguy kịch, và nhấp nháy
+   chậm chứ không giật liên tục, để không gây khó chịu khi nhìn lâu. */
+.hud-cell.is-danger .hud-bar::after {
+  content: '';
+  position: absolute;
+  inset: -3px -3px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(229, 72, 77, .34) 0 4px,
+    transparent 4px 8px
+  );
+  animation: hud-hazard 1.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
-/* Nhấp nháy khi chỉ số nguy hiểm. Tần số thấp để không gây khó chịu
-   và không rung màn hình, chỉ đổi độ sáng nhẹ. */
-.hud-cell.is-danger .hud-fill {
-  animation: hud-pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes hud-pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: .55; }
-}
-
-.hud-cell.is-danger .hud-name {
-  color: var(--fail, #d9694f);
+@keyframes hud-hazard {
+  0%, 100% { opacity: .35; }
+  50%      { opacity: .9; }
 }
 
 /* ---------- tôn trọng giảm chuyển động ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .hud-fill { transition-duration: .01ms; }
-  .hud-cell.is-danger .hud-fill { animation: none; }
-}
-
-html.motion-off .hud-cell.is-danger .hud-fill {
-  animation: none;
-}
-
-html.motion-off .hud-fill {
-  transition-duration: .01ms;
+  .hud-seg { transition-duration: .01ms; }
+  .hud-cell.is-danger .hud-bar::after { animation: none; opacity: .7; }
 }
 
 /* ---------- màn hẹp ---------- */
 
-@media (max-width: 680px) {
-  .hud { padding: 8px 12px; }
-  .hud-groups { gap: 10px; }
-  .hud-group { min-width: 100%; }
-  .hud-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; }
-  .hud-bar { height: 4px; }
+@media (max-width: 900px) {
+  .hud { padding: 0; }
+  .hud-groups { gap: 9px; }
+  .hud-group { min-width: 100%; padding: 8px 9px 9px; }
+  .hud-row { gap: 6px 9px; }
+  .hud-bar { height: 6px; }
 }
 
-/* Màn rất thấp: bỏ nhãn nhóm để tiết kiệm chiều cao */
-@media (max-height: 620px) {
+@media (max-width: 560px) {
   .hud-group-label { display: none; }
-  .hud { padding: 6px 12px; gap: 6px; }
-}
-
-
-/* Điện dùng vàng riêng để không trùng cam của Thể lực/Calo:
-   hai nhóm tài nguyên (cơ thể và trạm) phải phân biệt bằng màu. */
-.hud-cell[data-stat="power"] .hud-fill {
-  background: #d8c548;
+  .hud-name { font-size: .6rem; }
+  .hud-value { font-size: .7rem; }
+  .hud-icon { width: 11px; height: 11px; }
 }

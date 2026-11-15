@@ -14,6 +14,7 @@
 import { createClock } from './game-time.js';
 import { createStats } from './hab-stats.js';
 import { createHud } from './hud.js';
+import { createClockUi } from './clock-ui.js';
 import { t, onLangChange, getLang } from './i18n.js';
 import { getSettings } from './settings.js';
 import { playClick } from './audio.js';
@@ -190,13 +191,8 @@ export function startBase({ container, playerName = '', onExit } = {}) {
         <span class="base-who-name"></span>
       </div>
 
-      <div class="base-clock" role="timer" aria-live="off">
-        <span class="base-clock-time">00:00</span>
-        <span class="base-clock-day"></span>
-        <div class="base-clock-bar" aria-hidden="true">
-          <div class="base-clock-fill"></div>
-        </div>
-      </div>
+      <!-- Đồng hồ LCD dựng bằng module riêng, chèn vào đây -->
+      <div class="base-clock-slot"></div>
 
       <div class="base-top-right">
         <span class="base-phase"></span>
@@ -249,9 +245,6 @@ export function startBase({ container, playerName = '', onExit } = {}) {
 
   const whoLabel  = q('.base-who-label');
   const whoName   = q('.base-who-name');
-  const clockTime = q('.base-clock-time');
-  const clockDay  = q('.base-clock-day');
-  const clockFill = q('.base-clock-fill');
   const phase     = q('.base-phase');
   const heading   = q('.base-heading');
   const grid      = q('.base-grid');
@@ -721,9 +714,6 @@ export function startBase({ container, playerName = '', onExit } = {}) {
       stats.save();
     }
 
-    clockTime.textContent = s.label;
-    clockDay.textContent = t('base.day').replace('{n}', String(s.day));
-    clockFill.style.width = (s.progress * 100).toFixed(2) + '%';
     el.classList.toggle('is-night', s.isNight);
     phase.textContent = s.isNight ? t('base.night') : t('base.daytime');
     footDays.textContent = t('base.footer.survived').replace('{n}', String(s.day));
@@ -735,6 +725,15 @@ export function startBase({ container, playerName = '', onExit } = {}) {
   const hud = createHud({
     container: el.querySelector('.base-hud-slot'),
     stats,
+    getLang,
+    onLangChange,
+  });
+
+  /* ---------- đồng hồ LCD + nút tốc độ ---------- */
+
+  const clockUi = createClockUi({
+    container: el.querySelector('.base-clock-slot'),
+    clock,
     getLang,
     onLangChange,
   });
@@ -751,7 +750,6 @@ export function startBase({ container, playerName = '', onExit } = {}) {
     whoName.textContent = playerName || t('base.whoFallback');
     heading.textContent = t('base.heading');
     phase.textContent = clock.state().isNight ? t('base.night') : t('base.daytime');
-    clockDay.textContent = t('base.day').replace('{n}', String(clock.state().day));
     footDays.textContent = t('base.footer.survived').replace('{n}', String(clock.state().day));
 
     for (const act of ACTIONS) {

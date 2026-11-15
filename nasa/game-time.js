@@ -20,13 +20,22 @@ const REAL_MS_PER_DAY = MIN_PER_DAY * REAL_MS_PER_GAME_MIN;  // 720 000 ms = 12 
 
 const SLEEP_WAKE_MINUTE = 7 * 60;      // thức dậy lúc 07:00
 
+/* Hệ số tốc độ. 1x là nhịp chuẩn, 2x gấp đôi, và "chờ nhanh" chạy
+   6x để người chơi không phải ngồi nhìn màn hình trống khi chờ việc
+   xong. Không cho chạy nhanh hơn nữa vì chỉ số trôi theo thời gian,
+   tua quá nhanh thì người chơi không kịp phản ứng khi có chỉ số tụt. */
+const SPEEDS = [1, 2, 6];
+const SPEED_LABELS = ['1x', '2x', 'fast'];
+
 export function createClock({ startMinute = 6 * 60, day = 1 } = {}) {
   let minutes = startMinute;   // số phút tính từ 00:00 của ngày hiện tại
   let currentDay = day;
   let running = false;
   let rafId = null;
   let lastStamp = 0;
+  let speedIndex = 0;          // chỉ số trong SPEEDS, mặc định 1x
   const listeners = new Set();
+  const speedListeners = new Set();
 
   /* ---------- tiện ích ---------- */
 
@@ -40,8 +49,9 @@ export function createClock({ startMinute = 6 * 60, day = 1 } = {}) {
       hh,
       mm,
       label: String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0'),
-      /* đêm tính từ 20:00 tới 05:59, dùng để đổi không khí căn cứ */
-      isNight: hh >= 20 || hh < 6,
+      /* Đêm tính từ 18:00 tới 05:59, đúng mốc GDD đặt ra để đổi
+         không khí căn cứ và đổi cảnh nền. */
+      isNight: hh >= 18 || hh < 6,
       /* tỉ lệ đã trôi qua trong ngày, 0 tới 1, dùng cho vòng tròn đồng hồ */
       progress: total / MIN_PER_DAY,
     };
@@ -64,7 +74,9 @@ export function createClock({ startMinute = 6 * 60, day = 1 } = {}) {
     lastStamp = stamp;
 
     if (elapsed > 0) {
-      minutes += elapsed / REAL_MS_PER_GAME_MIN;
+      /* Nhân với hệ số tốc độ. Dùng elapsed thật nên khi đổi tốc độ
+         giữa đường vẫn đúng, không bị nhảy cóc. */
+      minutes += (elapsed / REAL_MS_PER_GAME_MIN) * SPEEDS[speedIndex];
 
       /* qua ngày mới thì tăng số ngày, không dừng đồng hồ */
       while (minutes >= MIN_PER_DAY) {
@@ -113,6 +125,36 @@ export function createClock({ startMinute = 6 * 60, day = 1 } = {}) {
     return state();
   }
 
+  /* ---------- tốc độ ----------
+     Ba mức: 1x, 2x, và chờ nhanh 6x. Người chơi bấm nút vật lý trên
+     đồng hồ, không phải vào menu cài đặt. */
+
+  function setSpeed(index) {
+    const next = Math.max(0, Math.min(SPEEDS.length - 1, index));
+    if (next === speedIndex) return speed();
+    speedIndex = next;
+    const info = speed();
+    for (const fn of speedListeners) {
+      try { fn(info); } catch (err) { console.error('speed listener lỗi', err); }
+    }
+    return info;
+  }
+
+  function speed() {
+    return {
+      index: speedIndex,
+      factor: SPEEDS[speedIndex],
+      label: SPEED_LABELS[speedIndex],
+      count: SPEEDS.length,
+    };
+  }
+
+  function onSpeedChange(fn) {
+    speedListeners.add(fn);
+    fn(speed());
+    return () => speedListeners.delete(fn);
+  }
+
   /* ---------- lắng nghe ---------- */
 
   function onTick(fn) {
@@ -141,7 +183,7 @@ export function createClock({ startMinute = 6 * 60, day = 1 } = {}) {
 
   return {
     start, stop, sleep, skipTo, onTick, state,
-    bindVisibility,
+    bindVisibility, setSpeed, speed, onSpeedChange,
     get running() { return running; },
     /* hằng số cho nơi khác dùng lại, tránh gõ số rải rác */
     MIN_PER_DAY, REAL_MS_PER_DAY, SLEEP_WAKE_MINUTE,
