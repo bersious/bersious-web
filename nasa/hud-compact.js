@@ -329,6 +329,39 @@ export function createCompactHud({
 
   if (!motionOn) root.classList.add('is-static');
 
+  /* ---------- đo chiều cao thật của thanh ----------
+     .hud2 khai --hud2-bar-h: 78px làm mặc định, và base-scene.js ghi số
+     đo thật lên documentElement. Nhưng biến khai trên .hud2 thắng biến
+     của documentElement với mọi phần tử con, nên trên màn hẹp (thanh
+     xuống hai hàng, cao 123px) widget nhật ký vẫn neo vào 78px và đè
+     lên hàng dưới của thanh. Đo tại đây, trên chính phần tử dùng biến,
+     là chỗ duy nhất chắc chắn thắng. */
+  let barRO = null;
+  function measureBar() {
+    const h = Math.round(barEl.getBoundingClientRect().height);
+    if (h > 0) root.style.setProperty('--hud2-bar-h', h + 'px');
+  }
+  measureBar();
+  if (typeof ResizeObserver === 'function') {
+    try {
+      /* Giữ tham chiếu tới observer: nếu để nó thành biến cục bộ rơi
+         khỏi tầm nhìn, trình duyệt có thể thu hồi và widget đứng mãi
+         ở số đo của khung hình đầu (79px, khi phông chữ chưa nạp). */
+      barRO = new ResizeObserver(() => measureBar());
+      barRO.observe(barEl);
+    } catch { /* trình duyệt cũ: giữ số mặc định */ }
+  }
+  /* Thanh còn đổi chiều cao thêm một nhịp khi phông chữ nạp xong. Đo
+     lại vài lần trong giây đầu là cách chắc chắn, rẻ hơn mọi mẹo. */
+  let barSettle = 0;
+  let barSettleCount = 0;
+  barSettle = window.setInterval(() => {
+    measureBar();
+    barSettleCount += 1;
+    if (barSettleCount > 10) window.clearInterval(barSettle);
+  }, 120);
+  window.addEventListener('resize', measureBar, { passive: true });
+
   /* ---------- ảnh chân dung ---------- */
 
   const initials = (() => {
@@ -988,6 +1021,9 @@ export function createCompactHud({
     if (typeof langOff === 'function') langOff();
     if (missionLog && typeof missionLog.destroy === 'function') missionLog.destroy();
     document.removeEventListener('keydown', onKeydown);
+    window.removeEventListener('resize', measureBar);
+    window.clearInterval(barSettle);
+    if (barRO) barRO.disconnect();
     window.clearTimeout(savedTimer);
     window.clearTimeout(badgeTimer);
     root.remove();

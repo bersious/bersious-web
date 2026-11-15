@@ -1,0 +1,609 @@
+/* ============================================================
+   true-ending.css
+   Phân cảnh kết thúc thành công (9 khung) và bảng tổng kết sứ mệnh.
+
+   Bố cục theo đúng phác thảo tay: ảnh phủ kín màn hình, thanh tiến
+   trình mảnh ở đáy, nút Bỏ qua góc dưới phải. Khung 09 phủ lớp tối
+   dần rồi hiện chữ THE END ở giữa.
+
+   Màu lấy từ token của dự án: --bg-void, --bg-panel, --amber,
+   --cyan, --tx-bright, --tx-dim. Không đặt màu cứng trừ khi token
+   không có.
+   ============================================================ */
+
+/* ============================================================
+   PHẦN A: CHÍN KHUNG
+   ============================================================ */
+
+.te-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #05070a;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.te-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.te-card {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .5s ease;
+  /* Khung đã qua thì giữ lại phía dưới để lúc mờ dần không lộ nền
+     đen xen giữa hai khung. */
+  pointer-events: none;
+}
+
+.te-card.is-on {
+  opacity: 1;
+  z-index: 2;
+}
+
+.te-card.is-prev {
+  opacity: 0;
+  z-index: 1;
+}
+
+.te-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Khung giữ chỗ khi tranh chưa có: nền tối + số khung lớn. Số luôn
+   nằm trong DOM, chỉ ẩn đi khi ảnh tải xong để không nhấp nháy. */
+.te-ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--st-font-mono, monospace);
+  font-size: clamp(3rem, 12vw, 9rem);
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: rgba(232, 163, 61, .18);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(20, 28, 38, .9), rgba(5, 7, 10, 1) 78%);
+  transition: opacity .3s ease;
+}
+
+.te-card.has-art .te-ph {
+  opacity: 0;
+}
+
+/* Vignette nhẹ để chữ THE END và viền màn hình dễ đọc. */
+.te-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 52%, rgba(4, 6, 9, .55) 100%),
+    linear-gradient(180deg, rgba(4, 6, 9, .35) 0%, transparent 14%, transparent 82%, rgba(4, 6, 9, .7) 100%);
+}
+
+/* ---- thanh tiến trình ---- */
+
+.te-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  z-index: 8;
+  background: rgba(255, 255, 255, .10);
+}
+
+.te-bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--amber, #e8a33d), #f5c374);
+  box-shadow: 0 0 10px rgba(232, 163, 61, .5);
+  transition: width .4s ease;
+}
+
+.te-count {
+  position: absolute;
+  left: 20px;
+  bottom: 16px;
+  z-index: 8;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 12px;
+  letter-spacing: .16em;
+  color: rgba(236, 226, 210, .62);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .8);
+}
+
+/* ---- nút bỏ qua ---- */
+
+.te-skip {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 9;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid rgba(232, 163, 61, .34);
+  border-radius: 3px;
+  background: rgba(10, 14, 22, .62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #ecd9bb;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.te-skip:hover,
+.te-skip:focus-visible {
+  background: rgba(232, 163, 61, .2);
+  border-color: rgba(232, 163, 61, .7);
+  color: #fff4e2;
+  outline: none;
+}
+
+/* ============================================================
+   KHUNG 09: tối dần + chữ THE END
+   ============================================================ */
+
+.te-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: #04060a;
+  transition: opacity 1.2s ease;
+}
+
+.te-dim.is-on {
+  opacity: .82;
+}
+
+.te-end {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 7;
+  transform: translate(-50%, -50%) scale(.96);
+  opacity: 0;
+  pointer-events: none;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: clamp(2.6rem, 8vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f6ecd9;
+  text-shadow:
+    0 3px 26px rgba(0, 0, 0, .92),
+    0 1px 3px rgba(0, 0, 0, .8),
+    0 0 44px rgba(232, 163, 61, .16);
+  transition: opacity 1.1s ease, transform 1.4s cubic-bezier(.2, .7, .3, 1);
+}
+
+.te-end.is-on {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ============================================================
+   PHẦN B: BẢNG TỔNG KẾT
+   ============================================================ */
+
+.te-sum {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity .32s ease;
+}
+
+.te-sum.is-in {
+  opacity: 1;
+}
+
+.te-sum-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 6, 9, .78);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+}
+
+.te-sum-panel {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(20px, 3vw, 34px);
+  border: 1px solid rgba(232, 163, 61, .28);
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(24, 32, 44, .96), rgba(17, 23, 33, .98));
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, .78),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+  transform: translateY(14px);
+  transition: transform .38s cubic-bezier(.2, .7, .3, 1);
+}
+
+.te-sum.is-in .te-sum-panel {
+  transform: translateY(0);
+}
+
+/* ---- đầu bảng ---- */
+
+.te-sum-head {
+  margin-bottom: 20px;
+}
+
+.te-sum-sub {
+  margin: 0 0 6px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(232, 163, 61, .8);
+}
+
+.te-sum-title {
+  margin: 0;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: clamp(1.4rem, 3.6vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #f2e6d4;
+}
+
+/* ---- khối xếp hạng ---- */
+
+.te-sum-rank {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-left: 3px solid var(--amber, #e8a33d);
+  border-radius: 4px;
+  background: rgba(10, 14, 22, .5);
+}
+
+.te-sum-badge {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .12);
+  font-family: var(--st-font-mono, monospace);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.te-sum-badge[data-rank="S"] {
+  color: #f7cf7c;
+  border-color: rgba(232, 163, 61, .6);
+  box-shadow: 0 0 30px rgba(232, 163, 61, .26), inset 0 0 22px rgba(232, 163, 61, .12);
+  text-shadow: 0 0 22px rgba(232, 163, 61, .5);
+}
+
+.te-sum-badge[data-rank="A"] {
+  color: #8fdfe9;
+  border-color: rgba(79, 184, 201, .55);
+  box-shadow: 0 0 26px rgba(79, 184, 201, .22), inset 0 0 20px rgba(79, 184, 201, .1);
+  text-shadow: 0 0 20px rgba(79, 184, 201, .45);
+}
+
+.te-sum-badge[data-rank="B"] {
+  color: #b6c0cc;
+  border-color: rgba(170, 182, 194, .4);
+  box-shadow: 0 0 18px rgba(170, 182, 194, .12);
+}
+
+.te-sum-rank-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.te-sum-rank-lab {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(236, 226, 210, .56);
+}
+
+.te-sum-rank-desc {
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: 22px;
+  letter-spacing: .05em;
+  color: #f2e6d4;
+}
+
+.te-sum-rank-how {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(214, 222, 232, .62);
+}
+
+/* ---- bốn chỉ số ---- */
+
+.te-sum-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.te-sum-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.te-sum-tile-k {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(236, 226, 210, .5);
+}
+
+.te-sum-tile-v {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0e4d2;
+}
+
+/* ---- bảng đối chiếu ---- */
+
+.te-sum-cmp {
+  padding: 16px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .02);
+}
+
+.te-sum-cmp-h {
+  margin: 0 0 4px;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(232, 163, 61, .9);
+}
+
+.te-sum-cmp-sub {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: rgba(214, 222, 232, .56);
+}
+
+.te-sum-cmp-cols {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.5fr;
+  gap: 8px;
+  padding: 0 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  font-family: var(--st-font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(236, 226, 210, .44);
+}
+
+.te-sum-cmp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.te-sum-cmp-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.5fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 9px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, .04);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.te-sum-cmp-row:last-child {
+  border-bottom: 0;
+}
+
+.te-sum-cmp-name {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #ecd9bb;
+}
+
+.te-sum-cmp-cell {
+  color: rgba(214, 222, 232, .66);
+}
+
+/* ---- hai nút ---- */
+
+.te-sum-foot {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.te-sum-btn {
+  flex: 1 1 200px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .04);
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #e6eef6;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.te-sum-btn:hover,
+.te-sum-btn:focus-visible {
+  background: rgba(255, 255, 255, .09);
+  border-color: rgba(255, 255, 255, .3);
+  color: #fff;
+  outline: none;
+}
+
+.te-sum-restart {
+  border-color: rgba(232, 163, 61, .42);
+  border-left: 3px solid var(--amber, #e8a33d);
+  background: rgba(232, 163, 61, .12);
+  color: #ffeacb;
+}
+
+.te-sum-restart:hover,
+.te-sum-restart:focus-visible {
+  background: rgba(232, 163, 61, .24);
+  border-color: rgba(232, 163, 61, .7);
+  color: #fff6e8;
+}
+
+/* ============================================================
+   TẮT CHUYỂN ĐỘNG
+   ============================================================ */
+
+.te-root.te-static .te-card,
+.te-root.te-static .te-dim,
+.te-root.te-static .te-end,
+.te-root.te-static .te-bar > i {
+  transition: none;
+}
+
+.te-root.te-static .te-end {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+html.motion-off .te-card,
+html.motion-off .te-dim,
+html.motion-off .te-end,
+html.motion-off .te-bar > i,
+html.motion-off .te-sum,
+html.motion-off .te-sum-panel {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .te-card, .te-dim, .te-end, .te-bar > i, .te-sum, .te-sum-panel {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   MÀN HẸP
+   ============================================================ */
+
+@media (max-width: 720px) {
+  .te-sum {
+    padding: 12px;
+    align-items: stretch;
+  }
+
+  .te-sum-panel {
+    padding: 18px 16px;
+    max-height: 100%;
+  }
+
+  .te-sum-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .te-sum-rank {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .te-sum-badge {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+  }
+
+  /* Bảng đối chiếu trên máy hẹp: tên tàu một dòng, hai cột số xuống
+     dưới dạng chú thích thay vì ba cột chật. */
+  .te-sum-cmp-cols {
+    display: none;
+  }
+
+  .te-sum-cmp-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 10px 2px;
+  }
+
+  .te-sum-cmp-name {
+    font-size: 13px;
+  }
+
+  .te-sum-foot {
+    flex-direction: column;
+  }
+
+  .te-sum-btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .te-skip {
+    right: 12px;
+    bottom: 12px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+
+  .te-count {
+    left: 14px;
+    bottom: 16px;
+  }
+}

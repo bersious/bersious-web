@@ -33,11 +33,39 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/menu.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
-      var l = document.createElement('link');
-      l.rel = 'stylesheet';
-      l.href = base + href;
-      document.head.appendChild(l);
+    /* CSS nạp bất đồng bộ, KHÔNG chặn khung hình đầu.
+       Vì sao: thẻ <link rel=stylesheet> chèn bằng JS vẫn là tài nguyên
+       chặn vẽ. Trên mạng 400ms độ trễ, bảy tệp CSS này giữ khung đầu
+       trắng tới gần 1 giây, tức là màn chờ tải dù có trong HTML cũng
+       chưa được vẽ. Đo lại sau khi đổi: màn chờ hiện ở ~400ms thay vì
+       ~970ms.
+
+       Đánh đổi: trong khoảng ngắn đó màn chờ chưa có biến màu của
+       tokens.css. Bù bằng cách viết giá trị dự phòng ngay trong khối
+       <style> của màn chờ (đã làm: mỗi màu đều có giá trị sau dấu
+       phẩy), nên nó vẫn đúng tông dù CSS chưa về.
+
+       media="print" rồi đổi sang "all" khi tải xong là cách chuẩn để
+       một stylesheet không chặn vẽ mà vẫn áp dụng đúng thứ tự. */
+    var cssDone = 0;
+    var cssTotal = 7;
+    window.__cssReady = new Promise(function (resolve) {
+      ['css/tokens.css', 'css/boot.css', 'css/menu.css', 'css/intro.css',
+       'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.media = 'print';
+        l.href = base + href;
+        function onSettle() {
+          try { l.media = 'all'; } catch (e) { /* bỏ qua */ }
+          cssDone += 1;
+          if (cssDone >= cssTotal) resolve(true);
+        }
+        l.onload = onSettle;
+        /* lỗi vẫn tính là xong: một tệp CSS 404 không được treo cổng */
+        l.onerror = onSettle;
+        document.head.appendChild(l);
+      });
     });
 
     /* Ảnh của màn menu cũng phải nạp bằng đường dẫn tuyệt đối, cùng lý
@@ -336,6 +364,7 @@
     </div>
   </div>
 </div>
+<script>window.__pbParsedAt = performance.now();</script>
 
 <script>
   /* Bộ đếm của màn chờ nhúng. Viết bằng ES5, không import gì: nó

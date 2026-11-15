@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T22:44:38",
+  "generated": "2026-11-15T23:14:50",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -83,7 +83,7 @@
       "path": "assets/art/bg-im-02.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 179842
+      "bytes": 152964
     },
     {
       "id": "bg-im-03",
@@ -97,35 +97,35 @@
       "path": "assets/art/bg-im-04.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 78622
+      "bytes": 47734
     },
     {
       "id": "bg-im-05",
       "path": "assets/art/bg-im-05.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 225504
+      "bytes": 223102
     },
     {
       "id": "bg-im-06",
       "path": "assets/art/bg-im-06.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 123688
+      "bytes": 119320
     },
     {
       "id": "bg-im-07",
       "path": "assets/art/bg-im-07.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 133086
+      "bytes": 116074
     },
     {
       "id": "bg-im-08",
       "path": "assets/art/bg-im-08.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 79712
+      "bytes": 114164
     },
     {
       "id": "bg-im-09",
@@ -146,21 +146,21 @@
       "path": "assets/art/bg-im-11.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 137540
+      "bytes": 140190
     },
     {
       "id": "bg-im-12",
       "path": "assets/art/bg-im-12.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 78556
+      "bytes": 84404
     },
     {
       "id": "bg-im-13",
       "path": "assets/art/bg-im-13.webp",
       "width": 1600,
       "height": 900,
-      "bytes": 151184
+      "bytes": 164384
     },
     {
       "id": "bg-kid-doorway",
@@ -597,6 +597,43 @@
       "width": 1600,
       "height": 900,
       "bytes": 177408
+    }
+  ],
+  "trueEndings": [
+    {
+      "id": "true-ending-01",
+      "path": "assets/art/true-ending-01.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 156050
+    },
+    {
+      "id": "true-ending-02",
+      "path": "assets/art/true-ending-02.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 87544
+    },
+    {
+      "id": "true-ending-03",
+      "path": "assets/art/true-ending-03.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 86916
+    },
+    {
+      "id": "true-ending-04",
+      "path": "assets/art/true-ending-04.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 121538
+    },
+    {
+      "id": "true-ending-05",
+      "path": "assets/art/true-ending-05.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 130456
     }
   ]
 }
