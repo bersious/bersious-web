@@ -1,0 +1,146 @@
+/* ============================================================
+   base-new-scene.css  ·  ghi đè khi sân khấu toàn màn hình bật
+   ============================================================
+
+   Sân khấu mới (base-scene.js) vẽ cả căn cứ lên một ảnh phủ kín màn
+   hình, có nhân vật và sáu trạm bấm trực tiếp. Giao diện cũ dựng theo
+   luồng tài liệu nên nằm đè lên tranh. File này chỉ làm một việc: ẩn
+   những khối cũ đã có bản thay thế trong sân khấu mới, và dời lưới nút
+   xuống đáy thành thanh công cụ gọn.
+
+   Toàn bộ rule nằm dưới .has-new-scene, nên nếu sân khấu mới lỗi và
+   class không được gắn thì game quay về đúng giao diện cũ.
+   ============================================================ */
+
+/* Khung cảnh cũ: đã có ba lớp nền trong sân khấu mới, giữ lại chỉ tổ
+   chồng hai ảnh lên nhau. */
+.has-new-scene .base-scene,
+.has-new-scene .base-heading,
+.has-new-scene .base-hud-slot,
+.has-new-scene .base-topbar {
+  display: none;
+}
+
+/* Ô nhật ký dài trong luồng: sân khấu mới đã có widget nhật ký riêng
+   ở góc dưới trái của HUD, nên bản này trùng. Giữ lại cho trình đọc
+   màn hình bằng cách đẩy ra ngoài khung nhìn, không dùng display none
+   để nội dung vẫn được đọc. */
+.has-new-scene .base-log {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Lưới nút cũ: vẫn cần bấm được, nhưng thu thành thanh công cụ ở đáy
+   màn hình để nhường chỗ cho cảnh. */
+.has-new-scene .base-main {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: block;
+  padding: 0;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+}
+
+.has-new-scene .base-grid {
+  pointer-events: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px clamp(10px, 2vw, 24px);
+  background: color-mix(in srgb, var(--bg-void, #07090d) 82%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Thẻ hành động: từ ô vuông lớn thành nút ngang có icon, chữ nhỏ. */
+.has-new-scene .base-card {
+  flex: 0 1 auto;
+  min-height: 44px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+}
+
+.has-new-scene .base-card-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.has-new-scene .base-card-name {
+  font-size: .78rem;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+/* Mô tả dài trong thẻ: bỏ ở thanh đáy, chỉ hiện khi rê chuột. */
+.has-new-scene .base-card-desc {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Chân trang cũ: đã có HUD mới hiện số ngày và vật phẩm. */
+.has-new-scene .base-foot {
+  display: none;
+}
+
+/* Dòng nhàn rỗi và dòng ngủ: giữ, nhưng đẩy lên trên thanh công cụ để
+   không bị che. */
+.has-new-scene .base-idle {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  transform: translateX(-50%);
+  z-index: 19;
+  max-width: min(560px, 80vw);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Nút chơi lại màn liên lạc và lưu ngay: đưa vào thanh công cụ đáy. */
+.has-new-scene .base-actions-row {
+  display: none;
+}
+
+/* Trên máy hẹp, thanh công cụ đáy chiếm chỗ nhiều hơn, nên nâng dòng
+   nhàn rỗi lên và cho lưới nút cuộn ngang thay vì xuống dòng. */
+@media (max-width: 640px) {
+  .has-new-scene .base-grid {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 8px 10px;
+    scrollbar-width: none;
+  }
+  .has-new-scene .base-grid::-webkit-scrollbar { display: none; }
+  .has-new-scene .base-card { flex: 0 0 auto; }
+  .has-new-scene .base-card-name { font-size: .72rem; }
+  .has-new-scene .base-idle {
+    bottom: 74px;
+    font-size: .76rem;
+  }
+}
+
+/* Tôn trọng lựa chọn giảm chuyển động: bỏ hiệu ứng mờ nền vì nó tốn
+   tài nguyên và không cần thiết. */
+html.motion-off .has-new-scene .base-grid,
+html.motion-off .has-new-scene .base-grid {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

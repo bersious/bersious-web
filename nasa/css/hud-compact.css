@@ -1,0 +1,899 @@
+/* ============================================================
+   hud-compact.css
+   Thanh HUD nổi mỏng cho màn căn cứ, kèm widget nhật ký và sổ tay.
+
+   Nguyên tắc: mọi màu lấy từ tokens.css. Muốn đổi tông thì sửa
+   biến ở đó, không sửa ở đây. Không có mã màu viết tay trong file
+   này, kể cả màu đen pha loãng: dùng color-mix trên biến có sẵn.
+
+   Thanh trên cùng cao 62px ở màn rộng, nền bán trong suốt cộng
+   backdrop filter để cảnh Sao Hỏa vẫn lộ ra phía sau.
+   ============================================================ */
+
+.hud2 {
+  --hud2-line: var(--line);
+  --hud2-line-soft: color-mix(in srgb, var(--line) 60%, transparent);
+  /* Hai lớp nền bán trong suốt của thanh trên. Độ đục vừa đủ để chữ
+     đạt tương phản AA, nhưng vẫn nhìn rõ mảng sáng tối của cảnh Sao
+     Hỏa phía sau khi lia mắt qua thanh. */
+  /* Độ đục của thanh. Đo bằng ảnh chụp: ở mức này biến thiên sáng tối
+     của cảnh phía sau còn lại khoảng một phần ba, đủ để nhìn ra mảng
+     sáng tối đang trôi qua, trong khi mọi chữ vẫn đạt tương phản AA
+     trên cảnh sáng nhất của màn căn cứ. */
+  --hud2-glass: color-mix(in srgb, var(--bg-void) 68%, transparent);
+  --hud2-glass-2: color-mix(in srgb, var(--bg-void) 63%, transparent);
+
+  /* Màu nhấn dùng riêng trên thanh. Bản gốc trong tokens.css đặt cho
+     nền đặc, nên khi phủ lên cảnh sáng nhất của màn căn cứ thì hổ phách,
+     xanh lơ và đỏ đều tụt dưới 4,5:1. Ba biến dưới đây pha thêm màu
+     chữ sáng, giữ đúng sắc nhưng đủ tương phản AA. */
+  --hud2-accent: color-mix(in srgb, var(--amber) 70%, var(--tx-bright));
+  --hud2-accent-cool: color-mix(in srgb, var(--cyan) 64%, var(--tx-bright));
+  --hud2-alarm: color-mix(in srgb, var(--fail) 42%, var(--tx-bright));
+  --hud2-good: color-mix(in srgb, var(--ok) 68%, var(--tx-bright));
+  --hud2-caution: color-mix(in srgb, var(--warn) 92%, var(--tx-bright));
+  --hud2-glass-3: color-mix(in srgb, var(--bg-inset) 72%, transparent);
+  --hud2-veil: color-mix(in srgb, var(--bg-void) 78%, transparent);
+  --hud2-hair: color-mix(in srgb, var(--tx-bright) 12%, transparent);
+  --hud2-shadow: color-mix(in srgb, var(--bg-void) 62%, transparent);
+
+  --hud2-v-stamina: var(--amber);
+  --hud2-v-calories: var(--hud2-caution);
+  --hud2-v-water: var(--cyan);
+  --hud2-v-sanity: var(--ok);
+
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  /* Không có dòng này thì cả khung phủ màn hình chặn luôn chuột vào
+     sân khấu căn cứ phía dưới. Mọi khối con bật lại pointer-events. */
+  font-family: var(--st-font-body, system-ui, sans-serif);
+}
+
+.hud2 *,
+.hud2 *::before,
+.hud2 *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   THANH TRÊN CÙNG
+   ============================================================ */
+
+.hud2-bar {
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 22px);
+
+  min-height: 62px;
+  padding: 7px clamp(10px, 1.4vw, 20px);
+
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background:
+    linear-gradient(180deg, var(--hud2-glass-2), var(--hud2-glass));
+  /* Làm mờ hậu cảnh: đây là thứ khiến thanh đọc được mà vẫn thấy
+     cảnh Sao Hỏa trôi phía sau. */
+  -webkit-backdrop-filter: blur(10px) saturate(125%);
+  backdrop-filter: blur(10px) saturate(125%);
+  box-shadow: 0 10px 26px -18px var(--hud2-shadow);
+
+  transition: transform var(--st-dur-move, .18s) var(--st-ease-out, ease),
+    opacity var(--st-dur-move, .18s) linear;
+}
+
+/* Không có backdrop filter thì nền phải đặc hơn, nếu không chữ chìm
+   vào ảnh nền và không đọc được. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hud2-bar {
+    background: color-mix(in srgb, var(--bg-deep) 90%, transparent);
+  }
+}
+
+.hud2-slot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.hud2-left { gap: 10px; justify-content: flex-start; }
+.hud2-center { flex-direction: column; align-items: center; gap: 3px; }
+.hud2-right { gap: 10px; justify-content: flex-end; }
+
+/* ---------- chân dung ---------- */
+
+.hud2-avatar {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--amber) 42%, transparent);
+  background: color-mix(in srgb, var(--bg-raise) 85%, transparent);
+  color: var(--amber);
+}
+
+.hud2-avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.hud2.has-avatar .hud2-avatar-img { display: block; }
+.hud2.has-avatar .hud2-avatar-ini { display: none; }
+
+.hud2-avatar-ini {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.hud2-id {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hud2-name {
+  font-family: var(--st-font-display, system-ui, sans-serif);
+  font-size: clamp(.78rem, .72rem + .2vw, .92rem);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Chữ trên nền mờ cần bóng nhẹ để đạt tương phản AA khi cảnh nền
+     phía sau là vùng sáng, ví dụ bầu trời trưa. */
+  text-shadow: 0 1px 3px var(--hud2-shadow);
+  max-width: 16ch;
+}
+
+/* ---------- bốn thanh chỉ số nhân vật ---------- */
+
+.hud2-vitals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 14px;
+}
+
+.hud2-vital {
+  --v-color: var(--tx-soft);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.hud2-vital[data-stat="stamina"]  { --v-color: var(--hud2-v-stamina); }
+.hud2-vital[data-stat="calories"] { --v-color: var(--hud2-v-calories); }
+.hud2-vital[data-stat="water"]    { --v-color: var(--hud2-v-water); }
+.hud2-vital[data-stat="sanity"]   { --v-color: var(--hud2-v-sanity); }
+
+.hud2-vital-ico {
+  flex: 0 0 auto;
+  display: flex;
+  width: 11px;
+  height: 11px;
+  color: var(--v-color);
+}
+
+.hud2-vital-ico svg { width: 100%; height: 100%; }
+
+/* Bề rộng nhãn cố định để bốn thanh chia vạch thẳng cột với nhau.
+   Nhãn tiếng Việt dài ngắn khác nhau, không ghim thì hàng trên lệch
+   hàng dưới và cả cụm đọc ra như bốn ô rời. */
+.hud2-vital-k {
+  flex: 0 0 auto;
+  min-width: 4.4em;
+  font-size: .6rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--tx);
+  white-space: nowrap;
+}
+
+.hud2-segs {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 2px;
+  min-width: 30px;
+  height: 6px;
+  align-items: stretch;
+}
+
+.hud2-seg {
+  border-radius: .5px;
+  background: color-mix(in srgb, var(--tx-bright) 11%, transparent);
+  transition: background-color var(--st-dur-fast, .12s) ease;
+}
+
+.hud2-seg.is-on {
+  background: var(--v-color);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--v-color) 50%, transparent);
+}
+
+.hud2-vital-v {
+  flex: 0 0 auto;
+  min-width: 2ch;
+  text-align: right;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+  text-shadow: 0 1px 2px var(--hud2-shadow);
+}
+
+.hud2-vital.is-low .hud2-vital-v { color: var(--hud2-caution); }
+
+/* Đỏ --fail của tokens.css chỉ đạt khoảng 3,6:1 trên nền thanh ở
+   cảnh sáng nhất, dưới mức AA cho chữ nhỏ. Pha thêm màu chữ sáng để
+   vượt 4,5:1 mà vẫn đọc ra là đỏ cảnh báo. */
+.hud2-vital.is-danger { --v-color: var(--fail); }
+.hud2-vital.is-danger .hud2-vital-v { color: var(--hud2-alarm); }
+
+/* ---------- đồng hồ ---------- */
+
+.hud2-clock-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud2-clock {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 1px 9px 2px;
+  border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-inset) 66%, transparent);
+}
+
+.hud2-sol {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  color: var(--hud2-accent);
+}
+
+.hud2-sep {
+  font-size: .6rem;
+  color: var(--tx-soft);
+}
+
+.hud2-time {
+  font-family: var(--st-font-mono, monospace);
+  font-size: clamp(.92rem, .84rem + .35vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: .05em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud2-accent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--hud2-accent) 30%, transparent);
+}
+
+.hud2[data-night="1"] .hud2-clock {
+  border-color: color-mix(in srgb, var(--cyan) 36%, transparent);
+}
+
+.hud2[data-night="1"] .hud2-time,
+.hud2[data-night="1"] .hud2-sol {
+  color: var(--hud2-accent-cool);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--hud2-accent-cool) 28%, transparent);
+}
+
+/* ---------- ba nút tốc độ ---------- */
+
+.hud2-speeds {
+  display: flex;
+  gap: 3px;
+}
+
+/* 44px cả hai chiều: đây là điều khiển chính của màn, người chơi
+   bấm liên tục để tua ngày, nên không được nhỏ hơn chuẩn chạm. */
+.hud2-speed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 1px solid color-mix(in srgb, var(--tx-bright) 16%, transparent);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--bg-raise) 78%, transparent);
+  color: var(--tx);
+  font-family: var(--st-font-mono, monospace);
+  font-size: .68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--st-dur-fast, .12s) ease,
+    color var(--st-dur-fast, .12s) ease,
+    border-color var(--st-dur-fast, .12s) ease;
+}
+
+.hud2-speed:hover {
+  border-color: color-mix(in srgb, var(--amber) 44%, transparent);
+  color: var(--tx-bright);
+}
+
+.hud2-speed:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.hud2-speed.is-active {
+  border-color: color-mix(in srgb, var(--amber) 58%, transparent);
+  background: color-mix(in srgb, var(--amber) 20%, transparent);
+  color: var(--hud2-accent);
+}
+
+.hud2-speed-ico { display: flex; width: 10px; height: 10px; }
+.hud2-speed-ico svg { width: 100%; height: 100%; }
+
+.hud2-speed[data-kind="fast"] { max-width: 96px; }
+.hud2-speed[data-kind="fast"] .hud2-speed-txt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- dòng nhiệm vụ ---------- */
+
+.hud2-quest {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  max-width: 40ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud2-quest-k {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .54rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  flex: 0 0 auto;
+}
+
+.hud2-quest-v {
+  font-size: .68rem;
+  color: var(--tx);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px var(--hud2-shadow);
+}
+
+.hud2[data-quest="signal"] .hud2-quest-v { color: var(--hud2-accent); }
+.hud2[data-quest="wait"] .hud2-quest-v { color: var(--hud2-accent-cool); }
+
+/* ---------- ba chỉ số trạm ---------- */
+
+.hud2-station {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-right: 2px;
+}
+
+.hud2-st {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--tx);
+}
+
+.hud2-st-ico {
+  display: flex;
+  width: 12px;
+  height: 12px;
+  color: var(--tx-dim);
+}
+
+.hud2-st-ico svg { width: 100%; height: 100%; }
+
+.hud2-st-k {
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .03em;
+  color: var(--tx);
+  white-space: nowrap;
+}
+
+.hud2-st-v {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud2-good);
+  text-shadow: 0 1px 2px var(--hud2-shadow);
+}
+
+.hud2-st-u {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .56rem;
+  color: var(--tx);
+}
+
+.hud2-st[data-level="warn"] .hud2-st-v { color: var(--hud2-caution); }
+.hud2-st[data-level="fail"] .hud2-st-v { color: var(--hud2-alarm); }
+.hud2-st[data-level="warn"] .hud2-st-ico { color: var(--warn); }
+.hud2-st[data-level="fail"] .hud2-st-ico { color: var(--fail); }
+
+/* ---------- bốn nút điều khiển ---------- */
+
+.hud2-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 9px;
+  border: 1px solid color-mix(in srgb, var(--tx-bright) 14%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--bg-raise) 70%, transparent);
+  color: var(--tx);
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .68rem;
+  cursor: pointer;
+  transition: background-color var(--st-dur-fast, .12s) ease,
+    color var(--st-dur-fast, .12s) ease,
+    border-color var(--st-dur-fast, .12s) ease;
+}
+
+.hud2-btn:hover {
+  border-color: color-mix(in srgb, var(--amber) 46%, transparent);
+  color: var(--tx-bright);
+}
+
+.hud2-btn:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.hud2-btn-ico {
+  display: flex;
+  width: 14px;
+  height: 14px;
+  color: var(--hud2-accent);
+}
+
+.hud2-btn-ico svg { width: 100%; height: 100%; }
+
+.hud2-btn-icon { padding: 0; }
+
+.hud2-saved {
+  font-family: var(--st-font-mono, monospace);
+  font-size: .56rem;
+  letter-spacing: .06em;
+  color: var(--ok);
+  opacity: 0;
+  transition: opacity var(--st-dur-move, .18s) linear;
+  white-space: nowrap;
+}
+
+.hud2-saved.is-on { opacity: 1; }
+
+/* ---------- nút mở lại khi thanh đã thu gọn ---------- */
+
+.hud2-restore {
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  right: clamp(10px, 1.4vw, 20px);
+  display: none;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 10px 0 8px;
+  border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  background: var(--hud2-glass-2);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--hud2-accent);
+  font-size: .66rem;
+  cursor: pointer;
+}
+
+.hud2-restore:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.hud2-restore-ico { display: flex; width: 14px; height: 14px; }
+.hud2-restore-ico svg { width: 100%; height: 100%; }
+
+.hud2[data-collapsed="true"] .hud2-bar {
+  transform: translateY(-102%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hud2[data-collapsed="true"] .hud2-restore { display: inline-flex; }
+
+/* ============================================================
+   WIDGET NHẬT KÝ SỨ MỆNH
+   ============================================================ */
+
+.hud2-log {
+  pointer-events: auto;
+  position: absolute;
+  left: clamp(8px, 1.2vw, 18px);
+  bottom: clamp(8px, 1.2vh, 18px);
+  width: min(380px, calc(100vw - 24px));
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--bg-panel) 72%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  box-shadow: 0 14px 34px -22px var(--hud2-shadow);
+  overflow: hidden;
+}
+
+.hud2-log-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 4px 2px 9px;
+  border-bottom: 1px solid var(--hud2-hair);
+}
+
+.hud2-log-ico {
+  display: flex;
+  width: 12px;
+  height: 12px;
+  color: var(--amber);
+  flex: 0 0 auto;
+}
+
+.hud2-log-ico svg { width: 100%; height: 100%; }
+
+.hud2-log-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .55rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.hud2-log-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -6px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--tx-soft);
+  cursor: pointer;
+}
+
+.hud2-log-toggle:hover { color: var(--amber); background: color-mix(in srgb, var(--tx-bright) 7%, transparent); }
+.hud2-log-toggle:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
+
+.hud2-log-toggle-ico { display: flex; width: 15px; height: 15px; }
+.hud2-log-toggle-ico svg { width: 100%; height: 100%; }
+
+.hud2-log-body {
+  padding: 6px 10px 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 34vh;
+}
+
+.hud2-log[data-collapsed="true"] .hud2-log-body {
+  max-height: none;
+  overflow: hidden;
+}
+
+.hud2-log-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hud2-log-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .76rem;
+  line-height: 1.45;
+  color: var(--tx-bright);
+}
+
+.hud2-log-line[hidden] { display: none; }
+
+.hud2-log-day {
+  flex: 0 0 auto;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--amber) 14%, transparent);
+  font-family: var(--st-font-mono, monospace);
+  font-size: .52rem;
+  letter-spacing: .08em;
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+.hud2-log-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Ba dòng là đủ cho một câu nhật ký. Dài hơn thì cắt, vì widget
+     này để liếc chứ không phải để đọc cả trang. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================================
+   SỔ TAY HƯỚNG DẪN
+   ============================================================ */
+
+.hud2-guide {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.hud2-guide[hidden] { display: none; }
+
+.hud2-guide-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--hud2-veil);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.hud2-guide-panel {
+  position: relative;
+  width: min(680px, 100%);
+  max-height: min(86vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 90%, transparent);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  box-shadow: 0 30px 70px -30px var(--bg-void);
+  overflow: hidden;
+}
+
+.hud2-guide-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 10px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-raise);
+}
+
+.hud2-guide-title {
+  margin: 0;
+  font-family: var(--st-font-display, system-ui, sans-serif);
+  font-size: clamp(1rem, .92rem + .5vw, 1.28rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-bright);
+}
+
+.hud2-guide-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--tx-bright) 14%, transparent);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--tx);
+  cursor: pointer;
+}
+
+.hud2-guide-x svg { width: 17px; height: 17px; }
+.hud2-guide-x:hover { color: var(--tx-bright); border-color: color-mix(in srgb, var(--amber) 50%, transparent); }
+.hud2-guide-x:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.hud2-guide-body {
+  padding: 16px 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hud2-guide-h {
+  margin: 0 0 7px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+/* Thân bài dùng phông thường chứ không dùng phông đơn cách: đoạn dài
+   trên phông mono đọc mỏi mắt, nhất là trên điện thoại.
+   Sổ tay đặt trên nền đặc nên màu chữ chỉ cần đạt AA so với
+   --bg-panel, không phải so với cảnh phía sau. */
+.hud2-guide-p {
+  margin: 0;
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: .92rem;
+  line-height: 1.7;
+  color: var(--tx);
+}
+
+.hud2-facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hud2-fact-t {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--tx-bright);
+}
+
+.hud2-fact-b {
+  margin: 3px 0 0;
+  font-size: .86rem;
+  line-height: 1.65;
+  color: var(--tx);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Dưới 900px: dồn thành hai hàng. Hàng trên là nhân vật và cụm nút,
+   hàng dưới là đồng hồ và nhiệm vụ. */
+@media (max-width: 900px) {
+  .hud2-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'left  right'
+      'center center';
+    row-gap: 6px;
+    padding: 7px 12px 8px;
+  }
+
+  .hud2-left   { grid-area: left; }
+  .hud2-right  { grid-area: right; }
+  .hud2-center {
+    grid-area: center;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .hud2-quest { max-width: none; }
+
+  .hud2-vitals {
+    grid-template-columns: repeat(2, minmax(88px, auto));
+    gap: 2px 10px;
+  }
+
+  .hud2-st-k { display: none; }
+  .hud2-log { width: min(340px, calc(100vw - 20px)); }
+}
+
+/* Dưới 600px: chỉ còn icon và số, bỏ hết nhãn chữ cho vừa bề ngang
+   điện thoại dọc. */
+@media (max-width: 600px) {
+  .hud2-bar {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 8px;
+    row-gap: 2px;
+    padding: 4px 8px 5px;
+  }
+
+  .hud2-left { gap: 7px; }
+  .hud2-avatar { width: 30px; height: 30px; }
+  .hud2-avatar-ini { font-size: .68rem; }
+  .hud2-name { max-width: 9ch; font-size: .72rem; }
+
+  .hud2-vitals { grid-template-columns: repeat(2, minmax(70px, auto)); gap: 2px 8px; }
+  .hud2-vital-k { display: none; }
+  .hud2-vital-ico { width: 10px; height: 10px; }
+  .hud2-vital-v { font-size: .58rem; min-width: 1.8ch; }
+  .hud2-segs { min-width: 22px; height: 5px; gap: 1.5px; }
+
+  .hud2-btn-label { display: none; }
+  .hud2-btn { min-width: 44px; padding: 0 6px; }
+
+  .hud2-station { gap: 6px; }
+  .hud2-st-u { display: none; }
+  .hud2-st-v { font-size: .7rem; }
+
+  .hud2-speed { min-width: 44px; padding: 0 4px; font-size: .6rem; }
+  .hud2-speed[data-kind="fast"] { max-width: 44px; }
+  .hud2-speed[data-kind="fast"] .hud2-speed-txt { display: none; }
+
+  .hud2-time { font-size: .88rem; }
+  .hud2-sol { font-size: .54rem; }
+  .hud2-clock { padding: 1px 7px 2px; }
+
+  .hud2-quest-k { display: none; }
+  .hud2-quest-v { font-size: .64rem; }
+
+  .hud2-log { width: calc(100vw - 16px); }
+  .hud2-log-line { font-size: .7rem; }
+}
+
+/* Màn rất hẹp: cụm ba chỉ số trạm xuống dưới hàng nút. */
+@media (max-width: 430px) {
+  .hud2-right { flex-direction: column; align-items: flex-end; gap: 3px; }
+  .hud2-station { gap: 5px; }
+}
+
+/* ============================================================
+   GIẢM CHUYỂN ĐỘNG
+   ============================================================ */
+
+.hud2.is-static *,
+.hud2.is-static *::before,
+.hud2.is-static *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud2 *,
+  .hud2 *::before,
+  .hud2 *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

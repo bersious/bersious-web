@@ -14,6 +14,8 @@
 import { createClock } from './game-time.js';
 import { createStats } from './hab-stats.js';
 import { createHud } from './hud.js';
+import { createCompactHud } from './hud-compact.js';
+import { createBaseScene, pickCharState } from './base-scene.js';
 import { createClockUi } from './clock-ui.js';
 import { t, onLangChange, getLang } from './i18n.js';
 import { getSettings } from './settings.js';
@@ -58,6 +60,19 @@ function injectSaveCss() {
   link.href = BASE_URL + 'css/save-game.css';
   link.dataset.saveCss = '1';
   document.head.appendChild(link);
+}
+
+/* CSS của sân khấu mới và lớp ghi đè ẩn giao diện cũ. Chỉ nạp khi
+   sân khấu mới chạy được, nếu lỗi thì game quay về bản cũ nguyên vẹn. */
+function injectNewSceneCss() {
+  for (const href of ['css/base-scene.css', 'css/hud-compact.css', 'css/base-new-scene.css']) {
+    if (document.querySelector('link[data-new-scene-css="' + href + '"]')) continue;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = BASE_URL + href;
+    link.dataset.newSceneCss = href;
+    document.head.appendChild(link);
+  }
 }
 
 
@@ -234,6 +249,10 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     startMinute: restoredClock.minutes,
     day: restoredClock.day,
   });
+
+  /* Trạng thái chuỗi xác tàu thăm dò. Khai báo sớm vì các handler
+     bên dưới dùng tới, không đặt cuối hàm được. */
+  const quest = loadQuest();
 
   /* Bộ chỉ số sinh tồn, tách khỏi giao diện. Chỉ số tự lưu vào
      localStorage nên đóng tab mở lại vẫn còn nguyên tiến độ. */
@@ -966,7 +985,6 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
      Chỉ chạy một lần mỗi ngày, khi đồng hồ sang ngày mới. Ngày 6 thì
      hiện thông báo nhớ ra xác tàu. Từ đó tới khi đào được thì mỗi sáng
      nhắc lại bằng một dòng trong nhật ký. */
-  const quest = loadQuest();
 
   function checkProbeQuest(day) {
     const ev = tickQuest(quest, day);
@@ -998,12 +1016,89 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
 
   /* ---------- thanh chỉ số ---------- */
 
-  const hud = createHud({
-    container: el.querySelector('.base-hud-slot'),
-    stats,
-    getLang,
-    onLangChange,
-  });
+  /* HUD mới: thanh nổi mỏng ở trên cùng, có nhật ký và sổ tay.
+     HUD cũ vẫn giữ làm dự phòng nếu thanh mới lỗi. */
+  let hud;
+  try {
+    hud = createCompactHud({
+      container: el,
+      stats,
+      clock,
+      playerName,
+      onOpenGuide: () => {},
+      onSave: () => { if (typeof saveNow === 'function') saveNow(); },
+      onOpenSettings: () => { if (typeof openSettings === 'function') openSettings(); },
+    });
+  } catch (err) {
+    console.warn('[base] thanh HUD mới lỗi, dùng bản cũ', err);
+    hud = createHud({
+      container: el.querySelector('.base-hud-slot'),
+      stats,
+      getLang,
+      onLangChange,
+    });
+  }
+
+  /* ---------- sân khấu căn cứ toàn màn hình (mới) ---------- */
+
+  /* Sân khấu point-and-click: ảnh căn cứ phủ kín màn hình, nhân vật
+     phi hành gia đứng giữa, sáu trạm bấm trực tiếp trên tranh. Đặt sau
+     HUD để ảnh nền nằm dưới thanh nổi, nhưng vẫn trên nền cũ. */
+  let baseScene = null;
+  try {
+    injectNewSceneCss();
+    baseScene = createBaseScene({
+      container: el,
+      stats,
+      clock,
+      onAction: (id) => {
+        /* Sáu trạm của sân khấu mới ánh xạ sang hành động cũ, để không
+           phải viết lại toàn bộ logic bên dưới. */
+        const map = {
+          comms: 'radio',
+          lifesupport: 'farm',
+          bag: 'bag',
+          craft: 'craft',
+          explore: 'explore',
+          sleep: 'sleep',
+        };
+        const target = map[id] || id;
+        const btn = grid.querySelector('[data-action="' + target + '"]');
+        if (btn) btn.click();
+      },
+    });
+    /* Sân khấu mới thay hẳn khung cảnh cũ. Ẩn ảnh nền cũ, tiêu đề và
+       ô nhật ký để không đè lên tranh; giữ lưới nút vì vẫn cần cho
+       người chơi bấm, nhưng dời xuống đáy và thu nhỏ thành thanh công
+       cụ để nhường chỗ cho cảnh. */
+    if (baseScene && baseScene.root) {
+      baseScene.root.style.zIndex = '1';
+      el.insertBefore(baseScene.root, el.firstChild);
+      el.classList.add('has-new-scene');
+    }
+  } catch (err) {
+    console.warn('[base] sân khấu mới lỗi, giữ bản cũ', err);
+    baseScene = null;
+  }
+
+  /* Đổi tư thế nhân vật theo chỉ số. Gọi mỗi lần chỉ số đổi. */
+  function syncCharPose() {
+    if (!baseScene || typeof baseScene.setCharState !== 'function') return;
+    try {
+      baseScene.setCharState(pickCharState(stats.state ? stats.state() : stats));
+    } catch (err) { /* không chặn game vì lỗi trang trí */ }
+  }
+
+  /* Đổi pha nền theo giờ và thời tiết trong ngày. */
+  function syncPhase() {
+    if (!baseScene || typeof baseScene.setPhase !== 'function') return;
+    try {
+      const c = clock.state();
+      baseScene.setPhase(c.storm ? 'storm' : (c.isNight ? 'night' : 'day'));
+    } catch (err) { /* không chặn game */ }
+  }
+  syncCharPose();
+  syncPhase();
 
   /* ---------- đồng hồ LCD + nút tốc độ ---------- */
 

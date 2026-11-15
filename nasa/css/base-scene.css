@@ -1,0 +1,678 @@
+/* ============================================================
+   base-scene.css
+   Sân khấu căn cứ point-and-click, phủ trọn màn hình.
+
+   Mọi màu lấy từ tokens.css, không viết mã màu trực tiếp ở đây.
+   Chỗ nào cần độ trong suốt thì dùng color-mix() trộn từ biến có
+   sẵn, nhờ vậy đổi bảng màu là cả sân khấu đổi theo.
+
+   Lớp xếp từ dưới lên:
+     1. bs-bg      ảnh trạm, ba lớp pha chồng nhau
+     2. bs-glass   ô cửa sổ + hạt bụi
+     3. bs-leds    đèn LED nhấp nháy trên bảng điều khiển
+     4. bs-char    phi hành gia
+     5. bs-hotspots sáu trạm bấm được
+   ============================================================ */
+
+.bs-root {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  background: var(--bg-void);
+  font-family: var(--st-font-body);
+  color: var(--tx-bright);
+  /* Khung ảnh do JS tính, hai biến này để CSS con dùng lại */
+  --bs-stage-w: 100vw;
+  --bs-stage-h: 100vh;
+  --bs-amber-line: color-mix(in srgb, var(--amber) 62%, transparent);
+  --bs-amber-soft: color-mix(in srgb, var(--amber) 26%, transparent);
+  --bs-char-h: 42vh;
+}
+
+/* ---------- khung ảnh: cover, canh giữa ---------- */
+
+.bs-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  /* kích thước và vị trí do JS đặt theo kiểu cover; không dùng
+     inset/margin auto vì hai thứ đó sẽ ghi đè lên toạ độ tính được */
+  will-change: width, height;
+}
+
+/* ---------- nền lấp khi tranh không phủ hết ----------
+   Chỉ bật ở chế độ vừa khung (màn 4:3 nằm ngang). Lấp bằng chính tấm
+   ảnh trạm phóng to và làm mờ, không dùng ô đen, nên mắt vẫn thấy
+   tranh phủ kín màn. */
+
+.bs-fill {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  background-image: url('../assets/art/bg-hab.webp');
+  background-size: cover;
+  background-position: center;
+  /* Làm mờ vừa phải và chỉ tối hơn tranh một chút: để quá tối thì mắt
+     đọc ra hai dải đen và cảm giác letterbox quay lại, đúng thứ cần
+     tránh. Ảnh gốc vẫn nhận ra được, chỉ mất nét. */
+  filter: blur(14px) brightness(.66) saturate(.9);
+  transform: scale(1.04);
+  opacity: 0;
+  transition: opacity var(--st-dur-slow) var(--st-ease-in-out);
+}
+
+.bs-root.is-fit .bs-fill { opacity: 1; }
+
+/* Làm mềm mép trên dưới của dải tranh sắc nét, để chỗ nối với phần
+   ảnh mờ đọc ra như bóng viền chứ không như một đường cắt ngang. */
+.bs-root.is-fit .bs-stage::before,
+.bs-root.is-fit .bs-stage::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 46px;
+  z-index: 8;
+  pointer-events: none;
+}
+.bs-root.is-fit .bs-stage::before {
+  top: 0;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg-void) 82%, transparent), transparent);
+}
+.bs-root.is-fit .bs-stage::after {
+  bottom: 0;
+  background: linear-gradient(0deg,
+    color-mix(in srgb, var(--bg-void) 82%, transparent), transparent);
+}
+
+/* ---------- lớp ảnh nền ---------- */
+
+.bs-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg-void);
+}
+
+.bs-layer {
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/art/bg-hab.webp');
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity var(--st-dur-slow) var(--st-ease-in-out);
+}
+
+.bs-layer--on { opacity: 1; }
+
+/* Ban đêm: cùng tấm ảnh, thêm gradient xanh tối phủ lên và một quầng
+   đèn ấm hắt từ trong ra. Ảnh gốc đã ấm nên lớp xanh kéo nhiệt độ
+   màu về phía lạnh, còn quầng ấm giữ cảm giác có người ở trong. */
+.bs-layer--night {
+  filter: saturate(.55) brightness(.62);
+}
+.bs-root[data-phase="night"] .bs-layer--night {
+  opacity: 1;
+}
+.bs-root[data-phase="night"] .bs-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 46% 34% at 62% 46%,
+      color-mix(in srgb, var(--amber) 30%, transparent), transparent 72%),
+    radial-gradient(ellipse 30% 22% at 28% 44%,
+      color-mix(in srgb, var(--cyan) 16%, transparent), transparent 70%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--bg-void) 74%, transparent) 0%,
+      color-mix(in srgb, var(--bg-deep) 52%, transparent) 46%,
+      color-mix(in srgb, var(--bg-void) 82%, transparent) 100%);
+  transition: opacity var(--st-dur-slow) var(--st-ease-in-out);
+}
+
+/* Bão bụi: ảnh nhuộm đỏ gỉ vừa phải, cộng quầng bụi đặc phía ngoài ô
+   cửa sổ và một dải sương đỏ trôi ngang qua phòng. Nhuộm mạnh tay thì
+   cả phòng thành một khối cam, mất hết tương phản giữa người và nền,
+   nên chỉ đẩy màu khoảng hai phần mười và giữ độ sáng gần như cũ. */
+.bs-layer--storm {
+  filter: sepia(.28) saturate(1.28) hue-rotate(-8deg) brightness(.86) contrast(1.04);
+}
+.bs-root[data-phase="storm"] .bs-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 28.5% 44.5%,
+      color-mix(in srgb, var(--fail) 40%, transparent) 0 8%,
+      transparent 30%),
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--fail) 9%, transparent) 0%,
+      color-mix(in srgb, var(--amber-dim) 12%, transparent) 42%,
+      color-mix(in srgb, var(--fail) 8%, transparent) 74%,
+      color-mix(in srgb, var(--bg-void) 26%, transparent) 100%);
+  animation: bs-storm-drift 16s linear infinite alternate;
+}
+
+@keyframes bs-storm-drift {
+  from { transform: translate3d(-1.6%, 0, 0) scale(1.02); }
+  to   { transform: translate3d(1.6%, 0, 0) scale(1.05); }
+}
+
+/* ---------- ô cửa sổ + hạt bụi ---------- */
+
+.bs-glass {
+  position: absolute;
+  z-index: 3;
+  /* giữ tròn ở mọi tỉ lệ khung ảnh: bề rộng theo phần trăm, cao suy
+     ra từ aspect-ratio chứ không đặt riêng */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  /* Ban ngày ô kính gần như vô hình, để tranh tự nói: khung thép đã
+     có sẵn trong ảnh, vẽ thêm viền đậm là thành hình bầu dục lạc tông.
+     Đêm và bão mới cần khung này vì có lớp phủ tối lên trên. */
+  transition: box-shadow var(--st-dur-slow) var(--st-ease-in-out);
+}
+
+.bs-root[data-phase="night"] .bs-glass,
+.bs-root[data-phase="storm"] .bs-glass {
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--line-strong) 72%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--bg-void) 62%, transparent);
+}
+
+.bs-glass-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 62%,
+    color-mix(in srgb, var(--amber) 18%, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--st-dur-slow) var(--st-ease-in-out);
+}
+
+.bs-root[data-phase="night"] .bs-glass-glow { opacity: .9; }
+
+.bs-mote-dot {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: var(--ms);
+  height: var(--ms);
+  margin: calc(var(--ms) / -2) 0 0 calc(var(--ms) / -2);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--amber) 70%, var(--tx-bright));
+  opacity: 0;
+  filter: blur(.3px);
+  animation: bs-mote-float var(--mdur) var(--mdel) ease-in-out infinite;
+}
+
+.bs-root[data-phase="storm"] .bs-mote-dot {
+  background: color-mix(in srgb, var(--fail) 60%, var(--tx-bright));
+  animation-duration: calc(var(--mdur) * .45);
+}
+
+@keyframes bs-mote-float {
+  0%   { opacity: 0;   transform: translate3d(0, 6px, 0) scale(.8); }
+  18%  { opacity: .75; }
+  62%  { opacity: .5; }
+  100% { opacity: 0;   transform: translate3d(var(--mdx), -22px, 0) scale(1.1); }
+}
+
+/* ---------- đèn LED ---------- */
+
+.bs-leds {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.bs-led {
+  position: absolute;
+  left: var(--lx);
+  top: var(--ly);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px 2px color-mix(in srgb, var(--amber) 55%, transparent);
+  opacity: .35;
+  animation: bs-led-blink var(--ldur) var(--ldel) ease-in-out infinite;
+}
+
+.bs-led:nth-child(3n) {
+  background: var(--ok);
+  box-shadow: 0 0 6px 2px color-mix(in srgb, var(--ok) 50%, transparent);
+}
+.bs-led:nth-child(3n+2) {
+  background: var(--cyan);
+  box-shadow: 0 0 6px 2px color-mix(in srgb, var(--cyan) 50%, transparent);
+}
+
+@keyframes bs-led-blink {
+  0%, 100% { opacity: .22; }
+  42%      { opacity: 1; }
+  58%      { opacity: .55; }
+  74%      { opacity: .95; }
+}
+
+/* ---------- phi hành gia ---------- */
+
+.bs-char {
+  position: absolute;
+  z-index: 6;
+  left: 44.5%;
+  /* chân nhân vật đứng trên mặt sàn của tranh: 100% - 79,5% chiều cao khung */
+  bottom: 20.5%;
+  transform: translateX(-50%);
+  height: var(--bs-char-h);
+  width: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity var(--st-dur-move) var(--st-ease-out);
+}
+
+.bs-char-img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--bg-void) 70%, transparent));
+  transition: opacity var(--st-dur-move) var(--st-ease-out);
+}
+
+/* Bóng đổ dưới chân: ellipse tối, mờ dần ra mép, cho cảm giác nhân
+   vật đứng trên sàn chứ không bị dán phẳng lên tranh. */
+.bs-char-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.4%;
+  width: 62%;
+  height: 4.6%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--bg-void) 86%, transparent) 0%,
+    color-mix(in srgb, var(--bg-void) 52%, transparent) 42%,
+    color-mix(in srgb, var(--bg-void) 18%, transparent) 68%,
+    transparent 86%);
+  filter: blur(4px);
+}
+
+/* Tư thế dự phòng khi ba file sprite chưa có trong kho. Giữ đúng
+   kích thước và vị trí của nhân vật thật để bố cục không nhảy khi
+   ảnh xuất hiện, và đổi màu theo trạng thái để vẫn đọc được tình
+   trạng sức khỏe bằng mắt. */
+.bs-char-ph {
+  display: none;
+  position: relative;
+  width: calc(var(--bs-char-h) * .36);
+  height: 100%;
+  border-radius: 46% 46% 12% 12% / 26% 26% 6% 6%;
+  background:
+    radial-gradient(circle at 50% 12%, var(--tx-bright) 0 27%, transparent 28%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--tx-soft) 88%, var(--bg-void)) 0%,
+      color-mix(in srgb, var(--tx-dim) 72%, var(--bg-void)) 58%,
+      color-mix(in srgb, var(--bg-panel) 84%, var(--bg-void)) 100%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--line-strong) 60%, transparent);
+  opacity: .82;
+}
+
+.bs-char.is-noart .bs-char-ph { display: block; }
+.bs-char.is-noart .bs-char-img { display: none; }
+
+.bs-char[data-state="tired"] .bs-char-ph {
+  transform: rotate(-4deg) translateY(2%);
+  background:
+    radial-gradient(circle at 50% 12%, var(--tx) 0 27%, transparent 28%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--tx-dim) 80%, var(--bg-void)) 0%,
+      color-mix(in srgb, var(--tx-ghost) 70%, var(--bg-void)) 100%);
+}
+
+.bs-char[data-state="cold"] .bs-char-ph {
+  background:
+    radial-gradient(circle at 50% 12%, var(--cyan) 0 27%, transparent 28%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--cyan) 44%, var(--bg-panel)) 0%,
+      color-mix(in srgb, var(--cyan-dim) 62%, var(--bg-void)) 100%);
+}
+
+/* ---------- sáu trạm ---------- */
+
+.bs-hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+}
+
+.bs-hot {
+  position: absolute;
+  left: var(--hx);
+  top: var(--hy);
+  transform: translate(-50%, -50%);
+  /* 44px là mức tối thiểu cho vùng bấm, kể cả trên điện thoại */
+  min-width: 44px;
+  min-height: 44px;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--amber);
+  cursor: pointer;
+  border-radius: var(--st-radius);
+  display: grid;
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Khung hổ phách kiểu HUD NASA: bốn góc vát, không phải hình chữ
+   nhật đặc. Chỉ hiện khi rê chuột hoặc khi focus bàn phím. */
+.bs-hot-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--st-dur-move) var(--st-ease-out),
+              transform var(--st-dur-move) var(--st-ease-out);
+  transform: scale(.9);
+  background:
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) left top / 14px 2px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) left top / 2px 14px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) right top / 14px 2px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) right top / 2px 14px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) left bottom / 14px 2px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) left bottom / 2px 14px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) right bottom / 14px 2px no-repeat,
+    linear-gradient(var(--bs-amber-line), var(--bs-amber-line)) right bottom / 2px 14px no-repeat,
+    radial-gradient(circle at center,
+      color-mix(in srgb, var(--amber) 16%, transparent) 0%,
+      color-mix(in srgb, var(--amber) 5%, transparent) 62%,
+      transparent 74%);
+}
+
+.bs-hot:hover .bs-hot-frame,
+.bs-hot:focus-visible .bs-hot-frame,
+.bs-hot.is-hot .bs-hot-frame {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bs-hot:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.bs-hot-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: color-mix(in srgb, var(--tx-bright) 82%, var(--amber));
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--bg-void) 85%, transparent));
+  transition: color var(--st-dur-move) var(--st-ease-out),
+              transform var(--st-dur-move) var(--st-ease-out);
+}
+
+.bs-hot-icon svg { width: 100%; height: 100%; }
+
+.bs-hot:hover .bs-hot-icon,
+.bs-hot:focus-visible .bs-hot-icon,
+.bs-hot.is-hot .bs-hot-icon {
+  color: var(--amber);
+  transform: translateY(-1px);
+}
+
+/* Nhãn tên. Trên màn rộng luôn hiện, kiểu nhãn kỹ thuật in hoa giãn
+   chữ. Nhãn đặt lệch sang bên theo data-side để không đè lên nhân vật
+   đứng giữa trạm: trạm bên trái thì nhãn trượt sang trái, trạm bên
+   phải thì trượt sang phải. */
+.bs-hot-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 8px);
+  transform: translateX(-50%);
+  padding: 3px 9px 4px;
+  white-space: nowrap;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-bright);
+  background: color-mix(in srgb, var(--bg-void) 80%, transparent);
+  border-left: 2px solid var(--bs-amber-line);
+  border-radius: 0 var(--st-radius) var(--st-radius) 0;
+  opacity: .94;
+  transition: opacity var(--st-dur-move) var(--st-ease-out),
+              border-color var(--st-dur-move) var(--st-ease-out);
+  pointer-events: none;
+}
+
+.bs-hot[data-side="left"] .bs-hot-label {
+  left: auto;
+  right: calc(100% - 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 0;
+  border-right: 2px solid var(--bs-amber-line);
+  border-radius: var(--st-radius) 0 0 var(--st-radius);
+}
+
+.bs-hot[data-side="right"] .bs-hot-label {
+  left: calc(100% - 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.bs-hot:hover .bs-hot-label,
+.bs-hot:focus-visible .bs-hot-label,
+.bs-hot.is-hot .bs-hot-label {
+  opacity: 1;
+  border-left-color: var(--amber);
+}
+
+.bs-hot[data-side="left"]:hover .bs-hot-label,
+.bs-hot[data-side="left"]:focus-visible .bs-hot-label,
+.bs-hot[data-side="left"].is-hot .bs-hot-label {
+  border-right-color: var(--amber);
+}
+
+/* Chấm thông báo: việc đang chờ ở trạm này */
+.bs-hot-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--warn);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--warn) 58%, transparent);
+  opacity: 0;
+  transform: scale(.4);
+  transition: opacity var(--st-dur-move) var(--st-ease-out),
+              transform var(--st-dur-move) var(--st-ease-out);
+}
+
+.bs-hot.has-todo .bs-hot-dot {
+  opacity: 1;
+  transform: scale(1);
+  animation: bs-todo-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes bs-todo-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(.72); opacity: .62; }
+}
+
+.bs-hot-key {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-label);
+  color: var(--tx-dim);
+}
+
+.bs-hot-key:empty { display: none; }
+
+/* ---------- nhãn pha ---------- */
+
+.bs-phase {
+  position: absolute;
+  z-index: 8;
+  left: clamp(12px, 2vw, 26px);
+  /* cộng thêm vùng an toàn của điện thoại có tai thỏ, nếu không thì
+     nhãn pha nằm dưới thanh home của iOS và bị vuốt trúng. Trên màn
+     hẹp còn phải nâng thêm: khung nhìn điện thoại cao, nhãn sát mép
+     dưới trông như bị cắt. */
+  bottom: calc(clamp(10px, 1.6vw, 22px) + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 6px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx);
+  background: color-mix(in srgb, var(--bg-void) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line-strong) 70%, transparent);
+  border-radius: var(--st-radius);
+  backdrop-filter: blur(3px);
+  pointer-events: none;
+}
+
+.bs-phase-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--amber) 60%, transparent);
+}
+
+.bs-root[data-phase="night"] .bs-phase-dot {
+  background: var(--cyan);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--cyan) 60%, transparent);
+}
+
+.bs-root[data-phase="storm"] .bs-phase-dot {
+  background: var(--fail);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--fail) 60%, transparent);
+}
+
+/* ============================================================
+   Màn hẹp: ảnh vẫn phủ kín, nhưng trạm to hơn và nhãn luôn hiện
+   vì không có hover.
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .bs-root { --bs-char-h: 46vh; }
+
+  .bs-hot {
+    width: 56px;
+    height: 56px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .bs-hot-frame { opacity: .55; transform: scale(1); }
+
+  .bs-hot-icon { width: 26px; height: 26px; }
+
+  /* Màn hẹp: lưới hai cột nên nhãn trả về dưới nút, canh giữa, cho
+     hàng cột thẳng nhau. */
+  .bs-hot-label,
+  .bs-hot[data-side="left"] .bs-hot-label,
+  .bs-hot[data-side="right"] .bs-hot-label {
+    left: 50%;
+    right: auto;
+    top: calc(100% - 6px);
+    transform: translateX(-50%);
+    border-left: 2px solid var(--bs-amber-line);
+    border-right: 0;
+    border-radius: 0 var(--st-radius) var(--st-radius) 0;
+    /* Màn hẹp: chữ phải to hơn bản desktop một bậc vì người chơi cầm
+       máy xa mắt và ngoài trời sáng. */
+    font-size: max(var(--st-size-cap), 13px);
+    letter-spacing: .06em;
+    padding: 3px 8px 4px;
+    opacity: 1;
+  }
+}
+
+/* Màn rất hẹp: nhãn dài như Life Support có thể chạm mép, thu nhỏ
+   thêm một bậc và cho phép xuống dòng ở chỗ có khoảng trắng. */
+@media (max-width: 430px) {
+  .bs-hot { width: 52px; height: 52px; }
+  .bs-hot-label {
+    white-space: normal;
+    max-width: 96px;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .bs-hot-icon { width: 22px; height: 22px; }
+  .bs-phase {
+    font-size: var(--st-size-label);
+    /* chừa chỗ cho thanh home của iOS và thanh điều hướng Android */
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Màn thấp: thu nhân vật lại để chân không chạm đáy khung. */
+@media (max-height: 560px) {
+  .bs-root { --bs-char-h: 40vh; }
+}
+
+/* ============================================================
+   Tắt chuyển động: bỏ mọi animation và transition của sân khấu.
+   Hai nguồn: cài đặt của hệ điều hành, và công tắc trong game
+   (settings-ui.js gắn class motion-off vào thẻ html).
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-root *,
+  .bs-root *::before,
+  .bs-root *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .bs-root .bs-mote-dot { opacity: .35; }
+  .bs-root .bs-led { opacity: .7; }
+}
+
+html.motion-off .bs-root *,
+html.motion-off .bs-root *::before,
+html.motion-off .bs-root *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+html.motion-off .bs-root .bs-mote-dot { opacity: .35; }
+html.motion-off .bs-root .bs-led { opacity: .7; }
+html.motion-off .bs-root .bs-hot-dot {
+  opacity: .9;
+  transform: none;
+}
+
+html[data-quality="low"] .bs-root .bs-mote-dot,
+html[data-quality="low"] .bs-root .bs-led {
+  display: none;
+}
