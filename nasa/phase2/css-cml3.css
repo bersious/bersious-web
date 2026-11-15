@@ -129,6 +129,16 @@
   grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) minmax(272px, 330px);
   gap: clamp(12px, 1.4vw, 20px);
   align-items: start;
+  /* Nhận phần chiều cao còn lại của màn và cho co. Trước đây lưới cao
+     theo nội dung (đo được 712 trong khi sân khấu chỉ có 599), nên con
+     tàu, cột thông số và nút NEXT bị đẩy ra ngoài đáy khung nhìn. */
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Một hàng duy nhất, cao đúng phần còn lại của màn. Để auto thì hàng
+     lấy chiều cao nội dung cao nhất (đo được 712 trong khi sân khấu chỉ
+     có 599), và cả con tàu lẫn nút NEXT bị đẩy ra ngoài khung nhìn. */
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
 }
 
 /* ---------- cột trái: bốn nhóm thẻ ---------- */
@@ -138,7 +148,10 @@
   flex-direction: column;
   gap: clamp(10px, 1.1vw, 14px);
   min-width: 0;
-  max-height: min(72dvh, 780px);
+  /* Bám chiều cao khung chứa thay vì khung nhìn: dvh không biết gì về
+     thanh trạng thái và thanh thao tác của khung Giai đoạn 2. */
+  min-height: 0;
+  flex: 0 1 auto;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
@@ -433,7 +446,7 @@
   flex: 1 1 auto;
   display: grid;
   place-items: center;
-  min-height: clamp(360px, 58dvh, 660px);
+  min-height: 0;
   padding: 10px;
   overflow: hidden;
   /* Nền trong suốt để ảnh xưởng ở .cml3-stage::before lộ ra. Chỉ giữ một
@@ -502,7 +515,7 @@
   display: block;
   width: min(100%, 420px);
   height: auto;
-  max-height: 58dvh;
+  max-height: 100%;
   overflow: visible;
   /* viền tối quanh silhouette để tách khỏi nền ảnh, cộng một quầng sáng
      mảnh phía sau. Hai lớp drop-shadow: lớp đầu là bóng đổ, lớp sau là
@@ -1087,7 +1100,7 @@
 .cml3-modal-panel {
   position: relative;
   width: min(600px, 100%);
-  max-height: 84dvh;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   padding: clamp(16px, 2vw, 26px);
@@ -1228,7 +1241,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
   }
-  .cml3-stage-canvas { min-height: clamp(340px, 48dvh, 520px); }
+  .cml3-stage-canvas { min-height: 0; }
 }
 
 @media (max-width: 820px) {
@@ -1242,8 +1255,8 @@
   .cml3-parts { grid-template-columns: minmax(0, 1fr); }
   /* Trên điện thoại khung hẹp nên tàu phải chiếm gần hết bề ngang,
      nếu không nó chỉ là một vệt nhỏ giữa khung cao. */
-  .cml3-stage-canvas { min-height: clamp(340px, 54dvh, 500px); padding: 4px; }
-  .cml3-ship { width: min(100%, 380px); max-height: 52dvh; }
+  .cml3-stage-canvas { min-height: 0; padding: 4px; }
+  .cml3-ship { width: min(100%, 380px); max-height: 100%; }
   .cml3-head { flex-direction: column; gap: 10px; }
   .cml3-head-right { justify-content: flex-start; }
   .cml3-stage-head { flex-direction: column; gap: 8px; }
@@ -1256,8 +1269,8 @@
   .cml3-opt-art { width: 46px; height: 46px; }
   .cml3-ico { width: 32px; height: 32px; }
   .cml3-stage-read { gap: 12px; }
-  .cml3-stage-canvas { min-height: clamp(340px, 56dvh, 520px); }
-  .cml3-ship { width: 100%; max-height: 56dvh; }
+  .cml3-stage-canvas { min-height: 0; }
+  .cml3-ship { width: 100%; max-height: 100%; }
   .cml3-manifest { grid-template-columns: minmax(0, 1fr); }
 }
 

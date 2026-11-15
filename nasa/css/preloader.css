@@ -260,7 +260,21 @@ html.motion-off .pre-warn {
   background: radial-gradient(circle at 50% 42%,
     color-mix(in srgb, var(--bg-panel) 92%, transparent), var(--bg-void) 72%);
   z-index: 240;
-  animation: pre-gate-in 180ms ease-out both;
+  /* KHÔNG dùng fill-mode "both". Với "both", khung hình cuối của
+     pre-gate-in (opacity: 1) bị giữ ở mức ưu tiên của animation và đè
+     lên transition của .pre-out, nên lớp cổng không bao giờ mờ đi —
+     gateHide() gỡ DOM sau 240ms thành một cú cắt ngang, và trong suốt
+     240ms đó lớp cổng đục còn nằm TRÊN video mở đầu (z-index 240 so
+     với 95 của .intro-overlay). Bỏ fill-mode là transition chạy lại. */
+  animation: pre-gate-in 180ms ease-out;
+  /* Ngắn hơn .pre-root (400ms) để gateHide() kịp chờ đúng lúc mờ xong
+     rồi mới gỡ, không cắt giữa chừng. */
+  transition: opacity 200ms ease-out;
+}
+
+/* Ghi rõ để không phụ thuộc thứ tự khai báo với .pre-root.pre-out. */
+.pre-root.pre-gate.pre-out {
+  opacity: 0;
 }
 
 .pre-root.pre-gate .pre-card {

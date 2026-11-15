@@ -34,6 +34,39 @@
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
 
+    /* Màn chờ nhúng trong HTML là chữ cứng tiếng Việt. Người chơi chọn
+       EN ở lần chơi trước thì lần mở trang sau vẫn thấy tiếng Việt ở
+       đúng khung đầu tiên — chỗ dễ bị chấm nhất. Đọc ngôn ngữ đã lưu
+       ngay tại đây (i18n.js còn chưa nạp) và dịch hai dòng chữ. */
+    window.__pbText = (function () {
+      var lang = 'vi';
+      try { lang = localStorage.getItem('smdg.lang') || 'vi'; } catch (e1) { /* riêng tư chặn đọc */ }
+      var en = lang === 'en';
+      return {
+        mission: en ? 'ARES III · Preparing the control room' : 'ARES III · Chuẩn bị phòng điều khiển',
+        images: en ? 'Loading images' : 'Đang nạp hình ảnh',
+        almost: en ? 'Almost there' : 'Sắp xong',
+        aria: en ? 'Loading resources' : 'Đang tải tài nguyên',
+      };
+    })();
+    try {
+      var applyPbText = function () {
+        var _m = document.querySelector('.pb-mission');
+        var _s = document.getElementById('pb-status');
+        var _r = document.getElementById('pb');
+        if (_m) _m.textContent = window.__pbText.mission;
+        if (_s) _s.textContent = window.__pbText.images;
+        if (_r) _r.setAttribute('aria-label', window.__pbText.aria);
+      };
+      /* Script này nằm trong <head>, phần thân chưa dựng: phải chờ DOM.
+         Chạy ngay nếu đã có (trường hợp script bị dời xuống cuối). */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyPbText);
+      } else {
+        applyPbText();
+      }
+    } catch (e2) { /* thiếu phần tử thì để nguyên chữ mặc định */ }
+
     /* Huy hiệu của màn chờ nằm trong CSS, mà CSS nhúng phân giải url()
        theo URL của trang (/nasa) nên "assets/…" sẽ thành "/assets/…"
        và 404. Gán địa chỉ tuyệt đối qua biến CSS ngay ở đây — script
@@ -446,7 +479,7 @@
         var p = paint(done, total);
         if (p >= 100 && !settledOnce) {
           settledOnce = true;
-          if (status) status.textContent = 'Sắp xong';
+          if (status) status.textContent = (window.__pbText && window.__pbText.almost) || 'Sắp xong';
         }
       }
 
@@ -475,8 +508,8 @@
       try {
         if (!totalCount) return;
         var p = paint(settledCount, totalCount);
-        if (p >= 100 && status) status.textContent = 'Sắp xong';
-        else if (status && settledCount < totalCount) status.textContent = 'Đang nạp hình ảnh';
+        if (p >= 100 && status) status.textContent = (window.__pbText && window.__pbText.almost) || 'Sắp xong';
+        else if (status && settledCount < totalCount) status.textContent = (window.__pbText && window.__pbText.images) || 'Đang nạp hình ảnh';
       } catch (err) { /* bỏ qua */ }
     };
 

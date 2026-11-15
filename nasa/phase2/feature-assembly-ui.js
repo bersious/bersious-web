@@ -395,6 +395,14 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
     const NODE = 48;
     const GAP = 96;           /* khoảng hở giữa mép tàu và tâm nút */
     const EDGE = 8;           /* lề tối thiểu sát mép khung */
+    /* Chỗ mà nhãn chữ chiếm bên ngoài nút. Cột trái đẩy nhãn sang trái,
+       cột phải đẩy sang phải, nên khi canh nút phải trừ (hoặc cộng) đúng
+       khoảng này, nếu không nhãn tràn ra ngoài sân khấu và đè lên cột
+       thẻ linh kiện. Đo từ .asm-label: max-width 96px, gap 9px.
+       The label sits outside the node, so the clamp has to reserve its
+       width or the text spills over the parts column. */
+    const LABEL_W = 96 + 9;
+    const COL_W = NODE + LABEL_W;
 
     /* Cột nút phải nằm trong sân khấu vẽ tàu, không trôi ra đè lên
        cột thẻ linh kiện hay cột thanh đo của màn gốc.
@@ -432,13 +440,16 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
         if (cfg.side === 'left') {
           /* Nút nằm ngoài mép trái thân tàu, nhãn xa hơn về phía mép
              sân khấu. Neo bằng right để nút tự bám mép phải.
-             The node sits left of the hull, the label further out. */
-          const nodeRight = clamp(sx - GAP, cx0 + NODE, cx1 - NODE);
+             The node sits left of the hull, the label further out.
+             Cận dưới phải là cx0 + COL_W: cả cụm nút + nhãn rộng chừng
+             ấy, neo bằng right nghĩa là mép trái cụm = nodeRight - COL_W. */
+          const nodeRight = clamp(sx - GAP, cx0 + COL_W, cx1 - NODE);
           nodeCx = nodeRight - NODE / 2;
           n.wrap.style.right = (R.width - nodeRight) + 'px';
           n.wrap.style.left = 'auto';
         } else {
-          const nodeLeft = clamp(sx + sw + GAP - NODE, cx0, cx1 - NODE);
+          /* Cận trên là cx1 - COL_W: mép phải cụm = nodeLeft + COL_W. */
+          const nodeLeft = clamp(sx + sw + GAP - NODE, cx0, cx1 - COL_W);
           nodeCx = nodeLeft + NODE / 2;
           n.wrap.style.left = nodeLeft + 'px';
           n.wrap.style.right = 'auto';

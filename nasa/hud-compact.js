@@ -133,10 +133,16 @@ function writeLogCollapsed(collapsed) {
 
 /* Chuyện gì đang phải làm. Tín hiệu cầu cứu đã gửi hay chưa: đọc từ
    bản lưu của màn căn cứ, và nhận thêm tín hiệu do nơi khác đẩy vào
-   qua setSignalSent(). Không có nguồn nào thì mặc định là chưa gửi. */
+   qua setSignalSent(). Không có nguồn nào thì mặc định là chưa gửi.
+
+   Cờ thật của Giai đoạn 1 là smdg.stage1Done, do màn viễn thông ghi
+   khi phát xong. Khoá smdg.signal không có chỗ nào ghi, nên trước đây
+   phát tín hiệu xong mà dòng việc trên HUD vẫn nằm ở "Gửi tín hiệu
+   cầu cứu" mãi. Đọc cả hai, ưu tiên cờ thật. */
 function readSignalSent(snap) {
   if (snap && (snap.signalSent === true || snap.rescueSignal === true)) return true;
   try {
+    if (localStorage.getItem('smdg.stage1Done') === '1') return true;
     if (localStorage.getItem('smdg.signal') === '1') return true;
   } catch { /* bỏ qua */ }
   return false;

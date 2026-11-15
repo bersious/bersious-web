@@ -50,6 +50,7 @@ const TEXT = {
     introText: 'Khoan đã! Trước khi chạm vào bất kỳ nút nào, hãy bấm mở Nhật ký để xem tình trạng trạm và danh sách việc cần làm đầu tiên của bạn.',
     introStep2: 'Tốt. Đọc xong thì bấm lại để đóng nhật ký và bắt tay vào việc.',
     introOpen: 'Mở nhật ký',
+    introSkip: 'Bỏ qua hướng dẫn',
     introClose: 'Đóng nhật ký',
     a11yDone: 'Đã xong',
     a11yTodo: 'Chưa làm',

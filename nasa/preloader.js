@@ -278,7 +278,8 @@ function buildOverlay() {
   root.innerHTML = `
     <div class="pre-card">
       <img class="pre-emblem" src="${BASE}assets/art/loading-emblem.webp"
-           alt="" width="96" height="96" decoding="async">
+           alt="" width="96" height="96" decoding="async"
+           onerror="this.style.display='none'">
       <div class="pre-mission">${S.mission}</div>
       <div class="pre-track"><div class="pre-fill"></div></div>
       <div class="pre-meta">
@@ -598,13 +599,25 @@ function gateHide() {
   if (!root) return;
   if (gateMotionOff()) { root.remove(); return; }
   root.classList.add('pre-out');
-  setTimeout(() => { try { root.remove(); } catch (_) {} }, 240);
+  /* Chờ đúng thời gian mờ dần của .pre-root.pre-gate (200ms trong
+     preloader.css) rồi mới gỡ. Bản cũ gỡ sau 240ms trong khi transition
+     là 400ms: lớp cổng đang còn khoảng 40 phần trăm đục thì bị cắt
+     ngang, và nếu màn mới là video mở đầu thì đúng lúc đó video hiện ra
+     sau một tấm màn xám. */
+  setTimeout(() => { try { root.remove(); } catch (_) {} }, 220);
 }
 
 /* Chạy một việc trong lúc lớp phủ chặn màn hình. Trả về kết quả của
    callback. Lỗi của callback được ném lại sau khi đã gỡ lớp phủ. */
 export async function gate(job, opts = {}) {
-  const minMs = Number.isFinite(opts.minMs) ? Math.max(0, opts.minMs) : 450;
+  /* Người chơi tắt chuyển động: không có hoạt cảnh nào để chờ, nên bỏ
+     luôn thời gian giữ tối thiểu. Giữ 450ms mặc định chỉ để mắt kịp
+     thấy một lớp phủ đang mờ dần — không có mờ dần thì đó là 450ms
+     đứng chờ vô nghĩa, và cộng với 200ms của playLaunch thành gần
+     3/4 giây trước khi màn mới hiện ra. */
+  const still = gateMotionOff();
+  const defMin = still ? 0 : 450;
+  const minMs = Number.isFinite(opts.minMs) ? (still ? 0 : Math.max(0, opts.minMs)) : defMin;
   const maxMs = Number.isFinite(opts.maxMs) ? Math.max(0, opts.maxMs) : 6000;
   const label = opts.label || null;
   gateShow(label);

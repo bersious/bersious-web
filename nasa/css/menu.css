@@ -464,7 +464,12 @@
    mảnh ngắn, cùng màu, để dòng chữ đứng riêng giữa khung.
 
    Viết mã màu trực tiếp ở đây vì bảng biến của tokens.css đặt cho nền
-   đặc; dòng này nằm trên ảnh cảnh Sao Hỏa nên cần đúng độ sáng này. */
+   đặc; dòng này nằm trên ảnh cảnh Sao Hỏa nên cần đúng độ sáng này.
+
+   Màu chữ đã đẩy lên gần trắng đục hẳn (alpha 1) và có thêm tấm tối
+   mờ phía sau ở .menu-title-wrap::after. Đo trên ảnh nền thật ở
+   1440x900, chữ cũ rgba(250,232,208,.86) chỉ đạt 3,75:1 trên vùng trời
+   sáng — dưới ngưỡng AA 4,5:1 cho chữ thường. */
 #boot .menu-tagline {
   display: flex;
   align-items: center;
@@ -472,7 +477,7 @@
   gap: clamp(8px, 1.4vw, 18px);
   margin: clamp(10px, 1.4vh, 16px) 0 0;
   font-family: var(--st-font-mono, monospace);
-  font-size: clamp(.58rem, .48rem + .34vw, .78rem);
+  font-size: clamp(.66rem, .52rem + .36vw, .82rem);
   font-weight: 500;
   letter-spacing: .18em;
   line-height: 1.5;
@@ -481,8 +486,22 @@
      dòng này bị căn trái nên cả khối phụ đề trôi lệch sang trái. */
   text-align: center;
   justify-content: center;
-  color: rgba(250, 232, 208, .86);
-  text-shadow: 0 1px 10px rgba(0, 0, 0, .92), 0 1px 2px rgba(0, 0, 0, .8);
+  color: #fdf6e9;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .95),
+    0 2px 10px rgba(0, 0, 0, .9),
+    0 0 22px rgba(8, 5, 3, .7);
+  /* Dải tối mảnh ngay sau dòng chữ. Không phải hộp: hai đầu trong suốt
+     dần nên mắt chỉ thấy chữ nổi trên một vệt tối, không thấy khung.
+     Cần thiết vì phía sau là vùng trời Sao Hỏa rất sáng — đo được
+     4,08:1 khi chỉ đổi màu chữ, vẫn dưới ngưỡng AA. */
+  padding: 4px clamp(10px, 1.2vw, 18px);
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(6, 8, 12, .66) 14%,
+    rgba(6, 8, 12, .66) 86%,
+    transparent 100%);
   transition: opacity .4s ease, transform .4s ease;
 }
 

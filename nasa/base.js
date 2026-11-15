@@ -430,6 +430,13 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
       btn.classList.toggle('is-locked', locked);
       btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
     });
+    /* Chấm việc ở sân khấu cũng phải theo: trước đây refreshLocks chỉ
+       chạy một lần lúc dựng lưới, nên phát tín hiệu xong mà không nhảy
+       màn thì nút Thiết kế tàu cứu hộ vẫn trông như bị khoá, và chấm
+       nhắc ở trạm liên lạc vẫn sáng. Gọi lại mỗi lần kho đổi. */
+    if (baseScene && typeof baseScene.refresh === 'function') {
+      try { baseScene.refresh(); } catch (err) { /* trang trí, không chặn game */ }
+    }
   }
 
   /* ---------- hành vi từng nút ---------- */
@@ -1590,6 +1597,10 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
   buildGrid();
   clock.start();
   scheduleIdle();
+  /* Khoá phải tính lại sau khi sân khấu đã dựng: refreshLocks() ở
+     buildGrid() chạy trước khi baseScene tồn tại, nên lần gọi đó chỉ
+     tô được lưới nút, không chấm được việc ở sân khấu. */
+  refreshLocks();
 
   /* Cầu cho bảng test nhà phát triển: ba công cụ "cho đầy vật phẩm",
      "cho nước và calo đầy", "mở khoá mọi thứ" cần đối tượng stats

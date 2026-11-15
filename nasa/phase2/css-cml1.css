@@ -252,18 +252,21 @@
   display: grid;
   place-items: center;
   transition: max-width var(--st-dur-slow) var(--st-ease-out);
-  width: 100%;
-  max-width: 436px;
-  /* Giữ ô radar luôn vuông: thiếu dòng này thì cột cao sẽ kéo
-     các vòng tròn đồng tâm thành hình bầu dục. */
+  /* Vuông theo CHIỀU CAO chứ không theo bề ngang. Trước đây đặt
+     width: 100% + aspect-ratio: 1: chiều cao suy ra từ bề ngang, nên ô
+     radar có chiều cao tối thiểu bằng cả bề rộng cột và không bao giờ
+     co lại. Khung cao thì đúng, khung thấp thì tràn ra ngoài đè lên
+     thẻ báo khoá sóng bên dưới. Giờ chiều cao quyết định, bề ngang
+     theo chiều cao, có trần cả hai phía. */
+  height: 100%;
+  width: auto;
   aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  max-width: 436px;
+  max-height: 436px;
   margin: 0 auto;
   padding: 4px;
-  /* Co theo cả hai chiều. Thiếu max-height thì khi khung radar thấp,
-     ô vuông vẫn giữ đúng bề rộng và tràn xuống dưới, đè lên thẻ báo
-     khoá sóng nằm sau nó. */
-  min-height: 0;
-  max-height: 100%;
 }
 
 .cml1-radar-svg {
@@ -498,14 +501,23 @@
   flex-direction: column;
   gap: var(--st-gap-md);
   min-height: 0;
-  overflow: hidden;
   /* Không cho cột trái tự cao hơn hàng: radar co, thẻ báo khoá sóng
      nằm cuối cột, mọi thứ bám trong sân khấu. */
   height: 100%;
   align-self: stretch;
 }
 
-.cml1-root.is-picking .cml1-lock { flex: 0 0 auto; }
+/* Thẻ báo khoá sóng co được, nhưng không bao giờ dưới chiều cao nội
+   dung của nó: nếu co hết thì chữ bị cắt. Khi sân khấu thấp, radar là
+   phần nhường chỗ, thẻ báo giữ nguyên. */
+.cml1-root.is-picking .cml1-lock {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
 
 .cml1-root.is-picking .cml1-track { grid-column: 1; grid-row: 3; }
 
