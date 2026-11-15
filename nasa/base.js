@@ -30,7 +30,11 @@ import { openBeaconScene } from './beacon.js';
 import {
   applySave, loadGame, hasSave, saveGame, getSaveInfo, clockFromStats,
   takePendingClock, initSaveWatchers, bindClockAutoSave, showSaveChip,
+  clearSave,
 } from './save-game.js';
+import {
+  showEnding, endingIdForCause, isEndingOpen,
+} from './endings.js';
 import {
   DAY_LOG, IDLE_LINES, SLEEP_LINES, MORNING_LINES, NOTIFY,
 } from './base-flavor.js';
@@ -372,7 +376,7 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     { id: 'explore', locked: false },
     { id: 'craft',   locked: false },
     { id: 'radio',   locked: false },
-    { id: 'rescue',  locked: false },
+    { id: 'rescue',  locked: true },
     { id: 'sleep',   locked: false },
   ];
 
@@ -408,7 +412,13 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
      được, người chơi tưởng bị chặn nên không bấm. */
   function refreshLocks() {
     const u = stats.getUnlocks();
-    const want = { farm: !!u.farm };
+    /* Nút thiết kế tàu cứu hộ chỉ mở SAU khi đã phát được tín hiệu cầu
+       cứu. Trước đó không ai biết người chơi còn sống nên chưa có sứ
+       mệnh giải cứu nào để thiết kế. Cờ nằm trong localStorage do màn
+       viễn thông ghi khi phát xong. */
+    let signalSent = false;
+    try { signalSent = localStorage.getItem('smdg.stage1Done') === '1'; } catch (e) { /* chặn ghi */ }
+    const want = { farm: !!u.farm, rescue: signalSent };
     grid.querySelectorAll('.base-card').forEach((btn) => {
       const id = btn.dataset.action;
       if (!(id in want)) return;
@@ -567,6 +577,14 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
       return;
     }
     if (id === 'rescue') {
+      /* Chốt lần nữa ở đây: kể cả nếu lớp khoá bị lỗi hiển thị thì cũng
+         không cho nhảy vào xưởng thiết kế trước khi phát tín hiệu. */
+      let sent = false;
+      try { sent = localStorage.getItem('smdg.stage1Done') === '1'; } catch (e) { /* chặn ghi */ }
+      if (!sent) {
+        showToast(t('base.rescue.locked'));
+        return;
+      }
       /* Chuyển sang màn thiết kế tàu cứu hộ ở index.html. base.js không
          import rescue-designer.js để giữ hai màn độc lập; nơi dựng màn
          là index.html và nó biết phải làm gì sau khi thiết kế xong. */
@@ -644,6 +662,10 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
         childScreen = mod.openFarm({
           container: el,
           clock,
+          /* Nước tưới trừ vào nước uống của phi hành gia: farm.js
+             không còn bể riêng nào, nên phải đưa đúng đối tượng chỉ
+             số sang. Thiếu tham số này là mọi khay bị khoá. */
+          stats,
           playerName,
           onClose: () => closeChild(),
           onHarvest: ({ kg, day }) => {
@@ -743,14 +765,186 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
   bag.querySelectorAll('[data-bag-close]').forEach((n) =>
     n.addEventListener('click', () => { playClick(); closeBag(); }));
 
-  /* ---------- vật phẩm dùng được ----------
-     Đa số vật phẩm chỉ để đếm. Riêng tấm ảnh gia đình là vật phẩm kể
-     chuyện: bấm vào thì chạy đoạn hồi tưởng chứ không trừ số lượng và
-     không đụng tới chỉ số sinh tồn. Để bảng riêng thay vì chuỗi if
-     trong renderBag, vì sau này còn thêm vật phẩm kể chuyện khác. */
+  /* ---------- vật phẩm trong túi ----------
+
+     Bảng dưới đây là nguồn sự thật DUY NHẤT về "bấm vào vật phẩm này
+     thì làm gì". Trước đây bảng chỉ có đúng một mục là tấm ảnh gia đình,
+     nên tám trên chín ô trong túi hiện ra như ô chết: người chơi bấm
+     không có gì xảy ra và tưởng game hỏng.
+
+     Ba nhóm, phân biệt bằng viền và dòng chữ nhỏ dưới tên:
+       eat   đồ ăn, đồ uống, đĩa nhạc: bấm là dùng ngay, trừ 1 món
+       part  vật liệu chế tạo: bấm mở bảng giải thích, không trừ gì
+       story vật phẩm kể chuyện: mở đoạn hồi tưởng
+
+     Hiệu ứng (calo, nước, tinh thần) KHÔNG viết lại ở đây. Mọi con số
+     lấy từ hab-stats.js qua stats.useItem(), nên bằng số trong bảng
+     ITEMS và trong màn chế tạo, không có hai nguồn lệch nhau. */
+
+  const ITEM_ORDER = [
+    'ration', 'water_bottle', 'potato', 'media',
+    'tape', 'electronics', 'hydrazine', 'potato_seed', 'family_photo',
+  ];
+
+  /* Chỉ số nào đã đầy thì món đó không dùng được nữa. Kiểm trước khi
+     gọi useItem, vì useItem vẫn trừ vật phẩm kể cả khi chỉ số đã kịch
+     trần: ăn lúc đã no là mất gói khẩu phần mà không được thêm calo. */
+  function bagBlockReason(itemId, st) {
+    const def = stats.ITEMS && stats.ITEMS[itemId];
+    if (!def) return '';
+    if (def.calories && st.calories >= 100) return t('base.bag.full.calories');
+    if (def.water && st.water >= 100) return t('base.bag.full.water');
+    if (def.sanity && st.sanity >= 100) return t('base.bag.full.sanity');
+    return '';
+  }
+
+  /* Các món ăn, uống, nghe. Mỗi mục: câu toast và câu ghi nhật ký.
+     Câu nhật ký để trống ở món không cần ghi. */
+  const CONSUMABLES = {
+    ration:       { toast: 'base.bag.ate.ration',     log: 'base.bag.log.ration' },
+    water_bottle: { toast: 'base.bag.drank.water',    log: '' },
+    potato:       { toast: 'base.bag.ate.potato',     log: '' },
+    media:        { toast: 'base.bag.played.media',   log: 'base.bag.log.media' },
+  };
+
+  /* Công thức nào cần vật liệu này, đọc thẳng từ RECIPES của
+     hab-stats.js. Không chép tay danh sách công thức sang đây, vì mai
+     kia thêm một công thức mới là bảng chép tay lệch ngay. */
+  function recipesUsing(itemId) {
+    const out = [];
+    const all = (stats.RECIPES) || {};
+    for (const [id, r] of Object.entries(all)) {
+      if (r && r.cost && r.cost[itemId]) out.push(id);
+    }
+    return out;
+  }
+
+  function useConsumable(itemId) {
+    const st = stats.get();
+    const blocked = bagBlockReason(itemId, st);
+    if (blocked) { showToast(blocked); return; }
+
+    const res = stats.useItem(itemId);
+    if (!res || !res.ok) {
+      showToast(t('base.bag.none.left'));
+      return;
+    }
+    stats.save();
+
+    const conf = CONSUMABLES[itemId];
+    if (conf && conf.toast) showToast(t(conf.toast));
+    if (conf && conf.log) sockLog(t(conf.log));
+
+    /* Vẽ lại ngay: số lượng giảm một, và ô biến mất khi về 0. */
+    renderBag();
+    updateFootItems();
+  }
+
+  /* ---------- bảng giải thích vật liệu ----------
+     Bấm vào băng keo, linh kiện, hydrazine hay hạt giống thì mở một
+     bảng nhỏ giữa màn hình: vật liệu này dùng làm gì, và công thức nào
+     đang cần nó. Đóng bằng nút × hoặc phím Esc. */
+
+  let itemNote = null;
+
+  function closeItemNote() {
+    if (!itemNote) return;
+    document.removeEventListener('keydown', onItemNoteKey, true);
+    itemNote.remove();
+    itemNote = null;
+  }
+
+  function onItemNoteKey(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeItemNote();
+    }
+  }
+
+  function openItemNote(itemId) {
+    closeItemNote();
+
+    const wrap = document.createElement('div');
+    wrap.className = 'base-note';
+    wrap.innerHTML = `
+      <div class="base-note-backdrop" data-note-close></div>
+      <div class="base-note-panel" role="dialog" aria-modal="true" aria-labelledby="base-note-title">
+        <header class="base-note-head">
+          <span class="base-note-icon">${itemIcon(itemId)}</span>
+          <h4 id="base-note-title"></h4>
+          <button type="button" class="base-note-close" data-note-close aria-label=""></button>
+        </header>
+        <p class="base-note-about"></p>
+        <div class="base-note-recipes">
+          <p class="base-note-label"></p>
+          <ul class="base-note-list"></ul>
+        </div>
+      </div>`;
+
+    wrap.querySelector('#base-note-title').textContent = t('base.item.' + itemId);
+    wrap.querySelector('.base-note-about').textContent = t('base.item.' + itemId + '.about');
+    wrap.querySelector('.base-note-close').setAttribute('aria-label', t('base.close'));
+    wrap.querySelector('.base-note-label').textContent = t('base.bag.panel.recipes');
+
+    const list = wrap.querySelector('.base-note-list');
+    const ids = recipesUsing(itemId);
+    if (!ids.length) {
+      const li = document.createElement('li');
+      li.className = 'is-empty';
+      li.textContent = t('base.bag.panel.none');
+      list.appendChild(li);
+    } else {
+      for (const rid of ids) {
+        const li = document.createElement('li');
+        li.textContent = t('base.craft.' + rid);
+        list.appendChild(li);
+      }
+    }
+
+    wrap.querySelectorAll('[data-note-close]').forEach((n) => {
+      n.addEventListener('click', () => { playClick(); closeItemNote(); });
+    });
+
+    el.appendChild(wrap);
+    itemNote = wrap;
+    /* Lắng nghe ở pha capture để phím Esc tới bảng này trước mọi
+       listener khác của màn căn cứ. */
+    document.addEventListener('keydown', onItemNoteKey, true);
+    const close = wrap.querySelector('.base-note-close');
+    if (close) close.focus();
+  }
+
+  /* Hành động cho từng vật phẩm. Giữ tên ITEM_ACTIONS vì chỗ khác có
+     thể đang tham chiếu, nhưng nay phủ đủ mọi món trong ITEMS. */
   const ITEM_ACTIONS = {
+    ration:       () => useConsumable('ration'),
+    water_bottle: () => useConsumable('water_bottle'),
+    potato:       () => useConsumable('potato'),
+    media:        () => useConsumable('media'),
+    tape:         () => openItemNote('tape'),
+    electronics:  () => openItemNote('electronics'),
+    hydrazine:    () => openItemNote('hydrazine'),
+    potato_seed:  () => openItemNote('potato_seed'),
     family_photo: () => openFamilyMemory(),
   };
+
+  /* Nhóm hiển thị của từng món, quyết định viền và dòng chữ nhỏ. */
+  function itemKind(itemId) {
+    if (CONSUMABLES[itemId]) return 'use';
+    if (itemId === 'family_photo') return 'story';
+    const def = stats.ITEMS && stats.ITEMS[itemId];
+    if (def && (def.kind === 'part' || def.kind === 'quest')) return 'part';
+    return 'part';
+  }
+
+  function itemHint(itemId) {
+    const kind = itemKind(itemId);
+    if (kind === 'use') return t('base.item.' + itemId + '.hint');
+    if (itemId === 'family_photo') return t('base.item.family_photo.desc');
+    if (itemId === 'potato_seed') return t('base.item.potato_seed.hint');
+    return t('base.item.part.hint');
+  }
 
   let memoryScreen = null;
 
@@ -766,29 +960,73 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     });
   }
 
+  /* Danh sách vật phẩm đang có, đọc từ kho chỉ số chứ không đọc mảng
+     khởi điểm. Đây là chỗ sửa gốc lỗi "dùng xong số lượng không đổi":
+     trước đây túi vẽ từ makeInventory() nên luôn hiện đúng bộ số ban
+     đầu, dùng hay không dùng cũng vậy. */
+  function bagItems() {
+    const inv = stats.getInventory() || {};
+    const out = [];
+    const seen = new Set();
+
+    for (const id of ITEM_ORDER) {
+      seen.add(id);
+      /* Tấm ảnh không nằm trong kho chỉ số: nó là vật kỷ niệm, dùng
+         bao nhiêu lần cũng còn. */
+      const qty = id === 'family_photo' ? 1 : (Number(inv[id]) || 0);
+      if (qty > 0) out.push({ id, qty });
+    }
+
+    /* Vật phẩm phát sinh ngoài danh sách chuẩn (sau này thêm món mới)
+       vẫn phải hiện ra, không được im lặng bỏ qua. */
+    for (const [id, n] of Object.entries(inv)) {
+      const qty = Number(n) || 0;
+      if (seen.has(id) || qty <= 0) continue;
+      out.push({ id, qty });
+    }
+    return out;
+  }
+
   function renderBag() {
     bagTitle.textContent = t('base.bag.title');
     bagClose.setAttribute('aria-label', t('base.close'));
     bagGrid.innerHTML = '';
-    for (const item of inventory) {
+
+    const items = bagItems();
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'base-bag-empty';
+      empty.textContent = t('base.bag.empty');
+      bagGrid.appendChild(empty);
+      return;
+    }
+
+    for (const item of items) {
       const act = ITEM_ACTIONS[item.id];
-      const cell = document.createElement(act ? 'button' : 'div');
-      cell.className = 'base-item' + (act ? ' is-usable' : '');
-      if (act) {
-        cell.type = 'button';
-        cell.setAttribute('aria-label', t('base.item.' + item.id));
-      }
+      /* Mọi ô đều là <button>. Ô không có hành động thì không còn tồn
+         tại: bảng ITEM_ACTIONS phủ đủ mọi món trong ITEMS, còn món lạ
+         thì rơi về bảng giải thích chung. Nhờ vậy không còn ô chết. */
+      const fallback = () => {
+        if (act) { act(); return; }
+        showToast(t('base.item.' + item.id + '.hint') === 'base.item.' + item.id + '.hint'
+          ? t('base.bag.none.left')
+          : t('base.item.' + item.id + '.hint'));
+      };
+
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      const kind = itemKind(item.id);
+      cell.className = 'base-item is-usable is-' + kind;
+      cell.dataset.item = item.id;
+      cell.setAttribute('aria-label', t('base.item.' + item.id));
       cell.innerHTML = `
         <span class="base-item-icon">${itemIcon(item.id)}</span>
         <span class="base-item-name"></span>
         <span class="base-item-qty">×${item.qty}</span>
-        ${act ? `<span class="base-item-hint"></span>` : ''}`;
+        <span class="base-item-hint"></span>`;
       cell.querySelector('.base-item-name').textContent = t('base.item.' + item.id);
-      if (act) {
-        cell.querySelector('.base-item-hint').textContent =
-          t('base.item.' + item.id + '.desc');
-        cell.addEventListener('click', () => { playClick(); act(); });
-      }
+      cell.querySelector('.base-item-hint').textContent = itemHint(item.id);
+      cell.addEventListener('click', () => { playClick(); fallback(); });
       bagGrid.appendChild(cell);
     }
   }
@@ -958,6 +1196,152 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
      để chỉ số luôn khớp với kim đồng hồ. */
   let lastClockMinutes = clock.state().minutes + clock.state().day * 1440;
 
+  /* ---------- theo dõi cái chết ----------
+     Đây là chỗ lấp lỗ hổng lớn nhất của Giai đoạn 1: checkDeath() đã
+     trả về nguyên nhân chết từ lâu nhưng không ai hiển thị, nên người
+     chơi chết mà game vẫn chạy và chỉ số âm dần xuống dưới 0.
+
+     Ba việc phải làm khi chết:
+       1. dừng đồng hồ (không cho thời gian trôi tiếp)
+       2. khoá mọi nút bấm của màn căn cứ
+       3. mở màn kết thúc đúng cảnh
+
+     Hàm dưới đây idempotent: gọi nhiều lần cũng chỉ mở một màn. */
+
+  let dead = false;
+  let deathScreen = null;
+
+  function lockBaseUI() {
+    /* Khoá bằng class trên khung, CSS lo phần vô hiệu hoá con trỏ và
+       độ mờ. Không đặt disabled từng nút vì màn con (nông trại, túi
+       đồ) tự dựng nút của nó, khoá từng cái sẽ sót. */
+    el.classList.add('is-dead');
+    el.setAttribute('aria-busy', 'false');
+    /* Dừng mọi hiệu ứng phụ đang chạy, nếu không câu thoại nhàn rỗi
+       vẫn nhảy trên màn hình sau khi chết. */
+    stopIdle();
+    clearSleepTimers();
+    if (sleepConfirm) {
+      sleepConfirm.remove();
+      sleepConfirm = null;
+    }
+  }
+
+  /* Bộ đếm mất điện riêng. Không đánh giá ngay lần đầu điện về 0 vì
+     người chơi còn kịp sạc lại; chỉ tính là chết khi đã qua 3 giờ
+     game liên tục trong bóng tối, ban đêm hoặc trong bão. */
+  let blackoutHours = 0;
+  const BLACKOUT_DEATH_HOURS = 3;
+
+  function checkBlackout(hours, s) {
+    const c = clock.state();
+    const noPower = Number(stats.get().power) <= 0;
+    const dark = !!c.isNight || !!s.storm;
+    if (noPower && dark) {
+      blackoutHours += hours;
+    } else {
+      blackoutHours = 0;
+    }
+    return blackoutHours >= BLACKOUT_DEATH_HOURS;
+  }
+
+  function triggerDeath(endingId, cause) {
+    if (dead) return;
+    dead = true;
+
+    clock.stop();
+    lockBaseUI();
+
+    /* Lưu ngay trạng thái chết xuống đĩa? KHÔNG. Bản lưu phải là mốc
+       TRƯỚC khi chết, nếu không nút "chơi lại từ điểm lưu" sẽ nạp lại
+       đúng trạng thái đã chết. autoSave() đã ghi mốc gần nhất trong
+       lúc chơi, nên ở đây chỉ cần đóng băng chỉ số, không ghi đè. */
+    const statsNow = stats.get();
+    statsNow.day = clock.state().day;
+
+    const info = getSaveInfo();
+    const ok = hasSave();
+
+    deathScreen = showEnding({
+      id: endingId,
+      stats: statsNow,
+      extra: {},
+      hasSave: ok,
+      saveInfo: info,
+      onRetry: () => retryFromSave(),
+      onLoadSlot: () => { /* màn kết thúc tự mở danh sách bên trong */ },
+      onRestart: () => restartMission(),
+    });
+
+    /* Ghi lý do chết ra console để lúc test biết cảnh nào đã mở. */
+    console.info('[base] kết thúc sứ mệnh:', endingId, cause || '');
+  }
+
+  /* Chơi lại từ điểm lưu: đổ bản lưu về chín khoá rồi dựng lại màn căn
+     cứ đúng ngày đã lưu. Không dùng location.href để tránh mất tiền tố
+     /nasa không có dấu chéo cuối. */
+  function retryFromSave() {
+    const save = loadGame();
+    if (!save) return;
+
+    /* Tháo màn hiện tại trước khi applySave, để destroy() không ghi đè
+       bản lưu vừa đọc bằng trạng thái đã chết. */
+    const host = el.parentElement;
+    destroy();
+    applySave(save);
+    clearChildScreens();
+
+    if (host) {
+      /* Dựng lại đúng màn căn cứ trong cùng khung chứa. startBase() đọc
+         takePendingClock() do applySave() vừa nạp, nên mở đúng ngày. */
+      startBase({ container: host, playerName, onExit, onLaunchRescue });
+      return;
+    }
+
+    /* Không còn khung chứa (bị gỡ ở đâu đó): về màn đầu bằng cầu nối
+       của app thay vì tự dựng DOM. */
+    if (typeof window.__devJump === 'function') {
+      window.__devJump('base', { day: (getSaveInfo() || {}).day || 1 });
+    }
+  }
+
+  /* Dọn màn con đang mở, dùng trước khi dựng lại. */
+  function clearChildScreens() {
+    document.querySelectorAll('.farm-overlay, .exp-screen, .craft-screen, .radio-screen, .ending-root')
+      .forEach((node) => node.remove());
+  }
+
+  /* Bắt đầu sứ mệnh mới: xoá sạch bản lưu rồi về màn khởi động. */
+  function restartMission() {
+    /* Bật cờ cleared TRƯỚC khi xoá: destroy() bên dưới vẫn gọi
+       stats.save() và saveGame(), và nếu cờ chưa bật thì hai lệnh đó
+       ghi lại đúng những khoá vừa xoá, làm bản lưu sống dậy ngay sau
+       khi người chơi bấm "bắt đầu mới". */
+    cleared = true;
+    clearSave();
+
+    const host = el.parentElement;
+    destroy();
+    clearChildScreens();
+
+    /* destroy() đã bật cờ và bỏ qua phần ghi, nhưng khoá smdg.stats
+       do chính stats.save() bên trong createStats ghi lúc chơi vẫn còn
+       trên đĩa nếu người chơi mở lại tab. clearSave() đã xoá nó; dọn
+       thêm lần nữa cho chắc, vì một khoá còn sót là ván chơi cũ sống
+       lại ở lần mở sau. */
+    try {
+      localStorage.removeItem('smdg.stats');
+      localStorage.removeItem('smdg.stage1Done');
+    } catch { /* chặn ghi thì thôi */ }
+
+    if (typeof onExit === 'function') {
+      /* Ưu tiên onExit của app: nó biết cách hiện lại màn khởi động và
+         xoá cờ baseStarted, việc mà base.js không tự làm được. */
+      try { onExit(); return; } catch (err) { console.error('[base] onExit lỗi', err); }
+    }
+    if (host) host.remove();
+  }
+
   const unTick = clock.onTick((s) => {
     const absMin = s.day * 1440 + s.minutes;
     let delta = absMin - lastClockMinutes;
@@ -970,6 +1354,23 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     if (delta > 0) {
       stats.tick(delta);
       stats.save();
+
+      /* Chết vì oxy, nước hay calo: checkDeath() trả về nguyên nhân.
+         Dừng ngay, không chạy thêm nhịp nào. */
+      const death = stats.checkDeath();
+      if (death) {
+        const id = endingIdForCause(death.cause);
+        if (id) {
+          triggerDeath(id, death);
+          return;
+        }
+      }
+
+      /* Mất điện kéo dài. Đếm theo giờ game đã trôi trong nhịp này. */
+      if (checkBlackout(delta / 60, stats.get())) {
+        triggerDeath('blackout', { cause: 'power', hours: blackoutHours });
+        return;
+      }
     }
 
     el.classList.toggle('is-night', s.isNight);
@@ -1110,7 +1511,17 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
   });
 
   function updateFootItems() {
-    const total = inventory.reduce((sum, it) => sum + it.qty, 0);
+    /* Đếm từ kho chỉ số, không đếm từ mảng khởi điểm: dùng một gói
+       khẩu phần thì con số ở chân màn hình phải giảm ngay. Tấm ảnh
+       gia đình không nằm trong kho chỉ số nên cộng thêm một. */
+    const inv = stats.getInventory() || {};
+    let total = 0;
+    for (const [id, n] of Object.entries(inv)) {
+      if (id === 'family_photo') continue;
+      const q = Number(n) || 0;
+      if (q > 0) total += q;
+    }
+    total += 1; /* tấm ảnh gia đình */
     footItems.textContent = t('base.footer.items').replace('{n}', String(total));
   }
 
@@ -1155,6 +1566,13 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
   clock.start();
   scheduleIdle();
 
+  /* Cầu cho bảng test nhà phát triển: ba công cụ "cho đầy vật phẩm",
+     "cho nước và calo đầy", "mở khoá mọi thứ" cần đối tượng stats
+     thật của màn này. index.html không giữ nó, nên ghi ra window.
+     Gỡ khi tháo màn để không còn con trỏ tới stats của một ván đã
+     đóng. */
+  window.__devBase = { stats, clock, showEnding, endingIdForCause };
+
   /* ---------- dọn dẹp ---------- */
 
   function destroy() {
@@ -1166,6 +1584,14 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     clock.stop();
     if (hud && typeof hud.destroy === 'function') hud.destroy();
     window.removeEventListener('smdg:clear-save', onClearSave);
+    if (window.__devBase && window.__devBase.stats === stats) delete window.__devBase;
+    /* Màn kết thúc còn mở thì đóng theo. Không có bước này, lớp phủ
+       của ván vừa tháo nằm lại trên màn khởi động và chặn mọi cú bấm. */
+    if (deathScreen && typeof deathScreen.close === 'function') {
+      deathScreen.close();
+      deathScreen = null;
+    }
+
     /* Vừa bấm xoá tiến trình thì destroy() cũng phải im lặng: màn căn
        cứ bị tháo sau khi xoá, và nếu ghi ở đây thì khoá vừa xoá sống
        lại đúng lúc trang đang tải lại. */

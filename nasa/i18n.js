@@ -23,6 +23,7 @@ export const STRINGS = {
     'app.title': 'Space Mission Design Game',
     'app.tagline': 'Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.',
     'app.start': 'Bắt đầu',
+    'app.start.pending': 'Đang chuẩn bị...',
     'app.again': 'Xem lại mở đầu',
     'app.continue': 'Tiếp tục',
 
@@ -119,6 +120,17 @@ export const STRINGS = {
     'settings.reset.confirm': 'Xoá hết?',
     'settings.credits': 'Ghi nguồn',
 
+    /* ---------- chế độ nhà phát triển ----------
+       Không đặt trong STRINGS của dev-mode.js vì mục này nằm trong
+       bảng cài đặt của người chơi, mà bảng đó đọc chữ qua t(). */
+    'settings.dev': 'Chế độ nhà phát triển',
+    'settings.dev.desc': 'Bảng test dành cho người làm game. Có mật khẩu.',
+    'settings.dev.locked': 'Chưa mở khoá. Bấm để nhập mật khẩu.',
+    'settings.dev.unlocked': 'Đã mở khoá trên thiết bị này.',
+    'settings.dev.open': 'Mở bảng điều khiển',
+    'settings.dev.unlock': 'Mở khoá',
+    'settings.dev.relock': 'Khoá lại',
+
     /* ---------- lưu tiến trình ---------- */
     'save.chip.saved': 'Đã lưu · Ngày {n}',
     'save.bootNote': 'Bản lưu ngày {day} · {when}',
@@ -183,6 +195,7 @@ export const STRINGS = {
     'base.rescue': 'Thiết kế tàu cứu hộ',
     'base.rescue.desc': 'Chọn module, cân tiền, tải trọng và delta-v.',
     'base.rescue.disabled': 'Chưa mở được phòng thiết kế ở màn này.',
+    'base.rescue.locked': 'Chưa có ai biết bạn còn sống. Phát được tín hiệu cầu cứu trước đã, rồi mới có sứ mệnh giải cứu để thiết kế.',
 
     'base.footer.survived': 'Đã sống sót {n} ngày',
     'base.footer.survived.one': 'Đã sống sót {n} ngày',
@@ -203,6 +216,36 @@ export const STRINGS = {
     'base.item.radio': 'Máy liên lạc hỏng',
     'base.item.family_photo': 'Tấm ảnh gia đình',
     'base.item.family_photo.desc': 'Xem lại',
+
+    /* dòng chữ nhỏ dưới tên vật phẩm trong túi: nói ngay bấm vào
+       thì được gì, để không phải đoán */
+    'base.item.ration.hint': '+45 calo',
+    'base.item.water_bottle.hint': '+40 nước',
+    'base.item.potato.hint': '+30 calo, +20 tinh thần',
+    'base.item.media.hint': '+25 tinh thần',
+    'base.item.part.hint': 'Nguyên liệu',
+    'base.item.potato_seed.hint': 'Đem ra nông trại gieo',
+
+    /* bảng giải thích khi bấm vào vật liệu */
+    'base.bag.panel.recipes': 'Công thức cần món này',
+    'base.bag.panel.none': 'Chưa công thức nào dùng tới món này.',
+    'base.item.tape.about': 'Cuộn băng keo chịu lực, loại dùng được cả ngoài chân không. Vá được vết nứt trên vỏ trạm, ghép ống dẫn, và là món phụ trong mọi bản lắp ráp.',
+    'base.item.electronics.about': 'Bo mạch, cảm biến và dây dẫn lấy từ kho phụ tùng. Cần cho bộ lọc nước và pin mở rộng, cũng là thứ để sửa máy phát cũ ngoài đồng.',
+    'base.item.hydrazine.about': 'Bình nhiên liệu tên lửa còn sót lại. Đốt nó trong điều kiện kiểm soát sẽ ra nước, nhưng việc này đòi tinh thần đủ cao, nếu không thì dễ hỏng cả khoang.',
+    'base.item.potato_seed.about': 'Mẫu khoai tây mang từ Trái Đất, thứ duy nhất còn tươi trong kho. Đem ra nông trại gieo thì mới có nguồn lương thực tự trồng. Không ăn sống được.',
+
+    /* câu phản hồi khi dùng vật phẩm */
+    'base.bag.ate.ration': 'Đã ăn một gói khẩu phần. Thêm 45 calo.',
+    'base.bag.drank.water': 'Đã uống một bình nước. Thêm 40 nước.',
+    'base.bag.ate.potato': 'Ăn củ khoai sống. Thêm 30 calo.',
+    'base.bag.played.media': 'Nghe lại đĩa nhạc cũ. Tinh thần tăng 25.',
+    'base.bag.log.ration': 'Ăn một gói khẩu phần, đỡ đói hơn một chút.',
+    'base.bag.log.media': 'Nghe lại đĩa nhạc cũ. Một lúc thấy mình không còn đơn độc.',
+    'base.bag.full.calories': 'Bụng đã đầy, để dành gói này cho lúc khác.',
+    'base.bag.full.water': 'Không uống thêm được nữa, giữ bình nước lại.',
+    'base.bag.full.sanity': 'Tinh thần đang ổn, để dành món này cho lúc khó hơn.',
+    'base.bag.none.left': 'Món này đã hết.',
+    'base.bag.empty': 'Túi không còn gì.',
 
     'mem.error.title': 'Không mở được',
     'mem.error.body': 'Tệp hồi tưởng chưa nạp được. Đóng lại rồi thử lần nữa.',
@@ -650,6 +693,7 @@ export const STRINGS = {
     'app.title': 'Space Mission Design Game',
     'app.tagline': 'Design a space mission and learn what every decision costs.',
     'app.start': 'Begin',
+    'app.start.pending': 'Getting ready...',
     'app.again': 'Replay the prologue',
     'app.continue': 'Continue',
 
@@ -746,6 +790,15 @@ export const STRINGS = {
     'settings.reset.confirm': 'Clear everything?',
     'settings.credits': 'Credits',
 
+    /* ---------- developer mode ---------- */
+    'settings.dev': 'Developer mode',
+    'settings.dev.desc': 'A test panel for the people building the game. Password protected.',
+    'settings.dev.locked': 'Locked. Press to enter the password.',
+    'settings.dev.unlocked': 'Unlocked on this device.',
+    'settings.dev.open': 'Open the panel',
+    'settings.dev.unlock': 'Unlock',
+    'settings.dev.relock': 'Lock again',
+
     /* ---------- progress save ---------- */
     'save.chip.saved': 'Saved · Day {n}',
     'save.bootNote': 'Saved day {day} · {when}',
@@ -810,6 +863,7 @@ export const STRINGS = {
     'base.rescue': 'Rescue ship design',
     'base.rescue.desc': 'Pick modules, weigh budget, payload and delta-v.',
     'base.rescue.disabled': 'The design bay cannot open from this screen.',
+    'base.rescue.locked': 'Nobody knows you are alive yet. Send the distress signal first, then there is a rescue mission to design.',
 
     'base.footer.survived': 'Survived {n} days',
     'base.footer.survived.one': 'Survived {n} day',
@@ -830,6 +884,33 @@ export const STRINGS = {
     'base.item.radio': 'Broken radio',
     'base.item.family_photo': 'Family photo',
     'base.item.family_photo.desc': 'Look through it',
+
+    /* small line under the item name: what pressing it gives you */
+    'base.item.ration.hint': '+45 calories',
+    'base.item.water_bottle.hint': '+40 water',
+    'base.item.potato.hint': '+30 calories, +20 sanity',
+    'base.item.media.hint': '+25 sanity',
+    'base.item.part.hint': 'Crafting material',
+    'base.item.potato_seed.hint': 'Plant it at the farm',
+
+    'base.bag.panel.recipes': 'Recipes that need this',
+    'base.bag.panel.none': 'No recipe uses this yet.',
+    'base.item.tape.about': 'Vacuum-rated duct tape. It patches hull cracks, joins hoses, and shows up as a minor part in every assembly on the station.',
+    'base.item.electronics.about': 'Boards, sensors and wiring from the spare parts bin. Needed for the water recycler and the extra battery, and it is what the old transmitter out on the plain will need too.',
+    'base.item.hydrazine.about': 'A leftover tank of rocket fuel. Burned under control it gives water, but the job demands steady hands, and low sanity makes it wreck the compartment instead.',
+    'base.item.potato_seed.about': 'A potato sample brought from Earth, the only living thing left in storage. Plant it at the farm to grow your own food. It is not edible as it is.',
+
+    'base.bag.ate.ration': 'Ate one ration pack. Plus 45 calories.',
+    'base.bag.drank.water': 'Drank one bottle of water. Plus 40 water.',
+    'base.bag.ate.potato': 'Ate a raw potato. Plus 30 calories.',
+    'base.bag.played.media': 'Played the old record again. Sanity up 25.',
+    'base.bag.log.ration': 'Ate a ration pack. A little less hungry.',
+    'base.bag.log.media': 'Played the old record. For a moment I was not alone.',
+    'base.bag.full.calories': 'Already full. Save this pack for later.',
+    'base.bag.full.water': 'Cannot drink any more. Keep the bottle.',
+    'base.bag.full.sanity': 'Spirits are fine. Save this for a harder day.',
+    'base.bag.none.left': 'You are out of those.',
+    'base.bag.empty': 'The pack is empty.',
 
     'mem.error.title': 'Could not open',
     'mem.error.body': 'The memory file did not load. Close this and try again.',

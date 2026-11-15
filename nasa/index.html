@@ -21,7 +21,7 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css'].forEach(function (href) {
+    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
@@ -109,6 +109,79 @@
 
   html.motion-off .comms-skip { transition: none; }
 
+  /* ---------- phản hồi khi bấm nút Bắt đầu ----------
+     Bấm Bắt đầu xong phải thấy phản hồi NGAY, không để người chấm ngồi
+     nhìn màn hình im lìm rồi tưởng game đơ. Ba thứ hiện cùng lúc, tất
+     cả đặt trong cùng một khung hình vẽ: nút đổi chữ kèm vòng xoay,
+     nút bị khoá, và một lớp mờ tối phủ lên màn menu. */
+
+  .boot-pending {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .12s linear;
+    background:
+      radial-gradient(ellipse at center, rgba(6, 9, 14, .58) 0%, rgba(6, 9, 14, .86) 100%);
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+  }
+
+  .boot-pending.is-on { opacity: 1; }
+
+  html.motion-off .boot-pending { transition: none; }
+
+  /* nút đang chuẩn bị: giữ nguyên kích thước để bố cục không nhảy */
+  .boot .btn-start.is-pending,
+  .boot .btn-start:disabled {
+    cursor: progress;
+    animation: none;
+    background-color: #a8762a;
+    border-color: #a8762a;
+    color: #0b0d12;
+    opacity: 1;
+  }
+
+  .boot .btn-start.is-pending:hover,
+  .boot .btn-start:disabled:hover {
+    background-color: #a8762a;
+    border-color: #a8762a;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .boot .btn-start.is-pending::after { display: none; }
+
+  /* vòng xoay nhỏ bên trái chữ */
+  .boot-spin {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(7, 9, 13, .32);
+    border-top-color: #07090d;
+    animation: boot-spin .7s linear infinite;
+  }
+
+  @keyframes boot-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Tắt chuyển động: vẫn có dấu hiệu sống bằng nhịp mờ, không xoay. */
+  html.motion-off .boot-spin {
+    animation: boot-spin-pulse 1s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boot-spin { animation: boot-spin-pulse 1s ease-in-out infinite; }
+  }
+
+  @keyframes boot-spin-pulse {
+    0%, 100% { opacity: .35; }
+    50%      { opacity: 1; }
+  }
+
   /* ---------- nút chơi lại Giai đoạn 1 trong màn căn cứ ----------
      Nằm ở chân màn căn cứ, kiểu chữ theo chân màn hình, vùng bấm 44px. */
   .base-replay {
@@ -158,69 +231,230 @@
 
 <div class="boot" id="boot">
 
-  <!-- nền: bầu trời sao Hoả, vầng sáng mặt trời xa, núi đồi, nhiễu hạt -->
-  <div class="boot-sky" aria-hidden="true"></div>
+  <!-- ============================================================
+       Màn menu chính, dựng theo bản phác thảo tay.
 
-  <svg class="boot-terrain" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <defs>
-      <linearGradient id="ridge-far" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#8a4a20" stop-opacity=".55"/>
-        <stop offset="100%" stop-color="#401c0a" stop-opacity=".85"/>
-      </linearGradient>
-      <linearGradient id="ridge-mid" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#5c2b12" stop-opacity=".85"/>
-        <stop offset="100%" stop-color="#1d0d05" stop-opacity="1"/>
-      </linearGradient>
-      <linearGradient id="ridge-near" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#2a1207"/>
-        <stop offset="100%" stop-color="#08060a"/>
-      </linearGradient>
-    </defs>
-    <path fill="url(#ridge-far)"
-          d="M0 210 L90 186 L170 200 L250 158 L330 178 L420 140 L500 168 L580 150 L660 176 L740 138 L820 164 L900 142 L980 172 L1070 146 L1150 176 L1240 152 L1320 180 L1440 160 L1440 320 L0 320 Z"/>
-    <path fill="url(#ridge-mid)"
-          d="M0 248 L80 232 L150 250 L240 214 L320 240 L400 220 L470 246 L560 216 L640 244 L720 212 L790 238 L880 218 L960 248 L1050 222 L1130 250 L1220 226 L1310 252 L1440 232 L1440 320 L0 320 Z"/>
-    <path fill="url(#ridge-near)"
-          d="M0 288 L100 272 L190 292 L280 266 L380 290 L470 270 L560 294 L660 272 L750 296 L850 274 L940 298 L1040 278 L1130 300 L1240 282 L1340 302 L1440 286 L1440 320 L0 320 Z"/>
-  </svg>
+       Bốn lớp chồng, thứ tự từ dưới lên:
+         1. đồng bằng đá đỏ (ảnh bg-storm-wide) + parallax cực nhẹ
+         2. phi hành gia tiền cảnh bên phải, thở nhẹ
+         3. tàu MAV đứng trên ba chân đáp bên trái, vẽ bằng SVG
+         4. canvas hạt bụi đỏ bay xéo
+       Toàn bộ nằm trong .menu-stage để phóng tàu thì cả cảnh rung
+       cùng một nhịp, còn chữ và nút thì mờ đi riêng.
 
-  <div class="boot-grain" aria-hidden="true"></div>
-  <div class="boot-vignette" aria-hidden="true"></div>
+       Vì sao nền dùng bg-storm-wide chứ không dùng mars-surface:
+       mars-surface đã có sẵn hai phi hành gia và một tháp ăng ten
+       trong khung, đặt sprite phi hành gia lên trên sẽ thành hai
+       người trùng nhau. bg-storm-wide là đồng bằng đá đỏ trống, có
+       bão bụi ở xa, đúng cảnh phác thảo và không tranh chỗ với nhân
+       vật.
+       ============================================================ -->
+  <div class="menu-stage" id="menu-stage">
 
-  <!-- cột trái: nhãn, tiêu đề, mô tả, nút. Cột phải: hồ sơ sứ mệnh -->
-  <div class="boot-shell">
-    <div class="boot-main">
-      <div class="lbl">NASA Space Apps Challenge 2026</div>
-      <h1 data-i18n="app.title">Space Mission Design Game</h1>
-      <p data-i18n="app.tagline">Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.</p>
-      <button class="btn-start" id="start" data-i18n="app.start">Bắt đầu</button>
-      <!-- Nút Tiếp tục chỉ hiện khi có bản lưu. Ẩn mặc định, JS bật lên
-           sau khi kiểm hasSave(). Đặt cạnh nút Bắt đầu thay vì thay thế
-           nó, để người chơi vẫn chọn được chơi lại từ đầu. -->
-      <button class="btn-resume" id="resume" data-i18n="app.continue" hidden>Tiếp tục</button>
-      <p class="boot-save-note" id="save-note" hidden></p>
+    <!-- lớp 1: nền -->
+    <div class="menu-parallax" id="menu-parallax">
+      <div class="menu-bg">
+        <img class="menu-bg-img" id="menu-bg-img"
+             src="../assets/art/bg-storm-wide.webp"
+             alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+      </div>
+    </div>
+    <div class="menu-scrim" aria-hidden="true"></div>
+    <div class="menu-grain" aria-hidden="true"></div>
+
+    <!-- lớp 3: tàu MAV, ba chân đáp, cửa sổ tròn -->
+    <div class="menu-ship-anchor">
+      <div class="menu-ship" id="menu-ship">
+        <!-- vệt khói dọc đường bay, chỉ hiện lúc tàu rời đất -->
+        <div class="menu-trail" aria-hidden="true"></div>
+
+        <svg class="mav" viewBox="0 0 240 300" role="img"
+             aria-label="Tàu MAV đứng trên ba chân đáp" focusable="false">
+          <defs>
+            <linearGradient id="mav-body" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#3a3f46"/>
+              <stop offset=".16" stop-color="#6f767e"/>
+              <stop offset=".38" stop-color="#c8cfd6"/>
+              <stop offset=".58" stop-color="#e4e9ee"/>
+              <stop offset=".80" stop-color="#9aa2aa"/>
+              <stop offset="1" stop-color="#41464d"/>
+            </linearGradient>
+            <linearGradient id="mav-upper" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#4a4238"/>
+              <stop offset=".22" stop-color="#8d8578"/>
+              <stop offset=".44" stop-color="#d9d3c6"/>
+              <stop offset=".70" stop-color="#a9a294"/>
+              <stop offset="1" stop-color="#4d463c"/>
+            </linearGradient>
+            <linearGradient id="mav-cone" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#b9b2a5"/>
+              <stop offset=".55" stop-color="#8e887c"/>
+              <stop offset="1" stop-color="#5d574d"/>
+            </linearGradient>
+            <linearGradient id="mav-skirt" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#2a2d33"/>
+              <stop offset=".34" stop-color="#5c626a"/>
+              <stop offset=".62" stop-color="#7d848c"/>
+              <stop offset="1" stop-color="#26292e"/>
+            </linearGradient>
+            <linearGradient id="mav-leg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#2f3238"/>
+              <stop offset=".45" stop-color="#868d95"/>
+              <stop offset="1" stop-color="#33363c"/>
+            </linearGradient>
+            <linearGradient id="mav-band" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#8a4a1e"/>
+              <stop offset=".42" stop-color="#e8a33d"/>
+              <stop offset="1" stop-color="#7c411a"/>
+            </linearGradient>
+            <radialGradient id="mav-glass" cx=".36" cy=".3" r=".82">
+              <stop offset="0" stop-color="#ffe6bb"/>
+              <stop offset=".34" stop-color="#f0a94f"/>
+              <stop offset=".72" stop-color="#8c4a1c"/>
+              <stop offset="1" stop-color="#241610"/>
+            </radialGradient>
+          </defs>
+
+          <!-- chân giữa, nằm sau thân nên vẽ trước -->
+          <g stroke="url(#mav-leg)" stroke-width="9" stroke-linecap="round">
+            <line x1="120" y1="206" x2="116" y2="286"/>
+          </g>
+          <ellipse cx="116" cy="289" rx="13" ry="5" fill="#1d1f24"/>
+
+          <!-- hai chân trước, chĩa ra hai bên -->
+          <g fill="url(#mav-leg)">
+            <path d="M94 200 L50 286 L64 291 L104 204 Z"/>
+            <path d="M146 200 L190 286 L176 291 L136 204 Z"/>
+          </g>
+          <!-- thanh giằng chân -->
+          <g stroke="#4b5158" stroke-width="3" stroke-linecap="round" opacity=".85">
+            <line x1="97" y1="232" x2="63" y2="258"/>
+            <line x1="143" y1="232" x2="177" y2="258"/>
+          </g>
+          <ellipse cx="57" cy="290" rx="16" ry="5" fill="#1d1f24"/>
+          <ellipse cx="183" cy="290" rx="16" ry="5" fill="#1d1f24"/>
+
+          <!-- thân dưới: khoang động cơ -->
+          <path d="M88 214 L152 214 L146 238 L94 238 Z" fill="url(#mav-skirt)"/>
+          <!-- loa phụt -->
+          <path d="M100 238 L140 238 L151 262 L89 262 Z" fill="#191b1f"/>
+          <path d="M104 240 L136 240 L145 259 L95 259 Z" fill="#2c2f34"/>
+
+          <!-- thân chính: trụ đứng -->
+          <rect x="88" y="62" width="64" height="154" fill="url(#mav-body)"/>
+          <!-- đai hổ phách giữa thân -->
+          <rect x="88" y="136" width="64" height="9" fill="url(#mav-band)" opacity=".92"/>
+          <rect x="88" y="160" width="64" height="3" fill="#7d858d" opacity=".55"/>
+          <!-- đường nhấn sáng bên trái -->
+          <rect x="99" y="64" width="3" height="150" fill="#ffffff" opacity=".22"/>
+
+          <!-- khoang trên: hẹp hơn một nhịp -->
+          <rect x="92" y="40" width="56" height="24" fill="url(#mav-upper)"/>
+          <rect x="92" y="56" width="56" height="6" fill="#d8d2c4" opacity=".5"/>
+
+          <!-- chóp tàu -->
+          <path d="M120 4 C 132 20 143 32 148 40 L92 40 C 97 32 108 20 120 4 Z"
+                fill="url(#mav-cone)"/>
+          <path d="M120 4 C 126 14 133 26 138 40 L120 40 Z" fill="#ffffff" opacity=".12"/>
+
+          <!-- cửa sổ tròn -->
+          <circle cx="120" cy="104" r="17" fill="#2a2c31"/>
+          <circle cx="120" cy="104" r="14" fill="url(#mav-glass)"/>
+          <circle cx="120" cy="104" r="14" fill="none" stroke="#cfd6dd" stroke-width="2" opacity=".65"/>
+          <path d="M112 96 A 11 11 0 0 1 126 95" stroke="#fff8e8" stroke-width="2"
+                fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <!-- vài chi tiết kỹ thuật: đèn tín hiệu, nắp van, ăng ten ngắn -->
+          <circle cx="146" cy="124" r="2.6" fill="#ff9b3d" opacity=".9"/>
+          <circle cx="146" cy="132" r="2.6" fill="#4fb8c9" opacity=".55"/>
+          <rect x="96" y="176" width="20" height="14" rx="2" fill="#6d747c"/>
+          <rect x="99" y="179" width="14" height="8" rx="1" fill="#3e444b"/>
+          <line x1="132" y1="40" x2="132" y2="20" stroke="#9aa1a9" stroke-width="2"/>
+          <circle cx="132" cy="18" r="2.4" fill="#e8a33d"/>
+        </svg>
+
+        <!-- cột lửa, chỉ hiện khi động cơ khai hoả -->
+        <div class="menu-flame" aria-hidden="true"></div>
+      </div>
     </div>
 
-    <aside class="boot-brief">
-      <h2>Hồ sơ sứ mệnh</h2>
-      <dl>
-        <dt>Mã</dt><dd>Ares III</dd>
-        <dt>Địa điểm</dt><dd>Acidalia Planitia</dd>
-        <dt>Thời gian</dt><dd>Sol 1 tới Sol 19</dd>
-        <dt>Phi hành đoàn</dt><dd>Một người chơi</dd>
-        <dt>Chế độ</dt><dd>Kể chuyện tương tác</dd>
-        <dt>Dự kiến</dt><dd>15 tới 20 phút</dd>
-      </dl>
-    </aside>
+    <!-- khói bụi cuộn ra hai bên khi phóng -->
+    <div class="menu-smoke" id="menu-smoke" aria-hidden="true">
+      <div class="menu-puff" style="--i:0; --dx:-1.5"></div>
+      <div class="menu-puff" style="--i:1; --dx:1.4"></div>
+      <div class="menu-puff" style="--i:2; --dx:-1"></div>
+      <div class="menu-puff" style="--i:3; --dx:1"></div>
+      <div class="menu-puff" style="--i:4; --dx:-1.8"></div>
+    </div>
+
+    <!-- lớp 2: phi hành gia tiền cảnh bên phải -->
+    <div class="menu-astro" id="menu-astro">
+      <div class="menu-astro-shadow" aria-hidden="true"></div>
+      <img class="menu-astro-img" id="menu-astro-img"
+           src="../assets/art/char-healthy.webp"
+           alt="" aria-hidden="true" decoding="async">
+    </div>
+
+    <!-- lớp 4: hạt bụi đỏ, vẽ bằng canvas -->
+    <canvas class="menu-dust" id="menu-dust" aria-hidden="true"></canvas>
+
   </div>
 
-  <!-- hàng thông tin nhỏ phía dưới -->
-  <div class="boot-foot">
-    <span>Phiên bản 0.9</span>
-    <span>Chế độ một người</span>
-    <span>Tiếng Việt / English</span>
-    <span>NASA Space Apps 2026</span>
+  <!-- ---------- chữ ABANDONN ----------
+       Đúng hai chữ N ở cuối, đây là dấu ấn của nhóm. -->
+  <div class="menu-title-wrap">
+    <h1 class="menu-title" id="menu-title">ABANDONN</h1>
+    <div class="menu-title-dust" aria-hidden="true"></div>
   </div>
+
+  <!-- ---------- nút đổi ngôn ngữ, góc trên phải ----------
+       Đặt lệch trái nút mở cài đặt (nút đó đã chiếm góc). -->
+  <div class="menu-lang" id="menu-lang" role="group" aria-label="Ngôn ngữ / Language">
+    <button type="button" class="menu-lang-btn" data-lang="vi" aria-pressed="true">VI</button>
+    <span class="menu-lang-sep" aria-hidden="true">|</span>
+    <button type="button" class="menu-lang-btn" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+
+  <!-- ---------- cụm nút giữa lệch trái ---------- -->
+  <div class="menu-actions">
+    <button class="mbtn mbtn-start" id="start" type="button">
+      <span class="mbtn-spin" aria-hidden="true"></span>
+      <span class="mbtn-label" data-i18n="app.start">Bắt đầu</span>
+    </button>
+
+    <button class="mbtn mbtn-resume" id="resume" type="button">
+      <span class="mbtn-spin" aria-hidden="true"></span>
+      <span class="mbtn-label" data-i18n="app.continue">Tiếp tục</span>
+    </button>
+    <p class="menu-resume-note" id="resume-note" hidden></p>
+    <p class="menu-save-note boot-save-note" id="save-note" hidden></p>
+
+    <button class="mbtn mbtn-plain" id="menu-gear" type="button">
+      <span class="mbtn-label" data-i18n="settings.title">Cài đặt</span>
+    </button>
+
+    <!-- chú thích dưới nút, hiện theo mốc 4 giây và 15 giây -->
+    <p class="menu-hint" id="menu-hint" hidden role="status" aria-live="polite"></p>
+    <button class="menu-retry" id="menu-retry" type="button" hidden></button>
+  </div>
+
+  <!-- ---------- góc dưới trái: credit ---------- -->
+  <div class="menu-foot">
+    <span class="menu-credit">NASA SPACE APPS CHALLENGE 2026 · SPACE MISSION DESIGN GAME</span>
+    <!-- Nút nhỏ mở kho mã nguồn. Giữ nguyên class boot-repo và href để
+         ban giám khảo đối chiếu mã, đúng yêu cầu cuộc thi. -->
+    <a class="boot-repo" href="https://github.com/tranminhngoc171-bot/space-mission-design-game"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Mở kho mã nguồn trên GitHub" title="Mã nguồn trên GitHub">
+      <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+
+  <!-- lớp đen phủ vào ở cuối hoạt cảnh phóng -->
+  <div class="menu-fade" id="menu-fade" aria-hidden="true"></div>
 
 </div>
 
@@ -293,6 +527,19 @@
   loadSettings();
   initAudio();
   applyToDom();
+
+  /* Cầu nối Giai đoạn 2 sang màn kết thúc thua. Cài một lần ở đây để
+     bất kỳ engine Phase 2 nào phát 'mission:failed' cũng mở được màn
+     kết thúc, dù app Giai đoạn 2 có subscribe hay không. Nạp động và
+     nuốt lỗi: thiếu file thì game vẫn chạy, chỉ là không có màn kết
+     thúc cho Giai đoạn 2. */
+  import(BASE + 'phase2-endings-bridge.js').then((mod) => {
+    if (mod && typeof mod.installPhase2EndingsBridge === 'function') {
+      mod.installPhase2EndingsBridge();
+    }
+  }).catch((err) => {
+    console.warn('[boot] chưa nạp được cầu nối màn kết thúc', err);
+  });
 
   const boot = document.getElementById('boot');
   const btn  = document.getElementById('start');
@@ -446,26 +693,32 @@
 
   /* Sau màn mở đầu: Giai đoạn 1 trước, căn cứ sau. */
   function afterStory(playerName) {
-    if (stage1Done()) { enterBase(playerName); return; }
-    /* Cả hai đường ra khỏi bảng viễn thông đều đã ghi cờ trong
-       openStage1, nên ở đây chỉ cần vào căn cứ. */
-    openStage1({
-      onDone: () => enterBase(playerName),
-      onSkip: () => enterBase(playerName),
-    });
+    /* Xong phần kể chuyện thì vào thẳng căn cứ. Bảng viễn thông KHÔNG
+       mở ở đây: nó là một trạm nằm trong căn cứ, người chơi phải tự
+       bấm vào Bàn liên lạc mới mở. Trước đây chỗ này gọi openStage1
+       ngay sau story nên bảng viễn thông bật lên trước cả khi người
+       chơi thấy căn cứ, sai hoàn toàn với thiết kế. */
+    enterBase(playerName);
   }
 
   gear.addEventListener('click', () => { playClick(); openSettings(); });
 
   /* ---------- cầu nối cho bảng test nhà phát triển ----------
-     Bảng test gọi ba hàm này để nhảy màn, bắn sự kiện, chạy công cụ.
-     Đặt ở đây vì chỉ chỗ này mới biết đủ các hàm chuyển màn. */
+     Bảng test (devtool-panel.js) gọi ba hàm này để nhảy màn, bắn sự
+     kiện, chạy công cụ. Đặt ở đây vì chỉ chỗ này mới biết đủ các hàm
+     chuyển màn. Ba hàm nhận đúng bộ id trong MILESTONES / EVENTS /
+     TOOLS của bảng đó; đổi id một bên là phải đổi bên kia. */
+
+  const DEV_SCREENS = [
+    '.base-host', '.rescue-host', '.flight-host', '.comms-host',
+    '.story-root', '.story-screen', '.prologue-root', '.intro-overlay',
+    '.beacon-root', '.p2-host',
+  ].join(', ');
 
   function devClearScreens() {
     /* Dọn mọi lớp đang phủ trước khi nhảy, nếu không hai màn sẽ
        chồng nhau và người chơi bấm không được. */
-    document.querySelectorAll('.base-host, .rescue-host, .flight-host, .comms-host, .story-root, .prologue-root, .intro-overlay, .beacon-root')
-      .forEach((el) => el.remove());
+    document.querySelectorAll(DEV_SCREENS).forEach((el) => el.remove());
     baseStarted = false;
   }
 
@@ -473,80 +726,177 @@
     try { return localStorage.getItem('smdg.playerName') || 'Nhan'; } catch (e) { return 'Nhan'; }
   }
 
-  window.__devJump = (id) => {
+  /* Đặt ngày cho màn căn cứ. Nguồn sự thật của giờ/ngày là
+     stats.totalMinutes: base.js dựng đồng hồ từ clockFromStats() đọc
+     đúng trường đó. Trước đây chỗ này ghi khoá 'smdg.clock', một khoá
+     không ai đọc, nên bấm "căn cứ ngày 20" vẫn vào ngày 1. */
+  function devSetDay(day) {
+    const d = Math.max(1, Math.min(35, Math.round(Number(day) || 1)));
+    let raw = null;
+    try { raw = JSON.parse(localStorage.getItem('smdg.stats') || 'null'); } catch (e) { raw = null; }
+    const box = (raw && typeof raw === 'object') ? raw : { stats: {}, inv: {} };
+    box.stats = box.stats || {};
+    box.stats.totalMinutes = (d - 1) * 1440 + 8 * 60;
+    /* Đặt lại đồng hồ chết: nếu không, hộp đếm giờ cạn nước cũ vẫn
+       còn và người chơi chết ngay nhịp tick đầu tiên sau khi nhảy. */
+    box.stats.zeroWaterHours = 0;
+    box.stats.zeroCaloriesHours = 0;
+    box.stats.stamina = Math.max(60, Number(box.stats.stamina) || 0);
+    try { localStorage.setItem('smdg.stats', JSON.stringify(box)); } catch (e) { /* chặn ghi */ }
+    return d;
+  }
+
+  /* Màn Giai đoạn 2: nạp muộn vì phase2/ là gói riêng, nạp sớm sẽ kéo
+     theo cả cây phụ thuộc của nó vào màn boot. */
+  async function devOpenPhase2(stepId) {
+    const host = document.createElement('div');
+    host.className = 'p2-host';
+    host.style.cssText = 'position:fixed;inset:0;z-index:80;background:#07090d;';
+    document.body.appendChild(host);
+    /* phase2/ nằm cạnh src/ trong repo, nên đường dẫn tuỳ chỗ phục vụ:
+       bản dev chạy http.server trong src/ thì phải lùi một cấp, bản
+       deploy gom cả hai thư mục vào một gốc thì không. Thử lần lượt,
+       dùng cái nào nạp được trước. */
+    const candidates = [
+      BASE + '../phase2/phase2-app.js',
+      BASE + 'phase2/phase2-app.js',
+      '/phase2/phase2-app.js',
+    ];
+    for (const url of candidates) {
+      try {
+        const mod = await import(url);
+        const api = await mod.mountPhase2({ container: host });
+        window.__phase2Api = api;
+        if (stepId && api && typeof api.setStep === 'function') await api.setStep(stepId);
+        return api;
+      } catch (e) {
+        /* thử đường dẫn kế tiếp */
+      }
+    }
+    console.warn('[dev] không nạp được Giai đoạn 2 ở đường dẫn nào');
+    host.remove();
+    return null;
+  }
+
+  window.__devJump = (id, meta) => {
+    const m = meta || {};
     devClearScreens();
+    boot.style.display = 'none';
     const name = devPlayerName();
+
     try {
       if (id === 'boot') {
         boot.style.display = '';
         delete btn.dataset.started;
         return;
       }
-      if (id === 'intro') { boot.style.display = 'none'; playIntro(); return; }
-      if (id === 'prologue' || id === 'story') {
-        boot.style.display = 'none';
+      if (id === 'video') {
+        /* Video mở đầu, rồi để nó tự gọi tiếp màn truyện. Ở màn test
+           chỉ cần thấy đoạn phim chạy đúng, không cần đi hết. */
+        playIntro().then(() => runOpening(() => {}));
+        return;
+      }
+      if (id === 'comic') {
         runOpening(() => {});
         return;
       }
-      if (id.startsWith('base')) {
-        const day = Number(id.replace('base', '')) || 1;
-        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) {}
-        try {
-          localStorage.setItem('smdg.clock', JSON.stringify({ day, minutes: 8 * 60 }));
-        } catch (e) {}
-        boot.style.display = 'none';
-        enterBase(name);
+      if (id === 'story') {
+        getStartStory().then((startStory) => {
+          startStory({ onFinish: () => {} });
+        });
         return;
       }
-      if (id === 'repair' || id === 'comms') {
-        boot.style.display = 'none';
+      if (id === 'base') {
+        const day = devSetDay(m.day);
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) { /* chặn ghi */ }
+        enterBase(name);
+        console.info('[dev] vào căn cứ ngày', day);
+        return;
+      }
+      if (id === 'comms') {
         openStage1({ onDone: () => enterBase(name), onSkip: () => enterBase(name) });
         return;
       }
-      if (id === 'beacon') {
-        boot.style.display = 'none';
+      if (id === 'earth') {
         openBeaconScene({ onDone: () => enterBase(name) });
         return;
       }
-      if (id.startsWith('p2') || id === 'summary') {
-        boot.style.display = 'none';
-        openRescueDesigner(name);
+      if (id === 'p2-1') { devOpenPhase2('cml1'); return; }
+      if (id === 'p2-2') { devOpenPhase2('cml3'); return; }
+      if (id === 'p2-3') { devOpenPhase2('cml4'); return; }
+      if (id === 'p2-4') { devOpenPhase2('execution'); return; }
+      if (id === 'summary') { devOpenPhase2('summary'); return; }
+      if (id === 'flight') {
+        /* Màn bay cần một thiết kế tàu. Tự dựng thiết kế mặc định để
+           không phải chơi hết màn thiết kế trước. */
+        startFlight({
+          container: document.body,
+          design: { name: 'Ares III' },
+          onDone: () => {},
+        });
         return;
       }
-      if (id === 'flight') { boot.style.display = 'none'; openRescueDesigner(name); return; }
     } catch (err) {
       console.warn('[dev] nhay man loi', id, err);
     }
   };
 
-  window.__devEvent = (id) => {
+  window.__devEvent = (id, meta) => {
     const name = devPlayerName();
+    const m = meta || {};
     try {
-      if (id === 'phase1done') {
-        /* Chạy đúng luồng kết Giai đoạn 1: phát tín hiệu xong thì sang
-           trạm Trái Đất rồi sang Giai đoạn 2. */
+      if (id === 'ev:sos') {
+        window.dispatchEvent(new CustomEvent('mars:sos-received', {
+          detail: { solsRemaining: 300, crewOnMars: 1, signalStrength: 0.8 },
+        }));
         devClearScreens();
         boot.style.display = 'none';
-        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) {}
-        openBeaconScene({ onDone: () => openRescueDesigner(name) });
+        devOpenPhase2('cml1');
         return;
       }
-      if (id === 'sos') {
-        devClearScreens();
-        boot.style.display = 'none';
-        openRescueDesigner(name);
+      if (id === 'ev:dsn') {
+        window.dispatchEvent(new CustomEvent('earth:dsn-command-sent', {
+          detail: { solsToArrival: 64.7, etaDays: 60, progress: 0.75 },
+        }));
+        if (!document.querySelector('.p2-host')) {
+          devClearScreens();
+          boot.style.display = 'none';
+          devOpenPhase2('execution');
+        }
         return;
       }
-      if (id === 'beaconEv') {
-        devClearScreens();
-        boot.style.display = 'none';
-        openRescueDesigner(name);
+      if (id === 'ev:beacon') {
+        window.dispatchEvent(new CustomEvent('mars:beacon-deployed', {
+          detail: { ok: true },
+        }));
+        if (!document.querySelector('.p2-host')) {
+          devClearScreens();
+          boot.style.display = 'none';
+          devOpenPhase2('execution');
+        }
         return;
       }
-      if (id === 'dsn') {
+      if (id === 'ev:signal') {
+        /* Chạy ĐÚNG luồng kết Giai đoạn 1: đánh dấu xong, đóng bảng
+           viễn thông, mở scene Trái Đất nhận tin rồi vào căn cứ. Đây
+           là đường chuyển cảnh thật, không phải một đường tắt riêng. */
         devClearScreens();
         boot.style.display = 'none';
-        openRescueDesigner(name);
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) { /* chặn ghi */ }
+        openBeaconScene({ onDone: () => enterBase(name) });
+        return;
+      }
+      if (id === 'ev:skipvideo') {
+        document.querySelectorAll('.intro-overlay').forEach((el) => el.remove());
+        return;
+      }
+      if (id === 'ev:skipcomic') {
+        document.querySelectorAll('.prologue-root').forEach((el) => el.remove());
+        /* Gỡ lớp tranh xong phải mở màn truyện, nếu không người chơi
+           nhìn vào khoảng đen và tưởng game treo. */
+        if (!document.querySelector('.story-root') && !document.querySelector('.base-host')) {
+          runOpening(() => {});
+        }
         return;
       }
     } catch (err) {
@@ -554,33 +904,79 @@
     }
   };
 
-  window.__devTool = (id) => {
+  window.__devTool = (id, meta) => {
+    const m = meta || {};
     try {
-      if (id === 'reset') {
-        /* Xoá mọi key của game, giữ nguyên cài đặt âm thanh. */
-        const keep = ['smdg.settings', 'smdg.lang', 'smdg.devUnlocked'];
+      if (id === 'tool:reset') {
+        /* Xoá mọi khoá của game, giữ cài đặt, ngôn ngữ và cờ dev để
+           không phải nhập lại mật khẩu ngay sau khi đặt lại. */
+        const keep = ['smdg.settings', 'smdg.lang', 'smdg.fullscreen', 'smdg.devUnlocked'];
         const keepVals = {};
-        keep.forEach((k) => { try { keepVals[k] = localStorage.getItem(k); } catch (e) {} });
+        keep.forEach((k) => { try { keepVals[k] = localStorage.getItem(k); } catch (e) { /* bỏ */ } });
         const drop = [];
-        for (let i = 0; i < localStorage.length; i++) drop.push(localStorage.key(i));
+        for (let i = 0; i < localStorage.length; i += 1) drop.push(localStorage.key(i));
         drop.forEach((k) => { if (keep.indexOf(k) === -1) localStorage.removeItem(k); });
         Object.keys(keepVals).forEach((k) => {
-          if (keepVals[k] !== null) { try { localStorage.setItem(k, keepVals[k]); } catch (e) {} }
+          if (keepVals[k] !== null) { try { localStorage.setItem(k, keepVals[k]); } catch (e) { /* bỏ */ } }
         });
+        window.location.reload();
         return;
       }
-      if (id === 'unlock') {
+      if (id === 'tool:unlock') {
         try {
           localStorage.setItem('smdg.stage1Done', '1');
           localStorage.setItem('smdg.prologueDone', '1');
-          localStorage.setItem('smdg.storyDone', '1');
-        } catch (e) {}
+        } catch (e) { /* chặn ghi */ }
+        /* Mở khoá nông trại: cần hạt, 10 bình nước và 2 băng keo trong
+           kho chỉ số, không chỉ một cờ. Thiếu bước này thì bấm xong vẫn
+           thấy nông trại có ổ khoá. */
+        const bridge = window.__devBase;
+        if (bridge && bridge.stats) {
+          bridge.stats.addItems([
+            { id: 'potato_seed', qty: 3 },
+            { id: 'water_bottle', qty: 12 },
+            { id: 'tape', qty: 4 },
+            { id: 'electronics', qty: 4 },
+          ]);
+          bridge.stats.save();
+        }
         return;
       }
-      if (id === 'items' || id === 'stats') {
-        /* Hai món này cần đối tượng stats của màn căn cứ, chỉ chạy
-           được khi đang trong căn cứ. */
-        if (typeof window.__devStats === 'function') window.__devStats(id);
+      if (id === 'tool:items') {
+        const bridge = window.__devBase;
+        if (bridge && bridge.stats) {
+          bridge.stats.addItems([
+            { id: 'ration', qty: 20 },
+            { id: 'water_bottle', qty: 20 },
+            { id: 'tape', qty: 20 },
+            { id: 'electronics', qty: 20 },
+            { id: 'hydrazine', qty: 20 },
+            { id: 'media', qty: 20 },
+            { id: 'potato', qty: 20 },
+            { id: 'potato_seed', qty: 20 },
+          ]);
+          bridge.stats.save();
+        }
+        return;
+      }
+      if (id === 'tool:fill') {
+        const bridge = window.__devBase;
+        if (bridge && bridge.stats) {
+          bridge.stats.devPatch({ water: 100, calories: 100, stamina: 100, sanity: 100 });
+          bridge.stats.save();
+        }
+        return;
+      }
+      if (id === 'tool:day') {
+        const day = devSetDay(m.day);
+        /* Thay vì bắt người chơi bấm thêm một lần, nhảy luôn vào căn cứ
+           ở ngày đó: đặt ngày mà không vào thì không kiểm được gì. */
+        devClearScreens();
+        boot.style.display = 'none';
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) { /* chặn ghi */ }
+        enterBase(devPlayerName());
+        console.info('[dev] đặt ngày', day);
+        return;
       }
     } catch (err) {
       console.warn('[dev] cong cu loi', id, err);
