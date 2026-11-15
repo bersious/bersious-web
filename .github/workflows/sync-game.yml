@@ -84,9 +84,13 @@ jobs:
             --exclude='.github' \
             --exclude='dev-*.js' \
             _source/src/ "$DEST/"
-          # data/ nằm ngoài src nhưng game cần đọc, xem data.js BASES
+          # data/ nằm ngoài src nhưng game cần đọc, xem data.js BASES.
+          # KHÔNG dùng --delete ở đây: src/data/ (chứa data/nasa/ và
+          # data/events/ do game nạp) đã được rsync bước trên chép vào
+          # $DEST/data/, mà rsync --delete từ _source/data/ sẽ xoá sạch
+          # các thư mục con đó vì _source/data/ không có chúng.
           if [ -d _source/data ]; then
-            rsync -a --delete _source/data/ "$DEST/data/"
+            rsync -a _source/data/ "$DEST/data/"
           fi
           echo "Đã chép xong, dung lượng:"
           du -sh "$DEST"
@@ -98,13 +102,21 @@ jobs:
             echo "LỖI: .git lọt vào bản deploy"
             exit 1
           fi
-          find "$DEST" -name 'test-*.html' -o -name '*.tmp' | head -5
           # File dev-*.js là công cụ test của lúc phát triển, không được
           # lên production vì nó mở đường tắt vào thẳng màn căn cứ.
           if ls "$DEST"/dev-*.js >/dev/null 2>&1; then
             echo "LỖI: file dev-*.js lọt vào bản deploy"
             exit 1
           fi
+          # Dữ liệu NASA và sự kiện nằm trong src/data/ và phải sống sót
+          # qua bước rsync thứ hai. Đã từng bị xoá sạch vì --delete.
+          for f in data/nasa/rescue_mission.json data/events/role_negotiations.json; do
+            if [ ! -f "$DEST/$f" ]; then
+              echo "LỖI: thiếu $f sau khi chép, dữ liệu game sẽ 404"
+              exit 1
+            fi
+          done
+          find "$DEST" -name 'test-*.html' -o -name '*.tmp' | head -5
 
       - name: Commit nếu có thay đổi
         run: |
