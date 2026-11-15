@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-15T17:59:05",
+  "generated": "2026-11-15T20:28:19",
   "scenes": [
     {
       "id": "bg-airlock",
@@ -37,6 +37,13 @@
       "bytes": 73654
     },
     {
+      "id": "bg-family-kitchen-night",
+      "path": "assets/art/bg-family-kitchen-night.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 70554
+    },
+    {
       "id": "bg-farewell-door",
       "path": "assets/art/bg-farewell-door.webp",
       "width": 1600,
@@ -63,6 +70,13 @@
       "width": 1600,
       "height": 900,
       "bytes": 64984
+    },
+    {
+      "id": "bg-kid-doorway",
+      "path": "assets/art/bg-kid-doorway.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 52210
     },
     {
       "id": "bg-mars-orbit",
@@ -390,25 +404,25 @@
     {
       "id": "char-cold",
       "path": "assets/art/char-cold.webp",
-      "width": 213,
+      "width": 176,
       "height": 505,
-      "bytes": 43902,
+      "bytes": 32820,
       "transparent": true
     },
     {
       "id": "char-healthy",
       "path": "assets/art/char-healthy.webp",
-      "width": 316,
+      "width": 246,
       "height": 512,
-      "bytes": 49532,
+      "bytes": 36788,
       "transparent": true
     },
     {
       "id": "char-tired",
       "path": "assets/art/char-tired.webp",
-      "width": 309,
+      "width": 264,
       "height": 358,
-      "bytes": 30366,
+      "bytes": 29318,
       "transparent": true
     }
   ],
@@ -426,6 +440,64 @@
       "width": 1600,
       "height": 900,
       "bytes": 75528
+    }
+  ],
+  "endings": [
+    {
+      "id": "ending_hypoxia",
+      "path": "assets/art/ending_hypoxia.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 194564
+    },
+    {
+      "id": "ending_dehydration",
+      "path": "assets/art/ending_dehydration.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 210658
+    },
+    {
+      "id": "ending_starvation",
+      "path": "assets/art/ending_starvation.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 146486
+    },
+    {
+      "id": "ending_blackout",
+      "path": "assets/art/ending_blackout.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 152138
+    },
+    {
+      "id": "ending_orbit_miss",
+      "path": "assets/art/ending_orbit_miss.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 171814
+    },
+    {
+      "id": "ending_mutiny",
+      "path": "assets/art/ending_mutiny.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 260906
+    },
+    {
+      "id": "ending_comms_lost",
+      "path": "assets/art/ending_comms_lost.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 161432
+    },
+    {
+      "id": "ending_edl_crash",
+      "path": "assets/art/ending_edl_crash.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 177408
     }
   ]
 }

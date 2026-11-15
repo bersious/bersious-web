@@ -27,11 +27,14 @@
       {
         "id": "m01",
         "type": "narration",
-        "art": "bg-houston-kitchen",
-        "caption": { "vi": "Căn hộ Houston · 23:40", "en": "Houston apartment · 23:40" },
+        "art": "mem-family-photo",
+        "caption": {
+          "vi": "Căn hộ Houston · 23:40",
+          "en": "Houston apartment · 23:40"
+        },
         "text": {
-          "vi": "Trên cánh cửa tủ lạnh có một tấm ảnh cả đội Ares 3 đứng trước bệ phóng. Dán bằng băng keo điện, vì cục nam châm đã thất lạc từ đợt dọn nhà.",
-          "en": "On the fridge door hung a photo of the Ares 3 crew in front of the launchpad. Held up with electrical tape, because the magnet went missing during the move."
+          "vi": "Trên cánh cửa tủ lạnh có một tấm ảnh chụp ba người: anh, Linh, và bé Mai ngồi giữa lòng mẹ. Dán bằng băng keo điện, vì cục nam châm đã thất lạc từ đợt dọn nhà.",
+          "en": "On the fridge door hung a photo of the three of them: him, Linh, and little Mai sitting in her mother lap. Held up with electrical tape, because the magnet went missing during the move."
         }
       },
       {
@@ -48,7 +51,10 @@
         "type": "dialogue",
         "who": "linh",
         "art": "bg-moving-boxes",
-        "caption": { "vi": "Hành lang · thùng thứ 14", "en": "Hallway · box 14" },
+        "caption": {
+          "vi": "Hành lang · thùng thứ 14",
+          "en": "Hallway · box 14"
+        },
         "text": {
           "vi": "Cái thùng này xếp vào đâu anh?",
           "en": "Where does this box go?"
@@ -84,11 +90,37 @@
         }
       },
       {
+        "id": "m06b",
+        "type": "narration",
+        "art": "bg-kid-doorway",
+        "caption": {
+          "vi": "Hành lang · bé Mai thức dậy",
+          "en": "Hallway · Mai wakes up"
+        },
+        "text": {
+          "vi": "Bé Mai ra khỏi phòng lúc gần hai giờ sáng, tay cầm tờ giấy gấp đôi. Con bé không hỏi gì, chỉ đứng đó nhìn anh xếp thùng.",
+          "en": "Mai came out of her room close to two in the morning, a folded piece of paper in her hand. She did not ask anything, just stood there watching him pack."
+        }
+      },
+      {
+        "id": "m06c",
+        "type": "dialogue",
+        "who": "mai",
+        "art": "bg-kid-doorway",
+        "text": {
+          "vi": "Bố ơi, con vẽ bố đứng trên Sao Hỏa. Bố cầm về được không?",
+          "en": "Dad, I drew you standing on Mars. Can you take it with you?"
+        }
+      },
+      {
         "id": "m07",
         "type": "dialogue",
         "who": "linh",
         "art": "bg-houston-kitchen",
-        "caption": { "vi": "Bếp · 01:10", "en": "Kitchen · 01:10" },
+        "caption": {
+          "vi": "Bếp · 01:10",
+          "en": "Kitchen · 01:10"
+        },
         "text": {
           "vi": "Anh làm như mình sắp đi công tác vài hôm, tối lại nhắn tin về cho em không bằng.",
           "en": "You act like you are flying out for a few days and will text me tonight."
@@ -137,17 +169,20 @@
       {
         "id": "m12",
         "type": "narration",
-        "art": "bg-houston-kitchen",
+        "art": "bg-family-kitchen-night",
         "text": {
-          "vi": "Hai người ngồi tựa lưng vào tủ bếp, nghe tiếng tủ lạnh rì rì, cho tới khi kim đồng hồ chạm ba giờ sáng.",
-          "en": "They sat back to back against the kitchen cabinets, listening to the hum of the fridge, until the clock reached three in the morning."
+          "vi": "Ba người ngồi tựa lưng vào tủ bếp, nghe tiếng tủ lạnh rì rì. Bé Mai ngủ thiếp trên vai mẹ từ lúc nào, tay vẫn nắm tờ giấy vẽ. Không ai nói gì cho tới khi kim đồng hồ chạm ba giờ sáng.",
+          "en": "The three of them sat with their backs against the kitchen cupboards, listening to the fridge hum. Mai had fallen asleep on her mother shoulder at some point, the drawing still in her hand. Nobody spoke until the clock hit three in the morning."
         }
       },
       {
         "id": "m13",
         "type": "narration",
         "art": "bg-farewell-door",
-        "caption": { "vi": "Cửa căn hộ · 05:20", "en": "Flat door · 05:20" },
+        "caption": {
+          "vi": "Cửa căn hộ · 05:20",
+          "en": "Flat door · 05:20"
+        },
         "text": {
           "vi": "Cửa mở lúc 05:20. Túi đồ đặt ở ngưỡng cửa. Linh đứng trong khung cửa sáng đèn, không bước ra ngoài hành lang.",
           "en": "The door opened at 05:20. The duffel sat on the threshold. Linh stood in the lit doorway and did not step into the corridor."
@@ -158,8 +193,8 @@
         "type": "narration",
         "art": "bg-farewell-door",
         "text": {
-          "vi": "Tấm ảnh được gỡ khỏi tủ lạnh, gấp đôi, nhét vào ngăn ngực áo. Sáu năm nữa mới có chuyến bay đưa người ta về lại chỗ đó. Cả hai đều biết con số ấy.",
-          "en": "The photo came off the fridge, folded once, and went into a chest pocket. It would be six years before a flight brought anyone back there. Both of them knew the number."
+          "vi": "Tấm ảnh được gỡ khỏi tủ lạnh, gấp đôi. Tờ giấy vẽ của Mai thì anh để nguyên, không gấp, nhét riêng một ngăn. Sáu năm nữa mới có chuyến bay đưa người ta về lại chỗ đó. Cả hai đều biết con số ấy.",
+          "en": "The photo came off the fridge and was folded in half. Mai drawing he left unfolded, tucked into its own pocket. Six years before a flight would bring anyone back to that place. They both knew the number."
         }
       }
     ]

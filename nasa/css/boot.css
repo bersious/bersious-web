@@ -374,6 +374,62 @@
 }
 .boot-foot span:first-child { color: var(--tx-soft, #8497aa); }
 
+/* Nút mở kho mã nguồn, nằm cạnh dòng credit. Giữ nhỏ và dịu để không
+   tranh chỗ với nút Bắt đầu, nhưng vẫn đủ 44px vùng bấm cho ngón tay
+   trên điện thoại. */
+.boot-foot a.boot-repo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45em;
+  min-height: 44px;
+  padding: 0 .7em;
+  margin-left: -.2em;
+  color: var(--tx-dim, #72879d);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  transition: color .18s ease, border-color .18s ease, background .18s ease;
+}
+.boot-foot a.boot-repo svg { flex: 0 0 auto; opacity: .85; }
+.boot-foot a.boot-repo span {
+  /* Chữ chia cách bằng chấm ở rule trên, nhưng đây là link nên không
+     muốn chấm. Bỏ qua bằng cách tắt before. */
+  white-space: nowrap;
+  /* Trình duyệt khoá màu của thẻ a đã từng bấm (trạng thái :visited)
+     và không cho CSS ghi đè, để chống dò lịch sử duyệt web. Đặt màu
+     thẳng lên phần tử con thì hiển thị đúng ở mọi trạng thái. */
+  color: inherit;
+}
+.boot-foot a.boot-repo span,
+.boot-foot a.boot-repo svg {
+  /* Không dùng color: inherit vì thẻ a ở trạng thái :visited vẫn khoá
+     màu gốc. Đặt biến màu thẳng lên từng phần tử con. */
+  color: var(--tx-dim, #72879d);
+}
+.boot-foot a.boot-repo:hover span,
+.boot-foot a.boot-repo:hover svg {
+  color: var(--amber, #e8a33d);
+}
+.boot-foot a.boot-repo:hover {
+  color: var(--amber, #e8a33d);
+  border-color: color-mix(in srgb, var(--amber, #e8a33d) 40%, transparent);
+  background: color-mix(in srgb, var(--amber, #e8a33d) 8%, transparent);
+}
+.boot-foot a.boot-repo:hover svg { opacity: 1; }
+.boot-foot a.boot-repo:focus-visible {
+  outline: 2px solid var(--amber, #e8a33d);
+  outline-offset: 2px;
+}
+
+/* Không cho chấm phân cách chèn trước link GitHub. */
+.boot-foot a.boot-repo::before { content: none; }
+
+html.motion-off .boot-repo { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .boot-repo { transition: none; }
+}
+
 /* ============================================================
    TỐI ƯU KÍCH THƯỚC
    ============================================================ */

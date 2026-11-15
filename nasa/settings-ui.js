@@ -7,7 +7,7 @@
    ============================================================ */
 
 import { t, getLang, setLang, onLangChange } from './i18n.js';
-import { openDevPanel, askDevPassword, isDevUnlocked, injectDevCss } from './devtool-panel.js';
+import { openDevMode as openDevPanel, askDevPassword, isDevUnlocked, lockDev, injectDevCss } from './devtool-panel.js';
 import { getSettings, setSetting, resetSettings } from './settings.js';
 import { bindClickSounds } from './audio.js';
 import { isFullscreen, toggleFullscreen, onFullscreenChange, isSupported } from './fullscreen.js';
@@ -185,16 +185,21 @@ export function openSettings() {
           </div>
         </section>
 
-        <!-- Bảng test cho nhóm làm game. Có mật khẩu để người chơi
-             thường không mở nhầm. -->
+        <!-- Chế độ nhà phát triển. Đặt ở CUỐI panel để người chơi thường
+             cuộn hết các mục thật rồi mới gặp. Trạng thái (đã mở khoá
+             hay chưa) do renderDevRow() điền, vì nó đọc localStorage và
+             phải đổi ngay sau khi nhập mật khẩu hay bấm khoá lại. -->
         <section class="settings-group settings-group-dev">
-          <h3>Nhà phát triển</h3>
+          <h3 data-i18n="settings.dev"></h3>
           <div class="settings-row">
             <span class="settings-label">
-              <span>Chế độ nhà phát triển</span>
-              <small>Nhảy tới màn bất kỳ, bắn sự kiện test, chỉnh trạng thái</small>
+              <span data-i18n="settings.dev.desc"></span>
+              <small data-dev-status></small>
             </span>
-            <button type="button" data-act="dev-open">Mở</button>
+            <span class="dev-row-actions">
+              <button type="button" class="ghost-btn" data-act="dev-lock" hidden></button>
+              <button type="button" class="ghost-btn" data-act="dev-open"></button>
+            </span>
           </div>
         </section>
 
@@ -203,6 +208,11 @@ export function openSettings() {
 
   document.body.appendChild(panel);
   ensureSaveCss();
+  /* Hàng "chế độ nhà phát triển" ở cuối panel dùng kiểu của
+     devtool-panel.css (nút 44px). Nạp ngay khi mở bảng cài đặt, không
+     đợi tới lúc bấm: nếu không, hàng đó hiện ra với nút cao 21px rồi
+     mới nhảy cỡ khi bấm. */
+  injectDevCss();
   refresh();
   renderSaveBlock();
 
@@ -234,6 +244,9 @@ export function openSettings() {
     panel._cleanup?.();
     panel._cleanupLang?.();
     panel._offFs?.();
+    /* Gỡ listener "dev đã khoá" trước khi bảng bị xoá khỏi DOM, để
+       không còn con trỏ tới panel cũ. */
+    if (typeof panel._cleanupDevLock === 'function') panel._cleanupDevLock();
     setTimeout(() => { panel?.remove(); panel = null; }, 180);
   };
 
@@ -292,32 +305,86 @@ export function openSettings() {
   }
   updateFsLabel();
 
-  // xoá dữ liệu
-  /* Mở bảng test nhà phát triển. Có mật khẩu lần đầu, sau đó nhớ
-     trong localStorage cho tới khi bấm Khoá lại trong bảng. */
-  const devBtn = panel.querySelector('[data-act="dev-open"]');
-  if (devBtn) {
-    devBtn.addEventListener('click', async () => {
+  /* ---------- chế độ nhà phát triển ----------
+     Ba trạng thái của cùng một hàng:
+       chưa mở khoá  -> bấm là hiện ô mật khẩu, sai thì rung, đúng thì lưu cờ
+       đã mở khoá    -> bấm là vào bảng điều khiển luôn, không hỏi lại
+       đã mở khoá    -> nút Khoá lại riêng để trả về trạng thái đầu
+     Trạng thái đọc từ localStorage mỗi lần render, nên mở lại bảng
+     cài đặt là thấy đúng. */
+
+  const devOpenBtn = panel.querySelector('[data-act="dev-open"]');
+  const devLockBtn = panel.querySelector('[data-act="dev-lock"]');
+
+  function renderDevRow() {
+    if (!devOpenBtn) return;
+    const unlocked = isDevUnlocked();
+    const status = panel.querySelector('[data-dev-status]');
+    if (status) status.textContent = t(unlocked ? 'settings.dev.unlocked' : 'settings.dev.locked');
+    devOpenBtn.textContent = t(unlocked ? 'settings.dev.open' : 'settings.dev.unlock');
+    devOpenBtn.dataset.unlocked = unlocked ? '1' : '0';
+    if (devLockBtn) {
+      devLockBtn.textContent = t('settings.dev.relock');
+      /* Nút khoá chỉ có nghĩa khi đã mở khoá. Hiện nó lúc chưa mở là
+         mời người chơi bấm một nút không làm gì. */
+      devLockBtn.hidden = !unlocked;
+    }
+  }
+
+  if (devOpenBtn) {
+    devOpenBtn.addEventListener('click', async () => {
       injectDevCss();
-      let ok = isDevUnlocked();
-      if (!ok) ok = await askDevPassword();
-      if (!ok) return;
+
+      if (!isDevUnlocked()) {
+        /* Hộp mật khẩu tự lo phần rung và câu báo sai. Ở đây chỉ chờ
+           kết quả: mở được thì rơi xuống dưới và vào thẳng bảng. */
+        const ok = await askDevPassword({
+          onUnlock: () => { renderDevRow(); },
+        });
+        if (!ok) return;
+        renderDevRow();
+      }
+
       openDevPanel({
-        onJump: (id) => {
+        onJump: (id, meta) => {
           const fn = window.__devJump;
-          if (typeof fn === 'function') fn(id);
+          if (typeof fn === 'function') fn(id, meta);
         },
         onEvent: (id) => {
           const fn = window.__devEvent;
           if (typeof fn === 'function') fn(id);
         },
-        onTool: (id) => {
+        onTool: (id, meta) => {
           const fn = window.__devTool;
-          if (typeof fn === 'function') fn(id);
+          if (typeof fn === 'function') fn(id, meta);
         },
       });
     });
   }
+
+  if (devLockBtn) {
+    devLockBtn.addEventListener('click', () => {
+      lockDev();
+      renderDevRow();
+    });
+  }
+
+  /* Bảng điều khiển có nút "Khoá lại" riêng. Khi bấm ở đó, bảng tự
+     xoá cờ rồi đóng và phát sự kiện này. Không nghe thì hàng trong
+     cài đặt vẫn hiện "Mở bảng điều khiển" sau khi đã khoá, và người
+     dùng bấm vào lại tưởng còn mở. */
+  const onDevLocked = () => { renderDevRow(); };
+  window.addEventListener('smdg:dev-locked', onDevLocked);
+  /* Gỡ khi đóng bảng, nếu không mỗi lần mở lại cài đặt là chồng thêm
+     một listener, và sau vài chục lần mở thì renderDevRow chạy hàng
+     chục lần cho một cú bấm. */
+  const prevCleanup = panel._cleanupDevLock;
+  panel._cleanupDevLock = () => {
+    if (typeof prevCleanup === 'function') prevCleanup();
+    window.removeEventListener('smdg:dev-locked', onDevLocked);
+  };
+
+  renderDevRow();
 
   panel.querySelector('[data-act="reset"]').addEventListener('click', (e) => {
     const btn = e.currentTarget;

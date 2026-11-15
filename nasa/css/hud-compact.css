@@ -13,6 +13,11 @@
 .hud2 {
   --hud2-line: var(--line);
   --hud2-line-soft: color-mix(in srgb, var(--line) 60%, transparent);
+  /* Chiều cao thật của thanh, do JS đo và ghi lại. Widget nhật ký và nhãn
+     pha bám vào biến này để không bao giờ đè lên thanh khi thanh đổi
+     chiều cao (màn hẹp xuống hai hàng, chữ phóng to, v.v.). */
+  --hud2-bar-h: 78px;
+  --hud2-toolbar-h: 64px;
   /* Hai lớp nền bán trong suốt của thanh trên. Độ đục vừa đủ để chữ
      đạt tương phản AA, nhưng vẫn nhìn rõ mảng sáng tối của cảnh Sao
      Hỏa phía sau khi lia mắt qua thanh. */
@@ -73,8 +78,10 @@
   align-items: center;
   gap: clamp(10px, 1.4vw, 22px);
 
-  min-height: 62px;
-  padding: 7px clamp(10px, 1.4vw, 20px);
+  min-height: 66px;
+  /* Đệm hai bên bằng nhau và bằng đúng gap giữa ba cụm: mắt đọc ra ba
+     khối cách đều, không khối nào dính mép. */
+  padding: 8px clamp(12px, 1.4vw, 20px);
 
   border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   background:
@@ -232,12 +239,21 @@
 
 .hud2-vital-v {
   flex: 0 0 auto;
-  min-width: 2ch;
+  /* Bề rộng ghim theo 3 ký tự: số 100 và số 7 phải thẳng cột với nhau,
+     không thì bốn thanh so le và cả cụm đọc ra lộn xộn. */
+  min-width: 3ch;
   text-align: right;
   font-family: var(--st-font-mono, monospace);
-  font-size: .7rem;
+  font-size: .76rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  /* Số đặt trên nền lõm đục hẳn: đây là thứ mắt phải đọc được ngay,
+     và nền thanh bán trong suốt một mình không đủ khi cảnh phía sau
+     là vùng sáng (bầu trời trưa, đèn bàn). */
+  padding: 1px 4px 1px 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-void) 62%, transparent);
   color: var(--tx-bright);
   text-shadow: 0 1px 2px var(--hud2-shadow);
 }
@@ -404,13 +420,20 @@
   align-items: center;
   gap: 4px;
   color: var(--tx);
+  /* Ba ô chỉ số trạm đặt trong một rãnh lõm chung: chúng là số liệu
+     sống của trạm, cần một nền đủ đục để đọc được cả khi cảnh phía sau
+     là vùng sáng chói. */
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--tx-bright) 9%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-void) 56%, transparent);
 }
 
 .hud2-st-ico {
   display: flex;
   width: 12px;
   height: 12px;
-  color: var(--tx-dim);
+  color: var(--tx-soft);
 }
 
 .hud2-st-ico svg { width: 100%; height: 100%; }
@@ -425,21 +448,32 @@
 
 .hud2-st-v {
   font-family: var(--st-font-mono, monospace);
-  font-size: .82rem;
+  /* Số chỉ số là thứ mắt liếc nhiều nhất trên màn này: to hơn nhãn
+     hai bậc, đậm, canh phải theo cột số cố định để 60 và 100 thẳng
+     hàng. Chữ mono cộng tabular-nums giữ mọi chữ số cùng bề rộng nên
+     số không nhảy khi giá trị đổi. */
+  font-size: .92rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--hud2-good);
+  line-height: 1.1;
+  min-width: 2.6ch;
+  text-align: right;
+  color: var(--tx-bright);
   text-shadow: 0 1px 2px var(--hud2-shadow);
 }
 
 .hud2-st-u {
   font-family: var(--st-font-mono, monospace);
   font-size: .56rem;
-  color: var(--tx);
+  color: var(--tx-soft);
 }
 
+/* Mức bình thường: xanh nhạt đủ sáng để đọc trên nền lõm. Chỉ đổi màu
+   khi có chuyện, nhờ vậy mắt không phải phân loại ba sắc màu cùng lúc. */
+.hud2-st[data-level="ok"] .hud2-st-v { color: var(--hud2-good); }
 .hud2-st[data-level="warn"] .hud2-st-v { color: var(--hud2-caution); }
 .hud2-st[data-level="fail"] .hud2-st-v { color: var(--hud2-alarm); }
+.hud2-st[data-level="ok"] .hud2-st-ico { color: var(--hud2-good); }
 .hud2-st[data-level="warn"] .hud2-st-ico { color: var(--warn); }
 .hud2-st[data-level="fail"] .hud2-st-ico { color: var(--fail); }
 
@@ -466,9 +500,18 @@
   font-family: var(--st-font-body, system-ui, sans-serif);
   font-size: .68rem;
   cursor: pointer;
+  /* Nhãn nút phải nằm một dòng: để nó tự xuống dòng thì "Hướng dẫn" và
+     "Cài đặt" thành hai dòng trong khi "Lưu" một dòng, ba nút so le
+     nhau và thanh HUD cao thêm 12px. */
+  white-space: nowrap;
   transition: background-color var(--st-dur-fast, .12s) ease,
     color var(--st-dur-fast, .12s) ease,
     border-color var(--st-dur-fast, .12s) ease;
+}
+
+.hud2-btn-label {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .hud2-btn:hover {
@@ -548,15 +591,29 @@
    WIDGET NHẬT KÝ SỨ MỆNH
    ============================================================ */
 
+/* Chỗ đặt: trên màn rộng neo vào góc TRÊN trái, ngay dưới thanh HUD và
+   dưới nhãn pha. Trước đây nó nằm ở góc dưới trái và đè lên nhãn trạm
+   Giường ngủ cùng nút đầu của thanh công cụ đáy: vùng đó đã có ba lớp
+   giao diện chen nhau (nhãn trạm, thanh công cụ, nhãn pha) nên không
+   còn chỗ. Góc trên trái của cảnh là mảng tường trần trống, không trạm
+   nào bấm ở đó, nên nhật ký đứng riêng được mà vẫn liếc thấy ngay.
+
+   Trên màn hẹp thì ngược lại: góc trên đã bị thanh HUD hai hàng chiếm,
+   nên nhật ký về góc dưới trái, thu hẹp bề ngang và chỉ mở phần thân
+   khi người chơi bấm mở. */
 .hud2-log {
   pointer-events: auto;
   position: absolute;
-  left: clamp(8px, 1.2vw, 18px);
-  bottom: clamp(8px, 1.2vh, 18px);
-  width: min(380px, calc(100vw - 24px));
+  left: clamp(10px, 1.2vw, 18px);
+  /* Cùng đường ngang với chip pha ở góc phải (cả hai đều là
+     bar-h + 10): hai phần tử cùng cấp phải cùng baseline, lệch nhau
+     40px thì mắt đọc ra một bậc thang không có lý do. */
+  top: calc(var(--hud2-bar-h, 78px) + 10px);
+  bottom: auto;
+  width: min(300px, 27vw);
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   border-radius: 7px;
-  background: color-mix(in srgb, var(--bg-panel) 72%, transparent);
+  background: color-mix(in srgb, var(--bg-panel) 78%, transparent);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
   backdrop-filter: blur(10px) saturate(120%);
   box-shadow: 0 14px 34px -22px var(--hud2-shadow);
@@ -826,11 +883,30 @@
   }
 
   .hud2-st-k { display: none; }
-  .hud2-log { width: min(340px, calc(100vw - 20px)); }
+
+  /* Nhật ký về lại góc dưới trái vì góc trên đã bị thanh HUD hai hàng
+     chiếm. Đáy neo vào chiều cao thật của thanh công cụ nên không bao
+     giờ đè lên nút nào.
+
+     Chiều cao bị chặn trên bằng khoảng trống dưới chân nhân vật: chân
+     đứng ở 79,5 phần trăm chiều cao khung (đo được ở 390x844: chân
+     671, đỉnh widget 671,3, chỉ cách 0,3 điểm ảnh nên đọc ra là dính).
+     Chừa 24 điểm ảnh thở giữa hai thứ. Thân widget tự cuộn bên trong,
+     người chơi vẫn mở rộng xem được. */
+  .hud2-log {
+    left: 10px;
+    top: auto;
+    bottom: calc(var(--base-toolbar-h, 64px) + 10px + env(safe-area-inset-bottom, 0px));
+    width: min(300px, calc(100vw - 20px));
+    max-height: calc(100dvh * .205 - var(--base-toolbar-h, 64px) - 24px);
+  }
+  .hud2-log-body {
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 }
 
-/* Dưới 600px: chỉ còn icon và số, bỏ hết nhãn chữ cho vừa bề ngang
-   điện thoại dọc. */
 @media (max-width: 600px) {
   .hud2-bar {
     grid-template-columns: auto minmax(0, 1fr);
@@ -847,15 +923,16 @@
   .hud2-vitals { grid-template-columns: repeat(2, minmax(70px, auto)); gap: 2px 8px; }
   .hud2-vital-k { display: none; }
   .hud2-vital-ico { width: 10px; height: 10px; }
-  .hud2-vital-v { font-size: .58rem; min-width: 1.8ch; }
+  .hud2-vital-v { font-size: .7rem; min-width: 2.6ch; padding: 1px 3px; }
   .hud2-segs { min-width: 22px; height: 5px; gap: 1.5px; }
 
   .hud2-btn-label { display: none; }
   .hud2-btn { min-width: 44px; padding: 0 6px; }
 
-  .hud2-station { gap: 6px; }
+  .hud2-station { gap: 5px; }
+  .hud2-st { padding: 2px 5px; }
   .hud2-st-u { display: none; }
-  .hud2-st-v { font-size: .7rem; }
+  .hud2-st-v { font-size: .8rem; min-width: 2.4ch; }
 
   .hud2-speed { min-width: 44px; padding: 0 4px; font-size: .6rem; }
   .hud2-speed[data-kind="fast"] { max-width: 44px; }
@@ -868,7 +945,10 @@
   .hud2-quest-k { display: none; }
   .hud2-quest-v { font-size: .64rem; }
 
-  .hud2-log { width: calc(100vw - 16px); }
+  /* Nhật ký trên điện thoại: thu bề ngang và bớt chiều cao thân, người
+     chơi vẫn mở rộng được bằng nút mũi tên. */
+  .hud2-log { width: min(240px, calc(100vw - 20px)); }
+  .hud2-log-body { max-height: 15vh; }
   .hud2-log-line { font-size: .7rem; }
 }
 

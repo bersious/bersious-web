@@ -72,7 +72,7 @@ export function sync() {
   if (!musicEl) return;
   const s = getSettings();
 
-  musicEl.volume = vol();
+  musicEl.volume = vol() * musicScale;
   if (clickEl) clickEl.volume = Math.min(1, vol() * 0.9);
 
   const wantMusic = s.music && unlocked;
@@ -94,6 +94,28 @@ export function playClick() {
     clickEl.currentTime = 0;
     clickEl.play().catch(() => {});
   } catch { /* bỏ qua */ }
+}
+
+/* Hạ nhạc nền xuống một phần của âm lượng hiện tại, dùng khi mở màn
+   kết thúc thua: tiếng báo tử phải nghe rõ, nhạc không được đè lên.
+   Trả về hàm khôi phục mức cũ, để nơi gọi gọi khi đóng màn.
+
+   Vì sao đặt ở đây chứ không ở endings.js: chỉ audio.js được giữ phần
+   tử nhạc nền. Tạo một Audio mới ở file khác là hai luồng nhạc chồng
+   nhau, và lần sau sync() lại kéo âm lượng về mức cũ giữa lúc màn kết
+   thúc đang mở. */
+let musicScale = 1;
+
+export function clampMusicVolume(scale) {
+  const s = Number(scale);
+  if (!Number.isFinite(s) || s < 0 || s > 1) return () => {};
+  const prev = musicScale;
+  musicScale = s;
+  if (musicEl) musicEl.volume = vol() * musicScale;
+  return () => {
+    musicScale = prev;
+    if (musicEl) musicEl.volume = vol() * musicScale;
+  };
 }
 
 /* Gắn tiếng bấm cho mọi nút trong một vùng. */

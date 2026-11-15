@@ -475,6 +475,50 @@ export function createStats({ clock, initialState } = {}) {
     }
   }
 
+  /* Trừ nước cho một việc không phải uống: tưới cây, rửa, lau kính.
+     Đây là điểm nối duy nhất giữa nông trại và chỉ số sinh tồn: cả
+     game chỉ có MỘT lượng nước, nên tưới cây là uống bớt nước của
+     chính mình. Trước đây farm.js giữ bể riêng 100 đơn vị nên người
+     chơi thấy vô lý, tưới bao nhiêu cũng không ảnh hưởng nước uống.
+
+     Trả về { ok, short, have }: short là số còn thiếu, để màn nông
+     trại nói rõ "còn thiếu 3" thay vì chỉ báo "không đủ". */
+  function spendWater(n) {
+    const need = Number(n);
+    if (!Number.isFinite(need) || need <= 0) {
+      return { ok: true, spent: 0, short: 0, have: s.water };
+    }
+    if (s.water < need) {
+      return { ok: false, spent: 0, short: Math.ceil((need - s.water) * 10) / 10, have: s.water };
+    }
+    s.water = clamp(s.water - need, 0, MAX);
+    emit();
+    save();
+    return { ok: true, spent: need, short: 0, have: s.water };
+  }
+
+  /* ---------- công cụ cho chế độ nhà phát triển ----------
+     CHỈ dùng từ dev-mode.js. Ghi đè thẳng một vài trường của chỉ số,
+     không mô phỏng thời gian. Không có cửa nào khác trong game gọi
+     hàm này, và nó không tự lưu: nơi gọi phải gọi save().
+
+     Vì sao cần: các nút test "cho nước và calo đầy", "đặt ngày bất kỳ"
+     phải nhảy thẳng tới trạng thái muốn kiểm, chứ không thể ngồi uống
+     40 bình nước để đầy thanh. */
+  function devPatch(patch) {
+    if (!patch || typeof patch !== 'object') return get();
+    for (const [k, v] of Object.entries(patch)) {
+      if (!(k in s)) continue;
+      if (typeof s[k] === 'boolean') { s[k] = !!v; continue; }
+      const n = Number(v);
+      if (!Number.isFinite(n)) continue;
+      const hi = k === 'power' ? powerMax() : (k === 'totalMinutes' ? Number.MAX_SAFE_INTEGER : MAX);
+      s[k] = clamp(n, 0, hi);
+    }
+    emit();
+    return get();
+  }
+
   /* Cộng tinh thần từ một việc có mục đích: liên lạc được với
      Trái Đất, chăm vườn, thu hoạch. Tách riêng khỏi useItem vì
      không tiêu vật phẩm nào. */
@@ -499,9 +543,9 @@ export function createStats({ clock, initialState } = {}) {
   }
 
   return {
-    tick, get, useItem, spendItem, craft, exploreCost, sleepOver, forecastUntil,
+    tick, get, useItem, spendItem, spendWater, craft, exploreCost, sleepOver, forecastUntil,
     checkDeath, onTick, save, load, getUnlocks, addItems, setStorm,
-    setUvLamp, getInventory, addSanity,
+    setUvLamp, getInventory, addSanity, devPatch,
     BALANCE, ITEMS, RECIPES,
   };
 }

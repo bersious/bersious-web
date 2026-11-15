@@ -1,0 +1,951 @@
+/* ============================================================
+   css/menu.css
+   Màn menu chính, dựng theo bản phác thảo tay của Ngọc.
+
+   Bốn lớp chồng lên nhau, tất cả nằm trong #boot:
+     1. nền đồng bằng đá đỏ (ảnh bg-storm-wide), parallax cực nhẹ
+     2. phi hành gia tiền cảnh bên phải, thở nhẹ
+     3. tàu MAV đứng trên ba chân đáp bên trái (SVG)
+     4. canvas hạt bụi đỏ bay xéo
+   Trên cùng là chữ ABANDONN, nút VI/EN, cụm ba nút, dòng credit.
+
+   File này nạp SAU css/boot.css nên nó thắng ở mọi chỗ đụng nhau.
+   Màu đọc từ css/tokens.css, kèm giá trị dự phòng.
+   ============================================================ */
+
+/* ---------- khung ngoài: đúng một màn hình, không cuộn ---------- */
+
+#boot {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  /* dvh theo khung nhìn thật, không theo vh: trên điện thoại vh tính cả
+     thanh địa chỉ đang trượt, nên khung sẽ cao hơn vùng nhìn thấy. */
+  height: 100dvh;
+  min-height: 0;
+  display: block;
+  overflow: hidden;
+  background-color: #0a0705;
+  z-index: 1;
+}
+
+#boot,
+#boot * {
+  box-sizing: border-box;
+}
+
+/* ---------- lớp 1: nền đồng bằng ---------- */
+
+/* bọc riêng để parallax dịch ảnh mà không kéo theo lớp khác. inset âm
+   để ảnh rộng hơn khung, nhờ vậy dịch 8px vẫn không hở mép. */
+.menu-parallax {
+  position: absolute;
+  inset: -2.5%;
+  z-index: 0;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.menu-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: #2a1a10;
+}
+
+/* Ảnh đặt bằng thẻ img chứ không bằng background-image: cần đọc được
+   naturalWidth trong lúc kiểm thử, và cần thuộc tính object-fit để ảnh
+   không bị méo ở mọi tỉ lệ khung. */
+.menu-bg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 46%;
+  /* Ảnh gốc sáng và ngả nâu xám. Hạ sáng vừa phải rồi đẩy cam đất: hạ
+     quá tay thì đồng bằng đá đỏ mất hết chi tiết và màn menu thành một
+     tấm đen, đúng lỗi đã thấy khi đo. */
+  filter: brightness(.92) saturate(1.30) contrast(1.06);
+  transform: scale(1.05);
+}
+
+/* lớp pha cam đất, giữ ảnh không bị lạnh */
+.menu-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(58, 26, 10, .26) 0%, rgba(30, 13, 6, .06) 42%, rgba(10, 6, 4, .30) 100%),
+    radial-gradient(ellipse 90% 70% at 62% 38%, rgba(206, 116, 48, .26) 0%, transparent 70%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* tối ở đáy và hai bên để chữ luôn đọc được trên mọi khung hình. Giữ
+   mức vừa phải: đáy cần tối cho dòng credit, nhưng đỉnh và giữa phải
+   để lộ đồng bằng, nếu không cảnh chỉ còn là một khối đen. */
+.menu-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(6, 7, 10, .62) 0%, rgba(6, 7, 10, .22) 20%, transparent 42%,
+      rgba(6, 7, 10, .18) 60%, rgba(5, 6, 9, .82) 100%),
+    linear-gradient(90deg, rgba(5, 6, 9, .74) 0%, rgba(5, 6, 9, .34) 24%, transparent 52%),
+    linear-gradient(270deg, rgba(5, 6, 9, .46) 0%, transparent 32%);
+}
+
+/* nhiễu hạt mịn, cho ảnh không phẳng lì */
+.menu-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: .07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+/* ---------- vùng rung khi phóng ----------
+   Rung đặt trên khung bao ngoài cùng của cảnh, nên nền, tàu, phi hành
+   gia cùng rung một nhịp. Không đặt trên #boot để lớp đen phủ và chữ
+   không bị rung theo, vì lúc đó chữ đã mờ hết. */
+.menu-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.menu-stage.is-shaking {
+  animation: menu-shake 60ms steps(2, end) infinite;
+}
+
+@keyframes menu-shake {
+  0%   { transform: translate3d(-1.5px, 1px, 0); }
+  50%  { transform: translate3d(1.5px, -1px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ---------- lớp 2: phi hành gia tiền cảnh bên phải ---------- */
+
+.menu-astro {
+  position: absolute;
+  right: 7%;
+  bottom: 5%;
+  height: 62%;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  /* ánh sáng viền cam: hai lớp đổ bóng, một bên trái ấm, một viền mảnh */
+  filter:
+    drop-shadow(-10px 0 22px rgba(232, 140, 61, .34))
+    drop-shadow(6px 0 14px rgba(255, 176, 92, .18))
+    drop-shadow(0 12px 26px rgba(0, 0, 0, .55));
+}
+
+/* lật ngang: ảnh gốc nhân vật quay mặt sang phải, lật lại để hướng về
+   phía chữ và cụm nút, đúng thế "nhìn qua vai" trong phác thảo. */
+.menu-astro-img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  transform-origin: 50% 100%;
+  transform: scaleX(-1);
+  animation: menu-breathe 5s ease-in-out infinite;
+  /* ảnh gốc sáng hơn cảnh, hạ một nhịp cho hoà vào không khí bụi */
+  filter: brightness(.94) contrast(1.04) saturate(1.02);
+}
+
+/* thở: thân trên nhấp nhô 1,5px theo chu kỳ 5 giây, chân đứng yên */
+@keyframes menu-breathe {
+  0%, 100% { transform: scaleX(-1) scaleY(1); }
+  38%      { transform: scaleX(-1) scaleY(1.006) translateY(-1.5px); }
+  62%      { transform: scaleX(-1) scaleY(.998) translateY(.4px); }
+}
+
+/* bóng đổ elip dưới chân, neo đúng chỗ chân chạm đất */
+.menu-astro-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.4%;
+  width: 62%;
+  height: 3.2%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(6, 4, 3, .78) 0%, rgba(6, 4, 3, .34) 54%, transparent 78%);
+  filter: blur(2px);
+}
+
+/* phi hành gia run nhẹ khi tàu phóng, như đang chịu gió */
+.menu-astro.is-buffeted .menu-astro-img {
+  animation: menu-buffet 120ms ease-in-out 8;
+}
+
+@keyframes menu-buffet {
+  0%, 100% { transform: scaleX(-1) translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: scaleX(-1) translate3d(-1.5px, .6px, 0) rotate(-.5deg); }
+}
+
+/* ---------- lớp 3: tàu MAV bên trái ---------- */
+
+.menu-ship-anchor {
+  position: absolute;
+  left: 4%;
+  bottom: 7%;
+  height: 48%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* khung tàu: cao theo khung nhìn, rộng suy từ tỉ lệ của hình vẽ, nhờ
+   vậy chân đáp luôn chạm đúng mặt đất ở mọi cỡ màn hình */
+.menu-ship {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 240 / 300;
+  transform-origin: 50% 100%;
+  transform: translate3d(0, 0, 0);
+  animation: menu-ship-idle 4.8s ease-in-out infinite;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .55));
+}
+
+/* rung 0,3px khi chờ, như máy đang giữ nhiệt */
+@keyframes menu-ship-idle {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  33%      { transform: translate3d(0, -.3px, 0); }
+  66%      { transform: translate3d(0, .2px, 0); }
+}
+
+.menu-ship .mav {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---- cột lửa dưới đáy tàu ---- */
+.menu-flame {
+  position: absolute;
+  left: 50%;
+  /* miệng ống xả nằm ở 232/300 chiều cao khung vẽ */
+  top: 77%;
+  width: 34%;
+  height: 0;
+  transform: translateX(-50%) scaleY(.2);
+  transform-origin: 50% 0%;
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 0 0 46% 46%;
+  background: linear-gradient(180deg,
+    rgba(255, 250, 232, .96) 0%,
+    rgba(255, 206, 118, .92) 16%,
+    rgba(243, 138, 44, .86) 44%,
+    rgba(196, 74, 22, .52) 74%,
+    transparent 100%);
+  filter: blur(1.5px) saturate(1.15);
+  transition: opacity .12s linear;
+}
+
+/* lõi lửa trắng, hẹp và dài hơn, đặt trong cột lửa */
+.menu-flame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 42%;
+  height: 82%;
+  transform: translateX(-50%);
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(180deg, #fffdf4 0%, #ffe6ae 30%, rgba(255, 196, 120, .35) 72%, transparent 100%);
+  filter: blur(1px);
+}
+
+.menu-ship.is-igniting .menu-flame {
+  animation: menu-flame-up .5s cubic-bezier(.2, .7, .4, 1) forwards,
+             menu-flame-flicker 90ms steps(2, end) .5s infinite;
+}
+
+@keyframes menu-flame-up {
+  0%   { opacity: 0; height: 0; transform: translateX(-50%) scaleY(.2); }
+  35%  { opacity: 1; height: 74%; transform: translateX(-50%) scaleY(1.1); }
+  100% { opacity: 1; height: 62%; transform: translateX(-50%) scaleY(1); }
+}
+
+@keyframes menu-flame-flicker {
+  0%   { opacity: 1; transform: translateX(-50%) scaleX(1) scaleY(1); }
+  50%  { opacity: .92; transform: translateX(-50%) scaleX(.94) scaleY(1.04); }
+  100% { opacity: 1; transform: translateX(-50%) scaleX(1.02) scaleY(.98); }
+}
+
+/* vệt khói dọc đường bay, hiện lúc tàu rời đất */
+.menu-trail {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 46%;
+  height: 78vh;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: 50% 0%;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(226, 196, 158, .34) 0%,
+    rgba(196, 160, 124, .18) 24%,
+    rgba(150, 118, 90, .06) 60%,
+    transparent 100%);
+  filter: blur(6px);
+}
+
+.menu-ship.is-lifting .menu-trail {
+  animation: menu-trail-out 1.1s ease-out forwards;
+}
+
+@keyframes menu-trail-out {
+  0%   { opacity: 0; transform: translateX(-50%) scaleY(.1); }
+  22%  { opacity: .9; transform: translateX(-50%) scaleY(1); }
+  100% { opacity: 0; transform: translateX(-50%) scaleY(1.06); }
+}
+
+/* tàu bay lên và nhỏ dần. Easing theo đúng nhịp phóng: chậm lúc rời
+   đất, nhanh dần khi đã lên cao. */
+.menu-ship.is-lifting {
+  animation: menu-liftoff 1s cubic-bezier(.4, 0, .7, 1) forwards;
+}
+
+@keyframes menu-liftoff {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  14%  { transform: translate3d(0, -4vh, 0) scale(1.01); }
+  100% { transform: translate3d(0, -120vh, 0) scale(.4); }
+}
+
+/* ---- khói bụi cuộn ra hai bên khi động cơ khai hoả ---- */
+
+.menu-smoke {
+  position: absolute;
+  left: 4%;
+  bottom: 7%;
+  width: 0;
+  height: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.menu-puff {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 90px;
+  height: 90px;
+  margin: 0 0 -45px -45px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle at 42% 42%,
+    rgba(232, 198, 158, .70) 0%,
+    rgba(188, 148, 108, .46) 42%,
+    rgba(126, 96, 70, .18) 70%,
+    transparent 84%);
+  filter: blur(6px);
+}
+
+.menu-stage.is-ignition .menu-puff {
+  animation: menu-puff-roll 1.35s cubic-bezier(.18, .62, .36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* mỗi đám bay xa dần, to dần, mờ dần. Hướng toả hai bên theo --dx. */
+@keyframes menu-puff-roll {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(.35); }
+  18%  { opacity: .95; transform: translate3d(calc(var(--dx, 1) * 18px), -8px, 0) scale(.8); }
+  60%  { opacity: .6; transform: translate3d(calc(var(--dx, 1) * 96px), -46px, 0) scale(1.9); }
+  100% { opacity: 0; transform: translate3d(calc(var(--dx, 1) * 168px), -84px, 0) scale(2.8); }
+}
+
+/* ---------- lớp 4: canvas hạt bụi ---------- */
+
+.menu-dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+  display: block;
+}
+
+/* ---------- chữ ABANDONN ---------- */
+
+.menu-title-wrap {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 0 clamp(12px, 3vw, 40px);
+  /* chữ mờ dần khi bấm phóng, dịch lên 8px */
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+/* vầng sáng hổ phách phía sau chữ, làm viền sáng mảnh */
+.menu-title-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -18% -6%;
+  z-index: -1;
+  background: radial-gradient(ellipse 60% 70% at 50% 55%,
+    rgba(226, 138, 56, .30) 0%,
+    rgba(150, 78, 30, .16) 44%,
+    transparent 74%);
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+/* Chọn theo #boot vì css/boot.css còn quy tắc `.boot h1` và `.boot p`
+   của khung khởi động cũ, có độ ưu tiên cao hơn một class đơn. Không
+   sửa boot.css để tránh đụng file của nhánh khác. */
+#boot .menu-title {
+  position: relative;
+  margin: 0;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 6rem);
+  line-height: 1;
+  letter-spacing: .22em;
+  /* chữ có giãn cách nên mép phải luôn hụt một khoảng; bù lại cho cân */
+  margin-right: -.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  max-width: none;
+  text-wrap: balance;
+  background-image: linear-gradient(177deg, #f0b455 0%, #e8a33d 42%, #c96a2a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .65)) drop-shadow(0 0 26px rgba(226, 138, 56, .30));
+}
+
+/* bụi đỏ lướt ngang qua mặt chữ */
+.menu-title-dust {
+  position: absolute;
+  inset: -6% -14%;
+  z-index: 2;
+  pointer-events: none;
+  background-image: linear-gradient(101deg,
+    transparent 26%,
+    rgba(226, 122, 62, .55) 40%,
+    rgba(255, 178, 106, .42) 48%,
+    rgba(146, 62, 28, .40) 58%,
+    transparent 74%);
+  background-size: 240% 100%;
+  background-position: 180% 0;
+  mix-blend-mode: overlay;
+  animation: menu-dust-sweep 9s linear infinite;
+  -webkit-mask-image: radial-gradient(ellipse 82% 120% at 50% 50%, #000 42%, transparent 76%);
+  mask-image: radial-gradient(ellipse 82% 120% at 50% 50%, #000 42%, transparent 76%);
+}
+
+@keyframes menu-dust-sweep {
+  0%   { background-position: 180% 0; }
+  55%  { background-position: -60% 0; }
+  100% { background-position: -60% 0; }
+}
+
+/* ---------- nút VI|EN góc trên phải ---------- */
+
+/* Nút mở cài đặt đã chiếm góc phải (44px, cách mép 18px). Viên thuốc
+   ngôn ngữ đứng bên trái nó, cùng hàng, không đè nhau. */
+.menu-lang {
+  position: absolute;
+  top: clamp(16px, 3.2vh, 28px);
+  right: clamp(72px, 8vw, 84px);
+  z-index: 14;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .06);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .10), 0 6px 18px rgba(0, 0, 0, .32);
+}
+
+.menu-lang-btn {
+  /* mỗi nửa viên thuốc là một vùng bấm riêng, cao đủ 44px */
+  min-width: 46px;
+  height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: #b6c2ce;
+  cursor: pointer;
+  transition: color .16s ease, background-color .16s ease;
+}
+
+.menu-lang-btn:hover { color: #ffe0b0; }
+
+.menu-lang-btn[aria-pressed="true"] {
+  color: #f2b552;
+  text-shadow: 0 0 14px rgba(232, 163, 61, .55);
+}
+
+.menu-lang-btn:focus-visible {
+  outline: 2px solid #e8a33d;
+  outline-offset: 2px;
+}
+
+.menu-lang-sep {
+  color: rgba(255, 255, 255, .26);
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: .8rem;
+  line-height: 1;
+  user-select: none;
+}
+
+/* ---------- cụm nút giữa lệch trái ---------- */
+
+.menu-actions {
+  position: absolute;
+  left: 32%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 12;
+  width: min(280px, 34vw);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.mbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .7em;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-weight: 700;
+  font-size: clamp(.92rem, .5vw + .74rem, 1.06rem);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  /* thời lượng ghi thẳng bằng số, không dùng var(): Chrome kẹt
+     transition ở giá trị khởi tạo khi danh sách chứa var() trong phần
+     thời lượng. */
+  transition: background-color .16s ease, border-color .16s ease,
+              color .16s ease, box-shadow .16s ease, transform .16s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mbtn:focus-visible {
+  outline: 2px solid #f2b552;
+  outline-offset: 3px;
+}
+
+.mbtn:active { transform: translateY(1px); }
+
+/* --- nút chính: BẮT ĐẦU --- */
+.mbtn-start {
+  min-height: 56px;
+  background-color: #e8a33d;
+  border-color: #f0b455;
+  color: #10100c;
+  box-shadow: 0 8px 22px rgba(232, 163, 61, .26), inset 0 1px 0 rgba(255, 255, 255, .34);
+}
+
+.mbtn-start:hover:not(:disabled) {
+  background-color: #f2b552;
+  border-color: #ffd08a;
+  box-shadow: 0 10px 30px rgba(232, 163, 61, .42), inset 0 1px 0 rgba(255, 255, 255, .44);
+}
+
+/* --- nút TIẾP TỤC: kính mờ, viền hổ phách mảnh --- */
+.mbtn-resume {
+  background-color: rgba(24, 22, 20, .48);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(232, 163, 61, .55);
+  color: #f4cf9a;
+}
+
+.mbtn-resume:hover:not(:disabled) {
+  background-color: rgba(232, 163, 61, .16);
+  border-color: #f2b552;
+  color: #ffe6c2;
+}
+
+/* hidden không được ẩn hẳn: nút luôn có mặt, chỉ mờ đi khi chưa có bản
+   lưu. Dòng chú thích bên dưới nói rõ vì sao. */
+.menu-actions .mbtn-resume[hidden] { display: inline-flex; }
+
+.mbtn-resume[data-nosave="1"] {
+  /* 0,55 chứ không phải 0,4: ở 0,4 chữ trên nền kính mờ xuống dưới
+     ngưỡng đọc được của AA. Vẫn đủ khác biệt để đọc ra là đang khoá. */
+  opacity: .55;
+  cursor: not-allowed;
+  border-color: rgba(190, 180, 168, .40);
+  color: #d8cbb8;
+}
+
+.mbtn-resume[data-nosave="1"]:hover {
+  background-color: rgba(24, 22, 20, .48);
+  border-color: rgba(180, 170, 158, .34);
+  color: #cbbba8;
+}
+
+/* --- nút CÀI ĐẶT: kính mờ, viền xám --- */
+.mbtn-plain {
+  background-color: rgba(24, 26, 30, .44);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(170, 182, 194, .30);
+  color: #d5dee7;
+}
+
+.mbtn-plain:hover:not(:disabled) {
+  background-color: rgba(216, 226, 236, .13);
+  border-color: rgba(206, 216, 226, .62);
+  color: #f2f7fb;
+}
+
+/* --- trạng thái đang tải: chữ đổi, vòng xoay hiện, nút khoá --- */
+.mbtn:disabled {
+  cursor: progress;
+}
+
+.mbtn-start:disabled {
+  background-color: #d0922f;
+  border-color: #d0922f;
+  color: #16130d;
+  box-shadow: 0 6px 16px rgba(232, 163, 61, .18);
+}
+
+.mbtn-spin {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(16, 16, 12, .30);
+  border-top-color: #16130d;
+  animation: menu-spin .7s linear infinite;
+}
+
+.mbtn[data-loading="1"] .mbtn-spin { display: inline-block; }
+
+@keyframes menu-spin { to { transform: rotate(360deg); } }
+
+/* chữ đang tải bớt giãn cách để không bị tràn trên màn hẹp */
+.mbtn[data-loading="1"] {
+  letter-spacing: .12em;
+}
+
+/* ---------- dòng chú thích dưới nút ---------- */
+
+#boot .menu-hint,
+#boot .menu-resume-note,
+#boot .menu-save-note {
+  margin: 0;
+  font-family: var(--st-font-body, "Be Vietnam Pro", sans-serif);
+  font-size: clamp(.66rem, .3vw + .6rem, .76rem);
+  line-height: 1.5;
+  letter-spacing: .02em;
+  text-align: left;
+  max-width: none;
+}
+
+/* #a8b2bd trên nền tối đạt khoảng 7:1, vượt AA cho chữ nhỏ */
+#boot .menu-hint { color: #cfd8e2; }
+
+#boot .menu-resume-note { color: #b3a99b; }
+
+#boot .menu-save-note {
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: clamp(.6rem, .26vw + .55rem, .7rem);
+  letter-spacing: .06em;
+  color: #a89f93;
+}
+
+.menu-hint[hidden],
+.menu-resume-note[hidden],
+.menu-save-note[hidden] { display: none; }
+
+/* Dòng chú thích đứng ngay dưới nút vừa bấm: bỏ khoảng cách 12px của
+   flex để nó dính sát nút phía trên. */
+.menu-actions .menu-hint,
+.menu-actions .menu-resume-note,
+.menu-actions .menu-save-note {
+  margin-top: -6px;
+}
+
+/* nút thử lại khi quá 15 giây */
+.menu-retry {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 18px;
+  margin-top: -2px;
+  border-radius: 4px;
+  border: 1px solid rgba(232, 163, 61, .6);
+  background: rgba(232, 163, 61, .12);
+  color: #f6d5a4;
+  font-family: var(--st-font-display, "Barlow Condensed", sans-serif);
+  font-weight: 600;
+  font-size: .84rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.menu-retry:hover {
+  background: rgba(232, 163, 61, .22);
+  border-color: #f2b552;
+  color: #ffe9cd;
+}
+
+.menu-retry[hidden] { display: none; }
+
+.menu-retry:focus-visible {
+  outline: 2px solid #f2b552;
+  outline-offset: 3px;
+}
+
+/* ---------- góc dưới trái: credit và nút kho mã ---------- */
+
+.menu-foot {
+  position: absolute;
+  left: clamp(16px, 3vw, 34px);
+  bottom: max(clamp(14px, 2.6vh, 26px), env(safe-area-inset-bottom));
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 40px);
+  transition: opacity .4s ease;
+}
+
+.menu-credit {
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: clamp(.55rem, .34vw + .48rem, .66rem);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  /* #a4aeb9 trên nền #0a0705 đạt khoảng 8:1, vượt AA */
+  color: #a4aeb9;
+  white-space: nowrap;
+}
+
+/* Nút GitHub dùng lại đúng class .boot-repo của khung khởi động cũ.
+   Giữ 44px vùng bấm cho ngón tay, nhưng thu chữ lại cho gọn. */
+.menu-foot a.boot-repo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45em;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 .55em;
+  margin-left: -.2em;
+  color: #a4aeb9;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: clamp(.55rem, .3vw + .48rem, .64rem);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  transition: color .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.menu-foot a.boot-repo span,
+.menu-foot a.boot-repo svg { color: #a4aeb9; }
+.menu-foot a.boot-repo svg { flex: 0 0 auto; opacity: .85; }
+
+.menu-foot a.boot-repo:hover {
+  color: #f2b552;
+  border-color: rgba(232, 163, 61, .46);
+  background: rgba(232, 163, 61, .10);
+}
+
+.menu-foot a.boot-repo:hover span,
+.menu-foot a.boot-repo:hover svg { color: #f2b552; }
+.menu-foot a.boot-repo:hover svg { opacity: 1; }
+
+.menu-foot a.boot-repo:focus-visible {
+  outline: 2px solid #f2b552;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   HOẠT CẢNH PHÓNG TÀU
+   Thứ tự lớp thời gian nằm ở menu-cinematic.js, CSS chỉ mô tả từng
+   đoạn. Tổng cộng 2,6 giây.
+   ============================================================ */
+
+/* 0,0 tới 0,4s: chữ, nút, credit mờ dần và nhích lên 8px */
+.menu-stage.is-launching ~ .menu-title-wrap,
+.menu-stage.is-launching ~ .menu-actions,
+.menu-stage.is-launching ~ .menu-foot,
+.menu-stage.is-launching ~ .menu-lang {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu-stage.is-launching ~ .menu-title-wrap {
+  transform: translate(-50%, -8px);
+}
+
+.menu-stage.is-launching ~ .menu-actions {
+  transform: translateY(calc(-50% - 8px));
+}
+
+/* lớp đen phủ vào ở 2,4 tới 2,6s */
+.menu-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: #05060a;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s linear;
+}
+
+.menu-fade.is-on { opacity: 1; }
+
+/* khi đang phóng thì khoá luôn lớp phủ trong suốt, tránh bấm xuyên */
+.menu-stage.is-launching ~ .menu-actions .mbtn { pointer-events: none; }
+
+/* ============================================================
+   NGƯỜI CHƠI TẮT CHUYỂN ĐỘNG
+   Tắt mọi animation, giữ nguyên bố cục và mọi thứ đọc được.
+   ============================================================ */
+
+html.motion-off .menu-astro-img,
+html.motion-off .menu-ship,
+html.motion-off .menu-title-dust,
+html.motion-off .menu-stage.is-shaking {
+  animation: none;
+}
+
+html.motion-off .menu-astro-img { transform: scaleX(-1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-astro-img,
+  .menu-ship,
+  .menu-title-dust,
+  .menu-stage.is-shaking { animation: none; }
+  .menu-astro-img { transform: scaleX(-1); }
+  .menu-title-wrap,
+  .menu-actions,
+  .menu-foot { transition-duration: .01ms; }
+  .menu-fade { transition-duration: .01ms; }
+}
+
+/* ============================================================
+   CO GIÃN THEO KHUNG HÌNH
+   ============================================================ */
+
+/* laptop 1024x768 tới 1280: cụm nút lùi vào cho khỏi chạm phi hành gia */
+@media (max-width: 1180px) {
+  .menu-actions { left: 26%; }
+  .menu-astro { right: 3%; height: 58%; }
+}
+
+/* tablet dọc: chữ và nút xếp giữa, tàu thu nhỏ nép góc trái */
+@media (max-width: 900px) {
+  .menu-title-wrap { top: 8%; }
+  .menu-actions {
+    left: 50%;
+    transform: translate(-50%, -46%);
+    width: min(280px, 72vw);
+  }
+  .menu-stage.is-launching ~ .menu-actions {
+    transform: translate(-50%, calc(-46% - 8px));
+  }
+  .menu-ship-anchor { left: -2%; height: 34%; bottom: 9%; opacity: .9; }
+  .menu-astro { right: 1%; height: 46%; opacity: .62; }
+  .menu-smoke { left: -2%; bottom: 9%; }
+}
+
+/* điện thoại 390x844: một cột, không chồng chữ */
+@media (max-width: 620px) {
+  .menu-title-wrap { top: 7%; padding: 0 8px; }
+  .menu-title { letter-spacing: .14em; margin-right: -.14em; }
+
+  .menu-actions {
+    left: 50%;
+    top: 47%;
+    transform: translate(-50%, -50%);
+    width: min(280px, 80vw);
+    gap: 10px;
+  }
+  .menu-stage.is-launching ~ .menu-actions {
+    transform: translate(-50%, calc(-50% - 8px));
+  }
+
+  .mbtn { font-size: .9rem; letter-spacing: .16em; }
+  .mbtn-start { min-height: 54px; }
+
+  /* tàu và phi hành gia lùi ra mép, thu nhỏ, chỉ còn là bóng nền */
+  .menu-ship-anchor { left: -10%; height: 26%; bottom: 12%; opacity: .55; }
+  .menu-astro { right: -8%; height: 34%; opacity: .40; }
+  .menu-smoke { left: -10%; bottom: 12%; }
+
+  .menu-foot {
+    left: 12px;
+    right: 12px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 6px;
+  }
+  .menu-credit {
+    font-size: .5rem;
+    letter-spacing: .1em;
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .menu-lang { top: 12px; right: 64px; }
+  .menu-lang-btn { min-width: 42px; padding: 0 8px; }
+}
+
+/* màn thấp (laptop 1366x640, điện thoại xoay ngang) */
+@media (max-height: 700px) and (min-width: 621px) {
+  .menu-title-wrap { top: 5%; }
+  .menu-title { font-size: clamp(2.2rem, 5.4vw, 4rem); }
+  .menu-actions { gap: 10px; }
+  .mbtn-start { min-height: 52px; }
+  .mbtn { min-height: 46px; }
+  .menu-ship-anchor { height: 44%; }
+  .menu-astro { height: 56%; }
+}
+
+@media (max-height: 520px) {
+  .menu-astro { opacity: .3; }
+  .menu-ship-anchor { height: 40%; }
+  .menu-title { font-size: clamp(1.8rem, 4.4vw, 2.6rem); }
+  .menu-actions { top: 52%; }
+}
+
+/* màn rất rộng: cho chữ và nút thở hơn */
+@media (min-width: 1700px) {
+  .menu-actions { left: 34%; width: 300px; }
+  .menu-title { font-size: clamp(3rem, 6vw, 6.4rem); }
+}

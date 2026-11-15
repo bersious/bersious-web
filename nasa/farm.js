@@ -3,9 +3,16 @@
    Màn NÔNG TRẠI: mười hai khay đất trong nhà kính của căn cứ.
 
    Người chơi gieo khoai, chờ ba ngày trong game, rồi bấm khay
-   đã chín để thu hoạch. Mỗi lần gieo tốn tám đơn vị nước và một
-   hạt. Hết nước hoặc hết hạt thì khay trống mờ đi và một dòng
+   đã chín để thu hoạch. Mỗi lần gieo tốn mười hai đơn vị nước và
+   một hạt. Hết nước hoặc hết hạt thì khay trống mờ đi và một dòng
    chữ nói rõ vì sao.
+
+   NƯỚC DÙNG CHUNG: bản trước file này giữ một bể riêng 100 đơn vị,
+   tách hẳn khỏi chỉ số nước của phi hành gia, nên người chơi thấy vô
+   lý: tưới cây bằng nước ở đâu ra mà không ảnh hưởng nước uống. Nay
+   cả game chỉ có MỘT lượng nước. Gieo một khay là gọi
+   stats.spendWater(WATER_COST), tức trừ thẳng vào nước của chính
+   phi hành gia. Thanh nước trong màn này đọc đúng con số đó.
 
    Trạng thái lưu vào localStorage dưới khoá 'smdg.farm'. Mở lại
    màn thì đọc số ngày hiện tại của đồng hồ và tự đôn cây lên
@@ -30,10 +37,11 @@ const STRINGS = {
     'close': 'Đóng',
     'clock': 'Ngày {n} · {hhmm}',
 
-    'res.water': 'Nước',
+    'res.water': 'Nước dùng chung',
     'res.seeds': 'Hạt',
     'res.waterVal': '{n} / 100',
     'res.seedsVal': '{n} / 20',
+    'res.waterNote': 'Đây là nước của chính bạn. Tưới cây là uống bớt phần của mình.',
 
     'state.empty': 'Trống',
     'state.planted': 'Ngày {n}/3',
@@ -44,20 +52,21 @@ const STRINGS = {
     'act.harvest': 'Bấm để thu hoạch',
     'act.growing': 'Cây đang lên',
 
-    'note.noWater': 'Bể nước đã cạn. Cần 8 đơn vị nước cho mỗi khay.',
+    'note.noWater': 'Không đủ nước dùng chung. Còn thiếu {n} đơn vị cho một khay.',
     'note.noSeeds': 'Kho hạt trống. Cần 1 hạt cho mỗi khay.',
     'note.noBoth': 'Hết cả nước lẫn hạt. Không gieo được khay nào.',
 
-    'toast.sow': 'Đã gieo một khay. Tốn 8 nước và 1 hạt.',
+    'toast.sow': 'Đã gieo một khay. Tốn {n} nước dùng chung và 1 hạt.',
     'toast.harvest': 'Thu được {kg} kg khoai.',
     'toast.ripe': '{n} khay vừa chín.',
 
     'foot.ripe': '{n} khay chín',
-    'foot.rule': 'Ba ngày một vụ. Mỗi khay: 8 nước, 1 hạt.',
+    'foot.used': '{n} nước đã tưới',
+    'foot.rule': 'Ba ngày một vụ. Mỗi khay: {n} nước chung, 1 hạt.',
     'foot.esc': 'Esc để đóng',
 
     'aria.plot': 'Khay {n}, {state}',
-    'aria.water': 'Nước còn {n} trên 100',
+    'aria.water': 'Nước dùng chung còn {n} trên 100',
     'aria.seeds': 'Hạt còn {n} trên 20',
   },
 
@@ -67,10 +76,11 @@ const STRINGS = {
     'close': 'Close',
     'clock': 'Day {n} · {hhmm}',
 
-    'res.water': 'Water',
+    'res.water': 'Shared water',
     'res.seeds': 'Seeds',
     'res.waterVal': '{n} / 100',
     'res.seedsVal': '{n} / 20',
+    'res.waterNote': 'This is your own drinking water. Irrigation comes out of it.',
 
     'state.empty': 'Empty',
     'state.planted': 'Day {n}/3',
@@ -81,20 +91,21 @@ const STRINGS = {
     'act.harvest': 'Tap to harvest',
     'act.growing': 'Still growing',
 
-    'note.noWater': 'The tank is dry. Each tray needs 8 units of water.',
+    'note.noWater': 'Not enough shared water. Each tray still needs {n} more units.',
     'note.noSeeds': 'The seed locker is empty. Each tray needs 1 seed.',
     'note.noBoth': 'No water and no seeds left. Nothing can be sown.',
 
-    'toast.sow': 'One tray sown. Eight water and one seed spent.',
+    'toast.sow': 'One tray sown: {n} shared water and one seed spent.',
     'toast.harvest': 'Harvested {kg} kg of potatoes.',
     'toast.ripe': '{n} trays just ripened.',
 
     'foot.ripe': '{n} ripe trays',
-    'foot.rule': 'Three days per crop. Each tray: 8 water, 1 seed.',
+    'foot.used': '{n} water irrigated',
+    'foot.rule': 'Three days per crop. Each tray: {n} shared water, 1 seed.',
     'foot.esc': 'Esc to close',
 
     'aria.plot': 'Tray {n}, {state}',
-    'aria.water': 'Water {n} of 100 left',
+    'aria.water': 'Shared water {n} of 100 left',
     'aria.seeds': 'Seeds {n} of 20 left',
   },
 };
@@ -116,12 +127,62 @@ function s(key, vars) {
 const STORE_KEY = 'smdg.farm';
 const PLOT_COUNT = 12;
 const GROW_DAYS = 3;
-const WATER_COST = 8;
 const SEED_COST = 1;
-const WATER_MAX = 100;
 const SEEDS_MAX = 20;
 const KG_MIN = 2.5;
 const KG_MAX = 3.5;
+
+/* ---------- chi phí nước mỗi khay: 12 đơn vị ----------
+
+   Cách tính, toàn số thật lấy từ hab-stats.js và game-time.js:
+
+   1. Nước tiêu thật mỗi giờ game
+      BALANCE.drain.water 3,5 × (1 - waterRecycler 0,70) = 1,05 nước/giờ.
+      Có bộ lọc nước (waterFilter) thì còn 3,5 × 0,3 × 0,3 = 0,315.
+
+   2. Một ngày game dài bao nhiêu
+      game-time.js: MIN_PER_DAY 1440 phút game = 24 giờ game.
+      Vậy 1,05 × 24 = 25,2 đơn vị nước mỗi ngày. 35 Sol cần khoảng
+      882 đơn vị nếu không uống gì thêm. Kho ban đầu: 14 bình × 40 =
+      560, cộng 70 sẵn có = 630; thám hiểm và đốt hydrazine (2 bình ×
+      5 bình nước × 40 = 400) bù phần còn lại.
+
+   3. Một khay khoai đổi được bao nhiêu calo
+      base.js đổi kg thành củ: qty = round(kg / 0,25). Một khay cho
+      2,5 tới 3,5 kg, tức 10 tới 14 củ. ITEMS.potato = 30 calo/củ,
+      nên một khay cho 300 tới 420 calo.
+      Người chơi tiêu 2,5 calo/giờ × 24 = 60 calo/ngày.
+      Vậy MỘT khay nuôi được 5 tới 7 ngày calo.
+
+   4. Quy ra ngày sống
+      12 nước = 12 / 1,05 = 11,4 giờ uống, tức chưa tới nửa ngày
+      sinh tồn. Đổi nửa ngày nước lấy 5 tới 7 ngày calo là lời rõ
+      rệt, nên trồng luôn đáng. Nhưng nếu dồn cả 12 khay một lượt
+      thì tốn 144 nước = 5,7 ngày nước cho một vụ, và đó là cái giá
+      đủ đắt để người chơi phải chọn gieo bao nhiêu khay.
+
+   5. Kiểm bằng mô phỏng (scripts/sim-water-farm.mjs, 16 ván mỗi mức)
+        4 nước/khay : minh mẫn sống 35/35, nước thấp nhất 53 → không
+                      còn áp lực gì, tưới cây thành miễn phí.
+        8 nước/khay : sống 35/35, nước thấp nhất 52 → vẫn dư.
+       12 nước/khay : sống 35/35, nước thấp nhất 26 → áp lực thật,
+                      vừa chạm ngưỡng cảnh báo 25 của HUD.
+       16 nước/khay : sống 35/35 nhưng nước thấp nhất 8, chỉ cần một
+                      trận bão bụi là chết oan.
+      Người chơi dở (uống khi cạn, ngủ 19:00, dồn 12 khay một lượt)
+      chết trung bình ở Sol 17 với mọi mức từ 6 trở lên: chênh lệch
+      giữa chơi tốt và chơi dở là rõ ràng, không phải may rủi.
+
+   Chọn 12. Đây là con số duy nhất vừa giữ được áp lực (nước xuống
+   tới 26) vừa không giết người chơi cẩn thận ở Sol 35.
+   ------------------------------------------------------------ */
+
+const WATER_COST = 12;
+
+/* Thang của thanh nước. Chỉ số nước của phi hành gia cũng chạy 0 tới
+   100 (MAX trong hab-stats.js), nên thanh vẽ đúng tỉ lệ mà không phải
+   quy đổi. Không phải dung tích bể: bể riêng đã bỏ. */
+const WATER_MAX = 100;
 
 /* CSS nạp bằng đường dẫn tuyệt đối dựng từ module, y như base.js.
    Vercel có thể phục vụ trang không có dấu / ở cuối, đường dẫn
@@ -135,6 +196,33 @@ function injectCss() {
   link.href = FARM_URL + 'css/farm.css';
   link.dataset.farmCss = '1';
   document.head.appendChild(link);
+}
+
+/* Dải ghi chú "nước dùng chung" cần một kiểu riêng: .farm-note trong
+   farm.css là dải cảnh báo đỏ, dùng cho câu chặn gieo. Ghi chú giải
+   thích thì phải trung tính, không được trông như lỗi. Nhét thẳng vào
+   đây thay vì sửa farm.css để mọi thay đổi của màn nông trại nằm gọn
+   trong một file. */
+function injectWaterNoteCss() {
+  if (document.getElementById('farm-water-note-css')) return;
+  const style = document.createElement('style');
+  style.id = 'farm-water-note-css';
+  style.textContent = `
+    .farm-water-note {
+      margin: 0;
+      padding: 6px clamp(9px, 1vw, 12px);
+      background: var(--bg-inset);
+      border-left: 3px solid var(--cyan-dim);
+      border-radius: var(--st-radius);
+      font-size: var(--st-size-cap);
+      line-height: 1.45;
+      color: var(--tx-soft);
+    }
+    @media (max-width: 680px) {
+      .farm-water-note { padding: 5px 9px; line-height: 1.35; }
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 /* ------------------------------------------------------------
@@ -195,11 +283,14 @@ function emptyPlot() {
   return { state: 'empty', plantedDay: 0 };
 }
 
+/* Nước KHÔNG còn nằm trong trạng thái nông trại. Nguồn duy nhất là
+   chỉ số của phi hành gia trong hab-stats.js. Ở đây chỉ giữ khay và
+   hạt, cộng thêm tổng nước đã tưới để hiện ở chân màn. */
 function freshState() {
   return {
     plots: Array.from({ length: PLOT_COUNT }, emptyPlot),
-    water: WATER_MAX,
     seeds: SEEDS_MAX,
+    waterUsed: 0,
   };
 }
 
@@ -230,12 +321,12 @@ function loadState() {
     return { state: st, plantedDay: Math.round(day) };
   });
 
-  blank.water = Number.isFinite(Number(raw.water))
-    ? clampNum(Math.round(Number(raw.water)), 0, WATER_MAX)
-    : WATER_MAX;
   blank.seeds = Number.isFinite(Number(raw.seeds))
     ? clampNum(Math.round(Number(raw.seeds)), 0, SEEDS_MAX)
     : SEEDS_MAX;
+  blank.waterUsed = Number.isFinite(Number(raw.waterUsed))
+    ? Math.max(0, Math.round(Number(raw.waterUsed)))
+    : 0;
 
   return blank;
 }
@@ -244,8 +335,8 @@ function saveState(state) {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
       plots: state.plots.map((p) => ({ state: p.state, plantedDay: p.plantedDay })),
-      water: state.water,
       seeds: state.seeds,
+      waterUsed: state.waterUsed,
     }));
   } catch {
     /* Chế độ riêng tư chặn localStorage. Màn vẫn chạy, chỉ mất phần lưu. */
@@ -271,12 +362,24 @@ function advancePlants(state, today) {
    Màn hình
    ------------------------------------------------------------ */
 
-export function openFarm({ container, clock, playerName = '', onClose, onHarvest } = {}) {
+/* stats: đối tượng từ hab-stats.js. Bắt buộc phải có, vì nước tưới
+   trừ thẳng vào nước của phi hành gia. Thiếu stats thì màn vẫn dựng
+   được nhưng mọi khay bị khoá và thanh nước hiện 0: thà khoá rõ ràng
+   còn hơn lặng lẽ cho gieo miễn phí. */
+export function openFarm({ container, clock, stats, playerName = '', onClose, onHarvest } = {}) {
   injectCss();
+  injectWaterNoteCss();
 
   const state = loadState();
   const today = () => (clock && typeof clock.state === 'function' ? clock.state().day : 1);
   advancePlants(state, today());
+
+  /* Đọc nước từ chỉ số sinh tồn. Một nguồn duy nhất, không có bể riêng. */
+  function waterNow() {
+    if (!stats || typeof stats.get !== 'function') return 0;
+    const snap = stats.get();
+    return Number.isFinite(snap && snap.water) ? snap.water : 0;
+  }
 
   /* ---------- khung DOM ---------- */
 
@@ -310,6 +413,8 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
         </div>
       </div>
 
+      <p class="farm-note farm-water-note" aria-live="off"></p>
+
       <p class="farm-note" role="status" aria-live="polite" hidden></p>
 
       <div class="farm-body">
@@ -320,6 +425,8 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
         <span class="farm-foot-rule"></span>
         <span class="farm-foot-sep" aria-hidden="true">·</span>
         <span class="farm-foot-ripe"></span>
+        <span class="farm-foot-sep" aria-hidden="true">·</span>
+        <span class="farm-foot-used"></span>
         <span class="farm-foot-sep farm-foot-esc-sep" aria-hidden="true">·</span>
         <span class="farm-foot-esc"></span>
       </footer>
@@ -343,10 +450,12 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
   const seedName  = seedM.querySelector('.farm-meter-name');
   const seedVal   = seedM.querySelector('.farm-meter-val');
   const seedFill  = seedM.querySelector('.farm-meter-fill');
-  const noteEl    = q('.farm-note');
+  const noteEl    = q('.farm-note[role="status"]');
+  const waterNoteEl = q('.farm-water-note');
   const gridEl    = q('.farm-grid');
   const ruleEl    = q('.farm-foot-rule');
   const ripeEl    = q('.farm-foot-ripe');
+  const usedEl    = q('.farm-foot-used');
   const escEl     = q('.farm-foot-esc');
   const escSep    = q('.farm-foot-esc-sep');
   const toastEl   = q('.farm-toast');
@@ -384,13 +493,25 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
     }, 2200);
   }
 
-  /* ---------- cạn tài nguyên ---------- */
+  /* ---------- cạn tài nguyên ----------
+     Nước đọc thẳng từ chỉ số phi hành gia. Câu chặn phải nói rõ còn
+     thiếu bao nhiêu, vì "không đủ nước" mà không có số thì người chơi
+     không biết phải uống hay chế thêm bao nhiêu mới gieo được. */
+
+  function waterShort() {
+    return Math.max(0, Math.ceil((WATER_COST - waterNow()) * 10) / 10);
+  }
 
   function blockedReason() {
-    const noWater = state.water < WATER_COST;
+    const noWater = waterNow() < WATER_COST;
     const noSeed = state.seeds < SEED_COST;
     if (noWater && noSeed) return s('note.noBoth');
-    if (noWater) return s('note.noWater');
+    if (noWater) {
+      const short = waterShort();
+      const txt = s('note.noWater', { n: short });
+      /* Có bản dịch nào quên chỗ {n} thì vẫn phải hiện ra con số. */
+      return txt.indexOf('{n}') === -1 ? txt : txt.replace('{n}', String(short));
+    }
     if (noSeed) return s('note.noSeeds');
     return '';
   }
@@ -443,14 +564,19 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
       cell.title = tip;
     }
 
-    const wPct = clampNum(state.water / WATER_MAX, 0, 1) * 100;
+    const w = waterNow();
+    const wPct = clampNum(w / WATER_MAX, 0, 1) * 100;
     const sPct = clampNum(state.seeds / SEEDS_MAX, 0, 1) * 100;
     waterFill.style.width = wPct.toFixed(1) + '%';
     seedFill.style.width = sPct.toFixed(1) + '%';
-    waterVal.textContent = s('res.waterVal', { n: state.water });
+    waterVal.textContent = s('res.waterVal', { n: Math.round(w * 10) / 10 });
     seedVal.textContent = s('res.seedsVal', { n: state.seeds });
-    waterM.classList.toggle('is-low', state.water < WATER_COST);
+    waterM.classList.toggle('is-low', w < WATER_COST);
     seedM.classList.toggle('is-low', state.seeds < SEED_COST);
+    /* Nhãn đọc màn hình phải theo cùng con số với thanh, nếu không
+       trình đọc sẽ đọc lượng nước cũ sau khi vừa tưới. */
+    waterM.setAttribute('aria-label', s('aria.water', { n: Math.round(w) }));
+    seedM.setAttribute('aria-label', s('aria.seeds', { n: state.seeds }));
 
     if (blocked) {
       if (noteEl.textContent !== blocked) noteEl.textContent = blocked;
@@ -461,6 +587,7 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
 
     const ripe = state.plots.filter((p) => p.state === 'ripe').length;
     ripeEl.textContent = s('foot.ripe', { n: ripe });
+    usedEl.textContent = s('foot.used', { n: state.waterUsed });
   }
 
   /* ---------- chữ tĩnh ---------- */
@@ -471,9 +598,8 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
     closeBtn.setAttribute('aria-label', s('close'));
     waterName.textContent = s('res.water');
     seedName.textContent = s('res.seeds');
-    waterM.setAttribute('aria-label', s('aria.water', { n: state.water }));
-    seedM.setAttribute('aria-label', s('aria.seeds', { n: state.seeds }));
-    ruleEl.textContent = s('foot.rule');
+    waterNoteEl.textContent = s('res.waterNote');
+    ruleEl.textContent = s('foot.rule', { n: WATER_COST });
     escEl.textContent = s('foot.esc');
     paint(today());
   }
@@ -491,14 +617,28 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
         showToast(reason);
         return;
       }
+      /* Trừ nước TRƯỚC khi đánh dấu khay đã gieo. spendWater trả ok
+         false khi vừa đủ thiếu (ví dụ nước 11,9 mà cần 12): lúc đó
+         không được đổi khay thành planted, nếu không người chơi được
+         một vụ miễn phí. Trừ xong mới ghi khay. */
+      const paid = (stats && typeof stats.spendWater === 'function')
+        ? stats.spendWater(WATER_COST)
+        : { ok: false, short: WATER_COST, have: 0 };
+      if (!paid.ok) {
+        playClick();
+        const short = Math.round((paid.short || WATER_COST) * 10) / 10;
+        showToast(s('note.noWater', { n: short }));
+        paint(day);
+        return;
+      }
       plot.state = 'planted';
       plot.plantedDay = day;
-      state.water = clampNum(state.water - WATER_COST, 0, WATER_MAX);
       state.seeds = clampNum(state.seeds - SEED_COST, 0, SEEDS_MAX);
+      state.waterUsed += WATER_COST;
       saveState(state);
       playClick();
       paint(day);
-      showToast(s('toast.sow'));
+      showToast(s('toast.sow', { n: WATER_COST }));
       return;
     }
 
@@ -594,6 +734,58 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
     if (st) { lastLabel = ''; tickText(st); }
   });
 
+  /* ---------- nước chảy trong lúc màn đang mở ----------
+     Đồng hồ vẫn chạy sau lưng nên nước của phi hành gia tụt dần ngay
+     khi người chơi đứng nhìn khay. Không nối vào stats.onTick thì con
+     số đứng yên, người chơi tưởng nước không đổi, rồi bấm gieo và
+     thấy nó nhảy một cục.
+
+     onTick bắn rất dày (mỗi khung hình đồng hồ), nên chỉ vẽ lại thanh
+     nước chứ không vẽ lại cả mười hai khay.
+
+     KHÔNG dùng requestAnimationFrame: tab bị ẩn (người chơi chuyển
+     sang tab khác rồi quay lại) thì rAF không chạy, và thanh nước
+     đứng im cho tới lần bấm kế tiếp. Throttle bằng mốc thời gian
+     100ms là đủ mượt và chạy được cả khi tab ẩn. */
+  const PAINT_MS = 100;
+  let lastPaintAt = 0;
+
+  function paintWater() {
+    const w = waterNow();
+    const wPct = clampNum(w / WATER_MAX, 0, 1) * 100;
+    waterFill.style.width = wPct.toFixed(1) + '%';
+    waterVal.textContent = s('res.waterVal', { n: Math.round(w * 10) / 10 });
+    waterM.classList.toggle('is-low', w < WATER_COST);
+    waterM.setAttribute('aria-label', s('aria.water', { n: Math.round(w) }));
+
+    const blocked = blockedReason();
+    if (blocked) {
+      if (noteEl.textContent !== blocked) noteEl.textContent = blocked;
+      noteEl.hidden = false;
+    } else if (!noteEl.hidden) {
+      noteEl.hidden = true;
+    }
+    /* Khay trống phải đổi trạng thái mờ theo nước, không chỉ theo hạt. */
+    for (let i = 0; i < cells.length; i += 1) {
+      const plot = state.plots[i];
+      const isBlocked = plot.state === 'empty' && Boolean(blocked);
+      cells[i].classList.toggle('is-blocked', isBlocked);
+      cells[i].setAttribute('aria-disabled', isBlocked ? 'true' : 'false');
+    }
+  }
+
+  function scheduleWaterPaint() {
+    if (closed) return;
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    if (now - lastPaintAt < PAINT_MS) return;
+    lastPaintAt = now;
+    paintWater();
+  }
+
+  const unStats = (stats && typeof stats.onTick === 'function')
+    ? stats.onTick(scheduleWaterPaint)
+    : (() => {});
+
   /* ---------- chạy ---------- */
 
   applyTexts();
@@ -622,6 +814,7 @@ export function openFarm({ container, clock, playerName = '', onClose, onHarvest
   function destroy() {
     unTick();
     unLang();
+    unStats();
     document.removeEventListener('keydown', onKey);
     clearTimeout(toastTimer);
     clearTimeout(toastHide);

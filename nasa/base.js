@@ -36,6 +36,9 @@ import {
   showEnding, endingIdForCause, isEndingOpen,
 } from './endings.js';
 import {
+  maybeShow, resetTutorials, registerPhase2Hooks,
+} from './onboarding.js';
+import {
   DAY_LOG, IDLE_LINES, SLEEP_LINES, MORNING_LINES, NOTIFY,
 } from './base-flavor.js';
 
@@ -1572,6 +1575,15 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
      Gỡ khi tháo màn để không còn con trỏ tới stats của một ván đã
      đóng. */
   window.__devBase = { stats, clock, showEnding, endingIdForCause };
+
+  /* ---------- hướng dẫn người chơi ---------- */
+
+  /* Màn căn cứ vừa dựng xong là lúc hiện thẻ chào mừng (hab_intro),
+     nếu người chơi chưa từng xem. */
+  maybeShow({ trigger: 'firstEnter', screen: 'base' });
+
+  /* Sổ tay đọc từ JSON nên cần hàm reset để test lại từ đầu. */
+  window.__devOnboarding = { resetTutorials, registerPhase2Hooks };
 
   /* ---------- dọn dẹp ---------- */
 

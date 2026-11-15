@@ -1,339 +1,559 @@
 /* ============================================================
-   devtool-panel.css  ·  bảng điều khiển nhà phát triển
+   devtool-panel.css
+   Bảng điều khiển của chế độ nhà phát triển, và hộp nhập mật khẩu.
+
+   TÊN FILE: dự án chặn dev-* ở bước đồng bộ lên web, nên cả tệp này
+   lẫn devtool-panel.js phải mang tên devtool-. Đổi tên là 404 trên
+   bản live.
+
+   Tông tối, chữ mono, viền xanh nhạt: khác hẳn bảng cài đặt của
+   người chơi để người làm game nhìn là biết mình đang ở lớp test.
+   Màu nền ghi cứng, không dựa vào tokens.css, vì lớp này phải nổi
+   trên cả ba tông màn hình (boot, căn cứ, Giai đoạn 2).
    ============================================================ */
 
-.dvp-overlay,
-.dvp-overlay * { box-sizing: border-box; }
+.dev-overlay,
+.dev-overlay *,
+.dev-pw-overlay,
+.dev-pw-overlay * { box-sizing: border-box; }
 
-.dvp-overlay {
+/* ---------- nút ---------- */
+
+.dev-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  /* #dfe9f3 trên #1b2430: 11,8:1, đủ AA cho chữ nhỏ */
+  color: #dfe9f3;
+  background: #1b2430;
+  border: 1px solid #33455a;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.dev-btn:hover {
+  background: #24313f;
+  border-color: #4fb8c9;
+  color: #d6f5fb;
+}
+
+.dev-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 184, 201, .55);
+  border-color: #4fb8c9;
+}
+
+.dev-btn:active { background: #131a23; }
+
+html.motion-off .dev-btn { transition: none; }
+
+/* ---------- lớp phủ bảng điều khiển ---------- */
+
+.dev-overlay {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: 9000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(10px, 2vw, 28px);
-  background: color-mix(in srgb, var(--bg-void, #07090d) 88%, transparent);
+  padding: clamp(8px, 2vh, 24px);
+  background: rgba(4, 7, 11, .86);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .18s ease;
 }
 
-.dvp-panel {
-  width: min(680px, 100%);
-  max-height: min(88dvh, 900px);
+.dev-overlay.is-open { opacity: 1; }
+
+html.motion-off .dev-overlay { transition: none; }
+
+.dev-panel {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(92dvh, 900px);
   display: flex;
   flex-direction: column;
-  background: var(--bg-panel, #111721);
-  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 30%, transparent);
+  background: #0d131a;
+  border: 1px solid #2a3a4c;
   border-radius: 4px;
-  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, .7);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .03);
+  font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  color: #c8d6e4;
   overflow: hidden;
 }
 
-/* ---------- đầu ---------- */
+/* dải nhận dạng: gạch chéo vàng đen, đúng kiểu băng cảnh báo */
+.dev-panel::before {
+  content: '';
+  display: block;
+  height: 4px;
+  flex: 0 0 auto;
+  background: repeating-linear-gradient(
+    115deg,
+    #e8a33d 0 10px,
+    #0d131a 10px 20px
+  );
+}
 
-.dvp-head {
+.dev-head {
+  flex: 0 0 auto;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 10%, transparent);
-  background: color-mix(in srgb, var(--bg-inset, #0b0f15) 80%, transparent);
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px clamp(12px, 2vw, 20px) 10px;
+  border-bottom: 1px solid #22303f;
 }
 
-.dvp-badge {
-  font-family: var(--st-font-mono, monospace);
-  font-size: .62rem;
-  letter-spacing: .18em;
-  padding: 3px 7px;
-  color: var(--bg-void, #07090d);
-  background: var(--amber, #e8a33d);
-  border-radius: 2px;
-  font-weight: 700;
-}
+.dev-head-text { min-width: 0; flex: 1 1 auto; }
 
-.dvp-head h2 {
+.dev-title {
   margin: 0;
-  flex: 1 1 auto;
-  font-family: var(--st-font-display, 'Barlow Condensed', system-ui, sans-serif);
-  font-size: clamp(.94rem, .5vw + .8rem, 1.1rem);
-  letter-spacing: .04em;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: clamp(.95rem, .8rem + .5vw, 1.12rem);
+  letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--tx-bright, #eaf1f8);
+  color: #f2dcb6;
 }
 
-.dvp-close {
+.dev-sub {
+  margin: 5px 0 0;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: #9fb2c6;
+}
+
+.dev-close {
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--tx-soft, #9fb0c4);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  cursor: pointer;
-}
-.dvp-close:hover { color: var(--tx-bright, #eaf1f8); border-color: color-mix(in srgb, var(--tx-bright, #eaf1f8) 18%, transparent); }
-.dvp-close:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 2px; }
-
-.dvp-warn {
-  margin: 0;
-  padding: 8px 14px;
-  font-size: .74rem;
-  line-height: 1.5;
-  color: var(--amber, #e8a33d);
-  background: color-mix(in srgb, var(--amber, #e8a33d) 8%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 18%, transparent);
-}
-
-/* ---------- thân ---------- */
-
-.dvp-scroll {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 4px 0 12px;
-}
-
-.dvp-sec { padding: 10px 14px 4px; }
-
-.dvp-sec h3 {
-  margin: 0 0 6px;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .66rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--cyan, #4fb8c9);
-}
-
-.dvp-note {
-  margin: 0 0 8px;
-  font-size: .72rem;
-  line-height: 1.55;
-  color: var(--tx-soft, #9fb0c4);
-}
-
-.dvp-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dvp-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  justify-content: center;
+  color: #b6c6d6;
+  background: transparent;
+  border: 1px solid #31445a;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--bg-inset, #0b0f15) 60%, transparent);
-  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
 }
-.dvp-row:hover { border-color: color-mix(in srgb, var(--tx-bright, #eaf1f8) 10%, transparent); }
 
-.dvp-row-main {
+.dev-close:hover,
+.dev-close:focus-visible {
+  color: #e8a33d;
+  border-color: #8a6a33;
+  outline: none;
+}
+
+.dev-close:focus-visible { box-shadow: 0 0 0 2px rgba(232, 163, 61, .4); }
+
+.dev-warn {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 8px clamp(12px, 2vw, 20px);
+  font-size: .76rem;
+  line-height: 1.45;
+  color: #f6d9a8;
+  background: rgba(138, 106, 51, .22);
+  border-bottom: 1px solid #4a3a1d;
+}
+
+/* ---------- thân cuộn ---------- */
+
+.dev-body {
   flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px clamp(12px, 2vw, 20px) 16px;
+}
+
+.dev-group { margin-bottom: 18px; }
+
+.dev-group:last-child { margin-bottom: 4px; }
+
+.dev-group-title {
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #7ec8d8;
+  border-bottom: 1px solid #22303f;
+}
+
+.dev-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #17212c;
+}
+
+.dev-item:last-child { border-bottom: none; }
+
+.dev-item-text {
   min-width: 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.dvp-row-main b {
+.dev-item-name {
   font-size: .84rem;
-  font-weight: 600;
-  color: var(--tx-bright, #eaf1f8);
-  line-height: 1.3;
+  line-height: 1.35;
+  color: #e4eefa;
 }
 
-.dvp-row-main small {
+.dev-item-desc {
   font-size: .72rem;
-  line-height: 1.45;
-  color: var(--tx-soft, #9fb0c4);
+  line-height: 1.4;
+  color: #93a7bb;
 }
 
-.dvp-ev {
-  align-self: flex-start;
-  margin-top: 2px;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .66rem;
-  padding: 1px 5px;
-  color: var(--cyan, #4fb8c9);
-  background: color-mix(in srgb, var(--cyan, #4fb8c9) 12%, transparent);
-  border-radius: 2px;
+.dev-go { flex: 0 0 auto; }
+
+/* ---------- hàng đặt ngày ---------- */
+
+.dev-day-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #22303f;
 }
 
-.dvp-go {
-  flex: 0 0 auto;
+.dev-day-label {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #9fb2c6;
+}
+
+.dev-day-input {
+  width: 84px;
   min-height: 44px;
-  min-width: 92px;
-  padding: 0 14px;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .72rem;
-  letter-spacing: .06em;
-  color: var(--amber, #e8a33d);
-  background: color-mix(in srgb, var(--amber, #e8a33d) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 40%, transparent);
+  padding: 0 10px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+  color: #e4eefa;
+  background: #131a23;
+  border: 1px solid #33455a;
   border-radius: 3px;
-  cursor: pointer;
 }
-.dvp-go:hover {
-  background: color-mix(in srgb, var(--amber, #e8a33d) 18%, transparent);
-  border-color: var(--amber, #e8a33d);
-}
-.dvp-go:active { transform: translateY(1px); }
-.dvp-go:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 2px; }
 
-.dvp-go-ev { color: var(--cyan, #4fb8c9); background: color-mix(in srgb, var(--cyan, #4fb8c9) 8%, transparent); border-color: color-mix(in srgb, var(--cyan, #4fb8c9) 40%, transparent); }
-.dvp-go-ev:hover { background: color-mix(in srgb, var(--cyan, #4fb8c9) 18%, transparent); border-color: var(--cyan, #4fb8c9); }
+.dev-day-input:focus-visible {
+  outline: none;
+  border-color: #4fb8c9;
+  box-shadow: 0 0 0 2px rgba(79, 184, 201, .45);
+}
+
+/* ---------- nhóm khoá ---------- */
+
+.dev-group-lock {
+  padding: 12px;
+  background: #10171f;
+  border: 1px solid #26333f;
+  border-radius: 3px;
+}
+
+.dev-lock-body {
+  margin: 0 0 10px;
+  font-size: .76rem;
+  line-height: 1.45;
+  color: #9fb2c6;
+}
+
+.dev-lock-btn:hover {
+  border-color: #d9694f;
+  color: #ffd8cf;
+}
 
 /* ---------- chân ---------- */
 
-.dvp-foot {
+.dev-foot {
   flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-top: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 10%, transparent);
-  background: color-mix(in srgb, var(--bg-inset, #0b0f15) 70%, transparent);
-}
-
-.dvp-status {
-  flex: 1 1 auto;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .72rem;
-  color: var(--ok, #6fbf8a);
-}
-
-.dvp-lock {
-  min-height: 44px;
-  padding: 0 16px;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .72rem;
-  color: var(--tx-soft, #9fb0c4);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 16%, transparent);
-  border-radius: 3px;
-  cursor: pointer;
-}
-.dvp-lock:hover { color: var(--fail, #d9694f); border-color: color-mix(in srgb, var(--fail, #d9694f) 50%, transparent); }
-
-/* ============================================================
-   hộp nhập mật khẩu
-   ============================================================ */
-
-.dvp-overlay-pass { z-index: 320; }
-
-.dvp-pass {
-  width: min(360px, 100%);
-  padding: 20px;
-  background: var(--bg-panel, #111721);
-  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 30%, transparent);
-  border-radius: 4px;
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, .7);
-}
-
-.dvp-pass h2 {
-  margin: 0 0 6px;
-  font-family: var(--st-font-display, 'Barlow Condensed', system-ui, sans-serif);
-  font-size: 1.1rem;
-  letter-spacing: .04em;
+  padding: 8px clamp(12px, 2vw, 20px);
+  border-top: 1px solid #22303f;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .66rem;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--tx-bright, #eaf1f8);
+  color: #8fa2b5;
 }
 
-.dvp-pass p {
-  margin: 0 0 12px;
-  font-size: .78rem;
-  line-height: 1.5;
-  color: var(--tx-soft, #9fb0c4);
-}
+/* ---------- dòng trạng thái ---------- */
 
-.dvp-input {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
-  font-family: var(--st-font-mono, monospace);
-  font-size: .9rem;
-  color: var(--tx-bright, #eaf1f8);
-  background: var(--bg-inset, #0b0f15);
-  border: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 18%, transparent);
+.dev-status {
+  position: absolute;
+  left: 50%;
+  bottom: 46px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  padding: 8px 14px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .72rem;
+  letter-spacing: .05em;
+  color: #0d131a;
+  background: #7ec8d8;
   border-radius: 3px;
-}
-.dvp-input:focus {
-  outline: none;
-  border-color: var(--amber, #e8a33d);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber, #e8a33d) 18%, transparent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
 }
 
-.dvp-err {
-  min-height: 1.2em;
-  margin: 8px 0 0;
-  font-size: .74rem;
-  color: var(--fail, #d9694f);
-}
+.dev-status[hidden] { display: none; }
 
-.dvp-pass-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 14px;
-}
+/* ---------- toast nổi trên trang ----------
+   Dùng cho phản hồi phải thấy được sau khi bảng đã đóng. Nằm ngoài
+   .dev-overlay nên phải ghi cứng màu và cỡ chữ: không thừa hưởng
+   token của bảng cài đặt hay của màn căn cứ. */
 
-.dvp-cancel,
-.dvp-ok {
-  min-height: 44px;
-  padding: 0 18px;
-  font-family: var(--st-font-mono, monospace);
+#devtool-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 12px);
+  z-index: 9500;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
   font-size: .76rem;
+  line-height: 1.45;
+  letter-spacing: .03em;
+  /* #0d131a trên #7ec8d8: 9,6:1, đủ AA cho chữ nhỏ */
+  color: #0d131a;
+  background: #7ec8d8;
   border-radius: 3px;
-  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease;
 }
 
-.dvp-cancel {
-  color: var(--tx-soft, #9fb0c4);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 16%, transparent);
+#devtool-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
-.dvp-ok {
-  color: var(--bg-void, #07090d);
-  background: var(--amber, #e8a33d);
-  border: 1px solid var(--amber, #e8a33d);
-  font-weight: 700;
-}
-.dvp-ok:hover { background: color-mix(in srgb, var(--amber, #e8a33d) 82%, white); }
-
-/* rung khi sai mật khẩu */
-@keyframes dvp-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-}
-.dvp-pass.is-shake { animation: dvp-shake .34s ease; }
-
-/* ---------- hẹp ---------- */
+html.motion-off #devtool-toast { transition: none; }
 
 @media (max-width: 560px) {
-  .dvp-panel { max-height: 92dvh; }
-  .dvp-row { flex-wrap: wrap; }
-  .dvp-go { width: 100%; }
-  .dvp-head h2 { font-size: .88rem; }
+  #devtool-toast { bottom: 16px; font-size: .72rem; }
 }
 
-/* ---------- giảm chuyển động ---------- */
+/* ============================================================
+   HÀNG "CHẾ ĐỘ NHÀ PHÁT TRIỂN" TRONG BẢNG CÀI ĐẶT
+   .ghost-btn của bảng cài đặt không có trong settings.css, nên nút
+   này chỉ cao 21px, dưới mức chạm 44px. Định nghĩa ở đây thay vì sửa
+   settings.css: mọi thứ thuộc chế độ dev nằm gọn trong hai tệp
+   devtool-panel.*.
+   ============================================================ */
 
-html.motion-off .dvp-pass.is-shake { animation: none; }
-html.motion-off .dvp-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.settings-group-dev .dev-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
 
-@media (prefers-reduced-motion: reduce) {
-  .dvp-pass.is-shake { animation: none; }
-  .dvp-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .dvp-go:active { transform: none; }
+.settings-group-dev .ghost-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: .76rem;
+  letter-spacing: .04em;
+  color: #dfe9f3;
+  background: #1b2430;
+  border: 1px solid #33455a;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.settings-group-dev .ghost-btn:hover {
+  background: #24313f;
+  border-color: #4fb8c9;
+  color: #d6f5fb;
+}
+
+.settings-group-dev .ghost-btn:focus-visible {
+  outline: none;
+  border-color: #4fb8c9;
+  box-shadow: 0 0 0 2px rgba(79, 184, 201, .5);
+}
+
+.settings-group-dev .ghost-btn[hidden] { display: none; }
+
+/* nhãn trạng thái "đã mở khoá" đổi màu để nhìn ra ngay */
+.settings-group-dev [data-dev-status] {
+  color: #8fa2b5;
+}
+
+.settings-group-dev [data-unlocked="1"] {
+  border-color: #4a7d8a;
+  color: #d6f5fb;
+}
+
+html.motion-off .settings-group-dev .ghost-btn { transition: none; }
+
+/* ============================================================
+   HỘP NHẬP MẬT KHẨU
+   ============================================================ */
+
+.dev-pw-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 7, 11, .82);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.dev-pw-panel {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  background: #0d131a;
+  border: 1px solid #2a3a4c;
+  border-radius: 4px;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, .68);
+  color: #c8d6e4;
+}
+
+.dev-pw-title {
+  margin: 0;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .84rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #f2dcb6;
+}
+
+.dev-pw-hint {
+  margin: 0;
+  font-size: .74rem;
+  line-height: 1.4;
+  color: #93a7bb;
+}
+
+.dev-pw-label {
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #9fb2c6;
+}
+
+.dev-pw-input {
+  min-height: 44px;
+  padding: 0 12px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: .95rem;
+  color: #e4eefa;
+  background: #131a23;
+  border: 1px solid #33455a;
+  border-radius: 3px;
+}
+
+.dev-pw-input:focus-visible {
+  outline: none;
+  border-color: #4fb8c9;
+  box-shadow: 0 0 0 2px rgba(79, 184, 201, .45);
+}
+
+/* Gõ sai: viền đỏ và rung ngang. Biên độ nhỏ, ba nhịp, vì rung mạnh
+   trên điện thoại trông như lỗi giao diện chứ không phải phản hồi. */
+.dev-pw-input.is-wrong {
+  border-color: #d9694f;
+  animation: dev-pw-shake .42s ease;
+}
+
+@keyframes dev-pw-shake {
+  0%, 100% { transform: translateX(0); }
+  18% { transform: translateX(-5px); }
+  38% { transform: translateX(4px); }
+  58% { transform: translateX(-3px); }
+  78% { transform: translateX(2px); }
+}
+
+html.motion-off .dev-pw-input.is-wrong { animation: none; }
+
+.dev-pw-error {
+  margin: 0;
+  font-size: .76rem;
+  /* #ff9a80 trên #0d131a: 8,4:1, đủ AA cho chữ nhỏ */
+  color: #ff9a80;
+}
+
+.dev-pw-error[hidden] { display: none; }
+
+.dev-pw-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dev-pw-actions .dev-btn { flex: 1 1 0; }
+
+.dev-pw-ok {
+  background: #1d3b45;
+  border-color: #4fb8c9;
+  color: #d6f5fb;
+}
+
+.dev-pw-ok:hover { background: #244c58; }
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 560px) {
+  .dev-overlay { padding: 0; }
+  .dev-panel {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .dev-item {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .dev-go { width: 100%; }
+  .dev-body { padding-bottom: 24px; }
+}
+
+@media (max-height: 620px) {
+  .dev-sub { display: none; }
+  .dev-warn { font-size: .72rem; }
 }

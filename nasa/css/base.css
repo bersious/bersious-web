@@ -841,6 +841,207 @@ html.motion-off .base-clock-fill { transition: none; }
   color: rgba(232, 163, 61, .82);
 }
 
+/* ---------- ba nhóm vật phẩm ----------
+   Viền và màu dòng chữ nhỏ nói ngay món này bấm ra cái gì, để người
+   chơi không phải thử hết cả lưới:
+     .is-use    viền hổ phách, dòng chữ nêu tác dụng (+45 calo)
+     .is-part   viền xám, dòng chữ "Nguyên liệu"
+     .is-story  viền xanh nhạt, món kể chuyện */
+
+.base-item.is-use {
+  border-color: rgba(232, 163, 61, .46);
+  background: linear-gradient(180deg, rgba(44, 32, 14, .62), rgba(12, 14, 20, .62));
+}
+
+.base-item.is-use:hover,
+.base-item.is-use:focus-visible {
+  border-color: var(--amber, #e8a33d);
+  background: linear-gradient(180deg, rgba(66, 47, 18, .8), rgba(20, 24, 32, .82));
+}
+
+.base-item.is-use .base-item-hint { color: var(--amber, #e8a33d); }
+
+.base-item.is-part {
+  border-color: rgba(140, 156, 176, .34);
+  background: linear-gradient(180deg, rgba(24, 30, 40, .7), rgba(11, 14, 20, .7));
+}
+
+.base-item.is-part:hover,
+.base-item.is-part:focus-visible {
+  border-color: rgba(170, 190, 212, .7);
+  background: linear-gradient(180deg, rgba(34, 42, 55, .85), rgba(16, 20, 27, .85));
+}
+
+.base-item.is-part .base-item-hint {
+  color: var(--tx-soft, #8497aa);
+  letter-spacing: .06em;
+}
+
+.base-item.is-story {
+  border-color: rgba(79, 184, 201, .44);
+}
+
+.base-item.is-story .base-item-hint { color: rgba(79, 184, 201, .92); }
+
+/* Ô bấm được phải đủ 44px, kể cả khi chỉ có một dòng chữ. */
+.base-item.is-usable {
+  min-height: 44px;
+}
+
+/* ---------- bảng giải thích vật liệu ----------
+   Bấm vào vật liệu thì mở bảng nhỏ giữa màn hình, có nút × và nhận
+   phím Esc. */
+
+.base-note {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--st-pad-x, 16px);
+}
+
+.base-note-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 9, 14, .74);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.base-note-panel {
+  position: relative;
+  width: min(430px, 100%);
+  max-height: min(76dvh, 520px);
+  overflow-y: auto;
+  padding: 18px 20px 20px;
+  background: linear-gradient(170deg, var(--bg-raise, #141b26), var(--bg-panel, #0f1723));
+  border: 1px solid var(--line-strong, #35455a);
+  border-left: 3px solid var(--amber, #e8a33d);
+  border-radius: var(--st-radius-lg, 5px);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, .72);
+  animation: base-note-in .18s var(--st-ease-out, ease-out) both;
+}
+
+@keyframes base-note-in {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+html.motion-off .base-note-panel { animation: none; }
+
+.base-note-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.base-note-icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--st-radius, 3px);
+  overflow: hidden;
+  background: rgba(40, 52, 68, .8);
+}
+
+.base-note-icon .base-item-img { filter: saturate(1.06) brightness(1.22); }
+.base-note-icon svg { width: 24px; height: 24px; color: var(--tx-soft, #8497aa); }
+
+.base-note-head h4 {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--st-font-display, sans-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--tx-bright, #dfe8f2);
+}
+
+.base-note-close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--tx-soft, #8497aa);
+  background: transparent;
+  border: 1px solid rgba(232, 163, 61, .34);
+  border-radius: var(--st-radius, 3px);
+  cursor: pointer;
+}
+
+.base-note-close::before { content: '\00d7'; font-size: 1.6rem; }
+
+.base-note-close:hover,
+.base-note-close:focus-visible {
+  color: var(--amber, #e8a33d);
+  border-color: var(--amber, #e8a33d);
+  outline: none;
+}
+
+.base-note-about {
+  margin: 14px 0 0;
+  font-size: var(--st-size-cap, .84rem);
+  line-height: 1.6;
+  color: var(--tx, #b9c7d6);
+}
+
+.base-note-recipes {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-hair, #1b232e);
+}
+
+.base-note-label {
+  margin: 0 0 8px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tx-soft, #8497aa);
+}
+
+.base-note-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.base-note-list li {
+  padding: 7px 10px;
+  font-size: var(--st-size-cap, .84rem);
+  color: var(--tx, #b9c7d6);
+  background: rgba(232, 163, 61, .07);
+  border-left: 2px solid var(--amber-dim, #6b4a1c);
+  border-radius: 2px;
+}
+
+.base-note-list li.is-empty {
+  color: var(--tx-soft, #8497aa);
+  background: transparent;
+  border-left-color: var(--line-hair, #1b232e);
+}
+
+.base-bag-empty {
+  grid-column: 1 / -1;
+  margin: 12px 0;
+  color: var(--tx-soft, #8497aa);
+  font-size: var(--st-size-cap, .84rem);
+  text-align: center;
+}
+
 /* Ở màn hẹp, hai hàng chữ trong ô dễ tràn. Cắt gọn một dòng. */
 @media (max-width: 520px) {
   .base-item-hint {
@@ -1596,4 +1797,49 @@ html.motion-off .base-clock-fill { transition: none; }
 @media (max-width: 420px) {
   .base-who-name { max-width: 60px; font-size: .78rem; }
   .base-topbar { column-gap: 6px; }
+}
+
+/* ============================================================
+   TRẠNG THÁI ĐÃ CHẾT
+   Màn căn cứ bị khoá khi chỉ số chạm đáy. Màn kết thúc (endings.js)
+   phủ lên trên, nhưng lớp nền vẫn phải trông như đã ngừng hoạt động:
+   nếu người chơi bấm "Xem lại" để ngắm cảnh chết rồi quay lại, họ
+   phải thấy một căn cứ đã đứng, không phải một màn còn bấm được.
+
+   Khoá bằng pointer-events chứ không đặt disabled từng nút: màn con
+   (nông trại, túi đồ) tự dựng nút riêng, khoá từng cái sẽ sót.
+   ============================================================ */
+
+.base-screen.is-dead {
+  /* Không cho bấm gì, nhưng vẫn cho cuộn và đọc. */
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Thanh trên và chân màn hình mờ đi: đây là dấu hiệu thị giác rằng
+   mọi thứ đã dừng, chứ không chỉ là không bấm được. */
+.base-screen.is-dead .base-topbar,
+.base-screen.is-dead .base-foot,
+.base-screen.is-dead .base-grid {
+  opacity: .42;
+  filter: saturate(.5);
+}
+
+/* Ảnh nền tối lại một chút, để nếu người chơi đóng màn kết thúc thì
+   vẫn thấy rõ là màn đã chết. Không tối quá, ảnh vẫn phải đọc được. */
+.base-screen.is-dead .base-scene {
+  filter: brightness(.72) saturate(.62);
+}
+
+/* Không còn hiệu ứng nhấp nháy của câu thoại nhàn rỗi. */
+.base-screen.is-dead .base-idle {
+  animation: none;
+  color: var(--tx-dim);
+}
+
+/* Tắt chuyển động: bỏ hẳn hiệu ứng mờ, đổi tức thì. */
+html.motion-off .base-screen.is-dead .base-topbar,
+html.motion-off .base-screen.is-dead .base-foot,
+html.motion-off .base-screen.is-dead .base-grid {
+  transition: none;
 }

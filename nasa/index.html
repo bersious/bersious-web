@@ -21,12 +21,28 @@
     var base = location.origin + parts.join('/');
     if (base.slice(-1) !== '/') base += '/';
     window.__BASE__ = base;
-    ['css/tokens.css', 'css/boot.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
+    ['css/tokens.css', 'css/boot.css', 'css/menu.css', 'css/intro.css', 'css/story.css', 'css/settings.css', 'css/preloader.css'].forEach(function (href) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = base + href;
       document.head.appendChild(l);
     });
+
+    /* Ảnh của màn menu cũng phải nạp bằng đường dẫn tuyệt đối, cùng lý
+       do với CSS: "assets/art/x.webp" từ trang /nasa sẽ thành
+       "/assets/art/x.webp" và 404. Đánh dấu bằng data-asset, gán src
+       ngay khi phần thân đã dựng xong, trước cả module script. */
+    function fixAssets() {
+      var nodes = document.querySelectorAll('[data-asset]');
+      for (var i = 0; i < nodes.length; i += 1) {
+        nodes[i].src = base + nodes[i].getAttribute('data-asset');
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fixAssets);
+    } else {
+      fixAssets();
+    }
   })();
 </script>
 <style>
@@ -109,78 +125,10 @@
 
   html.motion-off .comms-skip { transition: none; }
 
-  /* ---------- phản hồi khi bấm nút Bắt đầu ----------
-     Bấm Bắt đầu xong phải thấy phản hồi NGAY, không để người chấm ngồi
-     nhìn màn hình im lìm rồi tưởng game đơ. Ba thứ hiện cùng lúc, tất
-     cả đặt trong cùng một khung hình vẽ: nút đổi chữ kèm vòng xoay,
-     nút bị khoá, và một lớp mờ tối phủ lên màn menu. */
-
-  .boot-pending {
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .12s linear;
-    background:
-      radial-gradient(ellipse at center, rgba(6, 9, 14, .58) 0%, rgba(6, 9, 14, .86) 100%);
-    backdrop-filter: blur(1.5px);
-    -webkit-backdrop-filter: blur(1.5px);
-  }
-
-  .boot-pending.is-on { opacity: 1; }
-
-  html.motion-off .boot-pending { transition: none; }
-
-  /* nút đang chuẩn bị: giữ nguyên kích thước để bố cục không nhảy */
-  .boot .btn-start.is-pending,
-  .boot .btn-start:disabled {
-    cursor: progress;
-    animation: none;
-    background-color: #a8762a;
-    border-color: #a8762a;
-    color: #0b0d12;
-    opacity: 1;
-  }
-
-  .boot .btn-start.is-pending:hover,
-  .boot .btn-start:disabled:hover {
-    background-color: #a8762a;
-    border-color: #a8762a;
-    box-shadow: none;
-    transform: none;
-  }
-
-  .boot .btn-start.is-pending::after { display: none; }
-
-  /* vòng xoay nhỏ bên trái chữ */
-  .boot-spin {
-    flex: 0 0 auto;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid rgba(7, 9, 13, .32);
-    border-top-color: #07090d;
-    animation: boot-spin .7s linear infinite;
-  }
-
-  @keyframes boot-spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Tắt chuyển động: vẫn có dấu hiệu sống bằng nhịp mờ, không xoay. */
-  html.motion-off .boot-spin {
-    animation: boot-spin-pulse 1s ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .boot-spin { animation: boot-spin-pulse 1s ease-in-out infinite; }
-  }
-
-  @keyframes boot-spin-pulse {
-    0%, 100% { opacity: .35; }
-    50%      { opacity: 1; }
-  }
+  /* (Lớp phủ .boot-pending và vòng xoay .boot-spin của màn cũ đã bỏ:
+     màn menu mới khai báo trạng thái đang tải bằng data-loading trên
+     nút, định kiểu trong css/menu.css. Hai bộ trạng thái cùng tồn tại
+     thì lúc lỗi chỉ trả được một bộ về nguyên trạng.) */
 
   /* ---------- nút chơi lại Giai đoạn 1 trong màn căn cứ ----------
      Nằm ở chân màn căn cứ, kiểu chữ theo chân màn hình, vùng bấm 44px. */
@@ -255,7 +203,8 @@
     <div class="menu-parallax" id="menu-parallax">
       <div class="menu-bg">
         <img class="menu-bg-img" id="menu-bg-img"
-             src="../assets/art/bg-storm-wide.webp"
+             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+             data-asset="assets/art/bg-storm-wide.webp"
              alt="" aria-hidden="true" decoding="async" fetchpriority="high">
       </div>
     </div>
@@ -391,7 +340,8 @@
     <div class="menu-astro" id="menu-astro">
       <div class="menu-astro-shadow" aria-hidden="true"></div>
       <img class="menu-astro-img" id="menu-astro-img"
-           src="../assets/art/char-healthy.webp"
+           src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+           data-asset="assets/art/char-healthy.webp"
            alt="" aria-hidden="true" decoding="async">
     </div>
 
@@ -603,7 +553,23 @@
            vẫn chạy bằng khung dựng tạm, không chặn luồng. */
         openBeaconScene({
           onDone: () => {
-            if (typeof onDone === 'function') onDone();
+            /* Chèn màn mười ba khung nối Giai đoạn 1 sang Giai đoạn 2.
+               Nạp mềm: thiếu file thì đi thẳng tới màn thiết kế tàu cứu
+               hộ, không để một màn phim làm kẹt luồng chơi. */
+            let started = false;
+            const goNext = () => {
+              if (started) return;
+              started = true;
+              if (typeof onDone === 'function') onDone();
+            };
+            import(BASE + 'intermission.js').then((mod) => {
+              if (!mod || typeof mod.openIntermission !== 'function') { goNext(); return; }
+              const st = (window.__devBase && window.__devBase.stats) || null;
+              mod.openIntermission({ stats: st, onDone: goNext });
+            }).catch((err) => {
+              console.warn('[boot] chưa nạp được màn chuyển tiếp, đi tiếp', err);
+              goNext();
+            });
           },
         });
       },
@@ -778,6 +744,26 @@
     return null;
   }
 
+  /* Màn sửa chữa: nạp muộn repair.js và mở thẳng bảng sửa ba món.
+     Bơm vật liệu trước để cả ba nút sửa bấm được ngay, không phải
+     đi nhặt băng keo trước. day chỉ để đồng hồ trong stats có ngày
+     hợp lệ khi màn sửa tick. */
+  async function devOpenRepair(day) {
+    const { openRepairBay } = await import(BASE + 'repair.js');
+    const { createStats } = await import(BASE + 'hab-stats.js');
+    /* Gọi không tham số để createStats tự đọc lại smdg.stats mà
+       devSetDay vừa ghi: truyền {} thì nó bỏ qua bước nạp và đồng hồ
+       rơi về ngày 1. */
+    const stats = createStats();
+    stats.addItems([
+      { id: 'tape', qty: 6 },
+      { id: 'electronics', qty: 6 },
+    ]);
+    stats.save();
+    openRepairBay({ stats, onDone: () => {}, onClose: () => {} });
+    console.info('[dev] mở màn sửa chữa, ngày', day);
+  }
+
   window.__devJump = (id, meta) => {
     const m = meta || {};
     devClearScreens();
@@ -806,11 +792,25 @@
         });
         return;
       }
-      if (id === 'base') {
+      if (id === 'base' || /^base-\d+$/.test(id)) {
+        /* Mốc "căn cứ ngày n" mang số ngày trong meta.day; mục "căn cứ"
+           cũ không còn trong danh sách nhưng vẫn nhận để một bản lưu
+           cũ của bảng dev không gãy. */
         const day = devSetDay(m.day);
         try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) { /* chặn ghi */ }
         enterBase(name);
         console.info('[dev] vào căn cứ ngày', day);
+        return;
+      }
+      if (id === 'repair') {
+        /* Màn sửa ba món cần stats thật và cần đủ vật liệu để các nút
+           sửa bấm được. Bơm vật liệu + hạt giống rồi mở thẳng
+           openRepairBay, đúng hàm mà base.js gọi ở nút "radio". Không
+           đi qua màn căn cứ: màn sửa là lớp phủ riêng, đi qua căn cứ
+           thì phải chơi tới ngày 6 mới mở được. */
+        const day = devSetDay(m.day || 6);
+        try { localStorage.setItem('smdg.stage1Done', '1'); } catch (e) { /* chặn ghi */ }
+        devOpenRepair(day);
         return;
       }
       if (id === 'comms') {
@@ -984,59 +984,11 @@
   };
 
   /* ---------- nút Tiếp tục ----------
-     Chỉ hiện khi trình duyệt này đã có bản lưu. Người chơi vẫn giữ được
-     lựa chọn chơi lại từ đầu bằng nút Bắt đầu bên cạnh, nên nút này
-     không bao giờ thay thế nút kia. */
+     Toàn bộ phần bật/tắt và chữ ghi chú của nút này nằm trong
+     menu-cinematic.js (initMenu gọi refreshSave). Ở đây chỉ giữ tham
+     chiếu để đường dự phòng và bảng dev dùng lại. */
   const btnResume = document.getElementById('resume');
   const saveNote = document.getElementById('save-note');
-
-  (function setupResume() {
-    let info = null;
-    try {
-      /* getSaveInfo đọc bản lưu, trả thông tin tóm tắt, không ném lỗi
-         khi bản lưu hỏng mà trả rỗng. Chỉ hiện nút khi thật sự có bản
-         lưu đọc được, để người chơi không bấm vào một nút dẫn vào hư
-         không. */
-      if (!hasSave()) { btnResume.hidden = true; return; }
-      info = getSaveInfo();
-    } catch (e) { info = null; }
-    if (!info) { btnResume.hidden = true; return; }
-
-    btnResume.hidden = false;
-    if (saveNote) {
-      /* Ghi ngày trong game và lúc lưu, để người chơi biết mình sẽ tiếp
-         tục từ đâu chứ không phải bấm mù. */
-      const when = info.savedAt ? new Date(info.savedAt) : null;
-      const timeStr = when && !isNaN(when)
-        ? when.toLocaleString(getLang() === 'en' ? 'en-US' : 'vi-VN',
-            { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
-        : '';
-      saveNote.textContent = t('save.bootNote')
-        .replace('{day}', String(info.day || 1))
-        .replace('{when}', timeStr);
-      saveNote.hidden = false;
-    }
-  })();
-
-  btnResume.addEventListener('click', () => {
-    if (btnResume.dataset.started === '1') return;
-    btnResume.dataset.started = '1';
-    playClick();
-    const r = resumeFromSave();
-    if (!r || !r.ok) {
-      /* Bản lưu hỏng giữa chừng thì đừng treo màn hình, quay lại nút
-         Bắt đầu và nói rõ. */
-      btnResume.dataset.started = '';
-      btnResume.hidden = true;
-      if (saveNote) saveNote.hidden = true;
-      return;
-    }
-    boot.style.display = 'none';
-    /* phase 'comms' nghĩa là bản lưu được tạo lúc chưa qua Giai đoạn 1,
-       nên phải vào lại đúng chỗ đó thay vì nhảy thẳng vào căn cứ. */
-    if (r.phase === 'comms') afterStory(r.playerName || '');
-    else enterBase(r.playerName || '');
-  });
 
   /* ---------- hỏi tên sau màn mở đầu ----------
      prologue.js không có ô nhập tên (màn đó không lời thoại), còn màn
@@ -1136,34 +1088,131 @@
     try { localStorage.setItem('smdg.prologueDone', '1'); } catch (e) { /* bỏ qua */ }
   }
 
-  btn.addEventListener('click', async () => {
-    /* Chặn bấm hai lần. Không có cờ này, double-click tạo ra hai màn
-       truyện chồng nhau và hai listener bàn phím cùng chạy. */
-    if (btn.dataset.started === '1') return;
-    btn.dataset.started = '1';
+  /* ---------- phản hồi tức thì khi bấm Bắt đầu / Tiếp tục ----------
+     Ba yêu cầu đặt ra cho phần này:
+       1. Trong 100ms phải thấy phản hồi: chữ đổi thành "Đang tải..."
+          kèm vòng xoay, nút bị khoá.
+       2. Sau 4 giây chưa xong thì hiện dòng "Đang tải tài nguyên...".
+       3. Sau 15 giây thì hiện thông báo và nút thử lại.
+     Toàn bộ phần đó nằm trong menu-cinematic.js (hàm initMenu), cùng
+     hoạt cảnh phóng tàu và cờ khoá chống bấm hai lần. Ở đây chỉ nối
+     đúng hàm chuyển màn vào.
 
-    playClick();
-    /* Chờ tải đủ tài nguyên rồi mới vào. Nếu màn chờ đã chạy xong từ
-       lúc trang mở (trường hợp thường gặp) thì đây là một Promise đã
-       resolve, gần như không tốn thời gian. Nếu người chơi bấm rất
-       sớm thì phải chờ nốt, và màn chờ đang phủ sẵn nên không có
-       khoảng trắng nào ở giữa. */
-    await runPreloader();
+     Vì sao không giữ bản cũ: bản cũ tự dựng một lớp phủ riêng và ghi
+     đè innerHTML của nút, nên xoá mất khung chữ và vòng xoay mà
+     menu.css định kiểu. Một chỗ duy nhất đổi trạng thái nút thì mới
+     trả về nguyên trạng được khi lỗi. */
+
+  /* chạy trước màn chờ, song song với hoạt cảnh phóng: nếu người chơi
+     bấm khi mạng còn chậm, 2,6 giây hoạt cảnh là thời gian tải luôn,
+     không phải chờ thêm lần nữa */
+  function preloadAhead() {
+    const p = runPreloader();
+    /* nuốt lỗi: màn chờ hỏng thì vẫn vào game, chỉ mất bước tải trước */
+    return p.catch((e) => {
+      console.warn('[boot] màn chờ lỗi, vào thẳng game', e);
+      return { ok: false, failed: [] };
+    });
+  }
+
+  /* Vào game từ nút Bắt đầu. Chạy sau khi hoạt cảnh phóng kết thúc. */
+  async function enterFromStart() {
+    const pre = preloadAhead();
+    await pre;
     boot.style.display = 'none';
-    await playIntro();
+
+    /* Video mở đầu tự nuốt lỗi bên trong, nhưng bọc thêm một lớp:
+       một lỗi bất ngờ ở đây không được chặn phần truyện. */
     try {
-      await runOpening((playerName) => {
-        if (baseStarted) return;
-        afterStory(playerName);
-      });
+      await playIntro();
     } catch (e) {
-      /* Cả prologue lẫn story đều không chạy được: đừng để người chơi
-         nhìn màn hình đen. Trả lại nút Bắt đầu và vào thẳng căn cứ. */
-      btn.dataset.started = '';
-      if (baseStarted) return;
-      afterStory(savedName());
+      console.error('[boot] đoạn phim mở đầu lỗi, bỏ qua', e);
+      document.querySelectorAll('.intro-overlay').forEach((n) => n.remove());
     }
-  });
+
+    await runOpening((playerName) => {
+      if (baseStarted) return;
+      afterStory(playerName);
+    });
+  }
+
+  /* Vào game từ nút Tiếp tục, dùng đúng hàm khôi phục của save-game. */
+  function enterFromResume() {
+    const r = resumeFromSave();
+    if (!r || !r.ok) {
+      /* Bản lưu hỏng giữa chừng thì đừng treo màn hình, nói rõ rồi
+         trả nút về trạng thái bấm được. */
+      throw new Error('bản lưu không đọc được');
+    }
+    boot.style.display = 'none';
+    /* phase 'comms' nghĩa là bản lưu được tạo lúc chưa qua Giai đoạn 1,
+       nên phải vào lại đúng chỗ đó thay vì nhảy thẳng vào căn cứ. */
+    if (r.phase === 'comms') afterStory(r.playerName || '');
+    else enterBase(r.playerName || '');
+  }
+
+  /* Phản hồi tức thì khi bấm Bắt đầu: lớp mờ tối phủ màn menu, câu
+     "Đang chuẩn bị..." trên nút. Tách sang boot-feedback.js để không
+     giành quyền điều khiển nút với menu-cinematic.js. Nạp mềm: thiếu
+     file thì chỉ mất lớp phủ, luồng vào game không đổi. */
+  try {
+    const fb = await import(BASE + 'boot-feedback.js');
+    if (fb && typeof fb.installBootFeedback === 'function') fb.installBootFeedback();
+  } catch (e) {
+    console.warn('[boot] chưa nạp được phản hồi nút Bắt đầu', e);
+  }
+
+  /* Gắn toàn bộ phần tương tác của menu. Nạp mềm: thiếu file thì nút
+     Bắt đầu vẫn phải chạy, chỉ mất hoạt cảnh. */
+  let menuApi = null;
+  try {
+    const menu = await import(BASE + 'menu-cinematic.js');
+    menuApi = menu.initMenu({
+      onStart: enterFromStart,
+      onResume: enterFromResume,
+      onSettings: openSettings,
+      playClick,
+      hasSave,
+      getSaveInfo,
+    });
+  } catch (e) {
+    console.warn('[menu] chưa nạp được màn menu mới, dùng đường dự phòng', e);
+  }
+
+  /* Đường dự phòng khi menu-cinematic.js không nạp được: nút vẫn phải
+     bấm ra game, chỉ là không có hoạt cảnh. */
+  if (!menuApi) {
+    btn.addEventListener('click', async () => {
+      if (btn.dataset.started === '1') return;
+      btn.dataset.started = '1';
+      btn.disabled = true;
+      playClick();
+      const lab = btn.querySelector('.mbtn-label');
+      if (lab) lab.textContent = 'Đang tải...';
+      try {
+        await enterFromStart();
+      } catch (err) {
+        console.error('[boot] màn mở đầu lỗi, vào thẳng phần chơi', err);
+        btn.dataset.started = '';
+        btn.disabled = false;
+        if (baseStarted) return;
+        document.querySelectorAll('.prologue-root, .intro-overlay, .story-root, .story-screen')
+          .forEach((n) => n.remove());
+        boot.style.display = 'none';
+        afterStory(savedName());
+      }
+    });
+  }
+
+  /* Khi màn kết thúc hoặc bảng dev đưa người chơi về màn đầu, phải dọn
+     dấu vết của lần phóng trước, nếu không lần sau vào sẽ thấy cảnh
+     vẫn đang rung và tàu đã bay mất. */
+  function backToMenuReset() {
+    if (menuApi && typeof menuApi.reset === 'function') menuApi.reset();
+    if (menuApi && typeof menuApi.refreshSave === 'function') menuApi.refreshSave();
+    document.querySelectorAll('.menu-fade.is-on').forEach((n) => n.classList.remove('is-on'));
+  }
+  window.addEventListener('smdg:back-to-boot', backToMenuReset);
 
   /* ---------- chơi lại Giai đoạn 1 từ màn căn cứ ----------
      base.js phát sự kiện này khi bấm thẻ "Chơi lại màn liên lạc".

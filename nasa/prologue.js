@@ -159,7 +159,25 @@ const pad = (n) => String(n).padStart(2, '0');
    trái, khung mới hiện LỚN bên phải. Nhịp 4 tới 6 là chuỗi ô vát
    chéo ở hàng dưới, rồi đẩy lên hàng trên để nhường chỗ ô rộng. */
 
-const B = (ms, panels, extra = {}) => ({ ms, panels, ...extra });
+/* ---------- hệ số nén thời lượng toàn cục ----------
+
+   Giám khảo ngồi chấm không chờ được gần một phút cho màn mở đầu, mà
+   mười hai khung cộng lại đúng 52.600 ms theo bảng số gốc bên dưới.
+   Mục tiêu là khoảng 30 giây, đủ để đọc hết truyện mà không lê thê.
+
+   Vì sao 0,57 chứ không phải 0,45: con số 0,45 trong bản mô tả được
+   tính trên giả định tổng cũ là 70 giây, và 70 × 0,45 ≈ 31,5 giây.
+   Đo lại bảng BEATS thật thì tổng chỉ 52,6 giây, nên 52,6 × 0,45 =
+   23,7 giây, ngắn hơn mục tiêu khá nhiều. Giữ đúng ý đồ (khoảng 30
+   giây) trên bảng số thật thì hệ số là 0,57, cho 29.982 ms.
+
+   Nhân ở MỘT chỗ duy nhất trong hàm B() chứ không sửa từng số: tỷ lệ
+   tương đối giữa các khung giữ nguyên tuyệt đối, nên khung mở mí mắt
+   7600 ms vẫn là khung dài nhất (4332 ms sau khi nén). Muốn chỉnh
+   nhanh toàn bộ màn mở đầu thì chỉ đổi số dưới đây. */
+const PP_SCALE = 0.57;
+
+const B = (ms, panels, extra = {}) => ({ ms: Math.round(ms * PP_SCALE), panels, ...extra });
 
 const BEATS = [
   /* 1: một ảnh phủ kín, máy đẩy chậm vào */
@@ -366,6 +384,25 @@ export function startPrologue({ container, onDone } = {}) {
   skip.type = 'button';
   skip.className = 'prologue-skip';
   skip.textContent = t('prologue.skip');
+  /* Nút Bỏ qua phải TO và hiện ngay từ khung đầu tiên. Bản cũ để cỡ
+     chữ nhỏ bằng nhãn phụ và chỉ mờ dần hiện ra, nên người xem tưởng
+     màn hình đơ và không tìm ra lối thoát. Đặt thẳng kiểu ở đây thay
+     vì sửa css/prologue.css: file CSS đó không thuộc phần được phép
+     sửa trong đợt này (sub khác đang chạy song song), còn nút do
+     chính file này dựng nên sửa tại chỗ là gọn nhất. */
+  skip.style.cssText = [
+    'font-size:max(13px,calc(var(--st-size-label) * 1.18))',
+    'font-weight:600',
+    'letter-spacing:.16em',
+    'padding:0 22px',
+    'min-height:52px',
+    'min-width:132px',
+    'color:var(--tx-bright)',
+    'background:color-mix(in srgb,var(--bg-void) 82%,transparent)',
+    'border:1px solid var(--amber-dim)',
+    'border-left:3px solid var(--amber)',
+    'box-shadow:0 6px 22px rgba(0,0,0,.5)',
+  ].join(';');
   root.appendChild(skip);
 
   host.appendChild(root);
@@ -489,13 +526,11 @@ export function startPrologue({ container, onDone } = {}) {
     barFill.style.width = (((idx + 1) / FRAME_COUNT) * 100) + '%';
     bar.setAttribute('aria-valuenow', String(idx + 1));
 
-    if (idx >= 1) {
-      skip.classList.add('is-on');
-      skip.tabIndex = 0;
-    } else {
-      skip.classList.remove('is-on');
-      skip.tabIndex = -1;
-    }
+    /* Nút Bỏ qua hiện NGAY từ khung đầu tiên. Bản cũ chỉ hiện từ khung
+       thứ hai, tức người xem phải chờ hơn một nhịp mới thấy lối thoát.
+       Giờ màn mở đầu có mặt là có nút, không chờ nhịp nào. */
+    skip.classList.add('is-on');
+    skip.tabIndex = 0;
 
     /* Nhạc nền prologue, theo khe đã chừa. Gọi ở mọi nhịp kể cả nhịp
        im lặng, để hàm tự tắt nếu nhịp đó không rơi vào cue nào. */
@@ -527,7 +562,17 @@ export function startPrologue({ container, onDone } = {}) {
   function go(n) {
     if (done) return;
     idx = Math.max(0, Math.min(FRAME_COUNT - 1, n));
-    render();
+    /* Một lỗi bất kỳ trong lúc dựng nhịp (ảnh hỏng, phần tử thiếu, âm
+       thanh ném lỗi) không được để người chơi nhìn khung đứng yên.
+       Bắt tại đây, ghi rõ ra console, rồi kết thúc màn mở đầu để
+       index.html đi tiếp vào phần truyện. */
+    try {
+      render();
+    } catch (err) {
+      console.error('[prologue] dựng nhịp lỗi, bỏ qua màn mở đầu', err);
+      finish();
+      return;
+    }
     schedule();
   }
 

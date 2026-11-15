@@ -1,0 +1,222 @@
+{
+  "$comment": "Moi the huong dan gom 4 phan: Cach lam, Goc NASA, Meo song con, nut bam. Them the moi thi chi can them mot phan tu vao mang tutorials.",
+  "version": 1,
+  "tutorials": [
+    {
+      "id": "hab_intro",
+      "phase": 1,
+      "trigger": { "type": "firstEnter", "screen": "base" },
+      "spotlight": "all",
+      "order": 1,
+      "title": {
+        "vi": "Chào mừng đến với ngôi nhà duy nhất của bạn trên Sao Hỏa",
+        "en": "Welcome to your only home on Mars"
+      },
+      "action": {
+        "vi": "Đồng đội đã rời đi, giờ mọi thứ đều do bạn tự xoay xở. Hãy rê chuột quanh phòng và bấm thẳng vào các thiết bị đang phát sáng (Trạm liên lạc, Hệ thống dưỡng khí, Tủ đồ, Giường ngủ) để kiểm tra tình hình.",
+        "en": "Your crew is gone, so it's all on you now. Hover around the room and click directly on glowing stations (Comms, Life Support, Locker, Bunk) to check your status."
+      },
+      "nasaFact": {
+        "vi": "Trạm Hab giống như một tàu vũ trụ nằm trên mặt đất, nó tự tạo ra không khí, lọc lại nước và giữ ấm cho bạn giữa cái lạnh -60°C bên ngoài.",
+        "en": "A Mars Hab works like a grounded spaceship, generating breathable air, recycling water, and keeping you warm in -60°C weather."
+      },
+      "survivalTip": {
+        "vi": "Đừng làm việc tới kiệt sức! Hãy để ý thanh Thể lực và Oxy ở góc trên, khi trời tối nhớ đi ngủ để hồi sức sang ngày (Sol) mới.",
+        "en": "Don't work yourself to collapse! Watch your Stamina and Oxygen bars, and hit the bunk at night to advance to the next Sol."
+      },
+      "button": {
+        "vi": "Rõ rồi, bắt đầu kiểm tra trạm!",
+        "en": "Got it, let's check the Hab!"
+      }
+    },
+    {
+      "id": "moxie_eclss",
+      "phase": 1,
+      "trigger": { "type": "firstOpenPanel", "panel": "lifesupport" },
+      "spotlight": [".bs-hot[data-id='lifesupport']"],
+      "order": 2,
+      "title": {
+        "vi": "Nhà máy tạo không khí và nước sạch",
+        "en": "Your Air and Water Lifeline"
+      },
+      "action": {
+        "vi": "Gạt công tắc để chia điện cho máy tạo Oxy (MOXIE) và máy lọc nước (ECLSS). Nếu ngoài trời đang bão bụi làm pin Mặt Trời yếu đi, hãy tắt bớt đèn hoặc máy phụ để dồn điện cho việc thở và sưởi ấm.",
+        "en": "Toggle switches to allocate power to the MOXIE oxygen generator and ECLSS water recycler. During dust storms, turn off non-essential lights to save power for air and heat."
+      },
+      "nasaFact": {
+        "vi": "Khí quyển Sao Hỏa có tới 95 phần trăm là khí CO2 độc hại. Ngoài đời, NASA đã gắn thiết bị MOXIE lên robot Perseverance để hút khí CO2 này và tách lấy Oxy sạch cho phi hành gia thở!",
+        "en": "Mars atmosphere is 95 percent toxic CO2. NASA tested MOXIE aboard the Perseverance rover to split Martian CO2 into breathable oxygen!"
+      },
+      "survivalTip": {
+        "vi": "Thiếu thức ăn bạn cầm cự được cả tuần, nhưng cạn Oxy thì chỉ trụ được vài phút. Luôn ưu tiên giữ vạch Oxy ở mức xanh.",
+        "en": "You can survive days without food, but only minutes without oxygen. Keep O2 in the green zone at all costs."
+      },
+      "button": {
+        "vi": "Đã hiểu cách vận hành!",
+        "en": "Understood!"
+      }
+    },
+    {
+      "id": "comms_mro",
+      "phase": 1,
+      "trigger": { "type": "firstOpenPanel", "panel": "comms" },
+      "spotlight": [".bs-hot[data-id='comms']"],
+      "order": 3,
+      "title": {
+        "vi": "Bắt sóng vệ tinh để gọi về Trái Đất",
+        "en": "Catch the Orbiter to Call Home"
+      },
+      "action": {
+        "vi": "Bước 1, đủ điện cho máy phát. Bước 2, kéo thanh chỉnh góc ăng-ten sao cho vạch tín hiệu SNR nhảy lên vùng màu xanh khi vệ tinh bay ngang đỉnh đầu. Bước 3, chọn tối đa 3 gói tin quan trọng nhất rồi bấm Phát tín hiệu.",
+        "en": "Step 1, power up the transmitter. Step 2, tune the antenna angle until SNR hits the green zone as the orbiter passes overhead. Step 3, pack up to 3 vital data packets and hit Transmit."
+      },
+      "nasaFact": {
+        "vi": "Chảo ăng-ten lớn đã gãy nên bạn không thể bắn sóng thẳng về Trái Đất. Thay vào đó, ta dùng sóng tầm ngắn gọi lên vệ tinh MRO đang bay quanh Sao Hỏa, nhờ nó làm trạm trung chuyển bắn tin về nhà.",
+        "en": "With your main dish broken, you can't reach Earth directly. Like real Mars rovers, you'll beam UHF signals up to the MRO orbiter to relay them back to Earth."
+      },
+      "survivalTip": {
+        "vi": "Băng thông cực hẹp nên đừng gửi file rác! Chỉ chọn những thông tin sống còn (Tọa độ, Sinh hiệu, Lượng Oxy, Thức ăn còn lại) để Trái Đất biết đường tới cứu.",
+        "en": "Bandwidth is tiny, so skip non-essential logs and only pack survival telemetry (Location, Vitals, Rations)."
+      },
+      "button": {
+        "vi": "Bắt đầu dò sóng!",
+        "en": "Start Tuning!"
+      }
+    },
+    {
+      "id": "hab_utilities",
+      "phase": 1,
+      "trigger": { "type": "firstOpenPanel", "panel": "bag" },
+      "spotlight": [".bs-hot[data-id='bag']", ".bs-hot[data-id='craft']", ".bs-hot[data-id='explore']"],
+      "order": 4,
+      "title": {
+        "vi": "Kho tiếp tế và sửa chữa trạm",
+        "en": "Supplies, Repairs and EVA Expeditions"
+      },
+      "action": {
+        "vi": "Dùng Tủ đồ để kiểm tra khẩu phần ăn và nước uống; dùng Bàn kỹ thuật để sửa linh kiện hỏng; và chỉ mở Cửa Airlock đi thám hiểm bên ngoài khi trời quang đãng để nhặt thêm phụ tùng rơi vãi.",
+        "en": "Check rations in the Supply Locker, fix broken parts at the Workbench, and only step out the Airlock in clear weather to scavenge spare components."
+      },
+      "nasaFact": {
+        "vi": "Đất Sao Hỏa chứa muối độc Perchlorate nên không thể trồng rau trực tiếp ngoài trời được, toàn bộ lượng calo của bạn đều phụ thuộc vào các gói thực phẩm đóng sẵn của NASA.",
+        "en": "Martian soil contains toxic Perchlorates, making open farming impossible, so every calorie you have comes from pre-packaged NASA rations."
+      },
+      "survivalTip": {
+        "vi": "Mỗi chuyến ra ngoài Airlock đều tốn Oxy và Thể lực. Tuyệt đối không bước chân ra cửa khi radar báo sắp có bão bụi!",
+        "en": "Stepping outside drains Oxygen and Stamina. Never open the Airlock when a dust storm is approaching!"
+      },
+      "button": {
+        "vi": "Đã nắm rõ!",
+        "en": "Got it!"
+      }
+    },
+    {
+      "id": "assembly_bay",
+      "phase": 2,
+      "trigger": { "type": "firstEnter", "screen": "assembly" },
+      "spotlight": "all",
+      "order": 5,
+      "title": {
+        "vi": "Chào mừng tới Xưởng Thiết Kế Sứ Mệnh NASA!",
+        "en": "Welcome to NASA Mission Design Lab!"
+      },
+      "action": {
+        "vi": "Bấm vào từng đường chỉ dẫn trỏ vào thân tàu (Động cơ, Nhiên liệu, Phi thuyền, Liên lạc, Gói hàng, Quỹ đạo) để lắp ráp con tàu giải cứu hoàn chỉnh. Quan sát bảng Thông tin tổng ở góc trên bên phải để xem tàu mất bao nhiêu ngày mới bay tới Sao Hỏa.",
+        "en": "Click each callout line pointing to the rocket (Propulsion, Fuel, Spacecraft, Comms, Cargo, Trajectory) to assemble your rescue ship. Watch the Summary Panel on the top right to track travel time."
+      },
+      "nasaFact": {
+        "vi": "Trong kỹ thuật hàng không vũ trụ, mọi thứ đều là sự đánh đổi: lắp thêm đồ ăn và thiết bị xịn sẽ làm tàu nặng lên, khiến tên lửa tốn nhiều nhiên liệu hơn và bay chậm hơn!",
+        "en": "Space engineering is all about trade-offs: adding extra food or heavy gear increases mass, burning more fuel and slowing down your transit!"
+      },
+      "survivalTip": {
+        "vi": "Hãy nhìn số Sol sống sót của đồng đội ở góc trái: nếu tàu của bạn bay mất 220 Sol mà cậu ấy chỉ còn đủ đồ ăn cho 180 Sol, sứ mệnh sẽ thất bại!",
+        "en": "Check your stranded teammate Survival Sols on the top left. If your ship takes 220 Sols to arrive and he only has 180 Sols of supplies, he won't make it!"
+      },
+      "button": {
+        "vi": "Bắt đầu lắp ráp tàu!",
+        "en": "Start Building!"
+      }
+    },
+    {
+      "id": "component_modal",
+      "phase": 2,
+      "trigger": { "type": "firstEnter", "screen": "componentModal" },
+      "spotlight": "all",
+      "order": 6,
+      "title": {
+        "vi": "So sánh linh kiện và tra cứu dữ liệu thật",
+        "en": "Compare Modules and Explore Real NASA Tech"
+      },
+      "action": {
+        "vi": "Bấm Chọn để gắn bộ phận lên tàu (hoặc bấm Gỡ nếu thấy tàu quá nặng). Muốn biết thiết bị này ngoài đời hoạt động thế nào, hãy bấm vào biểu tượng Kính lúp để xem thông số chi tiết và mở bài viết khoa học thật của NASA!",
+        "en": "Click Select to mount a part (or Remove if your ship gets too heavy). Click the Magnifying Glass on any card to inspect deep specs and open real NASA science articles!"
+      },
+      "nasaFact": {
+        "vi": "Mỗi lựa chọn ở đây đều mô phỏng công nghệ có thật: từ Pin hạt nhân RTG (chạy bất chấp bão bụi) cho tới cần cẩu hạ cánh Skycrane từng đưa robot Curiosity và Perseverance đáp xuống Sao Hỏa.",
+        "en": "Every module mirrors real hardware: from RTG nuclear batteries (immune to dust storms) to the Skycrane landing system used by Curiosity and Perseverance."
+      },
+      "survivalTip": {
+        "vi": "Đừng mặc định chọn món đắt nhất hay nặng nhất, hãy chọn món phù hợp với điều kiện thời tiết trên Sao Hỏa (ví dụ: đang có bão bụi thì đừng dùng Pin Mặt Trời!).",
+        "en": "Heavier or pricier isn't always better. Match your gear to Mars conditions (e.g., avoid Solar Panels if a dust storm is raging!)."
+      },
+      "button": {
+        "vi": "Xem các linh kiện!",
+        "en": "Browse Modules!"
+      }
+    },
+    {
+      "id": "trajectory_modal",
+      "phase": 2,
+      "trigger": { "type": "firstEnter", "screen": "trajectoryModal" },
+      "spotlight": "all",
+      "order": 7,
+      "title": {
+        "vi": "Chọn đường bay xuyên Hệ Mặt Trời",
+        "en": "Plot Your Interplanetary Trajectory"
+      },
+      "action": {
+        "vi": "Bấm vào từng phương án quỹ đạo để xem đường bay mô phỏng trên bản đồ Hệ Mặt Trời, so sánh Số ngày bay (Sol) và Lượng nhiên liệu tiêu tốn.",
+        "en": "Click each trajectory option to preview its path on the Solar System map and compare Travel Time (Sols) against Fuel Cost (delta-v)."
+      },
+      "nasaFact": {
+        "vi": "Trái Đất và Sao Hỏa không đứng yên mà luôn quay quanh Mặt Trời với tốc độ khác nhau. Đường bay tiết kiệm nhất gọi là Quỹ đạo chuyển tiếp Hohmann (hình elip), còn muốn bay tắt đón đầu thật nhanh thì phải đốt lượng nhiên liệu khổng lồ.",
+        "en": "Earth and Mars orbit the Sun at different speeds. A fuel-efficient Hohmann Transfer curves gracefully with orbital mechanics, while a fast cutoff trajectory demands massive propellant."
+      },
+      "survivalTip": {
+        "vi": "Nếu người trên Sao Hỏa còn nhiều đồ ăn, hãy đi đường tiết kiệm để dư nhiên liệu phanh tàu. Nếu cậu ấy sắp hết đồ ăn, bắt buộc phải chọn bay nhanh và cắt giảm bớt hàng hóa không cần thiết!",
+        "en": "If your teammate has plenty of rations, fly efficiently to save braking fuel. If his clock is running out, go fast and trim excess cargo weight!"
+      },
+      "button": {
+        "vi": "Chọn quỹ đạo bay!",
+        "en": "Plot Course!"
+      }
+    },
+    {
+      "id": "cml4_review",
+      "phase": 2,
+      "trigger": { "type": "firstEnter", "screen": "cml4" },
+      "spotlight": "all",
+      "order": 8,
+      "title": {
+        "vi": "Cổng Kiểm Duyệt Cuối Cùng Trước Khi Phóng",
+        "en": "Final Pre-Launch Safety Gate (JPL CML 4)"
+      },
+      "action": {
+        "vi": "Kiểm tra 4 đồng hồ đo an toàn và tick xác nhận đầy đủ thủ tục bắt buộc ở bên dưới. Khi đạt từ 80 phần trăm đèn Xanh trở lên và không còn lỗi Đỏ, nút LAUNCH MISSION sẽ mở khóa.",
+        "en": "Review the 4 safety margin gauges and check off required NASA compliance boxes below. Once you hit 80 percent plus Green with zero Red blockers, LAUNCH MISSION unlocks."
+      },
+      "nasaFact": {
+        "vi": "Ngoài đời, NASA không bao giờ chất hàng đầy 100 phần trăm sức chịu đựng của tên lửa, họ luôn giữ lại ít nhất 35 phần trăm biên độ dự phòng cho khối lượng và điện năng để phòng khi gặp gió lớn hoặc sự cố bất ngờ.",
+        "en": "NASA never loads a rocket to 100 percent capacity. Engineers enforce at least a 35 percent safety margin on mass and power to survive unexpected winds or anomalies."
+      },
+      "survivalTip": {
+        "vi": "Đạt 80 phần trăm Xanh là đủ điều kiện rời bệ phóng, nhưng nếu kim đồng hồ chỉ nằm sát mép Vàng, tàu vẫn có thể gặp rủi ro khi bay hoặc lúc hạ cánh. Muốn chắc thắng 100 phần trăm, hãy tối ưu cho cả 4 đồng hồ đều Xanh rực!",
+        "en": "Passing at 80 percent gets you off the pad, but borderline Yellow gauges can still trigger mid-flight failures. Aim for solid Green across all four dials!"
+      },
+      "button": {
+        "vi": "Kiểm tra thông số phóng!",
+        "en": "Review Telemetry!"
+      }
+    }
+  ]
+}

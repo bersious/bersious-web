@@ -12,6 +12,7 @@
    ============================================================ */
 
 import { t, getLang, onLangChange } from './i18n.js';
+import { openHandbook } from './onboarding.js';
 import { DAY_LOG } from './base-flavor.js';
 
 const BASE = new URL('.', import.meta.url).href;
@@ -619,7 +620,38 @@ export function createCompactHud({
   let guideOpen = false;
   let lastFocus = null;
 
+  /* Sổ tay giờ đọc nội dung từ src/data/onboarding_tutorials.json qua
+     onboarding.js. Phần panel dựng sẵn ở đây chỉ còn là lưới an toàn:
+     nếu onboarding.js lỗi thì vẫn mở được bản cũ. Nút [?] và cách mở
+     giữ nguyên. */
+  let handbook = null;
+
   function openGuide() {
+    if (guideOpen) return;
+    lastFocus = document.activeElement;
+    try {
+      const p = openHandbook({
+        onClose: () => {
+          guideOpen = false;
+          handbook = null;
+          if (lastFocus && typeof lastFocus.focus === 'function') {
+            lastFocus.focus({ preventScroll: true });
+          }
+        },
+      });
+      guideOpen = true;
+      handbook = p;
+      if (typeof onOpenGuide === 'function') {
+        try { onOpenGuide(); } catch (err) { console.error('onOpenGuide lỗi', err); }
+      }
+      return;
+    } catch (err) {
+      console.warn('[hud2] sổ tay JSON lỗi, dùng bản dựng sẵn', err);
+    }
+    openGuideLegacy();
+  }
+
+  function openGuideLegacy() {
     if (guideOpen) return;
     guideOpen = true;
     lastFocus = document.activeElement;
@@ -636,6 +668,10 @@ export function createCompactHud({
   }
 
   function closeGuide() {
+    if (handbook && typeof handbook.close === 'function') {
+      handbook.close();
+      return;
+    }
     if (!guideOpen) return;
     guideOpen = false;
     guideEl.hidden = true;

@@ -231,8 +231,42 @@ function runPool(items, limit, worker, onSettle) {
 
 /* ---------- giao diện ---------- */
 
+/* Vài dòng tối thiểu, gắn thẳng từ JS chứ không đợi preloader.css.
+   Lý do: thẻ <link> tới preloader.css là request riêng, và trên mạng
+   chậm nó về sau khi lớp phủ đã dựng. Trong khoảng đó lớp phủ là một
+   khối chữ trần nằm dưới đáy trang, xấu hơn cả màn trắng. Khối này
+   lo hình học, nền và cả vòng xoay, để màn chờ trông đúng ngay từ
+   khung đầu; phần trình bày còn lại vẫn ở preloader.css. */
+const CRITICAL_CSS = `
+.pre-root{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:#07090d;overflow:hidden;pointer-events:none}
+.pre-root .pre-card{display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:18px;width:100%;max-width:360px;padding:0 24px}
+.pre-root .pre-track{position:relative;width:100%;max-width:320px;height:3px;
+  background:#1b232e;border-radius:2px;overflow:hidden}
+.pre-root .pre-fill{position:absolute;inset:0 auto 0 0;width:0%;
+  background:#e8a33d;border-radius:2px}
+.pre-root .pre-meta{display:flex;justify-content:space-between;gap:12px;
+  width:100%;max-width:320px}
+.pre-root .pre-emblem{display:block;width:96px;height:96px;
+  animation:pre-spin-c 12s linear infinite;transform-origin:50% 50%}
+.pre-root.pre-static .pre-emblem{animation:none;transform:none}
+@keyframes pre-spin-c{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+`;
+
+function injectCritical() {
+  try {
+    if (document.getElementById('pre-critical')) return;
+    const st = document.createElement('style');
+    st.id = 'pre-critical';
+    st.textContent = CRITICAL_CSS;
+    document.head.appendChild(st);
+  } catch (e) { /* không chèn được thì thôi, preloader.css vẫn lo phần lớn */ }
+}
+
 function buildOverlay() {
   const S = strings();
+  injectCritical();
   const root = document.createElement('div');
   root.className = 'pre-root';
   root.setAttribute('role', 'progressbar');
@@ -324,7 +358,14 @@ async function runOnce(opts) {
   paint();
 
   const ctrl = new AbortController();
-  const timeoutId = setTimeout(() => ctrl.abort(), TOTAL_TIMEOUT_MS);
+  /* Hạn chờ tính từ lúc TRANG bắt đầu nạp, không phải từ lúc hàm này
+     chạy. performance.now() đếm từ mốc điều hướng, nên trên mạng chậm
+     phần nạp module đã ăn mất mấy giây đầu và số đó phải bị trừ vào
+     hạn chung. Tính từ lúc hàm chạy thì tổng thời gian người chơi phải
+     đứng chờ vượt hẳn con số đã định. */
+  const alreadyMs = performance.now();
+  const budgetLeft = Math.max(0, TOTAL_TIMEOUT_MS - alreadyMs);
+  const timeoutId = setTimeout(() => ctrl.abort(new Error('hết hạn chờ chung')), budgetLeft);
 
   const worker = async (item) => {
     try {
@@ -380,10 +421,12 @@ async function runOnce(opts) {
 
   /* Phần chưa đếm xong khi hết hạn: tính vào nhóm lỗi để con số báo
      lại đúng với thực tế, thay vì nói "xong hết" trong khi còn tệp
-     đang dở. */
+     đang dở. Khử trùng vì một tệp có thể vừa bị huỷ vừa chưa kịp đếm. */
+  const failSet = new Set(failed);
   for (let i = 0; i < total; i += 1) {
-    if (!done[i] && !failed.includes(items[i].url)) failed.push(items[i].url);
+    if (!done[i]) failSet.add(items[i].url);
   }
+  const failedList = [...failSet];
 
   /* Giữ màn chờ đủ lâu để không chớp giật khi mạng nhanh. */
   const elapsed = performance.now() - t0;
@@ -402,9 +445,9 @@ async function runOnce(opts) {
      được sau khi lớp phủ đã mờ đi. Nền trong suốt, chỉ một dòng chữ
      vàng nhạt, không chặn bấm. */
   let warnEl = null;
-  if (failed.length) {
-    warnEl = attachWarn(document.body, S.fail(failed.length));
-    console.warn(`[preloader] ${failed.length}/${total} tệp chưa tải được:`, failed);
+  if (failedList.length) {
+    warnEl = attachWarn(document.body, S.fail(failedList.length));
+    console.warn(`[preloader] ${failedList.length}/${total} tệp chưa tải được:`, failedList);
     /* Ba giây, tính từ lúc dòng chữ hiện ra. Nó nằm ngoài lớp phủ ở
        chân màn hình nên vẫn đọc được trong lúc lớp phủ mờ đi. */
     setTimeout(() => { if (warnEl) warnEl.remove(); }, WARN_MS);
@@ -421,8 +464,8 @@ async function runOnce(opts) {
   }
 
   return {
-    ok: failed.length === 0,
-    failed,
+    ok: failedList.length === 0,
+    failed: failedList,
     ms: Math.round(performance.now() - t0),
     loaded: okCount,
     total,

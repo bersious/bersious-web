@@ -47,17 +47,34 @@
   margin: 0;
   background: none;
   pointer-events: none;
+  overflow: visible;
 }
 
+/* Thanh công cụ đáy.
+   box-sizing border-box là bắt buộc: base.css đặt lưới này thành
+   content-box với padding hai bên, nên ở màn 390 nó rộng 410 trong khi
+   màn chỉ 390, và nút cuối bị đẩy ra ngoài mép phải 20px. Cộng thêm
+   padding vào bề rộng 100% là hết tràn.
+
+   border-top kép: một sợi hổ phách mảnh để tách thanh khỏi cảnh, cộng
+   bóng đổ ngược lên trên cho thanh như nổi khỏi sàn. */
 .has-new-scene .base-grid {
   pointer-events: auto;
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 8px;
-  padding: 10px clamp(10px, 2vw, 24px);
-  background: color-mix(in srgb, var(--bg-void, #07090d) 82%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--tx-bright, #eaf1f8) 10%, transparent);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 10px clamp(14px, 2vw, 26px) calc(10px + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--bg-void, #07090d) 86%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 30%, transparent);
+  box-shadow:
+    0 -1px 0 0 color-mix(in srgb, var(--tx-bright, #eaf1f8) 7%, transparent),
+    0 -12px 28px -18px color-mix(in srgb, var(--bg-void, #07090d) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -95,22 +112,76 @@
   white-space: nowrap;
 }
 
-/* Chân trang cũ: đã có HUD mới hiện số ngày và vật phẩm. */
+/* Chân trang cũ: đã có HUD mới hiện số ngày và vật phẩm. Nhưng KHÔNG
+   ẩn cả .base-foot bằng display:none, vì dòng nhàn rỗi (.base-idle)
+   nằm trong đó: ẩn cả khối thì dòng nhàn rỗi không bao giờ hiện ra
+   (đo được chiều rộng 0 ở cả ba kích thước). Thay vào đó giữ khối ở
+   trạng thái rỗng, không chiếm chỗ, rồi ẩn từng phần tử con không cần
+   nữa. .base-idle được đặt position fixed nên thoát khỏi khối này. */
 .has-new-scene .base-foot {
+  position: static;
+  display: block;
+  height: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+}
+
+.has-new-scene .base-foot-days,
+.has-new-scene .base-foot-sep,
+.has-new-scene .base-foot-items,
+.has-new-scene .base-replay,
+.has-new-scene .base-save {
   display: none;
 }
 
-/* Dòng nhàn rỗi và dòng ngủ: giữ, nhưng đẩy lên trên thanh công cụ để
-   không bị che. */
+/* Dòng nhàn rỗi: đặt giữa màn hình, ngay trên thanh công cụ đáy, chữ
+   nhỏ màu dịu. Chiều cao thanh công cụ do JS đo và ghi vào biến
+   --base-toolbar-h, nên dòng này luôn nằm trên thanh dù thanh cao bao
+   nhiêu (màn hẹp thanh có thể xuống hai hàng). */
 .has-new-scene .base-idle {
   position: fixed;
   left: 50%;
-  bottom: 86px;
+  bottom: calc(var(--base-toolbar-h, 64px) + 14px);
   transform: translateX(-50%);
   z-index: 19;
   max-width: min(560px, 80vw);
+  margin: 0;
   text-align: center;
   pointer-events: none;
+  font-family: var(--st-font-body, system-ui, sans-serif);
+  font-size: clamp(.72rem, .68rem + .16vw, .82rem);
+  line-height: 1.4;
+  letter-spacing: .01em;
+  text-transform: none;
+  color: color-mix(in srgb, var(--tx-soft, #8497aa) 92%, var(--tx-bright, #eaf1f8));
+  text-shadow: 0 1px 4px color-mix(in srgb, var(--bg-void, #07090d) 92%, transparent);
+  opacity: 0;
+  transition: opacity var(--st-dur-slow, .5s) var(--st-ease-in-out, ease);
+}
+
+/* Chỉ hiện khi có câu để nói: dòng rỗng thì không chiếm chỗ và không
+   tạo ra một cái bóng mờ vô nghĩa giữa cảnh. */
+.has-new-scene .base-idle:not(:empty) { opacity: 1; }
+
+/* Vệt tối mờ phía sau dòng chữ, đủ để đọc trên vùng ảnh sáng mà không
+   thành một cái hộp. Trên điện thoại dòng này nằm đè lên hành lang có
+   nhiều chi tiết (ống dẫn, ván tôn) nên quầng phải đậm hơn bản desktop:
+   đo tương phản pixel được 5,5:1 ở bản nhạt, nhưng mắt vẫn thấy chữ
+   chìm vì nền phía sau có nét tương phản cao. */
+.has-new-scene .base-idle:not(:empty)::before {
+  content: '';
+  position: absolute;
+  inset: -12px -26px;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--bg-void, #07090d) 74%, transparent) 0%,
+    color-mix(in srgb, var(--bg-void, #07090d) 46%, transparent) 52%,
+    transparent 78%);
 }
 
 /* Nút chơi lại màn liên lạc và lưu ngay: đưa vào thanh công cụ đáy. */
@@ -118,22 +189,41 @@
   display: none;
 }
 
-/* Trên máy hẹp, thanh công cụ đáy chiếm chỗ nhiều hơn, nên nâng dòng
-   nhàn rỗi lên và cho lưới nút cuộn ngang thay vì xuống dòng. */
+/* Trên máy hẹp, thanh công cụ đáy chiếm chỗ nhiều hơn, nên cho lưới nút
+   cuộn ngang thay vì xuống dòng (xuống dòng thì thanh cao gấp đôi và ăn
+   mất nửa màn). Đệm hai đầu đủ rộng để nút đầu và nút cuối không bao
+   giờ dính mép khi cuộn hết. */
 @media (max-width: 640px) {
   .has-new-scene .base-grid {
     flex-wrap: nowrap;
     justify-content: flex-start;
     overflow-x: auto;
-    padding: 8px 10px;
+    overflow-y: hidden;
+    padding: 8px 14px;
+    gap: 6px;
+    scroll-padding-inline: 14px;
     scrollbar-width: none;
+    /* Cuộn tới cuối thì nút dừng lại đúng đệm, không bị viền cắt cụt. */
+    scroll-snap-type: x proximity;
   }
   .has-new-scene .base-grid::-webkit-scrollbar { display: none; }
-  .has-new-scene .base-card { flex: 0 0 auto; }
+  .has-new-scene .base-card {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
   .has-new-scene .base-card-name { font-size: .72rem; }
+
+  /* Trên điện thoại, vùng ngay trên thanh công cụ đã bị widget nhật ký
+     chiếm (nó neo góc dưới trái). Nên dòng nhàn rỗi lên trên, canh giữa
+     ngay dưới thanh HUD: chỗ đó trống, chỉ có chip pha ở góc phải nên
+     phải chừa bề rộng cho nó. Đo được ở 390x844 dòng này đè widget
+     nhật ký 4.914 điểm ảnh vuông khi còn neo đáy. */
   .has-new-scene .base-idle {
-    bottom: 74px;
-    font-size: .76rem;
+    top: calc(var(--bs-hud-h, 123px) + 42px);
+    bottom: auto;
+    max-width: calc(100vw - 130px);
+    font-size: .72rem;
+    line-height: 1.35;
   }
 }
 

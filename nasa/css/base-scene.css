@@ -27,7 +27,18 @@
   --bs-stage-h: 100vh;
   --bs-amber-line: color-mix(in srgb, var(--amber) 62%, transparent);
   --bs-amber-soft: color-mix(in srgb, var(--amber) 26%, transparent);
-  --bs-char-h: 42vh;
+  /* Chiều cao nhân vật suy ra từ chiều cao KHUNG ẢNH chứ không từ chiều
+     cao khung nhìn. Nhân vật là vật thể trong tranh, nên nó phải to lên
+     cùng tranh: trước đây lấy 42vh nên trên màn 4:3 (khung ảnh thấp hơn
+     màn) nhân vật phình ra quá khổ và đè lên trạm Hệ thống sống. JS ghi
+     --bs-stage-h mỗi lần đổi kích thước. */
+  --bs-char-h: calc(var(--bs-stage-h, 100vh) * .42);
+  /* Chiều cao thanh công cụ đáy và thanh HUD trên, do base-scene.js đo
+     và ghi lên thẻ html. Mọi thứ neo vào đáy hoặc đỉnh màn (nhãn pha,
+     dòng nhàn rỗi, widget nhật ký) đều cộng thêm hai biến này, nhờ vậy
+     không bao giờ chui xuống dưới thanh công cụ khi thanh đổi chiều cao. */
+  --bs-toolbar-h: 66px;
+  --bs-hud-h: 78px;
 }
 
 /* ---------- khung ảnh: cover, canh giữa ---------- */
@@ -296,21 +307,30 @@
 }
 
 /* Bóng đổ dưới chân: ellipse tối, mờ dần ra mép, cho cảm giác nhân
-   vật đứng trên sàn chứ không bị dán phẳng lên tranh. */
+   vật đứng trên sàn chứ không bị dán phẳng lên tranh. Tâm bóng nằm
+   đúng trên đường chân, mép trên của bóng hơi trùm lên gót giày một
+   chút, đúng như bóng thật khi nguồn sáng ở phía trước.
+
+   Bóng phải đủ đậm mới neo được nhân vật: đo bằng ảnh chụp, bản cũ chỉ
+   hạ sáng nền khoảng 6% nên mắt vẫn đọc ra hình người dán lên tranh.
+   Bản này đẩy tới khoảng 22% ở lõi bóng, và hẹp lại một chút cho bóng
+   ra dáng bóng của một người đứng chứ không phải một vệt loang. */
 .bs-char-shadow {
   position: absolute;
   left: 50%;
-  bottom: -1.4%;
+  /* Đáy bóng thấp hơn đường chân 0,6% chiều cao nhân vật: bóng đổ
+     xuống sàn chứ không nằm ngang mũi giày. */
+  bottom: -0.6%;
   width: 62%;
-  height: 4.6%;
+  height: 3.8%;
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(ellipse at center,
-    color-mix(in srgb, var(--bg-void) 86%, transparent) 0%,
-    color-mix(in srgb, var(--bg-void) 52%, transparent) 42%,
-    color-mix(in srgb, var(--bg-void) 18%, transparent) 68%,
-    transparent 86%);
-  filter: blur(4px);
+    color-mix(in srgb, var(--bg-void) 78%, transparent) 0%,
+    color-mix(in srgb, var(--bg-void) 52%, transparent) 34%,
+    color-mix(in srgb, var(--bg-void) 24%, transparent) 62%,
+    transparent 88%);
+  filter: blur(3px);
 }
 
 /* Tư thế dự phòng khi ba file sprite chưa có trong kho. Giữ đúng
@@ -428,40 +448,80 @@
   color: color-mix(in srgb, var(--tx-bright) 82%, var(--amber));
   filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--bg-void) 85%, transparent));
   transition: color var(--st-dur-move) var(--st-ease-out),
-              transform var(--st-dur-move) var(--st-ease-out);
+              transform var(--st-dur-move) var(--st-ease-out),
+              filter var(--st-dur-move) var(--st-ease-out);
 }
 
-.bs-hot-icon svg { width: 100%; height: 100%; }
+/* Tấm nền mờ sau icon. Trước đây icon nằm trần trên ảnh, nên trạm nào
+   rơi vào mảng tường sáng thì nét vẽ chìm hẳn, còn trạm trên mảng tối
+   thì nổi: sáu trạm đọc ra như hai loại điều khiển khác nhau. Một tấm
+   tròn tối nhẹ sau mọi icon làm sáu trạm cùng một họ, và giữ cho nét
+   vẽ luôn đủ tương phản bất kể vùng ảnh phía sau. */
+.bs-hot-icon::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    color-mix(in srgb, var(--bg-void) 78%, transparent) 0%,
+    color-mix(in srgb, var(--bg-void) 44%, transparent) 58%,
+    transparent 78%);
+  transition: opacity var(--st-dur-move) var(--st-ease-out);
+  opacity: .9;
+}
 
+.bs-hot-icon svg { position: relative; width: 100%; height: 100%; }
+
+/* Rê chuột: icon chuyển hẳn sang hổ phách và có quầng sáng quanh nét
+   vẽ, đủ để mắt thấy "chỗ này bấm được" ngay từ liếc đầu tiên. Quầng
+   làm bằng drop-shadow nên bám theo nét SVG chứ không thành một ô sáng
+   chữ nhật. */
 .bs-hot:hover .bs-hot-icon,
 .bs-hot:focus-visible .bs-hot-icon,
 .bs-hot.is-hot .bs-hot-icon {
   color: var(--amber);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.06);
+  filter:
+    drop-shadow(0 1px 3px color-mix(in srgb, var(--bg-void) 85%, transparent))
+    drop-shadow(0 0 7px color-mix(in srgb, var(--amber) 62%, transparent));
 }
 
 /* Nhãn tên. Trên màn rộng luôn hiện, kiểu nhãn kỹ thuật in hoa giãn
    chữ. Nhãn đặt lệch sang bên theo data-side để không đè lên nhân vật
    đứng giữa trạm: trạm bên trái thì nhãn trượt sang trái, trạm bên
-   phải thì trượt sang phải. */
+   phải thì trượt sang phải.
+
+   Nền nhãn là một tấm kính mờ có viền mảnh chứ không phải một thanh đen
+   đặc: nhãn nằm trên ảnh nên phải đọc được cả trên mảng tường sáng phía
+   trên lẫn vùng sàn tối phía dưới, mà vẫn không thành một ô dán đè lên
+   tranh. */
 .bs-hot-label {
   position: absolute;
   left: 50%;
   top: calc(100% - 8px);
   transform: translateX(-50%);
-  padding: 3px 9px 4px;
+  padding: 4px 10px 5px;
   white-space: nowrap;
   font-family: var(--st-font-mono);
   font-size: var(--st-size-label);
+  font-weight: 500;
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--tx-bright);
-  background: color-mix(in srgb, var(--bg-void) 80%, transparent);
+  /* 88% nền void: đủ đục để chữ trắng đạt AA trên mọi vùng ảnh, còn
+     lại vẫn thấy mảng màu phía sau trôi qua. */
+  background: color-mix(in srgb, var(--bg-void) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tx-bright) 12%, transparent);
   border-left: 2px solid var(--bs-amber-line);
   border-radius: 0 var(--st-radius) var(--st-radius) 0;
-  opacity: .94;
+  box-shadow: 0 2px 10px -4px color-mix(in srgb, var(--bg-void) 90%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: .96;
   transition: opacity var(--st-dur-move) var(--st-ease-out),
-              border-color var(--st-dur-move) var(--st-ease-out);
+              border-color var(--st-dur-move) var(--st-ease-out),
+              background-color var(--st-dur-move) var(--st-ease-out),
+              color var(--st-dur-move) var(--st-ease-out);
   pointer-events: none;
 }
 
@@ -470,7 +530,7 @@
   right: calc(100% - 8px);
   top: 50%;
   transform: translateY(-50%);
-  border-left: 0;
+  border-left: 1px solid color-mix(in srgb, var(--tx-bright) 12%, transparent);
   border-right: 2px solid var(--bs-amber-line);
   border-radius: var(--st-radius) 0 0 var(--st-radius);
 }
@@ -481,16 +541,25 @@
   transform: translateY(-50%);
 }
 
+/* Rê chuột: nhãn đậm lên rõ rệt (nền đặc hơn, viền hổ phách sáng, chữ
+   trắng tinh) để mắt biết ngay mình đang trỏ vào đâu, và icon sáng lên
+   cùng lúc. Chỉ đổi độ đậm chứ không đổi kích thước, nhờ vậy nhãn không
+   giật và không đè sang nhãn bên cạnh. */
 .bs-hot:hover .bs-hot-label,
 .bs-hot:focus-visible .bs-hot-label,
 .bs-hot.is-hot .bs-hot-label {
   opacity: 1;
+  background: color-mix(in srgb, var(--bg-void) 96%, transparent);
+  border-color: var(--amber);
   border-left-color: var(--amber);
+  color: var(--tx-bright);
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--bg-void) 92%, transparent);
 }
 
 .bs-hot[data-side="left"]:hover .bs-hot-label,
 .bs-hot[data-side="left"]:focus-visible .bs-hot-label,
 .bs-hot[data-side="left"].is-hot .bs-hot-label {
+  border-left-color: var(--amber);
   border-right-color: var(--amber);
 }
 
@@ -521,28 +590,45 @@
   50%      { transform: scale(.72); opacity: .62; }
 }
 
+/* Chữ "Z" của trạm Giường ngủ. Trước đây nó nằm trôi ở góc dưới trái
+   của vùng bấm, không nền không viền, nên đọc ra như một ký tự lạc
+   đúng ngang hàng với nhãn và dòng nhàn rỗi. Giờ nó thành một huy hiệu
+   nhỏ dán ở góc trên trái icon, cùng ngôn ngữ với chấm thông báo ở góc
+   trên phải, và chỉ có một trạm mang huy hiệu nên vẫn không lẫn. */
 .bs-hot-key {
   position: absolute;
   left: 0;
-  bottom: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-void) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyan) 46%, transparent);
   font-family: var(--st-font-mono);
-  font-size: var(--st-size-label);
-  color: var(--tx-dim);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--cyan);
 }
 
 .bs-hot-key:empty { display: none; }
 
 /* ---------- nhãn pha ---------- */
 
+/* Nhãn pha neo vào góc TRÊN phải, ngay dưới thanh HUD, đối xứng với
+   widget nhật ký ở góc trên trái. Trước đây nó nằm ở góc dưới trái và
+   chồng lên cả thanh công cụ đáy lẫn widget nhật ký: vùng đáy đã có
+   nhãn trạm, thanh công cụ và dòng nhàn rỗi, thêm một chip nữa là chật.
+   Góc trên phải của cảnh là mảng trần trống, không trạm nào bấm ở đó. */
 .bs-phase {
   position: absolute;
-  z-index: 8;
-  left: clamp(12px, 2vw, 26px);
-  /* cộng thêm vùng an toàn của điện thoại có tai thỏ, nếu không thì
-     nhãn pha nằm dưới thanh home của iOS và bị vuốt trúng. Trên màn
-     hẹp còn phải nâng thêm: khung nhìn điện thoại cao, nhãn sát mép
-     dưới trông như bị cắt. */
-  bottom: calc(clamp(10px, 1.6vw, 22px) + env(safe-area-inset-bottom, 0px));
+  z-index: 12;
+  right: clamp(10px, 1.2vw, 18px);
+  top: calc(var(--bs-hud-h, 78px) + 10px);
+  left: auto;
+  bottom: auto;
   margin: 0;
   display: inline-flex;
   align-items: center;
@@ -553,10 +639,11 @@
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--tx);
-  background: color-mix(in srgb, var(--bg-void) 62%, transparent);
+  background: color-mix(in srgb, var(--bg-void) 78%, transparent);
   border: 1px solid color-mix(in srgb, var(--line-strong) 70%, transparent);
   border-radius: var(--st-radius);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   pointer-events: none;
 }
 
@@ -579,12 +666,21 @@
 }
 
 /* ============================================================
-   Màn hẹp: ảnh vẫn phủ kín, nhưng trạm to hơn và nhãn luôn hiện
-   vì không có hover.
+   Màn hẹp (dưới 760px): ảnh vẫn phủ kín, nhưng sáu trạm xếp thành lưới
+   hai cột ba hàng nép về hai mép, nhân vật thu nhỏ đứng giữa. Toạ độ
+   lưới nằm trong bảng STATIONS của base-scene.js (bộ mx/my, hai cột
+   15,5 và 84,5 phần trăm). Trước đây cột giữa rơi đúng vào thân nhân
+   vật: đo được năm cặp nhãn đè lên sprite và bốn cặp vùng bấm đè lên
+   sprite. Đẩy cột ra hai mép thì cả nhãn lẫn vùng bấm đều nằm ngoài
+   thân nhân vật, mà ngón tay cái vẫn với tới.
    ============================================================ */
 
 @media (max-width: 760px) {
-  .bs-root { --bs-char-h: 46vh; }
+  .bs-root {
+    /* Nhân vật là vật trang trí trên màn hẹp, vùng bấm mới là chính:
+       thu nhân vật lại để nó không đội lên hai cột trạm. */
+    --bs-char-h: calc(var(--bs-stage-h, 100vh) * .28);
+  }
 
   .bs-hot {
     width: 56px;
@@ -597,48 +693,65 @@
 
   .bs-hot-icon { width: 26px; height: 26px; }
 
-  /* Màn hẹp: lưới hai cột nên nhãn trả về dưới nút, canh giữa, cho
-     hàng cột thẳng nhau. */
+  /* Màn hẹp: nhãn luôn hiện vì không có hover, đặt dưới icon và canh
+     giữa, cùng bề rộng để hai cột thẳng nhau. */
   .bs-hot-label,
   .bs-hot[data-side="left"] .bs-hot-label,
   .bs-hot[data-side="right"] .bs-hot-label {
     left: 50%;
     right: auto;
-    top: calc(100% - 6px);
+    top: calc(100% - 8px);
     transform: translateX(-50%);
+    border: 1px solid color-mix(in srgb, var(--tx-bright) 12%, transparent);
     border-left: 2px solid var(--bs-amber-line);
-    border-right: 0;
     border-radius: 0 var(--st-radius) var(--st-radius) 0;
     /* Màn hẹp: chữ phải to hơn bản desktop một bậc vì người chơi cầm
        máy xa mắt và ngoài trời sáng. */
-    font-size: max(var(--st-size-cap), 13px);
-    letter-spacing: .06em;
-    padding: 3px 8px 4px;
-    opacity: 1;
-  }
-}
-
-/* Màn rất hẹp: nhãn dài như Life Support có thể chạm mép, thu nhỏ
-   thêm một bậc và cho phép xuống dòng ở chỗ có khoảng trắng. */
-@media (max-width: 430px) {
-  .bs-hot { width: 52px; height: 52px; }
-  .bs-hot-label {
-    white-space: normal;
-    max-width: 96px;
-    text-align: center;
+    font-size: max(var(--st-size-cap), 12px);
+    letter-spacing: .05em;
     line-height: 1.25;
+    padding: 3px 7px 4px;
+    opacity: 1;
+    /* Ghim bề rộng: nhãn dài như Hệ thống sống xuống hai dòng gọn gàng
+       thay vì kéo dài ra chạm mép màn. */
+    width: max-content;
+    max-width: 84px;
+    white-space: normal;
+    text-align: center;
   }
-  .bs-hot-icon { width: 22px; height: 22px; }
+
+  /* Nhãn pha trên màn hẹp: thanh HUD đã cao hai hàng nên phải hạ xuống
+     theo chiều cao thật của thanh, không thì chip nằm trong thanh. */
   .bs-phase {
     font-size: var(--st-size-label);
-    /* chừa chỗ cho thanh home của iOS và thanh điều hướng Android */
-    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    top: calc(var(--bs-hud-h, 116px) + 8px);
+    right: 10px;
   }
 }
 
-/* Màn thấp: thu nhân vật lại để chân không chạm đáy khung. */
+/* Màn rất hẹp: thu thêm một bậc cho vừa 320 điểm ảnh. */
+@media (max-width: 430px) {
+  .bs-hot { width: 52px; height: 52px; }
+  .bs-hot-icon { width: 24px; height: 24px; }
+  .bs-hot-label,
+  .bs-hot[data-side="left"] .bs-hot-label,
+  .bs-hot[data-side="right"] .bs-hot-label {
+    max-width: 78px;
+    font-size: 12px;
+    padding: 3px 6px 4px;
+  }
+}
+
+/* Màn thấp: nhân vật nhỏ lại để chân không chạm đáy khung và không đội
+   lên hàng trạm dưới. */
 @media (max-height: 560px) {
-  .bs-root { --bs-char-h: 40vh; }
+  .bs-root { --bs-char-h: calc(var(--bs-stage-h, 100vh) * .34); }
+}
+
+/* Màn ngang mà hẹp (điện thoại quay ngang): vẫn dùng lưới nhưng nhân
+   vật nhỏ hơn nữa, vì chiều cao khung chỉ còn khoảng 390. */
+@media (max-width: 900px) and (max-height: 520px) {
+  .bs-root { --bs-char-h: calc(var(--bs-stage-h, 100vh) * .3); }
 }
 
 /* ============================================================

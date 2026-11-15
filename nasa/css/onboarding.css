@@ -1,0 +1,384 @@
+/* ============================================================
+   onboarding.css
+   Giao diện thẻ hướng dẫn, lớp spotlight và sổ tay.
+
+   Mọi màu lấy từ tokens.css, không viết mã màu trực tiếp ở đây.
+   Chỗ nào cần độ trong suốt thì dùng color-mix() trộn từ biến có
+   sẵn, nhờ vậy đổi bảng màu là cả hệ thống đổi theo.
+
+   Lớp xếp từ dưới lên:
+     onb-dim   bốn tấm tối khoanh vùng sáng (trên, dưới, trái, phải)
+     onb-ring  viền hổ phách quanh vùng sáng
+     onb-card  thẻ nội dung, không đè vùng sáng
+   ============================================================ */
+
+/* ---------- lớp phủ spotlight ---------- */
+
+.onb-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+}
+
+.onb-root[hidden] { display: none; }
+
+.onb-root.is-in .onb-dim,
+.onb-root.is-in .onb-card {
+  transition: opacity .22s ease;
+}
+
+.onb-dim {
+  position: fixed;
+  z-index: 1;
+  background: color-mix(in srgb, var(--bg-void) 82%, transparent);
+  pointer-events: auto;
+}
+
+.onb-ring {
+  position: fixed;
+  z-index: 2;
+  border: 2px solid var(--amber);
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px var(--amber-glow), 0 0 24px var(--amber-glow);
+  pointer-events: none;
+}
+
+/* ---------- thẻ nội dung ---------- */
+
+.onb-card {
+  position: fixed;
+  /* Trên cả bốn tấm tối và viền. Không dựa vào thứ tự DOM: nếu module
+     bị nạp hai lần thì hai lớp phủ chồng nhau và tấm tối của lớp sau
+     sẽ nuốt mất cú bấm vào nút. */
+  z-index: 3;
+  width: min(560px, calc(100vw - 24px));
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  padding: 18px 18px 12px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-family: var(--st-font-body);
+  color: var(--tx-bright);
+}
+
+.onb-head { display: flex; flex-direction: column; gap: 4px; }
+
+.onb-eyebrow {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.onb-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.25rem, 1.05rem + .9vw, 1.7rem);
+  line-height: 1.2;
+  color: var(--tx-bright);
+}
+
+.onb-blocks { display: flex; flex-direction: column; gap: 10px; }
+
+.onb-block {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-raise);
+  border: 1px solid var(--line-hair);
+}
+
+.onb-ico {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  color: var(--tx-soft);
+}
+.onb-ico svg { width: 100%; height: 100%; }
+
+.onb-block-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.onb-block-h {
+  margin: 0;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--tx-soft);
+}
+
+.onb-block-p {
+  margin: 0;
+  font-size: var(--st-size-base);
+  line-height: 1.55;
+  color: var(--tx);
+}
+
+/* Cách làm: phần chính, chữ to nhất trong ba khối. */
+.onb-how { background: var(--bg-raise); border-color: var(--line-strong); }
+.onb-how .onb-ico { color: var(--amber); }
+.onb-how .onb-block-h { color: var(--amber); }
+.onb-how .onb-block-p {
+  font-size: clamp(1rem, .92rem + .4vw, 1.15rem);
+  color: var(--tx-bright);
+  line-height: 1.5;
+}
+
+/* Góc NASA: nền hơi xanh lơ, viền trái màu cyan. */
+.onb-nasa {
+  background: color-mix(in srgb, var(--cyan) 9%, var(--bg-panel));
+  border-left: 3px solid var(--cyan);
+}
+.onb-nasa .onb-ico { color: var(--cyan); }
+.onb-nasa .onb-block-h { color: var(--cyan); }
+
+/* Mẹo sống còn: nền hơi hổ phách, viền trái màu amber. */
+.onb-tip {
+  background: color-mix(in srgb, var(--amber) 9%, var(--bg-panel));
+  border-left: 3px solid var(--amber);
+}
+.onb-tip .onb-ico { color: var(--amber); }
+.onb-tip .onb-block-h { color: var(--amber); }
+
+/* Nút bấm: nền hổ phách đặc, chữ tối, cao 48px, rộng toàn thẻ. */
+.onb-go {
+  min-height: 48px;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: var(--amber);
+  color: var(--bg-void);
+  font-family: var(--st-font-body);
+  font-weight: 600;
+  font-size: var(--st-size-base);
+  cursor: pointer;
+}
+.onb-go:hover { background: color-mix(in srgb, var(--amber) 88%, white); }
+.onb-go:focus-visible {
+  outline: 2px solid var(--tx-bright);
+  outline-offset: 2px;
+}
+
+.onb-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.onb-count {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  color: var(--tx-dim);
+}
+
+/* Để sau: hit target đủ 44px theo quy tắc tiếp cận. */
+.onb-later {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tx-soft);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-cap);
+  cursor: pointer;
+}
+.onb-later:hover { color: var(--tx-bright); border-color: var(--tx-soft); }
+.onb-later:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* Chế độ chỉ đọc (mở từ sổ tay): nút "Để sau" thành nút đóng. */
+.onb-root[data-mode="read"] .onb-later { display: none; }
+.onb-root[data-mode="read"] .onb-foot { justify-content: flex-end; }
+
+/* ---------- sổ tay ---------- */
+
+.onb-book {
+  position: fixed;
+  inset: 0;
+  z-index: 118;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: var(--st-font-body);
+  color: var(--tx-bright);
+}
+
+.onb-book-veil {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg-void) 78%, transparent);
+}
+
+.onb-book-panel {
+  position: relative;
+  width: min(640px, 100%);
+  max-height: min(86dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+  overflow: hidden;
+}
+
+.onb-book-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line-hair);
+}
+
+.onb-book-title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.3rem, 1.1rem + 1vw, 1.8rem);
+  color: var(--tx-bright);
+}
+
+.onb-book-sub {
+  margin: 2px 0 0;
+  font-size: var(--st-size-cap);
+  color: var(--tx-soft);
+}
+
+.onb-book-x {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tx-soft);
+  cursor: pointer;
+}
+.onb-book-x svg { width: 20px; height: 20px; }
+.onb-book-x:hover { color: var(--tx-bright); border-color: var(--tx-soft); }
+.onb-book-x:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.onb-book-body {
+  padding: 6px 18px 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.onb-book-group + .onb-book-group { margin-top: 14px; }
+
+.onb-book-gh {
+  margin: 10px 0 8px;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.onb-book-item {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  text-align: left;
+  border: 1px solid var(--line-hair);
+  border-radius: 10px;
+  background: var(--bg-raise);
+  color: var(--tx);
+  font-family: var(--st-font-body);
+  font-size: var(--st-size-base);
+  cursor: pointer;
+}
+.onb-book-item:hover {
+  border-color: var(--amber);
+  color: var(--tx-bright);
+  background: color-mix(in srgb, var(--amber) 8%, var(--bg-raise));
+}
+.onb-book-item:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.onb-book-num {
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  color: var(--tx-dim);
+}
+
+.onb-book-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onb-book-flag {
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-size-cap);
+  letter-spacing: var(--st-track-label);
+  text-transform: uppercase;
+}
+.onb-book-item.is-new .onb-book-flag { color: var(--amber); }
+.onb-book-item.is-seen .onb-book-flag { color: var(--tx-dim); }
+.onb-book-item.is-seen { opacity: .78; }
+
+.onb-book-empty {
+  margin: 18px 0;
+  color: var(--tx-soft);
+  text-align: center;
+}
+
+/* ---------- chuyển động ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.motion-off) .onb-dim,
+  html:not(.motion-off) .onb-card { opacity: 0; }
+  html:not(.motion-off) .onb-root.is-in .onb-dim,
+  html:not(.motion-off) .onb-root.is-in .onb-card { opacity: 1; }
+}
+
+/* Tắt chuyển động: hiện ngay, không mờ dần. */
+@media (prefers-reduced-motion: reduce) {
+  .onb-dim, .onb-card { transition: none !important; opacity: 1 !important; }
+}
+html.motion-off .onb-dim,
+html.motion-off .onb-card {
+  transition: none !important;
+  opacity: 1 !important;
+}
+
+/* ---------- màn hẹp ---------- */
+
+@media (max-width: 640px) {
+  .onb-card {
+    padding: 14px 14px 10px;
+    gap: 10px;
+  }
+  .onb-block { padding: 8px 10px; }
+}

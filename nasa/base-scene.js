@@ -66,12 +66,12 @@ const STATIONS = [
   /* side: nhãn đặt về phía nào của nút. Nhãn luôn hiện trên màn rộng,
      nên phải chọn phía để nhãn không đè lên nhân vật đứng giữa trạm
      (tâm ảnh 44,5 phần trăm bề ngang). */
-  { id: 'comms',      x: 62, y: 46, mx: 73, my: 31, side: 'right', label: 'scene.hotspot.comms',      hint: 'scene.hotspot.comms.hint' },
-  { id: 'lifesupport', x: 36, y: 58, mx: 27, my: 31, side: 'left',  label: 'scene.hotspot.lifesupport', hint: 'scene.hotspot.lifesupport.hint' },
-  { id: 'bag',        x: 12, y: 55, mx: 21, my: 50, side: 'right', label: 'scene.hotspot.bag',        hint: 'scene.hotspot.bag.hint' },
-  { id: 'craft',      x: 84, y: 72, mx: 79, my: 50, side: 'left',  label: 'scene.hotspot.craft',      hint: 'scene.hotspot.craft.hint' },
-  { id: 'explore',    x: 80, y: 87, mx: 73, my: 69, side: 'left',  label: 'scene.hotspot.explore',    hint: 'scene.hotspot.explore.hint' },
-  { id: 'sleep',      x: 17, y: 87, mx: 27, my: 69, side: 'right', label: 'scene.hotspot.sleep',      hint: 'scene.hotspot.sleep.hint' },
+  { id: 'comms',      x: 62, y: 46, mx: 84.5, my: 30, side: 'right', label: 'scene.hotspot.comms',      hint: 'scene.hotspot.comms.hint' },
+  { id: 'lifesupport', x: 36, y: 58, mx: 15.5, my: 30, side: 'left',  label: 'scene.hotspot.lifesupport', hint: 'scene.hotspot.lifesupport.hint' },
+  { id: 'bag',        x: 12, y: 55, mx: 15.5, my: 50, side: 'right', label: 'scene.hotspot.bag',        hint: 'scene.hotspot.bag.hint' },
+  { id: 'craft',      x: 84, y: 72, mx: 84.5, my: 50, side: 'left',  label: 'scene.hotspot.craft',      hint: 'scene.hotspot.craft.hint' },
+  { id: 'explore',    x: 80, y: 87, mx: 84.5, my: 70, side: 'left',  label: 'scene.hotspot.explore',    hint: 'scene.hotspot.explore.hint' },
+  { id: 'sleep',      x: 17, y: 87, mx: 15.5, my: 70, side: 'right', label: 'scene.hotspot.sleep',      hint: 'scene.hotspot.sleep.hint' },
 ];
 
 /* Icon vẽ tay bằng SVG, mỗi cái gợi đúng vật thể trong tranh. Nhỏ
@@ -368,6 +368,38 @@ export function createBaseScene({ container, stats, clock, onAction } = {}) {
       btn.style.setProperty('--hx', (narrow ? st.mx : st.x) + '%');
       btn.style.setProperty('--hy', (narrow ? st.my : st.y) + '%');
     }
+
+    measureChrome();
+  }
+
+  /* ---------- đo chiều cao thanh màu xám ----------
+     Hai thanh chiếm chỗ trên màn (HUD trên, thanh công cụ đáy) có chiều
+     cao không cố định: HUD xuống hai hàng ở màn hẹp, thanh công cụ đổi
+     khi chữ phóng to. Nhãn pha, widget nhật ký và dòng nhàn rỗi đều neo
+     vào hai mép ấy, nên chúng phải đọc số đo thật. Ghi lên thẻ html để
+     cả ba file CSS đều dùng được, kể cả phần tử nằm ngoài .bs-root. */
+  function measureChrome() {
+    const hudBar = document.querySelector('.hud2-bar');
+    const toolbar = document.querySelector('.base-grid');
+    const logBox = document.querySelector('.hud2-log');
+    const hudH = hudBar ? Math.round(hudBar.getBoundingClientRect().height) : 0;
+    const toolbarH = toolbar ? Math.round(toolbar.getBoundingClientRect().height) : 0;
+    const logH = logBox ? Math.ceil(logBox.getBoundingClientRect().height) : 0;
+    const ds = document.documentElement.style;
+    if (hudH > 0) {
+      root.style.setProperty('--bs-hud-h', hudH + 'px');
+      ds.setProperty('--bs-hud-h', hudH + 'px');
+      ds.setProperty('--hud2-bar-h', hudH + 'px');
+    }
+    if (toolbarH > 0) {
+      root.style.setProperty('--bs-toolbar-h', toolbarH + 'px');
+      ds.setProperty('--base-toolbar-h', toolbarH + 'px');
+      ds.setProperty('--bs-toolbar-h', toolbarH + 'px');
+    }
+    /* Chiều cao widget nhật ký: trên màn hẹp widget nằm ở góc dưới trái
+       nên dòng nhàn rỗi phải nhảy lên trên nó. Đo thật vì widget đổi
+       chiều cao khi mở rộng hoặc khi có thêm dòng. */
+    if (logH > 0) ds.setProperty('--hud2-log-h', logH + 'px');
   }
 
   /* ---------- chuyển động ----------

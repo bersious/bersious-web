@@ -1,0 +1,523 @@
+/* ============================================================
+   css/intermission.css
+   Màn chuyển tiếp mười ba khung, nối Giai đoạn 1 sang Giai đoạn 2.
+
+   Mỗi khung là một lớp phủ kín màn hình, ảnh nền object-fit cover.
+   Chữ nằm trên một lớp .im-ov riêng, toạ độ đặt bằng phần trăm từ
+   intermission.js (không đặt trong CSS) vì toạ độ phải chỉnh theo
+   từng ảnh thật.
+
+   Màu đọc từ css/tokens.css. Không viết cứng màu nào trừ hai chỗ đã
+   ghi rõ: chữ bút dạ trên bảng trắng và chữ comic có viền đen.
+   ============================================================ */
+
+.intermission-root,
+.intermission-root * { box-sizing: border-box; }
+
+.intermission-root {
+  position: fixed;
+  inset: 0;
+  z-index: 86;
+  overflow: hidden;
+  background: var(--bg-void, #07090d);
+  touch-action: manipulation;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: var(--st-font-body, 'Be Vietnam Pro', system-ui, sans-serif);
+  color: var(--tx-bright, #eaf1f8);
+}
+
+/* ---------- sân khấu ---------- */
+
+.im-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 18%,
+      var(--bg-raise, #161d29) 0%,
+      var(--bg-deep, #0b0f15) 44%,
+      var(--bg-void, #07090d) 100%);
+}
+
+/* viền trang truyện, giữ mắt trong hình */
+.im-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--line-hair, #1b232e);
+}
+
+/* ---------- một khung ---------- */
+
+.im-frame {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 460ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1)),
+              transform 620ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1));
+  /* khung mới vào từ hơi thấp và nhỏ, trượt nhẹ lên, đúng kiểu lật
+     trang truyện */
+  transform: translate3d(0, 1.6%, 0) scale(1.012);
+  will-change: opacity, transform;
+}
+
+.im-frame.is-on {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* motion off: đổi tức thì */
+.is-static .im-frame,
+html.motion-off .im-frame {
+  transition: none;
+  transform: none;
+}
+
+/* ---------- ô ảnh ---------- */
+
+.im-cells {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 0;
+}
+
+.im-cells[data-layout='full'] { grid-template-columns: 1fr; }
+.im-cells[data-layout='duo']  { grid-template-columns: 1fr 1fr; }
+.im-cells[data-layout='trio'] { grid-template-columns: 1fr 1fr 1fr; }
+
+.im-cell {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(160deg,
+      var(--bg-panel, #111721) 0%,
+      var(--bg-deep, #0b0f15) 58%,
+      var(--bg-void, #07090d) 100%);
+}
+
+/* ô chia thì có đường kẻ mảnh giữa các ô, kiểu trang truyện in */
+.im-cells[data-layout='duo'] .im-cell + .im-cell,
+.im-cells[data-layout='trio'] .im-cell + .im-cell {
+  border-left: 1px solid var(--bg-void, #07090d);
+  box-shadow: -1px 0 0 var(--line-hair, #1b232e);
+}
+
+.im-cell img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  backface-visibility: hidden;
+}
+
+/* chưa có ảnh, hoặc ảnh đang tải: hiện số khung lớn giữa ô */
+.im-noart {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .1em;
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  color: var(--amber-dim, #6b4a1c);
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, .016) 0 12px,
+      transparent 12px 24px),
+    linear-gradient(160deg, var(--bg-panel, #111721), var(--bg-void, #07090d));
+  pointer-events: none;
+}
+
+.im-noart b {
+  font-size: clamp(4.4rem, 15vw, 11rem);
+  line-height: .9;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  opacity: .5;
+}
+
+.im-noart i {
+  font-style: normal;
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  color: var(--tx-ghost, #3c4a5a);
+  align-self: flex-end;
+  padding-bottom: .8em;
+}
+
+/* ảnh tải xong thì ẩn số đi */
+.im-cell.has-art .im-noart { display: none; }
+
+/* ---------- vệt tối, để chữ trên ảnh luôn đủ tương phản ---------- */
+
+.im-vig {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to top,
+      color-mix(in srgb, var(--bg-void, #07090d) 82%, transparent) 0%,
+      color-mix(in srgb, var(--bg-void, #07090d) 34%, transparent) 26%,
+      transparent 52%),
+    radial-gradient(130% 110% at 50% 42%,
+      transparent 54%,
+      color-mix(in srgb, var(--bg-void, #07090d) 44%, transparent) 100%);
+}
+
+/* ---------- lớp phủ chữ ---------- */
+
+.im-ov {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* dòng dẫn cảnh, góc dưới trái */
+.im-caption {
+  position: absolute;
+  left: clamp(14px, 2.6vw, 38px);
+  bottom: clamp(72px, 9vh, 104px);
+  max-width: min(52ch, 62%);
+  margin: 0;
+  display: flex;
+  gap: .7em;
+  align-items: baseline;
+  font-size: clamp(.84rem, .5vw + .72rem, 1.02rem);
+  line-height: 1.6;
+  color: var(--tx-bright, #eaf1f8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .9), 0 0 18px rgba(7, 9, 13, .85);
+}
+
+.im-caption-tag {
+  flex: none;
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  font-size: .66rem;
+  letter-spacing: .16em;
+  color: var(--amber, #e8a33d);
+  padding-top: .18em;
+}
+
+.im-caption-tx { font-style: italic; }
+
+/* hộp thoại nhân vật */
+.im-say {
+  position: absolute;
+  left: var(--x, 5%);
+  top: var(--y, 62%);
+  width: var(--w, 50%);
+  max-width: 56ch;
+  margin: 0;
+  padding: clamp(10px, 1vw, 14px) clamp(13px, 1.3vw, 18px);
+  background: color-mix(in srgb, var(--bg-void, #07090d) 84%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 40%, transparent);
+  border-radius: var(--st-radius, 3px);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 12px 34px -22px #000;
+}
+
+.im-say-who {
+  display: block;
+  margin-bottom: .34em;
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  font-size: clamp(.6rem, .3vw + .54rem, .7rem);
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--amber, #e8a33d);
+}
+
+.im-say-tx {
+  margin: 0;
+  font-size: clamp(.9rem, .55vw + .78rem, 1.1rem);
+  line-height: 1.62;
+  color: var(--tx-bright, #eaf1f8);
+}
+
+/* chữ hiệu ứng truyện tranh: nghiêng nhẹ, viền đậm nhiều lớp */
+.im-sfx {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 42%);
+  transform: translate(-50%, -50%) rotate(var(--rot, -4deg));
+  font-family: var(--st-font-display, 'Barlow Condensed', system-ui, sans-serif);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 7.2vw, 6rem);
+  line-height: .92;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--amber, #e8a33d);
+  -webkit-text-stroke: .055em #0a0d12;
+  paint-order: stroke fill;
+  text-shadow:
+    0 .035em 0 #0a0d12,
+    0 .07em 0 #0a0d12,
+    .045em .045em 0 #0a0d12,
+    -.045em .045em 0 #0a0d12,
+    0 .16em .3em rgba(0, 0, 0, .75);
+  max-width: 88%;
+}
+
+.im-sfx.is-xl {
+  font-size: clamp(3.2rem, 13vw, 10rem);
+  color: var(--amber, #e8a33d);
+}
+
+.im-sfx.is-sub {
+  font-size: clamp(1.1rem, 2.6vw, 2rem);
+  color: var(--tx-bright, #eaf1f8);
+  -webkit-text-stroke: .045em #0a0d12;
+  opacity: .92;
+}
+
+/* chữ hiệu ứng vào bằng một cú nảy ngắn */
+.im-frame.is-on .im-sfx {
+  animation: im-pop 520ms cubic-bezier(.2, 1.5, .42, 1) both;
+}
+
+@keyframes im-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(.62); }
+  62%  { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(1.06); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(1); }
+}
+
+/* ---------- khung 9: chữ bút dạ trên bảng trắng ----------
+   Màu tối gần đen và không có text-shadow: đây là mực viết trên mặt
+   bảng, không phải chữ phát sáng trên nền tối. */
+
+.im-board {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 43%);
+  width: var(--w, 40%);
+  transform: translate(-50%, -50%) rotate(var(--rot, -3deg));
+  font-family: var(--st-font-display, 'Barlow Condensed', system-ui, sans-serif);
+  font-weight: 800;
+  font-size: clamp(1.6rem, 5.4vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: .01em;
+  text-align: center;
+  text-transform: uppercase;
+  /* mực bút dạ: đen ngả xanh, hơi mờ như mực thấm */
+  color: #10151c;
+  opacity: .94;
+  filter: blur(.3px);
+  text-shadow: 0 0 .02em rgba(16, 21, 28, .5);
+}
+
+/* ---------- khung 10: bốn thanh đo ---------- */
+
+.im-gauges {
+  position: absolute;
+  left: var(--x, 52%);
+  top: var(--y, 18%);
+  width: var(--w, 44%);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, .9vh, 12px);
+  padding: clamp(10px, 1.1vw, 16px) clamp(12px, 1.3vw, 18px);
+  background: color-mix(in srgb, var(--bg-void, #07090d) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyan, #4fb8c9) 34%, transparent);
+  border-radius: var(--st-radius, 3px);
+  backdrop-filter: blur(3px);
+}
+
+.im-g {
+  display: grid;
+  grid-template-columns: minmax(5.4em, auto) 1fr auto;
+  align-items: center;
+  gap: clamp(6px, .7vw, 12px);
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  font-size: clamp(.62rem, .34vw + .55rem, .78rem);
+  letter-spacing: .08em;
+}
+
+.im-g-lab {
+  color: var(--tx-soft, #8497aa);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.im-g-track {
+  position: relative;
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg-inset, #0a0e14) 88%, #fff 6%);
+  box-shadow: inset 0 0 0 1px var(--line-hair, #1b232e);
+  overflow: hidden;
+}
+
+.im-g-track i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  /* số hiện ra sau một nhịp ngắn, đủ để mắt bắt được thanh đang đầy lên */
+  transition: width 720ms cubic-bezier(.2, .8, .3, 1);
+}
+
+/* ngưỡng màu: xanh trên 60 phần trăm, vàng 25 tới 60, đỏ dưới 25 */
+.im-g.lv-ok   .im-g-track i { background: var(--ok, #6fbf8a); }
+.im-g.lv-warn .im-g-track i { background: var(--warn, #e8c05a); }
+.im-g.lv-low  .im-g-track i { background: var(--fail, #d9694f); }
+
+.im-g.lv-ok   .im-g-val { color: var(--ok, #6fbf8a); }
+.im-g.lv-warn .im-g-val { color: var(--warn, #e8c05a); }
+.im-g.lv-low  .im-g-val { color: var(--fail, #d9694f); }
+
+.im-g-val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.im-g-val em {
+  font-style: normal;
+  font-size: .8em;
+  color: var(--tx-dim, #72879d);
+  margin-left: .1em;
+}
+
+/* ---------- thanh tiến trình, số khung, nút bỏ qua ---------- */
+
+.im-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  z-index: 40;
+  background: color-mix(in srgb, var(--bg-void, #07090d) 70%, transparent);
+}
+
+.im-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right,
+    var(--amber-dim, #6b4a1c),
+    var(--amber, #e8a33d));
+  transition: width 420ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1));
+}
+
+.is-static .im-bar i,
+html.motion-off .im-bar i { transition: none; }
+
+.im-count {
+  position: absolute;
+  left: clamp(14px, 2.4vw, 30px);
+  bottom: clamp(14px, 2vh, 22px);
+  z-index: 41;
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  font-size: .68rem;
+  letter-spacing: .16em;
+  color: var(--tx-dim, #72879d);
+  text-transform: uppercase;
+}
+
+.im-skip {
+  position: absolute;
+  right: clamp(12px, 2vw, 26px);
+  bottom: clamp(12px, 2vh, 22px);
+  z-index: 42;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 clamp(14px, 1.4vw, 20px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
+  font-size: .72rem;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--tx-bright, #eaf1f8);
+  background: color-mix(in srgb, var(--bg-panel, #111721) 78%, transparent);
+  border: 1px solid var(--line-strong, #35455a);
+  border-radius: var(--st-radius, 3px);
+  cursor: pointer;
+  transition: border-color 160ms linear, color 160ms linear, background 160ms linear;
+}
+
+.im-skip:hover,
+.im-skip:focus-visible {
+  color: var(--amber, #e8a33d);
+  border-color: var(--amber, #e8a33d);
+  background: color-mix(in srgb, var(--bg-raise, #161d29) 86%, transparent);
+}
+
+.im-skip:focus-visible {
+  outline: 2px solid var(--amber, #e8a33d);
+  outline-offset: 2px;
+}
+
+/* ---------- màn hẹp ----------
+   Trên 390x844 chữ phải không tràn khung: chữ hiệu ứng thu nhỏ, hộp
+   thoại bỏ toạ độ phần trăm và neo xuống đáy, thanh đo bỏ cột nhãn
+   dài để số luôn hiện. */
+
+@media (max-width: 760px), (max-aspect-ratio: 3/4) {
+  .im-caption {
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+
+  .im-say {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    top: auto;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 12px;
+  }
+
+  /* hộp thoại và dòng dẫn cảnh cùng khung: dẫn cảnh lên trên hộp thoại */
+  .im-say + .im-caption,
+  .im-caption + .im-say { margin-top: 8px; }
+
+  .im-sfx { font-size: clamp(2rem, 12vw, 3.6rem); max-width: 92%; }
+  .im-sfx.is-xl { font-size: clamp(2.4rem, 17vw, 5rem); }
+
+  .im-gauges {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    /* màn hẹp: bảng số lên trên, hộp thoại ở dưới, hai thứ không chồng */
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    padding: 10px 12px;
+  }
+
+  .im-g {
+    grid-template-columns: 4.6em 1fr auto;
+    font-size: .64rem;
+    gap: 6px;
+  }
+
+  .im-board { font-size: clamp(1.3rem, 8vw, 2.4rem); width: 56%; }
+}
+
+/* rất hẹp: dòng dẫn cảnh và hộp thoại chồng lên nhau theo chiều dọc */
+@media (max-width: 430px) {
+  .im-caption { font-size: .76rem; max-height: 4.6em; overflow: hidden; }
+  .im-say-tx { font-size: .84rem; line-height: 1.5; }
+}
+
+/* ---------- giảm chuyển động ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .im-frame { transition: none; transform: none; }
+  .im-frame.is-on .im-sfx { animation: none; }
+  .im-bar i, .im-g-track i { transition: none; }
+}
+
+html.motion-off .im-frame.is-on .im-sfx { animation: none; }

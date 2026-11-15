@@ -59,6 +59,24 @@ export const CREW = [
     role: { vi: 'Kỹ sư hệ thống', en: 'Systems engineer' },
     color: '#4fb8c9',
     short: 'YOU',
+  },,
+  /* Hai nguoi nha, chi xuat hien trong doan hoi tuong gia dinh, khong
+     co mat trong phien ban thoai ngoai doi. */
+  {
+    id: 'linh',
+    name: 'Linh',
+    full: 'Linh',
+    role: { vi: 'Vợ', en: 'Wife' },
+    color: '#c9a0a0',
+    short: 'L',
+  },
+  {
+    id: 'mai',
+    name: 'Bé Mai',
+    full: 'Mai',
+    role: { vi: 'Con gái, năm tuổi', en: 'Daughter, age five' },
+    color: '#e8c98a',
+    short: 'M',
   },
 ];
 
