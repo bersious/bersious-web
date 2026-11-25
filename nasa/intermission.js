@@ -843,10 +843,14 @@ export function openIntermission({ container, stats, onDone } = {}) {
     }
 
     /* Chưa có engine trên window: thử nạp module ở các đường dẫn quen
-       thuộc rồi đẩy tiếp. Nuốt lỗi, đây chỉ là bước chuẩn bị. */
+       thuộc rồi đẩy tiếp. Nuốt lỗi, đây chỉ là bước chuẩn bị.
+       Thứ tự: './phase2/' (bản deploy gom src/ về gốc, phase2/ nằm cạnh
+       index.html) phải thử TRƯỚC '../phase2/' (chỉ đúng khi chạy dev
+       server trong src/). Để ngược lại thì bản live thử một URL không
+       tồn tại trước mỗi lần vào màn chuyển tiếp, sinh 404 thừa. */
     const candidates = [
-      new URL('../phase2/phase2-engine.js', import.meta.url).href,
       new URL('./phase2/phase2-engine.js', import.meta.url).href,
+      new URL('../phase2/phase2-engine.js', import.meta.url).href,
       '/phase2/phase2-engine.js',
     ];
     (async () => {

@@ -111,9 +111,15 @@ export function buildExtra(detail, state) {
    thư mục phase2/. Nạp động để cầu nối này không làm hỏng Giai đoạn 1
    khi phase2/ chưa deploy. */
 async function remountPhase2(host) {
+  /* Thứ tự có ý nghĩa: bản deploy gom src/ về gốc /nasa nên phase2/ nằm
+     NGAY CẠNH index.html, tức BASE + 'phase2/'. Đường '../phase2/' chỉ
+     đúng khi chạy http.server trong src/ (máy dev). Trước đây để
+     '../phase2/' trước nên mỗi lần mở lại Giai đoạn 2 trên bản live đều
+     thử một URL không tồn tại trước, sinh một 404 thừa trong log dù game
+     vẫn chạy được nhờ lần thử thứ hai. Nay thử đúng đường trước. */
   const candidates = [
-    BASE + '../phase2/phase2-app.js',
     BASE + 'phase2/phase2-app.js',
+    BASE + '../phase2/phase2-app.js',
   ];
   for (const url of candidates) {
     try {

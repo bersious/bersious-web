@@ -1668,12 +1668,15 @@
     host.style.cssText = 'position:fixed;inset:0;z-index:80;background:#07090d;';
     document.body.appendChild(host);
     /* phase2/ nằm cạnh src/ trong repo, nên đường dẫn tuỳ chỗ phục vụ:
-       bản dev chạy http.server trong src/ thì phải lùi một cấp, bản
-       deploy gom cả hai thư mục vào một gốc thì không. Thử lần lượt,
-       dùng cái nào nạp được trước. */
+       bản deploy gom cả hai thư mục vào một gốc (/nasa) thì phase2/ ở
+       ngay cạnh index.html, tức BASE + 'phase2/' — thử đường này TRƯỚC.
+       Bản dev chạy http.server trong src/ mới cần lùi một cấp. Để
+       '../phase2/' trước như bản cũ khiến mỗi lần vào màn này trên bản
+       live đều thử một URL không tồn tại trước, sinh 404 thừa trong log
+       dù game vẫn chạy nhờ lần thử sau. */
     const candidates = [
-      BASE + '../phase2/phase2-app.js',
       BASE + 'phase2/phase2-app.js',
+      BASE + '../phase2/phase2-app.js',
       '/phase2/phase2-app.js',
     ];
     for (const url of candidates) {
