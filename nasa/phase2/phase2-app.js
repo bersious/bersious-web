@@ -1121,7 +1121,11 @@ export async function mountPhase2(options) {
   /* ---------- bảng thanh đo an toàn ---------- */
 
   const GAUGE_UNITS = {
-    time: 'days',
+    /* Thời gian ở đây là sol Mars (engine so solToArrival với
+       solsRemaining), nhãn phải là sol, không phải ngày Trái Đất.
+       Time here is Mars sols (engine compares solsToArrival with
+       solsRemaining), label must be sols, not Earth days. */
+    time: 'sol',
     mass: 'kg',
     power: 'W',
     comms: 'min',
@@ -1688,7 +1692,11 @@ export async function mountPhase2(options) {
         frame.navRight.appendChild(again);
       };
       const base = new URL('.', import.meta.url).href;
-      import(base + '../true-ending.js')
+      /* true-ending.js nằm trong src/, không phải cạnh phase2/. Trước
+         đây nối chuỗi '../true-ending.js' vào base của phase2/, phân
+         giải ra /true-ending.js và 404, nên màn kết thúc thật không
+         bao giờ mở, luôn rơi về bảng tổng kết đơn giản. */
+      import(new URL('../true-ending.js', base).href)
         .then((mod) => {
           if (!mod || typeof mod.openTrueEnding !== 'function') {
             console.warn('[phase2] chưa có màn kết thúc, dùng bảng tổng kết đơn giản');

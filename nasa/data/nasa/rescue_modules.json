@@ -65,9 +65,9 @@
       "solar_area_m2": 120,
       "degradation_per_year_percent": 2.0,
       "works_at_mars": true,
-      "tradeoff_vi": "30 kW với 325 kg là hiệu suất trên khối lượng rất cao, nhưng ở Sao Hỏa ánh sáng Mặt Trời yếu hơn Trái Đất khoảng 43 phần trăm vì xa Mặt Trời hơn, nên thực tế chỉ còn khoảng 17 kW. Tấm pin cũng không chịu được bụi và bão bụi Sao Hỏa mà không có cơ cấu gạt bụi.",
+      "tradeoff_vi": "30 kW với 325 kg là hiệu suất trên khối lượng rất cao, nhưng ở Sao Hỏa ánh sáng Mặt Trời yếu hơn Trái Đất khoảng 43 phần trăm vì xa Mặt Trời hơn, nên thực tế chỉ còn khoảng 17 kW. Tấm pin cũng không chịu được bụi và bão bụi Sao Hỏa nếu không có cơ cấu gạt bụi.",
       "tradeoff_en": "30 kW from 325 kg is a very high power to mass ratio, but sunlight at Mars is about 43 percent weaker than at Earth because Mars is further out, so the real output is closer to 17 kW. The array also cannot handle Martian dust and dust storms without a cleaning mechanism.",
-      "source": "ROSA 30 kW và 325 kg theo NASA Roll Out Solar Array (tài liệu NASA, ngoài docs). Suy giảm 2 phần trăm mỗi năm là ước tính của nhóm làm game."
+      "source": "ROSA 30 kW và 325 kg theo tài liệu NASA về Roll Out Solar Array (nguồn ngoài docs). Suy giảm 2 phần trăm mỗi năm là ước tính của nhóm làm game."
     },
     {
       "id": "power_rtg_mmrtg",

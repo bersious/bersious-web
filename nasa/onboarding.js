@@ -491,9 +491,14 @@ export async function showTutorial({ id, onDone, readOnly = false } = {}) {
 
   ui.go.onclick = () => finish(true);
   ui.later.onclick = () => finish(false);
-  /* Bấm ra vùng tối tính như "Để sau": người chơi chưa chắc đã đọc,
-     đánh dấu xem lúc đó là mất thẻ vĩnh viễn. */
-  for (const d of Object.values(ui.dims)) d.onclick = () => finish(false);
+  /* Bấm ra vùng tối mới tính như "Để sau". Ở chế độ chỉ đọc (mở từ sổ
+     tay) thì KHÔNG gắn: cú bấm vào thẻ trong sổ tay rơi xuống lớp tối
+     của thẻ vừa dựng, nên nếu lớp tối cũng đóng thì thẻ hiện ra rồi tắt
+     ngay sau một nhịp. Đó đúng là lỗi "bấm vào thẻ thấy hiện một giây
+     rồi mất". */
+  if (!readOnly) {
+    for (const d of Object.values(ui.dims)) d.onclick = () => finish(false);
+  }
 
   ui.onResize = () => {
     const r = measureSpot(item.spotlight);
@@ -504,11 +509,31 @@ export async function showTutorial({ id, onDone, readOnly = false } = {}) {
   window.addEventListener('scroll', ui.onResize, true);
   document.addEventListener('keydown', onKey, true);
 
-  requestAnimationFrame(() => {
+  /* Hiện thẻ. KHÔNG dùng requestAnimationFrame làm đường duy nhất:
+     rAF bị trình duyệt hoãn khi tab đang ẩn, khi cửa sổ mất focus,
+     hoặc khi máy đang nghẽn. Đo thật trên Chrome: với tab ẩn,
+     document.hidden === true và callback rAF KHÔNG chạy trong 500ms —
+     nên is-in không bao giờ được thêm, thẻ ở lại opacity 0 và người
+     chơi thấy khung trống dù chữ nằm đủ trong DOM. Đó đúng là lỗi
+     "bấm vào thẻ không đọc được, nó tự đóng lại".
+     Giờ dùng setTimeout làm đường chính (luôn chạy) và rAF chỉ để
+     sớm hơn một nhịp khi nó có chạy. addIfNeeded chống gọi hai lần. */
+  let shown = false;
+  const show = () => {
+    if (shown) return;
+    shown = true;
     ui.root.classList.add('is-in');
     if (ui.go && typeof ui.go.focus === 'function') ui.go.focus({ preventScroll: true });
-  });
-  window.setTimeout(() => ui.root.classList.remove('is-in'), 260);
+  };
+  requestAnimationFrame(show);
+  window.setTimeout(show, 32);
+  /* is-in KHÔNG bị gỡ sau khi hiệu ứng vào chạy xong. CSS chỉ cho thẻ
+     sáng khi có is-in:
+       html:not(.motion-off) .onb-card { opacity: 0 }
+       html:not(.motion-off) .onb-root.is-in .onb-card { opacity: 1 }
+     Trước đây có một setTimeout 260ms gỡ is-in với ý "vào xong rồi thì
+     thôi", nhưng gỡ ra là thẻ quay về opacity 0 và biến mất hẳn. is-in
+     ở lại suốt vòng đời thẻ; finish() mới là chỗ gỡ cùng lúc ẩn. */
 
   return item;
 }
@@ -600,6 +625,15 @@ export async function openHandbook({ onClose } = {}) {
     introLayer.remove();
   }
 
+  /* Thẻ hướng dẫn đang mở cũng phải dẹp. Nếu để nguyên, nó nằm trên sổ
+     tay và nuốt mọi cú bấm, khiến sổ tay hiện ra rồi biến mất ngay khi
+     người chơi vừa chạm vào. Chỉ gỡ phần tử, không đụng tới cờ đã xem
+     của từng thẻ, để lần sau mở panel vẫn được nhắc đúng. */
+  const tutLayer = document.querySelector('.onb-root');
+  if (tutLayer) {
+    try { tutLayer.remove(); } catch (_) { /* DOM đã đổi, bỏ qua */ }
+  }
+
   const titleEl = root.querySelector('.onb-book-title');
   const subEl = root.querySelector('.onb-book-sub');
   const bodyEl = root.querySelector('.onb-book-body');
@@ -666,11 +700,17 @@ export async function openHandbook({ onClose } = {}) {
   }
 
   function onKey(e) {
-    if (e.key === 'Escape') {
-      e.stopPropagation();
-      e.preventDefault();
-      close();
-    }
+    if (e.key !== 'Escape') return;
+    /* Khi một thẻ hướng dẫn đang mở đè lên sổ tay, Esc phải đóng THẺ
+       trước. Trước đây handler này gắn ở capture nên chạy trước handler
+       của thẻ, đóng luôn cả sổ tay: người chơi bấm Esc trong một thẻ thì
+       mất cả sổ, không quay lại danh sách được.
+       Kiểm sự tồn tại của .onb-root đang hiện là đủ để nhường quyền. */
+    const tut = document.querySelector('.onb-root');
+    if (tut && !tut.hidden) return;
+    e.stopPropagation();
+    e.preventDefault();
+    close();
   }
 
   root.addEventListener('click', (e) => {
@@ -697,10 +737,18 @@ export async function openHandbook({ onClose } = {}) {
   });
 
   document.addEventListener('keydown', onKey, true);
-  requestAnimationFrame(() => {
+  /* Sổ tay cũng phải hiện kể cả khi rAF bị hoãn (tab ẩn, cửa sổ mất
+     focus). Cùng lý do với showTutorial: setTimeout làm đường chính,
+     rAF chỉ để sớm hơn một nhịp khi có chạy. */
+  let bookShown = false;
+  const showBook = () => {
+    if (bookShown || closed) return;
+    bookShown = true;
     root.classList.add('is-in');
     if (xEl && typeof xEl.focus === 'function') xEl.focus({ preventScroll: true });
-  });
+  };
+  requestAnimationFrame(showBook);
+  window.setTimeout(showBook, 32);
 
   return { close };
 }

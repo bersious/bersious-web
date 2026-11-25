@@ -71,10 +71,11 @@ const STR = {
     warnRtgOk: 'Giấy phép hạt nhân đã có, nhưng RTG chỉ cho 110 W nên không đủ cho hệ sinh hoạt lớn.',
 
     cardMass: 'Khối lượng',
-    cardCost: 'Giá',
-    cardPick: 'Lắp bộ phận này',
-    cardPicked: 'Đang lắp',
-    cardNotFit: 'Không lắp',
+        cardCost: 'Chi phí',
+        cardPower: 'Điện',
+        cardPick: 'Lắp bộ phận này',
+        cardPicked: 'Đang lắp',
+        cardNotFit: 'Không lắp',
 
     fitYes: 'Đã lắp',
     fitNo: 'Chưa lắp',
@@ -90,7 +91,7 @@ const STR = {
     gaugeComms: 'Độ rõ sóng liên lạc',
     gaugeCommsNasa: 'Comms Link Margin',
     gaugeNeed: 'tối thiểu 35 phần trăm dự phòng',
-    gaugeNoteTime: '{v} ngày trên giới hạn {l} ngày đồng đội còn sống',
+    gaugeNoteTime: '{v} sol trên giới hạn {l} sol đồng đội còn sống',
     gaugeNoteMass: '{v} kg trên sức chở {l} kg',
     gaugeNotePower: '{v} W trên mức phát {l} W',
     gaugeNoteComms: 'trễ một chiều {v} phút trên ngưỡng {l} phút',
@@ -160,10 +161,11 @@ const STR = {
     warnRtgOk: 'The nuclear licence is in hand, but an RTG gives only 110 W, not enough for a large life support load.',
 
     cardMass: 'Mass',
-    cardCost: 'Cost',
-    cardPick: 'Fit this part',
-    cardPicked: 'Fitted',
-    cardNotFit: 'Leave out',
+        cardCost: 'Cost',
+        cardPower: 'Power',
+        cardPick: 'Fit this part',
+        cardPicked: 'Fitted',
+        cardNotFit: 'Leave out',
 
     fitYes: 'Fitted',
     fitNo: 'Not fitted',
@@ -179,7 +181,7 @@ const STR = {
     gaugeComms: 'Signal clarity',
     gaugeCommsNasa: 'Comms Link Margin',
     gaugeNeed: 'at least 35 percent spare required',
-    gaugeNoteTime: '{v} days against a limit of {l} days the crew can hold out',
+    gaugeNoteTime: '{v} sols against a limit of {l} sols the crew can hold out',
     gaugeNoteMass: '{v} kg against a {l} kg capacity',
     gaugeNotePower: '{v} W against {l} W generated',
     gaugeNoteComms: 'a {v} minute one way delay against a {l} minute limit',
@@ -562,7 +564,12 @@ const SHELL = `
    ĐIỂM VÀO
    ============================================================ */
 
-export function mountCml3({ container, engine, onNext } = {}) {
+export function mountCml3(opts = {}) {
+  /* Chấp nhận cả {container, engine, onNext} (API gốc) lẫn
+     {host, engine, onDone} (kiểm thử). Alias để cả hai đều chạy. */
+  const container = opts.container || opts.host;
+  const engine = opts.engine || window.phase2Engine;
+  const onNext = opts.onNext || opts.onDone;
   injectCss();
 
   const host = container || document.body;
@@ -657,39 +664,65 @@ export function mountCml3({ container, engine, onNext } = {}) {
 
       const opts = partsByGroup[g.id] || [];
       opts.forEach((m) => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'cml3-opt';
-        card.dataset.group = g.id;
-        card.dataset.part = m.id;
-        card.setAttribute('role', 'radio');
-        card.setAttribute('aria-checked', 'false');
+              const card = document.createElement('button');
+              card.type = 'button';
+              card.className = 'cml3-opt';
+              card.dataset.group = g.id;
+              card.dataset.part = m.id;
+              card.setAttribute('role', 'radio');
+              card.setAttribute('aria-checked', 'false');
 
-        const name = m.isVehicle ? m.name_vi : pick(m, 'name');
-        /* Tên lửa đẩy: tên thương mại giữ nguyên vì là danh từ riêng,
-           còn dòng phụ ghi sức chở lên quỹ đạo thấp bằng lời thường. */
-        const sub = m.isVehicle
-          ? T('liftToLeo', { n: fmt(m.capacity_leo_kg, 0) })
-          : pick(m, 'name');
-        const massTxt = m.isVehicle
-          ? T('unitKg') + ' ' + fmt(m.capacity_leo_kg, 0)
-          : T('unitKg') + ' ' + fmt(m.mass_kg, 0);
-        const trade = m.isVehicle ? T(g.hintKey) : pick(m, 'tradeoff');
+              const name = m.isVehicle ? m.name_vi : pick(m, 'name');
+              /* Tên lửa đẩy: tên thương mại giữ nguyên vì là danh từ riêng,
+                 còn dòng phụ ghi sức chở lên quỹ đạo thấp bằng lời thường.
+                 Module: dòng phụ là tên ngôn ngữ kia (song ngữ). */
+              const sub = m.isVehicle
+                ? T('liftToLeo', { n: fmt(m.capacity_leo_kg, 0) })
+                : (getLang() === 'en' ? m.name_vi : m.name_en) || pick(m, 'name');
+              const massTxt = m.isVehicle
+                ? fmt(m.capacity_leo_kg, 0)
+                : fmt(m.mass_kg, 0);
+              const trade = m.isVehicle ? T(g.hintKey) : pick(m, 'tradeoff');
 
-        card.innerHTML = `
-          <span class="cml3-opt-art">${svgIcon(m.isVehicle ? 'launcher' : m.id)}</span>
-          <span class="cml3-opt-main">
-            <span class="cml3-opt-name">${escapeHtml(name)}</span>
-            <span class="cml3-opt-nasa mono">${escapeHtml(sub)}</span>
-            <span class="cml3-opt-stats mono">
-              <span class="cml3-stat"><i class="cml3-stat-k">${T('cardMass')}</i>${escapeHtml(massTxt)}</span>
-              <span class="cml3-stat"><i class="cml3-stat-k">${T('cardCost')}</i>${fmt(m.cost_musd, 1)} ${T('unitMusd')}</span>
-            </span>
-            <span class="cml3-opt-trade">${escapeHtml(trade)}</span>
-          </span>
-        `;
-        list.appendChild(card);
-      });
+              /* Ảnh thật 128x128 webp nếu có, kèm SVG fallback. onerror sẽ
+                 ẩn ảnh và lộ SVG qua listener capture ở root.
+                 KHÔNG dùng loading="lazy" ở đây. Đo thật: cả 9 ảnh nằm
+                 trong khung cuộn có chiều cao giới hạn, trình duyệt coi
+                 chúng là ngoài khung nhìn nên không tải, naturalWidth
+                 đứng ở 0 và người chơi chỉ thấy icon SVG dự phòng. Đổi
+                 sang eager thì 9/9 tải đúng 128x128. Ảnh chỉ 2 tới 6 KB
+                 nên tải hết ngay không tốn kém gì. */
+              const artId = m.isVehicle ? 'launcher_' + m.id : m.id;
+              const artUrl = BASE + 'assets/art/parts/' + artId + '.webp';
+              const artHtml = `
+                <img class="cml3-opt-img" src="${artUrl}" alt="" decoding="async"
+                     data-part-art="${artId}">
+                <span class="cml3-ico-fallback">${svgIcon(m.isVehicle ? 'launcher' : m.id)}</span>`;
+
+              /* Chip công suất: chỉ hiện cho module có power_w khác 0.
+                 Dương = phát điện (pin mặt trời), âm = tiêu thụ. */
+              const powerChip = (!m.isVehicle && Number.isFinite(m.power_w) && m.power_w !== 0)
+                ? `<span class="cml3-stat" data-kind="${m.power_w > 0 ? 'power-pos' : 'power-neg'}">
+                     <i class="cml3-stat-k">${T('cardPower')}</i>
+                     <span class="cml3-stat-val">${m.power_w > 0 ? '+' : ''}${fmt(m.power_w, 0)} W</span>
+                   </span>`
+                : '';
+
+              card.innerHTML = `
+                <span class="cml3-opt-art">${artHtml}</span>
+                <span class="cml3-opt-main">
+                  <span class="cml3-opt-name">${escapeHtml(name)}</span>
+                  <span class="cml3-opt-nasa mono">${escapeHtml(sub)}</span>
+                  <span class="cml3-opt-stats">
+                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardMass')}</i><span class="cml3-stat-val">${escapeHtml(massTxt)}</span> <span style="color:var(--tx-ghost)">${T('unitKg')}</span></span>
+                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardCost')}</i><span class="cml3-stat-val">${fmt(m.cost_musd, 1)}</span> <span style="color:var(--tx-ghost)">${T('unitMusd')}</span></span>
+                    ${powerChip}
+                  </span>
+                  <span class="cml3-opt-trade">${escapeHtml(trade)}</span>
+                </span>
+              `;
+              list.appendChild(card);
+            });
 
       if (!opts.length) {
         const p = document.createElement('p');
@@ -841,21 +874,19 @@ export function mountCml3({ container, engine, onNext } = {}) {
   }
 
   function syncShip(animate) {
-    const sel = current();
+      const sel = current();
 
-    /* tên lửa đẩy: bật lớp, và số cụm tăng lực theo sức chở */
-    const launchEl = q('.cml3-part[data-part="launcher"]');
-    const veh = partsByGroup.launcher.find((v) => v.id === sel.launcher);
-    if (launchEl) {
-      setFitted(launchEl, Boolean(sel.launcher), animate);
-      const cap = veh ? veh.capacity_leo_kg : 0;
-      const bank = launchEl.querySelector('.cml3-booster-bank');
-      if (bank) {
-        /* Dưới 12 tấn: một lõi. Tới 25 tấn: hai cụm. SLS: hai cụm to. */
-        bank.style.opacity = cap >= 25000 ? '1' : cap >= 12000 ? '.75' : '0';
+      /* tên lửa đẩy: bật lớp, và số cụm tăng lực theo sức chở.
+         data-tier phân bốn bậc: light (<5T), medium (5-15T), heavy (15-30T),
+         super (>30T). CSS dùng tier này để ẩn/hiện booster bank và co lõi. */
+      const launchEl = q('.cml3-part[data-part="launcher"]');
+      const veh = partsByGroup.launcher.find((v) => v.id === sel.launcher);
+      if (launchEl) {
+        setFitted(launchEl, Boolean(sel.launcher), animate);
+        const cap = veh ? veh.capacity_leo_kg : 0;
+        const tier = cap >= 30000 ? 'super' : cap >= 15000 ? 'heavy' : cap >= 5000 ? 'medium' : 'light';
+        launchEl.dataset.tier = tier;
       }
-      launchEl.dataset.heavy = cap >= 25000 ? 'yes' : 'no';
-    }
 
     /* nguồn điện: hai biến thể, chỉ một cái hiện */
     const powerEls = qa('.cml3-part[data-part="power"]');
@@ -868,15 +899,18 @@ export function mountCml3({ container, engine, onNext } = {}) {
     if (commsEl) setFitted(commsEl, Boolean(sel.comms), animate);
 
     const edlEl = q('.cml3-part[data-part="edl"]');
-    if (edlEl) setFitted(edlEl, Boolean(sel.edl), animate);
+        if (edlEl) setFitted(edlEl, Boolean(sel.edl), animate);
 
-    /* thẻ đang lắp */
-    qa('.cml3-opt').forEach((c) => {
-      const on = sel[c.dataset.group] === c.dataset.part;
-      c.classList.toggle('is-picked', on);
-      c.setAttribute('aria-checked', on ? 'true' : 'false');
-    });
-  }
+        /* thẻ đang lắp */
+        qa('.cml3-opt').forEach((c) => {
+          const on = sel[c.dataset.group] === c.dataset.part;
+          c.classList.toggle('is-picked', on);
+          c.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+
+        /* callout: sáng đèn khi nhóm tương ứng đã lắp */
+        syncCallouts();
+      }
 
   function setFitted(el, on, animate) {
     const was = el.classList.contains('is-fitted');
@@ -1006,10 +1040,71 @@ export function mountCml3({ container, engine, onNext } = {}) {
     if (typeof onNext === 'function') onNext();
   }
 
-  root.addEventListener('click', onPartClick);
-  root.addEventListener('click', onInfoClick);
-  root.addEventListener('click', onClose);
-  root.addEventListener('keydown', onKey);
+  /* ---------- ảnh linh kiện: load thành công thì ẩn SVG fallback ---------- */
+    /* Dùng capture phase vì error/load không bubble. Khi ảnh load xong,
+       thêm class .is-art-ready để CSS ẩn SVG và hiện ảnh. Khi ảnh lỗi,
+       thêm class .no-art để CSS ẩn ảnh và giữ SVG. */
+    root.addEventListener('load', (ev) => {
+      if (ev.target && ev.target.classList && ev.target.classList.contains('cml3-opt-img')) {
+        const art = ev.target.closest('.cml3-opt-art');
+        if (art) art.classList.add('is-art-ready');
+      }
+    }, true);
+
+    root.addEventListener('error', (ev) => {
+      if (ev.target && ev.target.classList && ev.target.classList.contains('cml3-opt-img')) {
+        const art = ev.target.closest('.cml3-opt-art');
+        if (art) art.classList.add('no-art');
+      }
+    }, true);
+
+    /* ---------- callout: chú thích quanh tàu ---------- */
+    /* Bốn chip ở bốn góc sân khấu, mỗi chip đại diện một nhóm bộ phận.
+       Khi bộ phận được lắp, chip sáng đèn xanh và đường dẫn nổi bật. */
+    const calloutDefs = [
+      { group: 'edl', pos: 'tl', labelKey: 'groupEdl' },
+      { group: 'comms', pos: 'tr', labelKey: 'groupComms' },
+      { group: 'power', pos: 'bl', labelKey: 'groupPower' },
+      { group: 'launcher', pos: 'br', labelKey: 'groupLauncher' },
+    ];
+
+    const calloutWrap = document.createElement('div');
+    calloutWrap.className = 'cml3-callouts';
+    calloutWrap.setAttribute('aria-hidden', 'true');
+    calloutDefs.forEach((def) => {
+      const el = document.createElement('div');
+      el.className = 'cml3-callout';
+      el.dataset.pos = def.pos;
+      el.dataset.group = def.group;
+      el.innerHTML = `
+        <span class="cml3-callout-dot"></span>
+        <span class="cml3-callout-label">${T(def.labelKey)}</span>
+      `;
+      calloutWrap.appendChild(el);
+    });
+    const canvas = q('.cml3-stage-canvas');
+    if (canvas) canvas.appendChild(calloutWrap);
+
+    function syncCallouts() {
+      const sel = current();
+      calloutDefs.forEach((def) => {
+        const el = calloutWrap.querySelector(`[data-group="${def.group}"]`);
+        if (el) el.classList.toggle('is-on', Boolean(sel[def.group]));
+      });
+    }
+
+    root.addEventListener('click', onPartClick);
+    root.addEventListener('click', onInfoClick);
+    root.addEventListener('click', onClose);
+    root.addEventListener('keydown', onKey);
+  /* Esc phải đóng modal kể cả khi tiêu điểm đã rời khỏi root (ví dụ người
+     chơi vừa bấm ra ngoài rồi bấm Esc). Lắng nghe trên document cho phím
+     Escape riêng; onKey trên root vẫn giữ cho mũi tên trong nhóm thẻ. */
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape') return;
+    const m = q('.cml3-modal');
+    if (m && !m.hidden) m.hidden = true;
+  });
   q('.cml3-next').addEventListener('click', goNext);
 
   /* ---------- chữ ---------- */

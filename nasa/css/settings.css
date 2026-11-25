@@ -14,9 +14,35 @@
   background: rgba(4, 6, 9, .78);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  animation: set-fade var(--st-dur-move) ease both;
+  /* Phải khai báo opacity nền tảng, KHÔNG chỉ dựa vào keyframe.
+     Vì sao: animation dùng fill-mode both (hoặc forwards) giữ nguyên
+     keyframe "from" là opacity 0 cho tới khi animation chạy xong nhịp
+     đầu. Nếu animation không tiến được (tab vừa mở, trình duyệt nghẽn,
+     hoặc bị huỷ) thì lớp phủ nằm mãi ở opacity 0 mà vẫn chiếm z-index
+     300 và phủ kín màn hình. Người chơi thấy bình thường nhưng mọi cú
+     bấm đều rơi vào lớp vô hình này. Đây chính là lỗi "nút không bấm
+     được" tái diễn nhiều lần.
+     Đặt opacity 1 ở đây thì dù animation có kẹt, lớp phủ vẫn hiện đúng
+     và bấm được. Hiệu ứng mờ dần chỉ còn là phần thêm. */
+  opacity: 1;
+  /* KHÔNG animate opacity ở lớp phủ này. Animation opacity có fill-mode
+     giữ keyframe from (0) chừng nào nó chưa chạy xong; nếu vì bất kỳ lý
+     do gì nó đứng yên, cả lớp phủ nằm ở opacity 0 mà vẫn phủ kín màn và
+     chặn mọi cú bấm. Đo thật: CSSOM có opacity 1, computed vẫn ra 0.
+     Hiệu ứng mở màn chuyển xuống panel con bên dưới. */
+  animation: none;
 }
-.settings-overlay.closing { animation: set-fade var(--st-dur-move) ease reverse both; }
+
+/* Bảng cài đặt lấy opacity nền 1 và KHÔNG animate opacity. Đã thử
+   animate ở cả lớp phủ lẫn panel: cả hai đều dính đúng một lỗi, animation
+   giữ keyframe from (opacity 0) khi không chạy xong, nên bảng vô hình
+   dù DOM có. Bỏ hẳn animation ở đây là cách chắc chắn nhất; bảng cài đặt
+   không cần hiệu ứng mở để dùng được. */
+.settings-overlay .settings-panel {
+  opacity: 1;
+  animation: none;
+}
+.settings-overlay.closing { animation: set-fade var(--st-dur-move) ease reverse forwards; }
 @keyframes set-fade { from { opacity: 0; } to { opacity: 1; } }
 
 .settings-panel {
@@ -32,7 +58,7 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius);
   box-shadow: 0 24px 64px rgba(0, 0, 0, .7);
-  animation: set-rise 220ms var(--st-ease-out) both;
+  animation: set-rise 220ms var(--st-ease-out) forwards;
   overflow: hidden;
   /* neo để lớp mờ đáy bám vào panel, không bám vào thân cuộn */
   position: relative;
@@ -157,6 +183,42 @@
 }
 
 .settings-row-range { flex-direction: column; align-items: stretch; gap: 9px; }
+
+/* ---------- nút Báo lỗi ----------
+   Thẻ a mang class ghost-btn để trông giống nút, nhưng .ghost-btn không
+   có trong tệp này (nó thuộc bảng dev). Tự khai báo kiểu riêng cho hàng
+   Báo lỗi, và ép thẻ a về đúng dáng nút: bỏ gạch chân, canh giữa, chừa
+   đủ chỗ bấm trên điện thoại. */
+.settings-report-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-inset);
+  color: var(--cyan);
+  font-family: var(--st-font-body);
+  font-size: .9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--st-dur-fast), background var(--st-dur-fast);
+}
+
+.settings-report-link:hover {
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--cyan) 8%, var(--bg-inset));
+}
+
+.settings-report-link:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+html.motion-off .settings-report-link { transition: none; }
 
 /* ---------- công tắc ---------- */
 
@@ -337,6 +399,15 @@ body:has(.flight-screen:not([hidden])) .settings-btn,
 body:has(.comms-host:not([hidden])) .settings-btn,
 body:has(.rescue-host:not([hidden])) .settings-btn,
 body:has(.rescue-modal-panel:not([hidden])) .settings-btn {
+  display: none;
+}
+
+/* Khi đang ở màn căn cứ hoặc Xưởng thiết kế, HUD đã có nút Cài đặt riêng.
+   Để cả hai cùng hiện thì góc trên phải có hai biểu tượng cài đặt, và cái
+   gear toàn cục nằm đè lên nút thu gọn HUD nên bấm không ăn. Chỉ giữ nút
+   trong HUD, ẩn gear toàn cục trong lúc chơi. */
+body:has(.base-host) .settings-btn,
+body:has(.p2-root) .settings-btn {
   display: none;
 }
 

@@ -398,14 +398,22 @@
      giữa màn hình, không phụ thuộc bề rộng chữ. Giãn chữ của tiêu đề
      làm mép phải hụt một khoảng, nên bù lại bằng margin-right âm ở
      .menu-title để quang học vẫn cân. */
-  transform: translateX(-50%);
+  transform: translateX(-50%) !important;
   z-index: 10;
   padding: 0;
   width: max-content;
   max-width: 94vw;
   text-align: center;
   pointer-events: none;
-  transition: opacity .4s ease, transform .4s ease;
+  /* Chỉ chuyển động opacity, KHÔNG đưa transform vào transition.
+     Chuyển động transform sinh ra một CSS transition bắt đầu từ giá trị
+     none; nếu transition đó bị kẹt (tab vừa mở, trình duyệt nghẽn một
+     nhịp) thì nó giữ transform ở none vĩnh viễn và tiêu đề lệch đúng
+     nửa bề rộng khối, khoảng 190 tới 295 px tuỳ cỡ chữ. Đo thật trên
+     Chrome: transform computed ra matrix identity, getAnimations() trả
+     một CSSTransition playState running. Bỏ transform khỏi đây thì
+     translateX(-50%) áp ngay từ đầu và không có gì để kẹt. */
+  transition: opacity .4s ease;
 }
 
 /* vầng sáng hổ phách phía sau chữ, làm viền sáng mảnh */
@@ -603,7 +611,7 @@
   gap: 12px;
   align-items: stretch;
   pointer-events: auto;
-  transition: opacity .4s ease, transform .4s ease;
+  transition: opacity .4s ease;
 }
 
 .mbtn {
@@ -775,6 +783,29 @@
   color: #cfdae5;
 }
 
+/* Nút Báo lỗi là thẻ a chứ không phải button, để trình duyệt tự xử lý
+   mailto. Thẻ a mặc định có gạch chân và màu xanh liên kết, nên phải
+   ép về đúng dáng nút và giữ nguyên màu chữ. */
+a.mbtn {
+  text-decoration: none;
+  color: #cfdae5;
+  /* Bỏ color khỏi danh sách transition. .mbtn gốc chuyển màu trong 0.18s,
+     nhưng transition chạy trên document timeline; khi timeline bị treo
+     hoặc bị trình duyệt hoãn, khung hình đầu tiên của transition đứng
+     yên mãi, và khung đầu đó là màu xanh liên kết mặc định của thẻ a.
+     Kết quả đo được: đặt color bằng CSS lẫn bằng style nội tuyến đều
+     không đổi được màu hiển thị, computed color vẫn rgb(0, 0, 238).
+     Bỏ color khỏi transition thì màu áp thẳng, không còn khung đầu. */
+  transition-property: background-color, border-color, transform, box-shadow;
+}
+
+a.mbtn:hover { color: #eef5fb; }
+
+a.mbtn:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
 .mbtn-plain:hover:not(:disabled) {
   background-color: rgba(24, 32, 46, .72);
   border-color: rgba(150, 165, 180, .5);
@@ -907,6 +938,36 @@
   color: #a4aeb9;
   white-space: nowrap;
 }
+
+/* ---------- góc dưới phải: số phiên bản ----------
+   Đặt đối xứng với credit bên trái. Mờ hơn credit một bậc để không
+   tranh mắt, nhưng vẫn giữ tương phản >= 4.5:1 (#7c8794 trên #0a0705
+   khoảng 5.6:1) vì người dùng cần đọc được khi báo lỗi. */
+.menu-version {
+  position: absolute;
+  right: clamp(16px, 3vw, 34px);
+  bottom: max(clamp(14px, 2.6vh, 26px), env(safe-area-inset-bottom));
+  z-index: 12;
+  font-family: var(--st-font-mono, "JetBrains Mono", monospace);
+  font-size: clamp(.52rem, .3vw + .46rem, .62rem);
+  letter-spacing: .12em;
+  color: #7c8794;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity .4s ease;
+}
+
+/* Màn hẹp: credit và số phiên bản có thể chạm nhau. Thu số phiên bản
+   xuống nhỏ hơn và bỏ letter-spacing để hai bên cùng nằm vừa. */
+@media (max-width: 560px) {
+  .menu-version {
+    font-size: .5rem;
+    letter-spacing: .04em;
+    right: 12px;
+  }
+}
+
 
 /* Nút GitHub dùng lại đúng class .boot-repo của khung khởi động cũ.
    Giữ 44px vùng bấm cho ngón tay, nhưng thu chữ lại cho gọn. */

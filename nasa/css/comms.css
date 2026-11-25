@@ -61,7 +61,7 @@
   border-radius: var(--st-radius-lg);
   box-shadow: 0 24px 70px color-mix(in srgb, var(--bg-void) 70%, transparent);
   overflow: hidden;
-  animation: comms-in var(--st-dur-slow) var(--st-ease-out) both;
+  animation: comms-in var(--st-dur-slow) var(--st-ease-out) forwards;
 }
 
 @keyframes comms-in {
@@ -1077,7 +1077,7 @@ html.motion-off .comms-panel,
   background: linear-gradient(168deg, var(--bg-panel), var(--bg-void));
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
-  animation: comms-fade var(--st-dur-move) var(--st-ease-out) both;
+  animation: comms-fade var(--st-dur-move) var(--st-ease-out) forwards;
 }
 
 .comms-flight[hidden] { display: none; }

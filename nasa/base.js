@@ -801,17 +801,32 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
 
   /* ---------- túi đồ ---------- */
 
+  /* Mỗi lần mở/đóng đổi số này. Callback hẹn giờ giữ số cũ nên tự bỏ
+     qua khi người chơi đã đóng túi hoặc mở lại trong cùng một nhịp. */
+  let bagSeq = 0;
+
   function openBag() {
     /* Túi đồ là lớp riêng, không nằm trong childScreen. Nếu đang mở
        màn con khác thì đóng lại trước, tránh hai lớp chồng nhau. */
     if (childScreen) closeChild();
     renderBag();
     bag.hidden = false;
-    requestAnimationFrame(() => bag.classList.add('is-open'));
+    /* is-open phải vào sau khung hình đầu, nếu không hiệu ứng mờ dần bị
+       bỏ qua. Nhưng rAF KHÔNG được là đường duy nhất: trình duyệt hoãn
+       nó khi tab ẩn, khi cửa sổ mất focus hoặc khi máy nghẽn, và túi đồ
+       sẽ kẹt ở trạng thái trong suốt. setTimeout làm đường chính. */
+    const seq = ++bagSeq;
+    const show = () => {
+      if (seq !== bagSeq) return;
+      bag.classList.add('is-open');
+    };
+    requestAnimationFrame(show);
+    window.setTimeout(show, 32);
     bagClose.focus();
   }
 
   function closeBag() {
+    bagSeq += 1;
     bag.classList.remove('is-open');
     setTimeout(() => { bag.hidden = true; }, 180);
   }
@@ -1233,8 +1248,23 @@ export function startBase({ container, playerName = '', onExit, onLaunchRescue }
     const startBlack = () => {
       hideSleepText();
       sleepFx.hidden = false;
-      if (motion) requestAnimationFrame(() => sleepFx.classList.add('is-dark'));
-      else sleepFx.classList.add('is-dark');
+      /* rAF KHÔNG được là đường duy nhất: tab ẩn hoặc cửa sổ mất focus
+         thì nó không chạy, màn không tối được rồi bừng sáng trở lại.
+         later() (setTimeout) là đường chính, và clearSleepTimers dọn
+         được nó. darkened chống gắn class hai lần; sleeping chặn trường
+         hợp rAF bị hoãn tới sau khi đã tỉnh dậy. */
+      let darkened = false;
+      const darken = () => {
+        if (darkened || !sleeping) return;
+        darkened = true;
+        sleepFx.classList.add('is-dark');
+      };
+      if (motion) {
+        requestAnimationFrame(darken);
+        later(darken, 32);
+      } else {
+        darken();
+      }
       later(wake, 1000);            // 1 giây tối rồi sáng lại
     };
 

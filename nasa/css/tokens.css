@@ -62,9 +62,17 @@
   --st-size-base:   clamp(14px, 0.9vw + 10px, 16px);
   --st-size-body:   clamp(1rem, 0.9rem + 0.5vw, 1.22rem);
   --st-size-lead:   clamp(1.3rem, 1.1rem + 1.1vw, 1.9rem);
-  --st-size-label:  clamp(.6rem, .55rem + .12vw, .7rem);
+  /* Nhãn phụ: trước đây 9,6 tới 11,2px. Đo thật trên màn lắp ráp,
+     đây là cỡ của 17 nhãn cùng lúc (Sóng DSN, Trễ liên lạc, Đồng đội
+     còn sống, tên bước, nhãn nút, eyebrow...). Chuẩn tiếp cận cho chữ
+     mang thông tin trên màn hình máy tính là 18px ở 1080p; nhãn phụ
+     được phép nhỏ hơn nhưng dưới 12px thì người ngồi xa màn hình phải
+     nheo mắt. Nâng sàn lên 12,5px và trần 14px, vẫn giữ tỉ lệ co giãn
+     theo bề ngang màn hình. */
+  --st-size-label:  clamp(.78rem, .74rem + .1vw, .875rem);
   --st-size-title:  clamp(1.5rem, 1.1rem + 2vw, 2.6rem);
-  --st-size-cap:    clamp(.62rem, .58rem + .12vw, .74rem);
+  /* Chữ phụ cỡ nhỏ: cùng lý do với nhãn, nâng sàn từ 9,9 lên 12,8px. */
+  --st-size-cap:    clamp(.8rem, .76rem + .1vw, .9rem);
 
   /* cỡ chữ người chơi tự chỉnh trong bảng cài đặt */
   --st-scale:       1;

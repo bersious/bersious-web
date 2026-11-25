@@ -275,9 +275,22 @@ export function installPhase2EndingsBridge(opts) {
       info = null;
     }
 
+    /* Đọc chỉ số sinh tồn THẬT của Giai đoạn 1 từ localStorage.
+       Trước đây chỗ này truyền object rỗng nên màn kết thúc luôn hiện
+       "chưa qua ngày nào" và mọi thanh phần trăm về 0, dù người chơi
+       đã sống mấy chục Sol và cạn nước thật. hab-stats.js ghi vào
+       smdg.stats, đúng khoá dưới đây. */
+    let liveStats = {};
+    try {
+      const raw = localStorage.getItem('smdg.stats');
+      if (raw) liveStats = JSON.parse(raw) || {};
+    } catch (err) {
+      liveStats = {};
+    }
+
     showEnding({
       id,
-      stats: {},
+      stats: liveStats,
       extra: buildExtra(detail, window.MARS_RESCUE_SHARED_STATE || null),
       hasSave: ok,
       saveInfo: info,

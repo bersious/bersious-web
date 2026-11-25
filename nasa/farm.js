@@ -806,8 +806,9 @@ export function openFarm({ container, clock, stats, playerName = '', onClose, on
 
   /* Lớp is-open phải vào sau khi trình duyệt đã vẽ khung hình đầu,
      nếu không hiệu ứng mờ dần bị bỏ qua và panel hiện đột ngột.
-     Thêm một mốc thời gian dự phòng: tab bị ẩn thì requestAnimationFrame
-     không chạy, panel sẽ kẹt ở trạng thái trong suốt. */
+     Đường CHÍNH là setTimeout: tab bị ẩn thì requestAnimationFrame
+     không chạy, panel sẽ kẹt ở trạng thái trong suốt. rAF chỉ để sớm
+     hơn một nhịp khi nó có chạy. opened chống gắn class hai lần. */
   let opened = false;
   const openNow = () => {
     if (opened || closed) return;
@@ -815,8 +816,8 @@ export function openFarm({ container, clock, stats, playerName = '', onClose, on
     el.classList.add('is-open');
     closeBtn.focus();
   };
-  requestAnimationFrame(openNow);
   const openTimer = setTimeout(openNow, 80);
+  requestAnimationFrame(openNow);
 
   /* ---------- dọn dẹp ---------- */
 

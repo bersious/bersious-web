@@ -1001,3 +1001,451 @@ html.motion-off .cm4-launch-btn {
     min-height: 56px;
   }
 }
+
+/* ============================================================
+   ẨN CÁC BẢN SAO THANH ĐO KHI CML4 ĐÃ MOUNT
+   Khi feature-cml4-checklist.js mount, nó thêm class 'cml4-mounted'
+   vào <html>. CSS này ẩn .p2-board (thanh đo của app ở đáy) và
+   .fg-gauges (thanh đo vòng cung của overlay feature-gauges.js).
+   ============================================================ */
+
+html.cml4-mounted .p2-board {
+  display: none !important;
+}
+
+html.cml4-mounted .fg-gauges {
+  display: none !important;
+}
+
+/* Override p2-dup-hidden để hiện lại cột phải với thanh đo mới.
+   App ẩn .cm4-col-side khi overlay mount, nhưng giờ cột phải chứa
+   thanh đo chi tiết nên phải hiện lại. */
+html.cml4-mounted .cm4.p2-dup-hidden .cm4-col-side {
+  display: flex !important;
+}
+
+html.cml4-mounted .cm4.p2-dup-hidden > .cm4-body {
+  grid-template-columns: minmax(0, 1fr) clamp(260px, 30%, 360px) !important;
+}
+
+/* ============================================================
+   BỐN THANH ĐO CHI TIẾT Ở CỘT PHẢI
+   Mỗi thanh có: nhãn, số, thanh fill, vạch mốc 35%, phụ đề, mô tả.
+   Màu đổi mượt theo trạng thái engine (ok/warn/fail).
+   ============================================================ */
+
+.cm4-gauges-panel {
+  padding: var(--st-gap-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+}
+
+.cm4-gauges-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cm4-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--st-radius);
+  transition: border-color var(--st-dur-fast) var(--st-ease-out),
+              background var(--st-dur-fast) var(--st-ease-out);
+}
+
+.cm4-meter.is-ok {
+  border-left: 3px solid var(--ok);
+}
+
+.cm4-meter.is-warn {
+  border-left: 3px solid var(--warn);
+}
+
+.cm4-meter.is-fail {
+  border-left: 3px solid var(--fail);
+}
+
+.cm4-meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cm4-meter-label {
+  font-family: var(--st-font-mono);
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cm4-meter-num {
+  flex: 0 0 auto;
+  font-family: var(--st-font-mono);
+  font-size: .8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+  white-space: nowrap;
+}
+
+.cm4-meter.is-warn .cm4-meter-num {
+  color: var(--warn);
+}
+
+.cm4-meter.is-fail .cm4-meter-num {
+  color: var(--fail);
+}
+
+.cm4-meter-track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-deep);
+  box-shadow: inset 0 0 0 1px var(--line-hair);
+  overflow: hidden;
+}
+
+.cm4-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 3px;
+  background: var(--ok);
+  transition: width var(--st-dur-slow) var(--st-ease-out),
+              background var(--st-dur-fast) var(--st-ease-out);
+}
+
+.cm4-meter.is-warn .cm4-meter-fill {
+  background: var(--warn);
+}
+
+.cm4-meter.is-fail .cm4-meter-fill {
+  background: var(--fail);
+}
+
+/* Vạch mốc an toàn 35% - đường đứng nhỏ trên thanh */
+.cm4-meter-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--cyan);
+  opacity: .7;
+  border-radius: 1px;
+}
+
+.cm4-meter-sub {
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  letter-spacing: .04em;
+  color: var(--tx-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cm4-meter-desc {
+  margin: 0;
+  font-size: .68rem;
+  line-height: 1.4;
+  color: var(--tx-soft);
+}
+
+/* ============================================================
+   THANH ĐIỀU HƯỚNG ĐÁY
+   Ba phần: trái (nút BƯỚC TRƯỚC), giữa (checklist 6 phân hệ),
+   phải (nút TIẾP THEO màu hổ phách).
+   ============================================================ */
+
+/* Ẩn hàng nút cũ của app khi thanh điều hướng CML4 đang chạy.
+   Đo thật: có HAI nút "‹ BƯỚC TRƯỚC" cùng hiện, một của .p2-navrow
+   (111x44 ở 17,376) và một của .cm4-nav-bar (128x46 ở 317,337), chồng
+   lên nhau ở giữa màn hình. Người chơi thấy hai nút cùng chức năng.
+   Thanh CML4 đã có đủ nút trước và nút tiếp theo, nên hàng cũ thừa. */
+html.cml4-mounted .p2-navrow { display: none; }
+
+.cm4-nav-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+}
+
+.cm4-nav-left,
+.cm4-nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Trung tâm thanh đáy: tiêu đề, danh sách 6 mục và bản thu gọn xếp
+   THÀNH MỘT HÀNG, không xếp dọc.
+   Đo thật ở 1366x768: để flex-direction: column thì ba khối này chồng
+   thành ba hàng, đẩy thanh đáy cao gấp ba và nút TIẾP THEO rơi xuống
+   tận 445px trong khi khung chỉ cao 56px, tức nút thoát hẳn ra ngoài
+   thanh và nằm đè lên nội dung bên dưới. Nay xếp ngang, mỗi khối tự co,
+   và tiêu đề chỉ hiện khi đủ chỗ. */
+.cm4-nav-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Tiêu đề checklist là thông tin phụ, nhường chỗ cho danh sách. */
+.cm4-nav-center .cm4-log-title { flex: 0 1 auto; min-width: 0; }
+
+/* Sáu mục xếp ngang, KHÔNG xuống dòng, mỗi mục tự co và cắt bằng dấu
+   ba chấm. Đo thật ở 1366x768: nếu để mặc định thì tổng bề rộng sáu mục
+   là 654px trong khi ô giữa chỉ còn 557px, nên hoặc tràn ra ngoài thanh
+   hoặc bị đẩy xuống hàng thứ hai làm thanh cao gấp đôi. Cho phép co và
+   cắt gọn là cách duy nhất giữ thanh đúng một hàng. */
+.cm4-nav-center .cm4-log-list {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.cm4-nav-center .cm4-log-item {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cm4-nav-btn {
+  appearance: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--tx-soft);
+  font-family: var(--st-font-body);
+  font-size: .76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--st-dur-fast) var(--st-ease-out),
+              color var(--st-dur-fast) var(--st-ease-out),
+              background var(--st-dur-fast) var(--st-ease-out);
+}
+
+.cm4-nav-btn:hover,
+.cm4-nav-btn:focus-visible {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  outline: none;
+}
+
+.cm4-nav-prev-vi,
+.cm4-nav-next-vi {
+  font-size: .76rem;
+  letter-spacing: .04em;
+}
+
+.cm4-nav-prev-en,
+.cm4-nav-next-en {
+  font-family: var(--st-font-mono);
+  font-size: .56rem;
+  letter-spacing: .08em;
+  opacity: .7;
+}
+
+/* Nút TIẾP THEO: màu hổ phách, chữ tối */
+.cm4-nav-next {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--bg-void);
+  font-weight: 700;
+}
+
+.cm4-nav-next:hover,
+.cm4-nav-next:focus-visible {
+  background: color-mix(in srgb, var(--amber) 86%, white);
+  border-color: var(--amber);
+  color: var(--bg-void);
+  filter: brightness(1.08);
+}
+
+.cm4-nav-next .cm4-nav-next-en {
+  opacity: .85;
+}
+
+/* Tiêu đề checklist */
+.cm4-log-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--st-font-mono);
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.cm4-log-title em {
+  font-style: normal;
+  font-size: .56rem;
+  color: var(--tx-dim);
+}
+
+/* Danh sách 6 phân hệ */
+.cm4-log-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm4-log-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .7rem;
+  color: var(--tx-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-inset);
+  transition: background var(--st-dur-fast) var(--st-ease-out),
+              color var(--st-dur-fast) var(--st-ease-out);
+}
+
+.cm4-log-item.is-done {
+  background: color-mix(in srgb, var(--ok) 15%, var(--bg-inset));
+  color: var(--ok);
+}
+
+.cm4-log-item.is-done .cm4-log-vi,
+.cm4-log-item.is-done .cm4-log-en {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.cm4-log-vi {
+  font-weight: 500;
+}
+
+.cm4-log-en {
+  font-family: var(--st-font-mono);
+  font-size: .58rem;
+  opacity: .7;
+}
+
+/* Compact mode: ẩn danh sách, hiện số đếm */
+.cm4-nav-bar.is-compact .cm4-log-list {
+  display: none;
+}
+
+.cm4-nav-bar.is-compact .cm4-log-compact {
+  display: block;
+  font-family: var(--st-font-mono);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  color: var(--tx-bright);
+}
+
+.cm4-log-compact {
+  display: none;
+}
+
+/* ============================================================
+   RESPONSIVE CHO THANH ĐO VÀ NAV BAR
+   ============================================================ */
+
+@media (max-width: 940px) {
+  /* Cột phải xuống dưới, thanh đo vẫn hiện */
+  .cm4-gauges-panel {
+    order: -1;
+  }
+
+  /* Nav bar thu gọn trên màn hẹp */
+  .cm4-nav-bar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .cm4-nav-left,
+  .cm4-nav-right {
+    justify-content: center;
+  }
+
+  .cm4-nav-center {
+    align-items: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .cm4-meter {
+    padding: 6px 8px;
+  }
+
+  .cm4-meter-label {
+    font-size: .62rem;
+  }
+
+  .cm4-meter-num {
+    font-size: .72rem;
+  }
+
+  .cm4-meter-desc {
+    font-size: .62rem;
+  }
+
+  .cm4-nav-btn {
+    padding: 6px 12px;
+    font-size: .68rem;
+  }
+
+  .cm4-log-item {
+    font-size: .62rem;
+    padding: 2px 4px;
+  }
+}
+
+/* ============================================================
+   GIẢM CHUYỂN ĐỘNG CHO THANH ĐO
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cm4-meter,
+  .cm4-meter-fill,
+  .cm4-log-item {
+    transition: none !important;
+  }
+}
+
+html.motion-off .cm4-meter,
+html.motion-off .cm4-meter-fill,
+html.motion-off .cm4-log-item {
+  transition: none !important;
+}

@@ -1187,6 +1187,18 @@ export function startComms({ container, onDone } = {}) {
     q('.comms-transmit').disabled = true;
     elNext.disabled = true;
     flashStatus(tr('comms.s3.sent'));
+    /* Ghi cờ hoàn thành Giai đoạn 1. Đường chơi bình thường đã ghi cờ
+       này ở index.html (hàm markDone, chạy trong onDone), nên dòng dưới
+       là lớp thứ hai. Giữ lại vì màn viễn thông có thể được gọi từ chỗ
+       khác mà không kèm onDone, và khi đó thiếu cờ thì base.js không mở
+       được nút Thiết kế tàu cứu hộ. Ghi hai lần cùng giá trị '1' là vô
+       hại. Ngược lại, KHÔNG được xoá dòng này với lý do "đã có chỗ khác
+       ghi": chỗ khác đó nằm ngoài module, đổi luồng là mất. */
+    try {
+      localStorage.setItem('smdg.stage1Done', '1');
+    } catch (e) {
+      console.warn('[comms] không ghi được cờ stage1Done:', e);
+    }
     if (typeof onDone === 'function') onDone();
   }
 

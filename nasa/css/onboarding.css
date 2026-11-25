@@ -212,7 +212,13 @@
 .onb-book {
   position: fixed;
   inset: 0;
-  z-index: 118;
+  /* 118 cũ nằm DƯỚI hai lớp phủ khác: .ml-intro (125, nhắc mở nhật ký
+     lần đầu) và .onb-root (260, thẻ hướng dẫn). Khi sổ tay mở mà một
+     trong hai lớp kia còn đó, mọi cú bấm vào sổ đều rơi vào lớp phủ
+     trên, và vì lớp phủ đó đóng khi bấm ra ngoài nên sổ tay biến mất
+     ngay sau khi vừa mở. Nâng lên 280 để sổ luôn nằm trên cả hai, chỉ
+     chịu dưới bảng cài đặt (300) và màn kết thúc. */
+  z-index: 280;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,7 +230,12 @@
 .onb-book-veil {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--bg-void) 78%, transparent);
+  /* Tối hơn và có làm mờ hậu cảnh: trước đây chỉ 78 phần trăm độ đục
+     nên HUD và thanh hành động phía sau vẫn sáng, tranh mắt với sổ.
+     Làm mờ nhẹ khiến sổ tách hẳn thành lớp trên. */
+  background: color-mix(in srgb, var(--bg-void) 90%, transparent);
+  -webkit-backdrop-filter: blur(3px) saturate(.9);
+  backdrop-filter: blur(3px) saturate(.9);
 }
 
 .onb-book-panel {
@@ -282,20 +293,37 @@
 }
 
 .onb-book-body {
-  padding: 6px 18px 18px;
+  padding: 6px 18px 22px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Thanh cuon manh, mau chim de khong pha khong khi bang dieu khien. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line-strong) 70%, transparent) transparent;
+  /* Vien mo o day bao hieu con noi dung ben duoi. Khong co no thi nguoi
+     doc khong biet phai cuon, vi day panel ket thuc sat the cuoi. */
+  background:
+    linear-gradient(180deg, transparent 0, transparent calc(100% - 26px),
+      color-mix(in srgb, var(--bg-void) 88%, transparent) 100%);
+}
+.onb-book-body::-webkit-scrollbar { width: 8px; }
+.onb-book-body::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--line-strong) 70%, transparent);
 }
 
 .onb-book-group + .onb-book-group { margin-top: 14px; }
 
 .onb-book-gh {
-  margin: 10px 0 8px;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
   font-family: var(--st-font-mono);
   font-size: var(--st-size-cap);
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
-  color: var(--cyan);
+  /* Cùng một màu cho mọi nhóm: trước đây nhóm 1 ra xanh lam, nhóm 2 ra
+     xanh lục vì kế thừa từ phần tử khác, đọc như hai cấp bậc khác nhau. */
+  color: var(--amber);
+  border-bottom: 1px solid var(--line-hair);
 }
 
 .onb-book-item {
@@ -327,9 +355,14 @@
 
 .onb-book-num {
   flex: 0 0 auto;
+  /* Rộng cố định theo 2 ký tự để 01 và 08 thẳng cột, không xô tiêu đề
+     lệch nhau giữa các thẻ. */
+  min-width: 2.2em;
   font-family: var(--st-font-mono);
   font-size: var(--st-size-cap);
+  font-variant-numeric: tabular-nums;
   color: var(--tx-dim);
+  line-height: 1.5;
 }
 
 .onb-book-txt {
@@ -342,10 +375,29 @@
 
 .onb-book-flag {
   flex: 0 0 auto;
+  /* Đệm phải đủ để nhãn không dính mép thẻ. Đệm trái tách nó khỏi tiêu
+     đề dài. */
+  margin-left: auto;
+  padding-left: 12px;
   font-family: var(--st-font-mono);
   font-size: var(--st-size-cap);
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
+}
+
+/* Trạng thái đã xem phải đọc khác hẳn chưa xem. Trước đây cả hai cùng
+   một màu cam nên không phân biệt được thẻ nào đã đọc. */
+.onb-book-item.is-seen .onb-book-flag {
+  color: color-mix(in srgb, var(--tx-dim) 90%, transparent);
+}
+.onb-book-item.is-new .onb-book-flag {
+  color: var(--amber);
+}
+.onb-book-item.is-seen {
+  opacity: .82;
+}
+.onb-book-item.is-seen .onb-book-num {
+  color: var(--tx-dim);
 }
 .onb-book-item.is-new .onb-book-flag { color: var(--amber); }
 .onb-book-item.is-seen .onb-book-flag { color: var(--tx-dim); }
@@ -359,11 +411,35 @@
 
 /* ---------- chuyển động ---------- */
 
+/* Thẻ hướng dẫn và lớp tối KHÔNG animate opacity.
+   Lý do đo được: khi tab bị ẩn, cửa sổ mất focus, hoặc máy nghẽn, trình
+   duyệt hoãn cả requestAnimationFrame lẫn transition. Nếu opacity đi từ
+   0 lên 1 bằng transition thì việc hoãn đó để thẻ kẹt ở opacity 0 VĨNH
+   VIỄN — chữ nằm đủ trong DOM nhưng người chơi thấy khung trống, đúng
+   lỗi "bấm vào thẻ không đọc được, nó tự đóng lại". Đo thật trên Chrome
+   với tab ẩn: document.hidden === true, .onb-card opacity 0 sau 3 giây,
+   trong khi .onb-title bên trong vẫn opacity 1 và đủ 614 ký tự.
+   Nay để opacity luôn 1; hiệu ứng "vào" chuyển sang transform (rẻ, không
+   bao giờ làm mất nội dung) và tôn trọng prefers-reduced-motion. */
 @media (prefers-reduced-motion: no-preference) {
-  html:not(.motion-off) .onb-dim,
-  html:not(.motion-off) .onb-card { opacity: 0; }
-  html:not(.motion-off) .onb-root.is-in .onb-dim,
-  html:not(.motion-off) .onb-root.is-in .onb-card { opacity: 1; }
+  html:not(.motion-off) .onb-card {
+    opacity: 1;
+    transform: translate3d(0, 10px, 0) scale(.985);
+    transition: transform .24s cubic-bezier(.2, .7, .3, 1);
+  }
+  html:not(.motion-off) .onb-root.is-in .onb-card {
+    opacity: 1;
+    transform: none;
+  }
+  /* Lớp tối vẫn được mờ dần, nhưng LUÔN có opacity nền >= .55 để vùng
+     tối không bao giờ biến mất hoàn toàn kể cả khi transition bị hoãn. */
+  html:not(.motion-off) .onb-dim {
+    opacity: .55;
+    transition: opacity .22s ease;
+  }
+  html:not(.motion-off) .onb-root.is-in .onb-dim {
+    opacity: 1;
+  }
 }
 
 /* Tắt chuyển động: hiện ngay, không mờ dần. */

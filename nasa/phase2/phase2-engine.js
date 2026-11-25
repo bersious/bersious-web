@@ -1194,6 +1194,10 @@ function buildState() {
     deltaVAvailableMs: round(design.deltaVAvailableMs, 0),
     deltaVNeededMs: design.deltaVNeededMs,
     daysToArrival: round(design.daysToArrival, 1),
+    /* sol chuyến bay để UI so đồng hồ sinh tồn cùng đơn vị, không so
+       nhầm ngày Trái Đất với sol.
+       Trip sols so the survival UI can compare like with like. */
+    solsToArrival: round(design.solsToArrival, 1),
     lifeSupportDays: round(design.lifeSupportDays, 0),
     powerGenW: round(design.powerGenW, 0),
     powerDrawW: round(design.powerDrawW, 0),

@@ -647,7 +647,19 @@ export async function gate(job, opts = {}) {
 }
 
 /* Bản tiện lợi cho việc chỉ cần chặn một nhịp dựng màn: hiện lớp phủ,
-   chờ một requestAnimationFrame (màn mới kịp sơn khung đầu), gỡ. */
+   chờ màn mới kịp sơn khung đầu, gỡ.
+
+   KHÔNG chờ bằng requestAnimationFrame: tab ẩn hoặc cửa sổ mất focus
+   thì rAF không chạy, promise không bao giờ resolve và lớp cổng ở lại
+   chặn cả màn hình. Cổng chỉ được gỡ trong finally của gate(), mà
+   finally chỉ chạy khi promise này xong. setTimeout luôn chạy, nên nó
+   là đường chính; rAF chỉ giúp resolve sớm một nhịp khi có chạy. */
 export async function gateFrame(minMs = 450) {
-  return gate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))), { minMs });
+  const afterPaint = () => new Promise((r) => {
+    let done = false;
+    const finish = () => { if (done) return; done = true; r(); };
+    requestAnimationFrame(finish);
+    setTimeout(finish, 48);
+  });
+  return gate(afterPaint, { minMs });
 }

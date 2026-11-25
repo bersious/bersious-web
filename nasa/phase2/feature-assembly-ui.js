@@ -61,8 +61,8 @@ const STR = {
     unitMusd: 'triệu USD',
     unitMs: 'm/s',
 
-    lateMsg: 'Tàu tới muộn hơn {n} ngày. Đồng đội sẽ không chờ được.',
-    inTimeMsg: 'Tới kịp, còn dư {n} ngày.',
+    lateMsg: 'Tàu tới muộn hơn {n} sol. Đồng đội sẽ không chờ được.',
+    inTimeMsg: 'Tới kịp, còn dư {n} sol.',
 
     crewTop: 'Đồng đội trên Sao Hỏa',
     crewSols: '{n} SOL',
@@ -94,8 +94,8 @@ const STR = {
     unitMusd: 'million USD',
     unitMs: 'm/s',
 
-    lateMsg: 'The ship arrives {n} days late. The crew cannot hold out that long.',
-    inTimeMsg: 'Arrives in time, {n} days to spare.',
+    lateMsg: 'The ship arrives {n} sols late. The crew cannot hold out that long.',
+    inTimeMsg: 'Arrives in time, {n} sols to spare.',
 
     crewTop: 'Crew on Mars',
     crewSols: '{n} SOL',
@@ -496,12 +496,34 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
     });
   }
 
+  /* CHỐNG KẸT: đường dẫn duy nhất tới layout() trước đây là
+     requestAnimationFrame. Đo thật: khi document timeline bị treo hoặc
+     trình duyệt hoãn rAF, layout() không bao giờ chạy, và cả sáu nút
+     chỉ dẫn nằm nguyên ở mặc định của trình duyệt, tức toạ độ (0, -24),
+     đè lên nhau ở góc trên trái. Nay thêm một hẹn giờ song song, ai
+     tới trước chạy trước, cờ layoutTick chặn chạy hai lần.
+     A belt and braces timer: rAF alone leaves the callouts stuck at
+     0, 0 whenever the document timeline stalls. */
+  let layoutTick = 0;
+
+  function runLayoutOnce() {
+    layoutTick = 0;
+    if (raf) {
+      try { cancelAnimationFrame(raf); } catch (e) { /* khong sao */ }
+      raf = 0;
+    }
+    layout();
+  }
+
   function scheduleLayout() {
     if (destroyed) return;
-    if (raf) return;
-    raf = (typeof requestAnimationFrame === 'function')
-      ? requestAnimationFrame(layout)
-      : setTimeout(layout, 16);
+    if (raf || layoutTick) return;
+    if (typeof requestAnimationFrame === 'function') {
+      raf = requestAnimationFrame(runLayoutOnce);
+    }
+    /* Hen gio chay sau rAF mot nhip. Neu rAF toi truoc, runLayoutOnce
+       xoa hen gio nay; neu rAF khong bao gio toi, hen gio lo. */
+    layoutTick = setTimeout(runLayoutOnce, 40);
   }
 
   /* ---------- số liệu / numbers ---------- */
@@ -562,12 +584,17 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
     setValue('cost', q('[data-v="cost"]'), fmt(cost, 0) + ' ' + T('unitMusd'));
     setValue('dv', q('[data-v="dv"]'), fmt(dv, 0) + ' / ' + fmt(dvNeed, 0) + ' ' + T('unitMs'));
 
-    /* Dòng cảnh báo sinh tồn: so thời gian bay với số sol đồng đội
-       còn sống được.
-       Survival line: flight time against the crew survival clock. */
+    /* Dòng cảnh báo sinh tồn: so chuyến bay với số sol đồng đội còn
+       sống được. Hai bên phải cùng đơn vị sol, không được so ngày
+       Trái Đất với sol: 294,5 ngày Trái Đất của đường bay nhanh chỉ
+       bằng 286,6 sol, nhỏ hơn 288 sol của đồng đội. So nhầm đơn vị
+       khiến tàu tới kịp vẫn bị báo là muộn.
+       Survival line: compare the trip with the crew survival clock in
+       the SAME unit (sols), never Earth days against Mars sols. */
     const sols = Number(state && state.solsRemaining);
-    const late = Number.isFinite(sols) && days > sols;
-    const diff = late ? days - sols : sols - days;
+    const tripSols = Number(totals.solsToArrival) || 0;
+    const late = Number.isFinite(sols) && tripSols > sols;
+    const diff = late ? tripSols - sols : sols - tripSols;
 
     if (survBox) {
       survBox.classList.toggle('is-late', late);
@@ -596,6 +623,10 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
   function paintCrew(state) {
     const sols = Number(state && state.solsRemaining);
     const days = Number((state && state.totals && state.totals.daysToArrival)) || 0;
+    /* Đồng hồ sinh tồn tính bằng sol nên tỉ lệ phải lấy sol chuyến bay
+       chia sol sống còn. daysToArrival là ngày Trái Đất (lớn hơn sol
+       khoảng 2,75 phần trăm) làm kim chỉ báo sai nhỏ nhưng sai thật. */
+    const tripSols = Number((state && state.totals && state.totals.solsToArrival)) || 0;
     if (crewSols) {
       const text = T('crewSols', { n: fmt(Number.isFinite(sols) ? sols : 0, 0) });
       if (crewSols.textContent !== text) {
@@ -607,8 +638,8 @@ export function mountAssemblyUi({ container, engine, onOpenGroup } = {}) {
       /* Tỉ lệ thời gian đã trôi của đồng đội: chuyến bay chiếm bao
          nhiêu phần quỹ sống còn lại.
          How much of the survival clock the flight already eats. */
-      const ratio = Number.isFinite(sols) && sols > 0 ? clamp(days / sols, 0, 1) : 0;
-      const tight = Number.isFinite(sols) && days >= sols * 0.92;
+      const ratio = Number.isFinite(sols) && sols > 0 ? clamp(tripSols / sols, 0, 1) : 0;
+      const tight = Number.isFinite(sols) && tripSols >= sols * 0.92;
       crewBarFill.style.width = (ratio * 100).toFixed(1) + '%';
       crewBarFill.classList.toggle('is-tight', tight);
       if (crewBox) {

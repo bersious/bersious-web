@@ -6,7 +6,12 @@
 <title>Space Mission Design Game · NASA Space Apps 2026</title>
 <meta name="description" content="Thiết kế một sứ mệnh không gian và hiểu ra cái giá của từng quyết định.">
 <meta name="theme-color" content="#07090d">
-<link rel="icon" type="image/png" href="/assets/nasa-logo-96.png">
+<!-- Favicon nhúng thẳng dạng data-URI. Bản cũ trỏ tới
+     /assets/nasa-logo-96.png nhưng tệp đó không có trong repo, nên mỗi
+     lần tải trang là một 404 và khi deploy lên /nasa thì đường dẫn
+     tuyệt đối đó còn sai chỗ hơn. Nhúng thẳng thì không bao giờ 404 và
+     không phụ thuộc thư mục gốc. Hình: tên lửa nhỏ trên nền tối. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307090d'/%3E%3Cpath d='M32 10c6 5 9 13 9 22v8l-5 4h-8l-5-4v-8c0-9 3-17 9-22z' fill='%23e8b04b'/%3E%3Ccircle cx='32' cy='26' r='4' fill='%2307090d'/%3E%3Cpath d='M23 40l-5 8 8-3M41 40l5 8-8-3' fill='%23c8552d'/%3E%3Cpath d='M29 46h6l-3 9z' fill='%23ff7a2f'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Font nạp KHÔNG chặn vẽ. media="print" + onload đổi sang "all" là
@@ -595,25 +600,12 @@
     <div class="menu-grain" aria-hidden="true"></div>
 
     <!-- lớp 3: tàu MAV, ba chân đáp, cửa sổ tròn -->
-    <!-- Tàu MAV và phi hành gia giờ nằm sẵn trong ảnh nền
-         menu-mars-hero.webp, không vẽ sprite chồng lên nữa. Giữ lại
-         khối lửa và khói bên dưới để hoạt cảnh phóng vẫn chạy: lửa
-         phụt ra từ đúng chỗ chân tàu trong ảnh. -->
-    <div class="menu-ship-anchor" aria-hidden="true">
-      <div class="menu-ship" id="menu-ship">
-        <div class="menu-trail" aria-hidden="true"></div>
-        <div class="menu-flame" aria-hidden="true"></div>
-      </div>
-    </div>
-
-    <!-- khói bụi cuộn ra hai bên khi phóng -->
-    <div class="menu-smoke" id="menu-smoke" aria-hidden="true">
-      <div class="menu-puff" style="--i:0; --dx:-1.5"></div>
-      <div class="menu-puff" style="--i:1; --dx:1.4"></div>
-      <div class="menu-puff" style="--i:2; --dx:-1"></div>
-      <div class="menu-puff" style="--i:3; --dx:1"></div>
-      <div class="menu-puff" style="--i:4; --dx:-1.8"></div>
-    </div>
+    <!-- Tàu MAV và phi hành gia nằm sẵn trong ảnh nền menu-mars-hero.webp.
+         Khối lửa, vệt khói và thân tàu bay lên đã BỊ GỠ: trong ảnh con tàu
+         đứng yên trên mặt đất, không có vụ phóng nào, nên lửa phụt ra từ
+         chân tàu rồi thân tàu cất cánh là sai hẳn mạch truyện. Người chơi
+         thấy một con tàu tự dưng bay lên khỏi tấm ảnh tĩnh.
+         Bấm Bắt đầu giờ chỉ mờ dần rồi vào màn kế. -->
 
     <!-- Phi hành gia đã nằm trong ảnh nền, bỏ sprite rời. -->
 
@@ -656,6 +648,14 @@
       <span class="mbtn-label" data-i18n="settings.title">Cài đặt</span>
     </button>
 
+    <!-- Báo lỗi: mở sẵn thư soạn mail tới hộp thư của nhóm làm game, kèm
+         thông tin máy và mốc thời gian để người nhận biết lỗi xảy ra ở đâu.
+         Dùng thẻ a thay vì button để trình duyệt xử lý mailto, và để người
+         chơi bấm chuột giữa mở tab mới nếu muốn. -->
+    <a class="mbtn mbtn-plain mbtn-report" id="menu-report" data-report href="#" target="_self">
+      <span class="mbtn-label" data-i18n="report.button">Báo lỗi</span>
+    </a>
+
     <!-- chú thích dưới nút, hiện theo mốc 4 giây và 15 giây -->
     <p class="menu-hint" id="menu-hint" hidden role="status" aria-live="polite"></p>
     <button class="menu-retry" id="menu-retry" type="button" hidden></button>
@@ -676,6 +676,13 @@
       <span>GitHub</span>
     </a>
   </div>
+
+  <!-- ---------- góc dưới phải: số phiên bản ----------
+       Nhỏ, mờ, không tranh mắt với nút Bắt đầu. Đặt ở góc phải để
+       không chen vào dòng credit bên trái. Giữ cỡ chữ và độ tương
+       phản đủ đọc (>= 4.5:1) vì đây là thông tin người dùng cần tra
+       khi báo lỗi. -->
+  <div class="menu-version" aria-label="Phiên bản">v3.2.0</div>
 
   <!-- lớp đen phủ vào ở cuối hoạt cảnh phóng -->
   <div class="menu-fade" id="menu-fade" aria-hidden="true"></div>
@@ -751,6 +758,22 @@
   const { initAudio, bindClickSounds, playClick } = await import(BASE + 'audio.js');
   const { openSettings }    = await import(BASE + 'settings-ui.js');
 
+  /* Nút Báo lỗi ở menu chính. Nạp mềm để thiếu file cũng không làm
+     chết nút Bắt đầu; nạp xong thì điền sẵn địa chỉ mailto kèm thông
+     tin máy, và cập nhật lại mỗi khi đổi ngôn ngữ vì tiêu đề thư đổi
+     theo ngôn ngữ. */
+  import(BASE + 'report.js').then((mod) => {
+    if (mod && typeof mod.bindReportButtons === 'function') {
+      mod.bindReportButtons();
+      mod.refreshReportHrefs();
+      if (typeof onLangChange === 'function') {
+        onLangChange(() => mod.refreshReportHrefs());
+      }
+    }
+  }).catch((err) => {
+    console.warn('[boot] chưa nạp được nút báo lỗi', err);
+  });
+
   /* cài đặt và âm thanh nạp trước khi người chơi bấm Bắt đầu,
      để nhạc nền và cỡ chữ đúng ngay từ khung đầu */
   loadSettings();
@@ -772,6 +795,12 @@
 
   const boot = document.getElementById('boot');
   const btn  = document.getElementById('start');
+
+  /* Dọn dấu vết của lần chạy trước (xem resetMenuButton để biết vì sao
+     cần). Đặt ngay sau khi có nút, trước mọi thứ khác, để nếu trang
+     được khôi phục từ bfcache hay vừa reload sau khi bấm "Bắt đầu sứ
+     mệnh mới" thì nút vẫn bấm được. */
+  try { resetMenuButton(); } catch (e) { /* hàm khai báo sau, bỏ qua */ }
   const gear = document.getElementById('settings-btn');
 
   /* Cờ đặt ở phạm vi ngoài, không đặt trong callback. Nếu đặt trong
@@ -903,44 +932,677 @@
     });
   }
 
-  /* Màn thiết kế tàu cứu hộ. Xong thì vào màn bay. */
+  /* Màn thiết kế tàu cứu hộ. Xong thì vào màn bay.
+     ĐÂY LÀ ĐƯỜNG CHÍNH: Giai đoạn 2 (bốn bước CML, đồng hồ đo, bản đồ
+     quỹ đạo, màn kết thúc) là phần chiếm phần lớn điểm số và là thứ
+     README lẫn pitch deck mô tả. Trước đây hàm này mở rescue-designer
+     rồi flight rồi hết, khiến toàn bộ phase2/ (hơn 3.800 dòng) không
+     bao giờ tới được tay người chơi: mountPhase2 chỉ được gọi từ bảng
+     dev. Nối vào đây thì mọi đường chơi thật đều đi qua Giai đoạn 2.
+
+     Giữ rescue-designer làm đường dự phòng: nếu phase2/ không nạp được
+     (thiếu file, lỗi import) thì rơi về xưởng thiết kế cũ thay vì để
+     người chơi nhìn khung trống. Không bao giờ mất cả hai. */
   function openRescueDesigner(playerName) {
-    /* Chặn màn trong lúc dựng xưởng thiết kế. */
-    gate(() => {
-      const host = document.createElement('div');
-      host.className = 'rescue-host';
-      document.body.appendChild(host);
-      startRescueDesigner({
-      container: host,
-      onDone: (design) => {
-        host.remove();
-        openFlight(playerName, design);
-      },
-      });
-    });
-    return { destroy: () => host.remove() };
+    gate(() => openPhase2OrFallback(playerName));
+    return { destroy: () => { const h = document.querySelector('.p2-host, .rescue-host'); if (h) h.remove(); } };
   }
 
-  /* Màn bay: bản đồ quỹ đạo ghép đàm phán vai trò. Xong thì về căn cứ
-     kèm kết quả, để người chơi thấy mình đã cứu được hay chưa. */
+  /* Bàn giao tín hiệu cầu cứu từ Giai đoạn 1 sang Giai đoạn 2.
+
+     Vì sao cần: bước 1 của Phase 2 (bắt sóng) KHÔNG tự chạy. Nó chờ
+     sự kiện 'mars:sos-received' rồi mới khoá sóng và mở phần chọn
+     mục tiêu; không có sự kiện thì radar quét mãi, nút "Sang bước 2"
+     khoá vĩnh viễn. Trước đây sự kiện này chỉ được phát từ bảng dev,
+     nên đường chơi thật vào Phase 2 xong là đứng hình ở bước 1.
+
+     Số liệu lấy từ bản lưu thật của Giai đoạn 1 (nước, calo, tinh
+     thần, ngày đã sống) để trễ liên lạc và số sol còn lại khớp với
+     những gì người chơi vừa trải qua, không phải con số bịa. */
+  function handOffSosToPhase2() {
+    /* Không dùng cờ "đã phát" toàn cục: mỗi lần mount là một màn mới,
+       và lượt chơi lại sau khi thua phải nhận được sóng như lượt đầu.
+       Gọi đúng một lần cho mỗi lần mount là đủ, vì openPhase2OrFallback
+       đã có cờ chống mở chồng. */
+    const detail = { source: 'phase1' };
+
+    /* Số liệu sống còn của Giai đoạn 1 do hab-stats.js ghi. */
+    try {
+      const raw = localStorage.getItem('smdg.stats');
+      if (raw) {
+        const d = JSON.parse(raw) || {};
+        const st = d.stats || d;
+        const nums = ['water', 'calories', 'sanity']
+          .map((k) => (Number.isFinite(st[k]) ? st[k] : null))
+          .filter((v) => v !== null);
+        if (nums.length) {
+          /* Nước là thứ cạn trước và quyết định sống còn, nên lấy
+             mức thấp nhất trong ba chỉ số làm "dưỡng chất còn lại".
+             Đây là con số mà bản ghi sóng hiển thị. */
+          detail.lifeSupportPercent = Math.max(0, Math.min(100, Math.min.apply(null, nums)));
+        }
+      }
+    } catch (e) { /* bản lưu hỏng: dùng mặc định của engine */ }
+
+    /* Ngày đã sống lấy từ bản lưu để quy ra số sol còn lại trên mốc
+       300 sol của kịch bản. Không có bản lưu thì để engine tự quyết. */
+    try {
+      const info = getSaveInfo();
+      if (info && Number.isFinite(info.day) && info.day > 0) {
+        detail.solsRemaining = Math.max(0, 300 - info.day);
+      }
+    } catch (e) { /* chưa có bản lưu */ }
+
+    /* Ưu tiên cầu nối chính thức của Phase 2: nó ghi trạng thái chia
+       sẻ, phát sự kiện và đẩy số liệu vào engine. */
+    const bridge = window.phase2Bridge;
+    if (bridge && typeof bridge.simulateSosFromPhase1 === 'function') {
+      bridge.simulateSosFromPhase1(detail);
+      return;
+    }
+    /* Không có cầu nối thì phát thẳng sự kiện. Bước 1 nghe đúng tên
+       này nên vẫn nhận được sóng. */
+    const payload = Object.assign({ solsRemaining: 288, crewOnMars: 1, signalStrength: 0.72 }, detail);
+    try {
+      window.dispatchEvent(new CustomEvent('mars:sos-received', { detail: payload }));
+    } catch (e) { /* trình duyệt không dựng được CustomEvent */ }
+    window.MARS_RESCUE_SHARED_STATE = Object.assign({}, window.MARS_RESCUE_SHARED_STATE || {}, {
+      sos: payload, sosReceived: true, stage: 'received',
+    });
+  }
+
+  /* Cờ chống mở chồng. Người chơi bấm thẻ hai lần liền, hoặc bấm rồi
+     Enter, sẽ tạo hai khung .p2-host chồng nhau; khung trên không có
+     __phase2Api nên nuốt mọi cú bấm mà không có lối thoát. Gộp các
+     lượt mở trùng thành một. */
+  let phase2Opening = false;
+
+  /* Mở Giai đoạn 2 thật; hỏng thì lùi về xưởng thiết kế cũ. */
+  async function openPhase2OrFallback(playerName) {
+    if (phase2Opening) return;
+    phase2Opening = true;
+    try {
+      await openPhase2OrFallbackOnce(playerName);
+    } finally {
+      phase2Opening = false;
+    }
+  }
+
+  async function openPhase2OrFallbackOnce(playerName) {
+    const host = document.createElement('div');
+    host.className = 'p2-host';
+    host.style.cssText = 'position:fixed;inset:0;z-index:80;background:#070915;';
+    document.body.appendChild(host);
+
+    /* Đường dẫn ứng viên. Bản deploy gom src/ về gốc /nasa nên phase2/
+       nằm NGAY CẠNH index.html: BASE đã trỏ đúng thư mục chứa trang,
+       nên 'phase2/' là đường đúng và phải thử trước. '../phase2/' chỉ
+       đúng khi chạy http.server trong src/ (máy dev), để sau. Hai
+       đường tuyệt đối còn lại là lưới an toàn cho cấu trúc khác.
+       Thử lần lượt vì chỉ một trong số đó tồn tại trên từng bản. */
+    const P2 = [BASE + 'phase2/', BASE + '../phase2/', '/nasa/phase2/', '/phase2/'];
+    async function loadP2(file) {
+      for (const base of P2) {
+        try { return await import(base + file); } catch (e) { /* thử tiếp */ }
+      }
+      return null;
+    }
+
+    /* Màn giới thiệu Hồi 1 nếu có; thiếu module thì vào thẳng. */
+    try {
+      const intro = await loadP2('feature-act-intro.js');
+      if (intro && typeof intro.mountActIntro === 'function') {
+        await new Promise((resolve) => {
+          let inst = null;
+          let settled = false;
+          let timer = 0;
+          /* Chốt an toàn phải GỠ màn giới thiệu, không chỉ resolve.
+             Nếu chỉ resolve, listener cấp document của nó (pointerdown
+             và keydown bắt Space/Enter) còn nằm lại vĩnh viễn và nuốt
+             phím của Phase 2 phía dưới. Thời gian chờ nới rộng để
+             người đọc chậm không bị cắt ngang giữa lúc đọc hồ sơ. */
+          const done = () => {
+            if (settled) return;
+            settled = true;
+            if (timer) clearTimeout(timer);
+            try { if (inst) inst.destroy(); } catch (e) { /* đã gỡ rồi */ }
+            resolve();
+          };
+          timer = setTimeout(done, 45000);
+          try {
+            inst = intro.mountActIntro({ container: host, onDone: done });
+            /* onDone có thể được gọi ngay bên trong mountActIntro, lúc
+               đó inst còn null nên chưa gỡ được gì. Gỡ bù ở đây. */
+            if (settled && inst && typeof inst.destroy === 'function') inst.destroy();
+          } catch (e) {
+            console.warn('[boot] màn giới thiệu Giai đoạn 2 lỗi, vào thẳng', e);
+            done();
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('[boot] không nạp được màn giới thiệu Giai đoạn 2, vào thẳng', e);
+    }
+
+    try {
+      const mod = await loadP2('phase2-app.js');
+      if (mod && typeof mod.mountPhase2 === 'function') {
+        await mod.mountPhase2({ container: host });
+        /* Bàn giao tín hiệu cầu cứu SAU khi app đã dựng xong: listener
+           của bước 1 chỉ được gắn trong lúc mountPhase2, phát sớm hơn
+           thì không ai bắt. */
+        try { handOffSosToPhase2(); } catch (e) {
+          console.warn('[boot] không bàn giao được tín hiệu cầu cứu sang Giai đoạn 2', e);
+        }
+        return;
+      }
+      throw new Error('phase2-app.js không export mountPhase2');
+    } catch (err) {
+      console.warn('[boot] Giai đoạn 2 không nạp được, dùng xưởng thiết kế dự phòng', err);
+      host.remove();
+      // Đường dự phòng: xưởng thiết kế cũ, rồi màn bay cũ.
+      try {
+        const host2 = document.createElement('div');
+        host2.className = 'rescue-host';
+        document.body.appendChild(host2);
+        startRescueDesigner({
+          container: host2,
+          onDone: (design) => {
+            host2.remove();
+            openFlight(playerName, design);
+          },
+        });
+      } catch (err2) {
+        console.error('[boot] cả Giai đoạn 2 lẫn xưởng dự phòng đều hỏng', err2);
+      }
+    }
+  }
+
+
+  /* Màn bay: bản đồ quỹ đạo ghép đàm phán vai trò. Bay hết 258,9 ngày
+     thì phải mở MÀN KẾT THÚC THẬT, không phải chỉ gỡ khung bay:
+       - tới đích, đội còn đứng cùng nhau  -> true-ending.js
+         (chín khung phim + bảng tổng kết xếp hạng S/A/B + đối chiếu
+          Curiosity / Perseverance / MAVEN)
+       - đội vỡ giữa đường                -> endings.js
+         (cảnh thua + báo cáo phân tích vì sao hỏng + cách sửa)
+     Trước đây onDone chỉ gỡ khung bay rồi ghi localStorage, nên người
+     chơi bay xong 258,9 ngày thì màn bay biến mất và họ nhìn lại màn
+     căn cứ cũ: không điểm, không lời giải thích thắng/thua. Đề bài NASA
+     bắt buộc "mission simulation + evaluation system with feedback on
+     WHY it succeeded or failed", nên đây là chỗ mất điểm nặng nhất.
+     Nếu cả hai module đều không nạp được thì vẫn dựng bảng tổng kết
+     đơn giản bằng DOM trần: không bao giờ để màn hình trắng. */
   function openFlight(playerName, design) {
     const host = document.createElement('div');
     host.className = 'flight-host';
     document.body.appendChild(host);
-    startFlight({
+
+    let flight = null;
+    let settled = false;
+    /* flight.js chỉ gọi onDone khi tàu tới đích. Đội vỡ thì nó dừng ở
+       thẻ "đội tan rã" nội bộ và không báo ra ngoài, nên phải tự canh
+       cờ mutiny để lần thua cũng có màn kết thúc có giải thích. */
+    let watch = 0;
+
+    /* ---------- đọc số thật ----------
+       hab-stats.js ghi {stats, inv} vào smdg.stats, còn endings.js đọc
+       phẳng stats.day / stats.oxygen / ... nên phải bóc lớp vỏ. (Bản
+       trong phase2-endings-bridge.js truyền nguyên object có vỏ, nên
+       màn kết thúc ở đó luôn hiện "chưa qua ngày nào".) */
+    function flatStats() {
+      let box = null;
+      try { box = JSON.parse(localStorage.getItem('smdg.stats') || 'null'); } catch (e) { box = null; }
+      let s = {};
+      if (box && typeof box === 'object') {
+        s = (box.stats && typeof box.stats === 'object') ? { ...box.stats } : { ...box };
+      }
+      if (!Number.isFinite(Number(s.day)) && Number.isFinite(Number(s.totalMinutes))) {
+        s.day = Math.floor(Number(s.totalMinutes) / 1440) + 1;
+      }
+      return s;
+    }
+
+    const numOrNull = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+
+    /* ---------- số liệu thiết kế ----------
+       Thiết kế đi vào đây theo hai dạng:
+         - từ xưởng cứu hộ: có summary tính sẵn (wetMass_kg, cost_musd)
+         - từ bảng test: chỉ có tên, không có mô-đun nào
+       Dạng thứ hai nếu để nguyên thì màn kết thúc in "chưa có số" ở
+       khối lượng và chi phí, trông như game hỏng. Tính lại từ
+       moduleIds khi thiếu, bằng đúng nasa-data.js mà xưởng dùng, nên
+       con số vẫn là số thật chứ không phải bịa. */
+    function summaryOf(d) {
+      const s = (d && d.summary) || null;
+      if (s && Number.isFinite(Number(s.wetMass_kg))) return Promise.resolve(s);
+      const ids = (d && Array.isArray(d.moduleIds)) ? d.moduleIds : null;
+      if (!ids || !ids.length) return Promise.resolve(s);
+      return import(BASE + 'nasa-data.js')
+        .then((nd) => {
+          const built = nd.summarizeModules(ids);
+          /* Isp lấy từ động cơ đầu tiên, đúng cách xưởng chọn động cơ. */
+          const isp = Number(d.isp_s)
+            || Number((built.engines && built.engines[0] && built.engines[0].isp_s))
+            || 0;
+          if (isp > 0) {
+            built.dvAvailable_ms = nd.availableDeltaV_ms(built, isp);
+          }
+          return built;
+        })
+        .catch(() => s);
+    }
+
+    /* Hạn mức chi phí của xưởng cứu hộ (rescue-designer.js: BUDGET_MUSD).
+       Chép lại ở đây thay vì import cả xưởng chỉ để lấy một hằng số:
+       xưởng nặng và kéo theo cả cây giao diện. Lệch số thì chỉ ảnh
+       hưởng nhãn "ngân sách còn dư", không ảnh hưởng luồng chơi. */
+    const BUDGET_MUSD = 700;
+
+    /* Phần trăm ngân sách còn dư. true-ending.js dùng con số này để
+       xét hạng S/A; không truyền thì nó coi như "không có dữ liệu" và
+       bỏ qua tiêu chí, nên một ván vượt ngân sách vẫn có thể lên S. */
+    function budgetLeftPct(sum) {
+      const cost = numOrNull(sum && sum.cost_musd);
+      if (cost === null) return null;
+      return ((BUDGET_MUSD - cost) / BUDGET_MUSD) * 100;
+    }
+
+    /* true-ending.js đọc số qua stats.get() và engine.getState(). Màn
+       bay không giữ hai đối tượng đó, nên dựng một cầu mỏng trả đúng
+       hình dạng chúng chờ: khối lượng ướt và chi phí lấy từ thiết kế
+       người chơi vừa chọn ở xưởng, thời gian bay lấy từ kết quả thật. */
+    function engineShim(result, facts) {
+      const sum = facts.summary || {};
+      const days = numOrNull(result && result.elapsedDays);
+      const dv = numOrNull(facts.deltaV);
+      return {
+        getState() {
+          const totals = {};
+          const mass = numOrNull(sum.wetMass_kg);
+          if (mass !== null) totals.massKg = mass;
+          if (days !== null) totals.daysToArrival = days;
+          if (dv !== null) totals.deltaVAvailableMs = dv;
+          /* costMusd KHÔNG đưa vào totals: true-ending.js in nó vào ô
+             "Ngân sách còn dư", nên 631 M tổng chi phí sẽ hiện thành
+             ngân sách còn dư 631 M. Chỉ truyền phần trăm còn lại, đúng
+             nghĩa của nhãn đó. */
+          const state = { totals };
+          const leftPct = budgetLeftPct(sum);
+          if (leftPct !== null) state.budgetRemainingPct = leftPct;
+          return state;
+        },
+      };
+    }
+
+    /* Chỉ nhét khoá nào có số thật: endings.js đổi null thành "0" nên
+       khoá thiếu thì cả hàng bị bỏ, còn null thì thành "0 m/s" sai. */
+    function flightExtra(result, facts) {
+      const sum = facts.summary || {};
+      const out = {};
+      const dv = numOrNull(facts.deltaV);
+      const mass = numOrNull(sum.wetMass_kg);
+      const cost = numOrNull(sum.cost_musd);
+      const days = numOrNull(result && result.elapsedDays);
+      if (dv !== null) out.deltaVMs = dv;
+      if (mass !== null) out.massKg = mass;
+      if (cost !== null) out.costMusd = cost;
+      if (days !== null) out.daysToArrival = days;
+      return out;
+    }
+
+    /* Thua vì đội vỡ là 'mutiny'; thua mà không vỡ đội thì tàu không
+       vào được quỹ đạo, đúng cảnh 'orbit_miss'. */
+    function loseEndingId(result) {
+      const neg = (result && result.negotiationState) || null;
+      if (neg && (neg.mutiny || Number(neg.cohesion) <= 0)) return 'mutiny';
+      return 'orbit_miss';
+    }
+
+    /* ---------- về menu / chơi lại ---------- */
+
+    /* Trả nút menu về trạng thái bấm được.
+
+       Vì sao cần: khi người chơi bấm "Bắt đầu", boot-feedback.js gắn
+       class is-pending và đặt disabled=true để hiện vòng xoay "Đang tải".
+       Bình thường chuyện đó vô hại vì nút bị màn chơi che mất. Nhưng có
+       hai đường khiến nút chết cứng:
+         1. Bấm "Bắt đầu sứ mệnh mới" ở màn kết thúc -> restartMission()
+            gọi location.reload(). Trạng thái disabled nằm trong DOM và
+            được dựng lại y nguyên khi trang tải lại, không ai gỡ.
+         2. Trình duyệt khôi phục trang từ bfcache (bấm Back), DOM sống
+            dậy với đúng class cũ.
+       Đo thật trên Chrome: sau reload nút ở trạng thái
+       "mbtn mbtn-start is-pending disabled=true", bấm không ăn. Hàm này
+       dọn sạch dấu vết đó. Gọi ở lúc khởi động và trong backToMenu(). */
+    function resetMenuButton() {
+      const b = document.getElementById('start');
+      if (!b) return;
+      b.classList.remove('is-pending');
+      b.disabled = false;
+      delete b.dataset.started;
+      delete b.dataset.loading;
+      const lab = b.querySelector('.mbtn-label');
+      if (lab) {
+        lab.classList.remove('is-pending');
+        if (lab.dataset.idle) lab.textContent = lab.dataset.idle;
+      }
+      const ov = document.querySelector('#boot .boot-pending');
+      if (ov) ov.classList.remove('is-on');
+    }
+
+    function backToMenu() {
+      try { devClearScreens(); } catch (e) { /* luôn còn đường dưới */ }
+      /* Dọn mọi lớp phủ có thể còn lại. .intermission-root không nằm
+         trong DEV_SCREENS nên devClearScreens() bỏ sót nó, và một lớp
+         phủ z-index 86 còn lại thì menu hiện ra mà bấm không được:
+         người chơi về tới màn đầu nhưng nút Bắt đầu nằm dưới tấm phủ. */
+      document.querySelectorAll(
+        '.ending-root, .te-root, .te-sum, .flight-summary-fallback,'
+        + ' .intermission-root, .p2-host, .base-host, .rescue-host,'
+        + ' .comms-host, .story-root, .story-screen, .prologue-root,'
+        + ' .intro-overlay, .beacon-root'
+      ).forEach((n) => n.remove());
+      if (boot) boot.style.display = '';
+      resetMenuButton();
+      baseStarted = false;
+      try { window.dispatchEvent(new CustomEvent('smdg:back-to-boot')); } catch (e) { /* không cần */ }
+    }
+
+    function restartMission() {
+      /* Xoá bản lưu rồi tải lại trang: cách duy nhất chắc chắn không
+         còn trạng thái cũ trong bộ nhớ. */
+      const reload = () => { try { window.location.reload(); } catch (e) { backToMenu(); } };
+      import(BASE + 'save-game.js')
+        .then((sg) => { try { sg.clearSave(); } catch (e) { /* không xoá được thì vẫn tải lại */ } })
+        .catch(() => { /* thiếu module thì vẫn tải lại */ })
+        .then(reload, reload);
+    }
+
+    /* ---------- bảng tổng kết dự phòng ----------
+       Chỉ dùng khi cả true-ending.js lẫn endings.js đều không nạp
+       được. Dựng bằng DOM trần, không phụ thuộc CSS nào, để một file
+       thiếu trên bản deploy không biến màn kết thúc thành màn trắng. */
+    function showFallbackSummary(success, result, flat, extra, leftPct) {
+      document.querySelectorAll('.flight-summary-fallback').forEach((n) => n.remove());
+      const en = getLang() === 'en';
+      const L = (vi, txtEn) => (en ? txtEn : vi);
+
+      const root = document.createElement('div');
+      root.className = 'flight-summary-fallback';
+      root.setAttribute('role', 'dialog');
+      root.setAttribute('aria-modal', 'true');
+      root.setAttribute('aria-label', L('Tổng kết sứ mệnh', 'Mission summary'));
+      root.style.cssText = 'position:fixed;inset:0;z-index:120;display:flex;align-items:center;'
+        + 'justify-content:center;padding:24px;background:rgba(6,8,12,.9);'
+        + 'color:#e9eef6;font:400 15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;';
+
+      const panel = document.createElement('div');
+      panel.style.cssText = 'max-width:640px;width:100%;max-height:88vh;overflow:auto;'
+        + 'background:#0e131b;border:1px solid #22303f;border-radius:16px;padding:26px 26px 20px;'
+        + 'box-shadow:0 24px 70px rgba(0,0,0,.6);';
+      root.appendChild(panel);
+
+      const h = document.createElement('h2');
+      h.textContent = success
+        ? L('SỨ MỆNH HOÀN TẤT', 'MISSION COMPLETE')
+        : L('SỨ MỆNH THẤT BẠI', 'MISSION FAILED');
+      h.style.cssText = 'margin:0 0 6px;font-size:22px;letter-spacing:.04em;color:'
+        + (success ? '#7fe0a3' : '#ff8f8f') + ';';
+      panel.appendChild(h);
+
+      const lede = document.createElement('p');
+      lede.textContent = success
+        ? L('Tàu đã vào quỹ đạo Sao Hỏa và cả ba vai trò còn ký chung một nhật ký.',
+          'The ship reached Mars orbit and all three roles still signed the same log.')
+        : L('Chuyến bay không hoàn tất. Dưới đây là số liệu thật của lần chạy này.',
+          'The flight did not complete. The real numbers from this run are below.');
+      lede.style.cssText = 'margin:0 0 18px;color:#9fb0c3;';
+      panel.appendChild(lede);
+
+      const neg = (result && result.negotiationState) || null;
+      const rows = [];
+      /* Số thập phân phải theo ngôn ngữ: bản tiếng Việt dùng dấu phẩy,
+         bản tiếng Anh dùng dấu chấm, đúng như phần còn lại của game.
+         In cứng dấu chấm thì bảng dự phòng lệch hẳn nhịp với màn thật. */
+      const dec = (n, digits) => {
+        const fixed = Number(n).toFixed(digits);
+        return en ? fixed : fixed.replace('.', ',');
+      };
+      const days = numOrNull(result && result.elapsedDays);
+      if (days !== null) rows.push([L('Thời gian bay', 'Flight time'), dec(days, 1) + ' ' + L('ngày', 'days')]);
+      if (numOrNull(flat.day) !== null) rows.push([L('Sol đã sống', 'Sols survived'), String(Math.round(Number(flat.day)))]);
+      if (neg && numOrNull(neg.cohesion) !== null) rows.push([L('Đồng thuận cuối', 'Final cohesion'), Math.round(Number(neg.cohesion)) + '%']);
+      if (neg && numOrNull(neg.turn) !== null) rows.push([L('Số quyết định', 'Decisions taken'), String(Math.round(Number(neg.turn)))]);
+      const gaugeRows = [
+        ['oxygen', L('Oxy', 'Oxygen')],
+        ['water', L('Nước', 'Water')],
+        ['calories', L('Calo', 'Calories')],
+        ['power', L('Điện', 'Power')],
+      ];
+      for (const [k, label] of gaugeRows) {
+        if (numOrNull(flat[k]) !== null) rows.push([label, Math.round(Number(flat[k])) + '%']);
+      }
+      if (numOrNull(extra.massKg) !== null) rows.push([L('Khối lượng tàu', 'Ship mass'), Math.round(extra.massKg) + ' kg']);
+      if (numOrNull(extra.costMusd) !== null) rows.push([L('Chi phí', 'Cost'), Math.round(extra.costMusd) + ' M$']);
+      if (numOrNull(extra.deltaVMs) !== null) rows.push(['Delta-v', Math.round(extra.deltaVMs) + ' m/s']);
+
+      const dl = document.createElement('dl');
+      dl.style.cssText = 'margin:0 0 16px;display:grid;grid-template-columns:1fr auto;gap:8px 16px;';
+      for (const [k, v] of rows) {
+        const dt = document.createElement('dt');
+        dt.textContent = k;
+        dt.style.cssText = 'color:#8fa3b8;';
+        const dd = document.createElement('dd');
+        dd.textContent = v;
+        dd.style.cssText = 'margin:0;text-align:right;font-variant-numeric:tabular-nums;';
+        dl.append(dt, dd);
+      }
+      if (rows.length) panel.appendChild(dl);
+
+      /* Xếp hạng: dùng đúng luật của true-ending.js — số Sol đã sống
+         cộng ngân sách còn dư. Hạng S cần cả hai, nên bảng dự phòng
+         tính y hệt thay vì tự đặt luật riêng; hai màn kết thúc cùng
+         một ván phải ra cùng một hạng. */
+      if (success) {
+        const sols = numOrNull(flat.day);
+        let rank = 'B';
+        if (sols !== null && sols <= 20 && (leftPct === null || leftPct >= 20)) rank = 'S';
+        else if (sols !== null && sols <= 30 && (leftPct === null || leftPct >= 10)) rank = 'A';
+        const rl = document.createElement('p');
+        rl.textContent = L('Xếp hạng sứ mệnh: ', 'Mission rank: ') + rank;
+        rl.style.cssText = 'margin:0 0 16px;font-size:17px;color:#ffd479;';
+        panel.appendChild(rl);
+      } else {
+        const why = document.createElement('p');
+        why.textContent = (neg && (neg.mutiny || Number(neg.cohesion) <= 0))
+          ? L('Vì sao hỏng: đồng thuận trong khoang về 0. Ba vai trò vẫn ngồi cùng một khoang nhưng không còn ra quyết định chung, nên sứ mệnh dừng trước khi tới quỹ đạo Sao Hỏa. Giữ đồng thuận trên 35 phần trăm bằng cách không để một vai trò bị gạt ra ngoài hai lượt liên tiếp.',
+            'Why it failed: cabin cohesion hit zero. The three roles still shared a cabin but stopped making joint calls, so the mission stopped short of Mars orbit. Keep cohesion above 35 percent by never leaving one role out of two decisions in a row.')
+          : L('Vì sao hỏng: tàu không hoàn tất chặng chuyển tiếp tới quỹ đạo Sao Hỏa trong 258,9 ngày.',
+            'Why it failed: the ship did not complete the 258.9 day transfer into Mars orbit.');
+        why.style.cssText = 'margin:0 0 16px;padding:12px 14px;border-left:3px solid #ff8f8f;'
+          + 'background:#171d26;border-radius:0 8px 8px 0;color:#c9d5e2;';
+        panel.appendChild(why);
+      }
+
+      const foot = document.createElement('div');
+      foot.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;';
+      const mkBtn = (label, primary, onClick) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.style.cssText = 'padding:11px 18px;border-radius:10px;cursor:pointer;font:inherit;'
+          + (primary
+            ? 'background:#2f6fed;border:1px solid #4b86ff;color:#fff;'
+            : 'background:#161d27;border:1px solid #2b3a4a;color:#d6e0ea;');
+        b.addEventListener('click', onClick);
+        return b;
+      };
+      const again = mkBtn(L('Bay lại', 'Fly again'), false, () => {
+        root.remove();
+        openFlight(playerName, design);
+      });
+      foot.appendChild(again);
+      foot.appendChild(mkBtn(L('Chơi lại sứ mệnh mới', 'Play a new mission'), false, () => {
+        root.remove();
+        restartMission();
+      }));
+      foot.appendChild(mkBtn(L('Về menu chính', 'Back to main menu'), true, () => {
+        root.remove();
+        backToMenu();
+      }));
+      panel.appendChild(foot);
+
+      document.body.appendChild(root);
+      try { again.focus({ preventScroll: true }); } catch (e) { /* bỏ qua */ }
+      return root;
+    }
+
+    /* ---------- mở màn kết thúc ---------- */
+
+    async function showFlightEnding(success, result) {
+      const flat = flatStats();
+      /* true-ending.js cần stats.get(); endings.js đọc thẳng
+         stats.day/oxygen/... Một object có cả hai thì phục vụ được cả
+         hai module mà không phải rẽ nhánh dữ liệu. */
+      const statsFor = Object.assign({}, flat, { get: () => flat });
+
+      /* Số liệu tàu: dùng summary có sẵn nếu xưởng đã tính, còn không
+         thì dựng lại từ moduleIds. Bảng dev truyền thiết kế trống nên
+         phải có đường này, nếu không báo cáo in "chưa có số" ở khối
+         lượng và chi phí. */
+      const sum = await summaryOf(design);
+      /* numOrNull trả null chứ không phải undefined, nên `??` không bao
+         giờ rơi sang vế sau. Phải so sánh tường minh, không thì
+         delta-v của xưởng bị bỏ mất và màn kết thúc không hiện nó. */
+      const designDv = numOrNull(design && design.deltaV_ms);
+      const facts = {
+        summary: sum || {},
+        deltaV: designDv !== null ? designDv : numOrNull(sum && sum.dvAvailable_ms),
+      };
+      const extra = flightExtra(result, facts);
+      const leftPct = budgetLeftPct(facts.summary);
+
+      let ok = false;
+      let info = null;
+      try {
+        const sg = await import(BASE + 'save-game.js');
+        ok = sg.hasSave();
+        info = ok ? sg.getSaveInfo() : null;
+      } catch (e) {
+        ok = false;
+        info = null;
+      }
+
+      if (success) {
+        try {
+          const mod = await import(BASE + 'true-ending.js');
+          if (mod && typeof mod.openTrueEnding === 'function') {
+            const inst = mod.openTrueEnding({
+              container: document.body,
+              stats: statsFor,
+              engine: engineShim(result, facts),
+              onRestart: restartMission,
+              onExit: backToMenu,
+            });
+            if (inst && inst.root) return;
+          }
+          console.warn('[flight] true-ending.js không dựng được màn kết thúc thắng');
+        } catch (err) {
+          console.warn('[flight] không nạp được màn kết thúc thắng, dùng bảng tổng kết dự phòng', err);
+        }
+        showFallbackSummary(true, result, flat, extra, leftPct);
+        return;
+      }
+
+      try {
+        const mod = await import(BASE + 'endings.js');
+        if (mod && typeof mod.showEnding === 'function') {
+          const inst = mod.showEnding({
+            id: loseEndingId(result),
+            stats: flat,
+            extra,
+            hasSave: ok,
+            saveInfo: info,
+            onRetry: () => { openFlight(playerName, design); },
+            onLoadSlot: () => { /* màn kết thúc tự mở danh sách mốc lưu */ },
+            onRestart: restartMission,
+          });
+          if (inst && inst.root) return;
+          console.warn('[flight] endings.js không có cảnh kết thúc phù hợp:', loseEndingId(result));
+        }
+      } catch (err) {
+        console.warn('[flight] không nạp được endings.js, dùng bảng tổng kết dự phòng', err);
+      }
+      showFallbackSummary(false, result, flat, extra, leftPct);
+    }
+
+    /* ---------- chốt một lần duy nhất ----------
+       Ba đường tới đây (onDone của flight.js, bộ canh mutiny, và lệnh
+       gỡ từ bên ngoài) đều phải đi qua đúng một cửa, nếu không sẽ có
+       hai màn kết thúc chồng nhau. */
+    function settle(result) {
+      if (settled) return;
+      settled = true;
+      if (watch) { window.clearInterval(watch); watch = 0; }
+
+      const success = !!(result && result.success);
+      const days = numOrNull(result && result.elapsedDays);
+      const elapsed = days !== null ? days : ((flight && numOrNull(flight.day)) || 0);
+
+      try {
+        localStorage.setItem('smdg.lastFlight', JSON.stringify({ success, days: elapsed }));
+      } catch (e) { /* chặn ghi thì bỏ qua, không ảnh hưởng chơi */ }
+
+      /* Tháo màn bay trước khi dựng màn kết thúc: hai lớp phủ cùng lúc
+         thì người chơi bấm không được. */
+      try {
+        if (flight && typeof flight.destroy === 'function') flight.destroy();
+      } catch (e) { /* đã gỡ rồi */ }
+      host.remove();
+
+      Promise.resolve()
+        .then(() => showFlightEnding(success, { ...(result || {}), elapsedDays: elapsed }))
+        .catch((err) => {
+          console.error('[flight] màn kết thúc lỗi, dùng bảng tổng kết dự phòng', err);
+          try {
+            const fallback = flightExtra(result, { summary: (design && design.summary) || {}, deltaV: design && design.deltaV_ms });
+            showFallbackSummary(success, { ...(result || {}), elapsedDays: elapsed }, flatStats(), fallback);
+          } catch (e) {
+            /* Cùng đường: không để người chơi kẹt ở màn trắng. */
+            backToMenu();
+          }
+        });
+    }
+
+    flight = startFlight({
       container: host,
       design,
-      onDone: (result) => {
-        host.remove();
-        try {
-          localStorage.setItem('smdg.lastFlight', JSON.stringify({
-            success: !!(result && result.success),
-            days: (result && result.elapsedDays) || 0,
-          }));
-        } catch (e) { /* chặn ghi thì bỏ qua, không ảnh hưởng chơi */ }
-      },
+      onDone: (result) => settle(result),
     });
-    return { destroy: () => host.remove() };
+
+    /* flight.js không báo ra ngoài khi đội vỡ, nó chỉ đổi sang thẻ
+       "đội tan rã" nội bộ. Canh cờ mutiny để lần thua cũng vào màn kết
+       thúc thật, có phân tích và có nút chơi lại. */
+    watch = window.setInterval(() => {
+      if (settled) { window.clearInterval(watch); watch = 0; return; }
+      const st = flight && flight.state;
+      if (st && st.mutiny) {
+        settle({
+          success: false,
+          elapsedDays: (flight && flight.day) || 0,
+          negotiationState: st,
+        });
+      }
+    }, 400);
+
+    return {
+      destroy: () => {
+        settled = true;
+        if (watch) { window.clearInterval(watch); watch = 0; }
+        host.remove();
+      },
+    };
   }
 
   /* Sau màn mở đầu: Giai đoạn 1 trước, căn cứ sau. */
@@ -1113,12 +1775,26 @@
       if (id === 'p2-4') { devOpenPhase2('execution'); return; }
       if (id === 'summary') { devOpenPhase2('summary'); return; }
       if (id === 'flight') {
-        /* Màn bay cần một thiết kế tàu. Tự dựng thiết kế mặc định để
-           không phải chơi hết màn thiết kế trước. */
-        startFlight({
-          container: document.body,
-          design: { name: 'Ares III' },
-          onDone: () => {},
+        /* Màn bay cần một thiết kế tàu. Dựng sẵn cấu hình "cân bằng"
+           của xưởng cứu hộ để màn kết thúc có khối lượng, chi phí và
+           delta-v thật mà hiện, không phải "chưa có số". Đi qua
+           openFlight() chứ không gọi startFlight() trần: bảng test phải
+           chạy đúng đường thật, kể cả màn kết thúc sau khi bay xong.
+           Gọi trần thì onDone rỗng, bay xong chỉ thấy màn biến mất, và
+           lỗi "không có màn kết thúc" không bao giờ tái hiện được. */
+        openFlight(name, {
+          name: 'Ares III',
+          moduleIds: [
+            'prop_nuclear_ntp_900',
+            'tank_propellant_main',
+            'power_solar_rosa',
+            'comms_high_gain',
+            'life_eclss_recycler',
+            'sensor_edl_suite',
+            'shield_radiation',
+          ],
+          crewCount: 3,
+          isp_s: 900,
         });
         return;
       }
@@ -1303,7 +1979,6 @@
             <input class="inp" type="text" maxlength="18" autocomplete="off"
                    spellcheck="false" placeholder="${t('name.placeholder')}" value="">
           </label>
-          <div class="hint">${t('name.hint')}</div>
           <button class="go" type="button" disabled>${t('name.sign')}</button>
         </div>
       </div>`;
@@ -1481,7 +2156,11 @@
       btn.disabled = true;
       playClick();
       const lab = btn.querySelector('.mbtn-label');
-      if (lab) lab.textContent = 'Đang tải...';
+      /* Nhãn này hiện trên nút trong lúc game đang vào màn mở đầu. Không
+         có khoá i18n riêng cho nó, nên chọn chuỗi theo ngôn ngữ đang bật
+         ngay tại đây. Viết cứng tiếng Việt thì người chơi đã chọn EN vẫn
+         thấy "Đang tải..." ngay ở nút họ vừa bấm. */
+      if (lab) lab.textContent = getLang() === 'en' ? 'Loading...' : 'Đang tải...';
       try {
         await enterFromStart();
       } catch (err) {

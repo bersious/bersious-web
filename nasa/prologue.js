@@ -42,6 +42,12 @@ import { playOneShotSfx, stopAllSceneSfx } from './audio-sfx.js';
 
    File nào chưa có thì bỏ qua êm, không lỗi, không chặn luồng.
    Nhạc tự cắt theo nhịp, có fade ngắn để không bị giật.
+
+   QUY TẮC: thiếu file nhạc là chuyện bình thường (người viết chưa bỏ
+   file vào thư mục), KHÔNG phải lỗi chương trình. Nên mọi nhánh lỗi ở
+   đây đều phải kết thúc êm: không ném lỗi, không console.error, không
+   dừng nhịp tranh, không chặn nút Bỏ qua. Tối đa một dòng
+   console.warn cho mỗi file, và không hỏi lại file đã biết là thiếu.
    ============================================================ */
 
 const MUSIC_DIR = new URL('.', import.meta.url).href + 'assets/audio/prologue/';
@@ -54,10 +60,29 @@ const MUSIC_CUES = [
   { file: 'theme-hope.mp3',    from: 9,  to: 11, gain: 0.50, fadeMs: 1200 },
 ];
 
-/* Trạng thái: phần tử audio đang phát, và chỉ số cue đang dùng */
+/* ---------- trạng thái nhạc nền ---------- */
+
+/* Phần tử đang phát, và chỉ số cue đang dùng. -1 nghĩa là chưa/không phát. */
 let musicEl = null;
 let musicCue = -1;
-let musicTimer = null;
+
+/* Mỗi phần tử giữ bộ đếm fade riêng. Bản trước dùng chung một biến
+   toàn cục cho cả fade ra lẫn fade vào, nên fade vào của bài mới xoá
+   mất bộ đếm fade ra của bài cũ — bài cũ không bao giờ được pause và
+   chạy chồng lên bài mới. */
+const fadeTimers = new WeakMap();
+
+/* Phần tử audio dùng lại theo tên file. Cần thiết vì lý do rất thực:
+   khi trình duyệt chặn tự phát, mỗi nhịp lại thử lại một lần; nếu mỗi
+   lần tạo Audio mới thì mỗi lần cũng tải lại file. Dùng lại phần tử
+   thì lần thử sau không tốn thêm request nào. */
+const musicCache = new Map();
+
+/* File đã biết là không dùng được (404, hoặc định dạng trình duyệt
+   không đọc nổi). Nhớ lại để không xin lại cùng một URL hỏng ở mỗi
+   nhịp: vừa phí băng thông, vừa đẻ ra một loạt 404 trong log server. */
+const missingFiles = new Set();
+let warnedMissing = false;
 
 /* Nhạc chỉ phát khi người chơi bật nhạc trong cài đặt. */
 function musicAllowed() {
@@ -73,72 +98,170 @@ function musicVolume(gain) {
   return Math.max(0, Math.min(1, base * gain));
 }
 
+/* Một dòng cảnh báo duy nhất cho cả bốn khe, không phải bốn dòng, và
+   là warn chứ không phải error: thiếu nhạc nền là chuyện của người
+   soạn nội dung, không phải sự cố của chương trình. */
+function noteMissing(file) {
+  missingFiles.add(file);
+  if (warnedMissing) return;
+  warnedMissing = true;
+  console.warn(
+    '[prologue] thiếu nhạc nền prologue (' + file + '), bỏ qua phần nhạc và chạy tiếp comic.'
+  );
+}
+
+function clearFade(el) {
+  const id = fadeTimers.get(el);
+  if (id) { clearInterval(id); fadeTimers.delete(el); }
+}
+
+/* Hạ hoặc nâng âm lượng từ từ. Trả về ngay, không chặn luồng. */
+function fadeTo(el, target, ms, onDone) {
+  clearFade(el);
+  const goal = Math.max(0, Math.min(1, target));
+  const from = Number.isFinite(el.volume) ? el.volume : 0;
+  const steps = Math.max(1, Math.round(Math.max(0, ms) / 60));
+  if (steps <= 1) {
+    try { el.volume = goal; } catch {}
+    if (onDone) onDone();
+    return;
+  }
+  let i = 0;
+  const id = setInterval(() => {
+    i += 1;
+    const k = i / steps;
+    if (k >= 1) {
+      clearInterval(id);
+      fadeTimers.delete(el);
+      try { el.volume = goal; } catch {}
+      if (onDone) onDone();
+      return;
+    }
+    try { el.volume = Math.max(0, Math.min(1, from + (goal - from) * k)); } catch {}
+  }, 60);
+  fadeTimers.set(el, id);
+}
+
 /* Tắt nhạc hiện tại bằng cách hạ dần âm lượng rồi dừng, để không bị cụt. */
 function stopMusic(fadeMs = 600) {
-  if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
-  if (!musicEl) return;
   const el = musicEl;
   musicEl = null;
   musicCue = -1;
-  if (fadeMs <= 0) { try { el.pause(); } catch {} return; }
-  const start = el.volume;
-  const steps = Math.max(3, Math.round(fadeMs / 60));
-  let i = 0;
-  musicTimer = setInterval(() => {
-    i += 1;
-    const k = 1 - i / steps;
-    if (k <= 0) {
-      clearInterval(musicTimer); musicTimer = null;
-      try { el.pause(); } catch {}
-      return;
+  if (!el) return;
+  if (fadeMs <= 0) {
+    clearFade(el);
+    try { el.pause(); } catch {}
+    return;
+  }
+  fadeTo(el, 0, fadeMs, () => { try { el.pause(); } catch {} });
+}
+
+/* Lấy (hoặc tạo) phần tử cho một file. Gắn sẵn hai thứ: lỗi tải file
+   và vòng lặp. Không bao giờ ném lỗi ra ngoài. */
+function musicElFor(file) {
+  const cached = musicCache.get(file);
+  if (cached) return cached;
+
+  let el;
+  try {
+    el = new Audio(MUSIC_DIR + file);
+  } catch {
+    noteMissing(file);
+    return null;
+  }
+  el.loop = true;
+  el.preload = 'auto';
+  el.volume = 0;
+
+  /* 404 hoặc codec không đọc được đều dồn về đây. Đánh dấu file chết
+     rồi tắt êm; nhịp tranh không liên quan gì tới sự kiện này. */
+  el.addEventListener('error', () => {
+    noteMissing(file);
+    if (musicEl === el) {
+      clearFade(el);
+      musicEl = null;
+      musicCue = -1;
     }
-    try { el.volume = Math.max(0, start * k); } catch {}
-  }, 60);
+    try { el.pause(); } catch {}
+  });
+
+  musicCache.set(file, el);
+  return el;
+}
+
+/* Phát thử một phần tử. Mọi nhánh hỏng đều kết thúc êm. */
+function startCue(cue, el) {
+  el.volume = 0;
+  try { el.currentTime = 0; } catch { /* chưa tải xong thì bỏ qua */ }
+
+  let p;
+  try {
+    p = el.play();
+  } catch (err) {
+    onCueFail(cue, el, err);
+    return;
+  }
+  if (!p || typeof p.then !== 'function') {
+    onCuePlaying(cue, el);
+    return;
+  }
+  p.then(() => onCuePlaying(cue, el)).catch((err) => onCueFail(cue, el, err));
+}
+
+function onCuePlaying(cue, el) {
+  if (musicEl !== el) return;
+  fadeTo(el, musicVolume(cue.gain), cue.fadeMs);
+}
+
+/* Hai kiểu hỏng, xử lý khác nhau cho đúng:
+   - file không tải được / không giải mã được: nhớ là thiếu, bỏ hẳn.
+   - trình duyệt chặn tự phát (chưa có thao tác người dùng): KHÔNG phải
+     lỗi file, chỉ cần thử lại ở nhịp sau, khi người chơi đã chạm vào
+     màn hình. Vì phần tử được dùng lại nên lần thử lại không tải lại. */
+function onCueFail(cue, el, err) {
+  if (musicEl !== el) return;
+  clearFade(el);
+  musicEl = null;
+  musicCue = -1;
+  if (el.error) {
+    noteMissing(cue.file);
+    try { el.pause(); } catch {}
+    return;
+  }
+  if (err && err.name === 'NotAllowedError') return;
+  /* Các kiểu hỏng còn lại (NotSupportedError, AbortError...) cũng chỉ
+     im lặng bỏ qua: nhạc nền là phần thêm, không phải điều kiện để
+     màn comic chạy. */
 }
 
 /* Phát nhạc cho một nhịp. Gọi mỗi lần đổi nhịp, chỉ làm gì đó khi
    nhịp rơi vào cue khác cue đang chạy. */
 function musicForBeat(beatNumber) {
   if (!musicAllowed()) { if (musicEl) stopMusic(400); return; }
+
   const want = MUSIC_CUES.findIndex((c) => beatNumber >= c.from && beatNumber <= c.to);
   if (want === -1) { if (musicEl) stopMusic(700); return; }
   if (want === musicCue) return;
 
-  stopMusic(500);
   const cue = MUSIC_CUES[want];
-  musicCue = want;
 
-  const el = new Audio(MUSIC_DIR + cue.file);
-  el.loop = true;
-  el.preload = 'auto';
-  el.volume = 0;
+  /* File đã biết thiếu: không tạo phần tử, không xin lại, chỉ dọn nhạc
+     của cue trước (nếu có) và đi tiếp. */
+  if (missingFiles.has(cue.file)) {
+    if (musicEl) stopMusic(500);
+    return;
+  }
+
+  const el = musicElFor(cue.file);
+  if (!el) {
+    if (musicEl) stopMusic(500);
+    return;
+  }
+
+  stopMusic(500);
+  musicCue = want;
   musicEl = el;
-  /* File chưa có thì bỏ qua êm. Không báo lỗi ra console vì đây là
-     khe chờ, người dùng chưa bỏ nhạc vào là chuyện bình thường. */
-  el.addEventListener('error', () => {
-    if (musicEl === el) { musicEl = null; musicCue = -1; }
-  });
-  el.play().then(() => {
-    if (musicEl !== el) return;
-    /* Tăng dần tới âm lượng đích thay vì bật thẳng, tránh giật tai. */
-    const target = musicVolume(cue.gain);
-    const steps = Math.max(3, Math.round(cue.fadeMs / 60));
-    let i = 0;
-    if (musicTimer) clearInterval(musicTimer);
-    musicTimer = setInterval(() => {
-      i += 1;
-      const k = i / steps;
-      if (k >= 1) {
-        clearInterval(musicTimer); musicTimer = null;
-        try { el.volume = target; } catch {}
-        return;
-      }
-      try { el.volume = target * k; } catch {}
-    }, 60);
-  }).catch(() => {
-    /* Trình duyệt chặn phát thì bỏ qua, nhịp sau thử lại. */
-    if (musicEl === el) { musicEl = null; musicCue = -1; }
-  });
+  startCue(cue, el);
 }
 
 const FRAME_COUNT = 12;

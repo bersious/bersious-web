@@ -597,7 +597,14 @@ export function initMenu(opts = {}) {
     });
 
     try {
-      await playLaunch();
+      /* Bỏ hoạt cảnh phóng tàu. Ảnh nền menu đã có tàu đứng sẵn trên mặt
+         đất, không có tàu nào cất cánh, nên cảnh lửa phụt và thân tàu
+         bay lên là vô nghĩa và làm người chơi hiểu sai. Thay bằng một
+         khoảng lặng ngắn để nút kịp hiện chữ "Đang chuẩn bị", rồi vào
+         thẳng màn kế. Vẫn giữ nhánh bắt lỗi bên dưới. */
+      await new Promise((resolve) => {
+        setTimeout(resolve, motionAllowed() ? 420 : T_REDUCED);
+      });
       if (actions) actions.classList.add('is-launch-done');
       if (slowTimer) { /* vẫn còn hạn nhắc: để nguyên */ }
       if (typeof go === 'function') await go();

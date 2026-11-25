@@ -73,6 +73,18 @@
   background: linear-gradient(160deg, #10151d, #070a0e);
 }
 
+/* BẮT BUỘC: khung "thiếu ảnh" phải thật sự biến mất khi ảnh tải xong.
+   Thuộc tính hidden của HTML chỉ có tác dụng nhờ một luật mặc định
+   display:none của trình duyệt, mà luật đó yếu hơn .beacon-img-missing
+   { display: flex } ở trên. Kết quả đo được: ảnh tải xong đủ 1600x900,
+   beacon.js đặt missing.hidden = true, nhưng khung sọc chéo vẫn phủ
+   kín khung vì flex thắng hidden — người chơi chỉ thấy nền sọc và dòng
+   mô tả cảnh của chế độ dev, không bao giờ thấy tranh. Luật dưới đây
+   trả lại đúng ý nghĩa cho hidden. */
+.beacon-img-missing[hidden] {
+  display: none;
+}
+
 .beacon-img-missing--dev {
   background:
     repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 10px, transparent 10px 20px),
@@ -103,14 +115,22 @@
   animation: beacon-line-in .55s ease;
 }
 
+/* Chỉ đổi tỉ lệ, KHÔNG đổi độ mờ.
+   Trước đây khung này bắt đầu từ opacity 0. Nếu animation không chạy —
+   document.timeline bị treo, trình duyệt chặn animation, hoặc máy quá
+   tải — thì ảnh nằm nguyên ở opacity 0 và người chơi thấy khung trống
+   dù ảnh đã tải xong (đo thật: naturalWidth 1600, opacity 0). Đổi tỉ lệ
+   thôi thì dù animation có chạy hay không, ảnh vẫn luôn nhìn thấy. */
 @keyframes beacon-in {
-  from { opacity: 0; transform: scale(1.02); }
-  to   { opacity: 1; transform: scale(1); }
+  from { transform: scale(1.02); }
+  to   { transform: scale(1); }
 }
 
+/* Cùng lý do với beacon-in: chữ dẫn cảnh không được phép biến mất
+   vĩnh viễn nếu animation không chạy. */
 @keyframes beacon-line-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(6px); }
+  to   { transform: translateY(0); }
 }
 
 /* ---------- nút bỏ qua và thanh tiến trình ---------- */

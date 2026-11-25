@@ -10,6 +10,7 @@ import { t, getLang, setLang, onLangChange } from './i18n.js';
 import { openDevMode as openDevPanel, askDevPassword, isDevUnlocked, lockDev, injectDevCss } from './devtool-panel.js';
 import { getSettings, setSetting, resetSettings } from './settings.js';
 import { bindClickSounds } from './audio.js';
+import { bindReportButtons, refreshReportHrefs } from './report.js';
 import { isFullscreen, toggleFullscreen, onFullscreenChange, isSupported } from './fullscreen.js';
 import {
   getSaveInfo, saveNow, clearSave, currentDay,
@@ -127,6 +128,18 @@ export function openSettings() {
         </section>
 
         <section class="settings-group">
+          <h3 data-i18n="settings.report"></h3>
+          <div class="settings-row">
+            <span class="settings-label">
+              <span data-i18n="settings.report.desc"></span>
+              <small data-i18n="settings.report.hint"></small>
+            </span>
+            <a class="settings-report-link" data-report href="#" role="button"
+               data-i18n="report.button"></a>
+          </div>
+        </section>
+
+        <section class="settings-group">
           <h3 data-i18n="settings.data"></h3>
 
           <!-- Khối lưu tiến trình. Trạng thái và dung lượng do
@@ -208,6 +221,10 @@ export function openSettings() {
 
   document.body.appendChild(panel);
   ensureSaveCss();
+  /* Nút Báo lỗi trong bảng cài đặt: gắn hành vi một lần và điền sẵn
+     địa chỉ mailto kèm thông tin máy. */
+  bindReportButtons();
+  refreshReportHrefs();
   /* Hàng "chế độ nhà phát triển" ở cuối panel dùng kiểu của
      devtool-panel.css (nút 44px). Nạp ngay khi mở bảng cài đặt, không
      đợi tới lúc bấm: nếu không, hàng đó hiện ra với nút cao 21px rồi
@@ -346,15 +363,28 @@ export function openSettings() {
       }
 
       openDevPanel({
+        /* Đóng bảng cài đặt TRƯỚC khi nhảy. Trước đây ba handler dưới
+           chỉ gọi window.__dev* mà không đóng panel, nên màn game có
+           nhảy thật nhưng .settings-overlay (z-index cao hơn) vẫn phủ
+           kín: người chơi bấm "Nhảy tới" và thấy như không có gì xảy
+           ra, dù DOM bên dưới đã đổi. Đo được bằng elementFromPoint:
+           sau khi bấm, phần tử trên cùng vẫn là .settings-body.
+           close() có setTimeout 180ms để chạy hiệu ứng mờ, nên phải
+           đóng rồi mới nhảy — không chờ, vì màn mới dựng ngay lập tức
+           và lớp phủ đang mờ dần sẽ tự biến mất. */
         onJump: (id, meta) => {
+          close();
           const fn = window.__devJump;
           if (typeof fn === 'function') fn(id, meta);
         },
         onEvent: (id) => {
+          close();
           const fn = window.__devEvent;
           if (typeof fn === 'function') fn(id);
         },
         onTool: (id, meta) => {
+          /* Công cụ thì KHÔNG đóng: người dùng còn bấm tiếp (làm đầy
+             kho, đặt ngày, mở khoá) và cần thấy kết quả ngay trong bảng. */
           const fn = window.__devTool;
           if (typeof fn === 'function') fn(id, meta);
         },

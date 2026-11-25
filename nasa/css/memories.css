@@ -22,7 +22,20 @@
     #06070a;
   color: var(--tx, #cfd8e3);
   font-family: var(--st-font-body, "Be Vietnam Pro", sans-serif);
-  animation: mem-fade-in .34s ease-out both;
+  /* Cùng lý do với .settings-overlay: animation có fill-mode giữ keyframe
+     from (opacity 0) cho tới khi chạy xong. Nếu nó không tiến được, lớp
+     phủ kín màn hình nằm ở opacity 0 mà vẫn z-index 900, chặn mọi cú
+     bấm. Khai báo opacity nền để luôn hiện đúng dù animation có kẹt. */
+  opacity: 1;
+  /* Không animate opacity ở lớp phủ toàn màn hình. Xem ghi chú dài trong
+     settings.css: animation opacity có fill-mode giữ keyframe from (0)
+     khi chưa chạy xong, và nếu nó đứng yên thì lớp phủ vô hình mà vẫn
+     chặn mọi cú bấm. Hiệu ứng mở chuyển xuống phần nội dung bên trong. */
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mem-screen .mem-body { animation: none; }
 }
 
 @keyframes mem-fade-in {
@@ -31,7 +44,7 @@
 }
 
 .mem-screen.is-out {
-  animation: mem-fade-out .26s ease-in both;
+  animation: mem-fade-out .26s ease-in forwards;
 }
 @keyframes mem-fade-out {
   from { opacity: 1; }
@@ -327,7 +340,7 @@
 /* ---------- chuyển lượt ---------- */
 
 .mem-screen.is-enter .mem-art {
-  animation: mem-art-in .62s cubic-bezier(.22, .8, .3, 1) both;
+  animation: mem-art-in .62s cubic-bezier(.22, .8, .3, 1) forwards;
 }
 @keyframes mem-art-in {
   from { opacity: 0; transform: scale(1.035); }
@@ -336,7 +349,7 @@
 
 .mem-screen.is-enter .mem-body,
 .mem-screen.is-enter .mem-cap {
-  animation: mem-text-in .4s ease-out both;
+  animation: mem-text-in .4s ease-out forwards;
 }
 @keyframes mem-text-in {
   from { opacity: 0; transform: translate3d(0, 6px, 0); }
@@ -345,7 +358,7 @@
 
 .mem-screen.is-leaving .mem-art,
 .mem-screen.is-leaving .mem-body {
-  animation: mem-out .16s ease-in both;
+  animation: mem-out .16s ease-in forwards;
 }
 @keyframes mem-out {
   from { opacity: 1; }

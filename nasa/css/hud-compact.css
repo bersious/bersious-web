@@ -74,14 +74,19 @@
   right: 0;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* Ba cột: hai bên co theo nội dung, giữa nhận phần còn lại. Trước đây
+     hai cột bên đều là 1fr nên cột trái phình theo bốn thanh chỉ số, đẩy
+     đồng hồ lệch khỏi tâm và ép cột phải vào sát mép, gây chồng lấn. */
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: clamp(10px, 1.4vw, 22px);
+  /* Một thang khoảng cách duy nhất: 12px giữa ba cụm. Trước đây mỗi cụm
+     tự đặt gap riêng nên nhịp thị giác không đều. */
+  column-gap: 12px;
 
-  min-height: 66px;
-  /* Đệm hai bên bằng nhau và bằng đúng gap giữa ba cụm: mắt đọc ra ba
-     khối cách đều, không khối nào dính mép. */
-  padding: 8px clamp(12px, 1.4vw, 20px);
+  /* 76px đủ cho hai tầng (đồng hồ + dòng nhiệm vụ). Thanh cũ cao 66px,
+     phải nhồi ba tầng vào một chỗ nên mới chồng nhau. */
+  min-height: 76px;
+  padding: 8px 16px;
 
   border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   background:
@@ -110,9 +115,76 @@
   min-width: 0;
 }
 
-.hud2-left { gap: 10px; justify-content: flex-start; }
-.hud2-center { flex-direction: column; align-items: center; gap: 3px; }
-.hud2-right { gap: 10px; justify-content: flex-end; }
+/* Ba cụm trên một hàng. Mỗi cụm là flex, canh giữa theo trục dọc để
+   tâm của cả ba nằm trên một đường ngang. */
+.hud2-left {
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.hud2-center {
+  /* Cột giữa là phần co giãn duy nhất trên thanh. min-width: 0 để nội
+     dung dài không đẩy nó rộng ra và tràn sang hai cột bên. */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.hud2-right {
+  /* Hai loai noi dung khac chuc nang nam chung mot cum: chi so tram (doc)
+     va bon nut (bam). Gap noi bo 5px, con khoang cach giua hai nhom do
+     .hud2-tools-group lo. Truoc day tat ca deu 8px nen mat khong co tin
+     hieu nao de phan nhom, phai quet lai tu dau dai moi lan tim nut. */
+  gap: 14px;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Vach chia doc mong giua cum chi so va cum nut. Chi hien khi ca hai cung
+   nam tren mot hang; o man hep chung xuong dong thi vach nay thua. */
+.hud2-right > .hud2-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding-left: 14px;
+}
+
+.hud2-right > .hud2-actions::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: color-mix(in srgb, var(--tx-bright) 16%, transparent);
+}
+
+.hud2-station {
+  gap: 5px;
+}
+
+/* Hàng chỉ số trạm co được và cắt gọn thay vì đẩy tràn sang nút bên
+   cạnh. Đây là nguồn gốc lỗi nút Điện chồng lên đồng hồ ở màn 1280. */
+.hud2-center > * {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.hud2-station {
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* Nhip ben trong nhom chi so: 5px, hep hon khoang cach giua hai nhom
+     (14px) de mat doc ra chung la mot khoi. */
+  gap: 5px;
+}
 
 /* ---------- chân dung ----------
    Lỗi người dùng báo: avatar tròn 38px dùng object-fit: cover với
@@ -480,6 +552,8 @@
   font-size: .62rem;
   font-weight: 500;
   letter-spacing: .03em;
+  /* Giu phan cap: nhan nho hon so mot bac (so dung --tx-bright), nhung
+     khong xuong muc xam nhat vi o nay rat nho. */
   color: var(--tx);
   white-space: nowrap;
 }
@@ -489,12 +563,14 @@
   /* Số chỉ số là thứ mắt liếc nhiều nhất trên màn này: to hơn nhãn
      hai bậc, đậm, canh phải theo cột số cố định để 60 và 100 thẳng
      hàng. Chữ mono cộng tabular-nums giữ mọi chữ số cùng bề rộng nên
-     số không nhảy khi giá trị đổi. */
+     số không nhảy khi giá trị đổi. min-width 3ch chốt cột đủ chỗ cho
+     ba chữ số, nên mép phải của ba ô chỉ số thẳng hàng thay vì răng
+     cưa theo độ dài nhãn. */
   font-size: .92rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
-  min-width: 2.6ch;
+  min-width: 3ch;
   text-align: right;
   color: var(--tx-bright);
   text-shadow: 0 1px 2px var(--hud2-shadow);
@@ -503,7 +579,16 @@
 .hud2-st-u {
   font-family: var(--st-font-mono, monospace);
   font-size: .56rem;
-  color: var(--tx-soft);
+  /* Don vi nho nhat tren thanh nhung van phai doc duoc: dung --tx thay
+     cho --tx-soft (xam nhat, gan nhu bien mat). */
+  color: var(--tx);
+}
+
+/* Quy uoc don vi: W va kPa co khoang cach 4px truoc don vi, rieng %
+   phai sat so ("100%" khong phai "100 %"). Lop u-tight do hud-compact.js
+   bat khi don vi la '%', margin am nay triet tieu gap cua cell. */
+.hud2-st.u-tight .hud2-st-u {
+  margin-left: -4px;
 }
 
 /* Mức bình thường: xanh nhạt đủ sáng để đọc trên nền lõm. Chỉ đổi màu
@@ -1025,7 +1110,10 @@
   background: color-mix(in srgb, var(--bg-void) 84%, transparent);
   -webkit-backdrop-filter: blur(1.5px);
   backdrop-filter: blur(1.5px);
-  pointer-events: auto;
+  /* Bốn tấm tối chỉ làm mờ phần còn lại của màn hình, không chặn thao
+     tác. Để auto thì chúng nuốt mọi cú bấm, kể cả vào nút [?] ở góc trên
+     phải: người chơi bấm mở sổ tay mà không có gì xảy ra. */
+  pointer-events: none;
 }
 
 .ml-ring {

@@ -871,14 +871,22 @@ export function showEnding(opts = {}) {
     slotsOpen = true;
     slotsOverlay.hidden = false;
     root.classList.add('is-slots');
-    requestAnimationFrame(() => {
-      if (!slotsOpen) return;
+    /* is-open phải vào sau khung hình đầu để danh sách trượt lên. Nhưng
+       rAF bị hoãn khi tab ẩn / cửa sổ mất focus, nên nếu chỉ có rAF thì
+       danh sách mốc lưu kẹt ở trạng thái trong suốt. setTimeout làm
+       đường chính; slotsShown chống chạy hai lần. */
+    let slotsShown = false;
+    const showSlots = () => {
+      if (slotsShown || !slotsOpen) return;
+      slotsShown = true;
       slotsOverlay.classList.add('is-open');
       /* Đưa tiêu điểm vào nút đầu tiên trong danh sách, nếu không thì
          bàn phím vẫn ở nút phía sau lớp phủ. */
       const first = slotsList.querySelector('button') || slotsClose;
       if (first) first.focus();
-    });
+    };
+    requestAnimationFrame(showSlots);
+    window.setTimeout(showSlots, 32);
   }
 
   function closeSlots() {
@@ -959,15 +967,24 @@ export function showEnding(opts = {}) {
 
   /* Hiện dần: lớp phủ mờ vào rồi khung trượt lên. Tắt hiệu ứng thì
      gắn class is-open ngay trong khung hình đầu, không có chuyển
-     động nào. */
+     động nào.
+
+     Có hiệu ứng: rAF chỉ để sớm hơn một nhịp. Đường CHÍNH là setTimeout,
+     vì rAF bị hoãn khi tab ẩn / cửa sổ mất focus / máy nghẽn — chỉ dựa
+     vào rAF là khung báo cáo tử vong kẹt ở opacity 0, người chơi thấy
+     màn hình đen sau khi chết. */
   if (instant) {
     root.classList.add('is-open');
   } else {
-    requestAnimationFrame(() => {
-      if (closed) return;
+    let shown = false;
+    const show = () => {
+      if (shown || closed) return;
+      shown = true;
       root.classList.add('is-open');
       try { frame.focus({ preventScroll: true }); } catch { /* bỏ qua */ }
-    });
+    };
+    requestAnimationFrame(show);
+    window.setTimeout(show, 32);
   }
 
   active = { close, root };

@@ -57,12 +57,12 @@ export function startStory({ onFinish } = {}) {
     <div class="story-sub">
       <div class="story-body" aria-live="polite" aria-atomic="false"><span class="story-next-hint"></span></div>
       <div class="story-nav">
-        <button class="story-btn" data-dir="-1" aria-label="Lùi lại">
+        <button class="story-btn" data-dir="-1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
           <span class="story-btn-label"></span>
         </button>
-        <button class="story-btn story-btn-next" data-dir="1" aria-label="Tiếp theo">
+        <button class="story-btn story-btn-next" data-dir="1">
           <span class="story-btn-label"></span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
@@ -173,6 +173,13 @@ export function startStory({ onFinish } = {}) {
   function updateChrome() {
     btnPrevLabel.textContent = t('nav.prev');
     btnNextLabel.textContent = t('nav.next');
+    /* Nhãn trợ năng của hai nút mũi tên cũng phải đổi theo ngôn ngữ.
+       Trước đây chúng viết cứng tiếng Việt ngay trong khung dựng, mà
+       khung dựng chỉ chạy một lần, nên người chơi chọn EN vẫn bị trình
+       đọc màn hình đọc "Lùi lại" / "Tiếp theo". Gán ở đây để mỗi lượt
+       vẽ lại (kể cả khi đổi ngôn ngữ giữa chừng) là nhãn theo kịp. */
+    btnPrev.setAttribute('aria-label', t('nav.prev'));
+    btnNext.setAttribute('aria-label', t('nav.next'));
 
     const artKey = artKeyFor(i);
 

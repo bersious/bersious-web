@@ -338,7 +338,11 @@ function watchPanels() {
   function schedule() {
     if (queued) return;
     queued = true;
-    requestAnimationFrame(scan);
+    /* setTimeout chứ không phải requestAnimationFrame: rAF bị hoãn khi
+       tab ẩn / cửa sổ mất focus, và lúc đó `queued` đã bật nên mọi thay
+       đổi DOM sau đó không bao giờ được quét lại — màn nào mở trong lúc
+       tab ẩn cũng không được ghi nhận là đã xem. */
+    window.setTimeout(scan, 0);
   }
 
   const obs = new MutationObserver(schedule);
@@ -726,9 +730,19 @@ export function startMissionLogIntro({ logEl } = {}) {
 
     paintText();
     layout();
-    requestAnimationFrame(() => {
+    /* is-in phải vào sau khung hình đầu để hiệu ứng trượt chạy, và phải
+       đo lại bố cục ngay sau đó. rAF bị hoãn khi tab ẩn / cửa sổ mất
+       focus / máy nghẽn, nên nếu chỉ có rAF thì lỗ khoét kẹt ở trạng
+       thái ẩn và hướng dẫn không hiện ra. setTimeout làm đường chính;
+       shown chống chạy hai lần. */
+    let shown = false;
+    const show = () => {
+      if (shown || finished) return;
+      shown = true;
       root.classList.add('is-in');
       layout();
-    });
+    };
+    requestAnimationFrame(show);
+    window.setTimeout(show, 32);
   });
 }

@@ -223,7 +223,12 @@ export function openJournalBook({
     if (entry && entry.mood && LABELS.mood[entry.mood]) {
       const moodEl = document.createElement('span');
       moodEl.className = 'jb-pagehead-mood';
-      moodEl.textContent = label('mood.' + entry.mood, lang);
+      /* Bảng mood lồng một cấp: LABELS.mood.calm = { vi, en }.
+         label('mood.calm') lại tra LABELS['mood.calm'] nên ra undefined
+         và in nguyên chuỗi "mood.calm" lên đầu trang. Lấy thẳng hàng đã
+         kiểm ở điều kiện trên. */
+      const moodRow = LABELS.mood[entry.mood];
+      moodEl.textContent = moodRow[lang] ?? moodRow.vi;
       head.appendChild(moodEl);
     }
     sheet.appendChild(head);

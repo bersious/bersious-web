@@ -921,7 +921,7 @@ html.motion-off .base-clock-fill { transition: none; }
   border-left: 3px solid var(--amber, #e8a33d);
   border-radius: var(--st-radius-lg, 5px);
   box-shadow: 0 20px 54px rgba(0, 0, 0, .72);
-  animation: base-note-in .18s var(--st-ease-out, ease-out) both;
+  animation: base-note-in .18s var(--st-ease-out, ease-out) forwards;
 }
 
 @keyframes base-note-in {

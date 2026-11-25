@@ -74,7 +74,7 @@ const DEFAULT_SNAP = { calories: 75, water: 70, oxygen: 100 };
      id      khoá ổn định, dùng cho data-* và cho test
      art     đường dẫn ảnh, KHÔNG kèm đuôi
      ms      thời lượng tự chuyển
-     layout  'full' | 'duo' | 'trio' (chia ô như trang truyện)
+     layout  luôn 'full': mỗi ảnh đã là một trang truyện nhiều panel
      caption dòng dẫn cảnh góc dưới trái
      say     hộp thoại: who (tên người nói), tx (lời), x/y/w là toạ độ
              phần trăm của hộp trên khung
@@ -124,8 +124,8 @@ export const INTERMISSION_FRAMES = [
     id: 'operator-shock',
     art: ART_STEM + '04',
     ms: 4200,
-    layout: 'duo',
-    /* hộp thoại đặt nửa dưới khung, chừa mặt nhân vật ở ô trái */
+    layout: 'full',
+    /* hộp thoại đặt nửa dưới khung, chừa mặt nhân vật ở nửa trên */
     say: { who: { vi: 'Nhân viên trực sóng', en: 'Duty operator' }, x: 6, y: 66, w: 56 },
     tx: {
       vi: 'Khoan đã... Cậu ấy còn sống! Tín hiệu từ Sao Hỏa, cậu ấy còn sống!',
@@ -159,7 +159,7 @@ export const INTERMISSION_FRAMES = [
     id: 'the-click',
     art: ART_STEM + '07',
     ms: 4000,
-    layout: 'duo',
+    layout: 'full',
     sfx: {
       tx: { vi: '*CLICK!*', en: '*CLICK!*' },
       x: 50, y: 42, rot: 5, size: 'l',
@@ -169,7 +169,7 @@ export const INTERMISSION_FRAMES = [
     id: 'envelope-open',
     art: ART_STEM + '08',
     ms: 4200,
-    layout: 'trio',
+    layout: 'full',
   },
   {
     id: 'whiteboard',
@@ -364,23 +364,32 @@ function motionOn() {
    Ảnh chưa có thì ô giữ nền tối và hiện số khung. Số luôn có sẵn trong
    DOM, chỉ ẩn đi khi ảnh tải xong (lớp has-art).
 
-   Vì sao dò trước bằng fetch HEAD thay vì cứ gán img.src rồi bắt lỗi:
-   thẻ img trỏ vào file không tồn tại sinh một dòng "Failed to load
-   resource" ở mức error trong console, mười ba khung nhân bốn đuôi là
-   hơn năm chục dòng rác, che mất lỗi thật. HEAD không ghi gì vào
-   console, nên console sạch đúng như yêu cầu, mà khung tối vẫn hiện
-   đúng lúc và vẫn có console.warn báo khung nào còn thiếu tranh. */
+   VÌ SAO KHÔNG DÒ BẰNG fetch HEAD TRƯỚC KHI GÁN src (bản cũ làm vậy và
+   ảnh mất khoảng hai giây mới hiện): HEAD chạy tuần tự từng đuôi file,
+   xong mới có URL để gán src, nên trình duyệt chỉ BẮT ĐẦU tải ảnh sau
+   khi HEAD kết thúc. Nay gán thẳng bg-im-NN.webp ngay trong nhịp dựng
+   khung, ảnh tải song song với mọi việc khác, hiện trong khung hình
+   đầu. Đuôi khác chỉ được thử khi .webp báo lỗi (onerror), nên console
+   vẫn không có dòng rác nào cho tới khi thật sự thiếu tranh.
 
-const ART_EXTS = ['webp', ...FALLBACK_EXTS];
+   MỘT KHUNG CHỈ MỘT Ô: mỗi file bg-im-NN.webp đã là MỘT TRANG truyện
+   gồm hai hoặc ba panel xếp sẵn (ví dụ 04 là trang hai panel dọc: trên
+   là phòng điều khiển có màn hình thư, dưới là người đàn ông đeo kính
+   hoảng sợ chỉ tay lên). Bản cũ chia trang đó thành 2-3 ô dùng CHUNG
+   một file, mỗi ô chỉ khác objectPosition, nên người chơi thấy cùng một
+   bức tranh hai lần và mỗi ô chỉ là một mẩu bị cắt cụt. Vì ảnh gốc đã
+   là trang nhiều panel, cách đúng là hiện TRỌN trang trong một ô. */
 
-/* Nhớ kết quả dò theo stem: cùng một khung có thể xuất hiện ở nhiều ô
-   (khung chia đôi, chia ba), không nên dò lại bốn lần cho mỗi ô. */
+/* Nhớ URL đã chốt theo stem, để lần dựng lại khung (quay lui bằng phím
+   trái) không phải dò lại từ đầu. Giá trị null = đã biết là thiếu tranh. */
 const artCache = new Map();
 
-async function resolveArt(stem) {
+/* Dò thật sự, chỉ chạy khi .webp hỏng. Bắt đầu từ jpg vì webp vừa lỗi
+   rồi, không thử lại làm gì. */
+async function probeArt(stem) {
   if (artCache.has(stem)) return artCache.get(stem);
   let found = null;
-  for (const ext of ART_EXTS) {
+  for (const ext of FALLBACK_EXTS) {
     const url = BASE_URL + stem + '.' + ext;
     try {
       const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
@@ -391,6 +400,8 @@ async function resolveArt(stem) {
   return found;
 }
 
+/* Một khung = một ô, ảnh hiện trọn trang truyện. Tham số pos giữ lại
+   cho tương thích nhưng luôn là '50% 45%': không cắt, không lặp. */
 function makeCell(frameNo, pos) {
   const cell = document.createElement('div');
   cell.className = 'im-cell';
@@ -401,7 +412,6 @@ function makeCell(frameNo, pos) {
   img.draggable = false;
   img.dataset.frame = String(frameNo);
   img.style.objectPosition = pos || '50% 45%';
-  img.addEventListener('load', () => { cell.classList.add('has-art'); });
 
   const ph = document.createElement('span');
   ph.className = 'im-noart';
@@ -412,17 +422,31 @@ function makeCell(frameNo, pos) {
   cell.appendChild(ph);
 
   const stem = ART_DIR + ART_STEM + pad2(frameNo);
-  resolveArt(stem).then((url) => {
-    if (url) { img.src = url; return; }
+  let triedFallback = false;
+
+  function markDead() {
     if (cell.dataset.dead === '1') return;
     cell.dataset.dead = '1';
     cell.classList.add('no-art');
     console.warn('[intermission] thiếu tranh khung ' + frameNo + ' (' + stem + '.*), hiện khung tối');
-  }).catch(() => {
-    cell.dataset.dead = '1';
-    cell.classList.add('no-art');
-    console.warn('[intermission] không dò được tranh khung ' + frameNo + ' (' + stem + '.*)');
+  }
+
+  img.addEventListener('load', () => { cell.classList.add('has-art'); });
+
+  /* .webp hỏng hoặc không có: mới đi dò các đuôi còn lại, rồi gán lại
+     src đúng một lần. Lỗi lần hai thì chịu, hiện khung tối. */
+  img.addEventListener('error', () => {
+    if (cell.dataset.dead === '1') return;
+    if (triedFallback) { markDead(); return; }
+    triedFallback = true;
+    probeArt(stem).then((url) => {
+      if (url) { img.src = url; return; }
+      markDead();
+    }).catch(markDead);
   });
+
+  /* Gán thẳng, không chờ dò: ảnh bắt đầu tải ngay khi khung được dựng. */
+  img.src = BASE_URL + stem + '.webp';
 
   return cell;
 }
@@ -430,18 +454,10 @@ function makeCell(frameNo, pos) {
 function buildCells(beat, frameNo) {
   const box = document.createElement('div');
   box.className = 'im-cells';
-  box.dataset.layout = beat.layout || 'full';
-
-  if ((beat.layout || 'full') === 'duo') {
-    box.appendChild(makeCell(frameNo, '32% 45%'));
-    box.appendChild(makeCell(frameNo, '68% 45%'));
-  } else if (beat.layout === 'trio') {
-    box.appendChild(makeCell(frameNo, '20% 45%'));
-    box.appendChild(makeCell(frameNo, '50% 45%'));
-    box.appendChild(makeCell(frameNo, '80% 45%'));
-  } else {
-    box.appendChild(makeCell(frameNo, '50% 45%'));
-  }
+  /* Mọi khung đều một ô: ảnh gốc đã là trang nhiều panel, cắt thêm sẽ
+     lặp tranh. Bỏ hẳn nhánh duo/trio thay vì để đó rồi không dùng. */
+  box.dataset.layout = 'full';
+  box.appendChild(makeCell(frameNo, '50% 45%'));
   return box;
 }
 

@@ -60,6 +60,16 @@ const TEXT = {
     rankA: 'Xuất sắc',
     rankB: 'Đạt yêu cầu',
     rankHow: 'Xếp hạng dựa trên số Sol đã sống, ngân sách còn dư và biên an toàn của bốn đồng hồ đo.',
+    whyTitle: 'VÌ SAO KẾT QUẢ NÀY',
+    whySolsGood: 'Bạn giữ đoàn sống {n} Sol, trong hạn mức {cap} Sol mà NASA định cho một kíp cứu hộ. Thời gian là thứ đắt nhất trên Sao Hỏa: cứ thêm một Sol là thêm một chu kỳ tiêu hao oxy, nước và thức ăn.',
+    whySolsBad: 'Bạn cần {n} Sol để xong việc, vượt hạn mức {cap} Sol. Phần dôi ra không chỉ là thời gian — nó là oxy, nước và calo bị đốt thêm mỗi ngày, và là rủi ro bão bụi tích tụ.',
+    whyBudgetGood: 'Bạn còn {pct}% ngân sách. Dự án thật của NASA bị cắt khi vượt trần chi phí, nên giữ dư là điều kiện sống còn chứ không phải điểm cộng thẩm mỹ.',
+    whyBudgetBad: 'Bạn chỉ còn {pct}% ngân sách, dưới mức an toàn {cap}%. Một sứ mệnh không có dự phòng thì mọi hỏng hóc nhỏ đều thành thảm hoạ, vì không còn tiền để phóng bù hay chế tạo lại linh kiện.',
+    whyGaugeGood: 'Cả {n} đồng hồ đo chính đều nằm trong vùng xanh: khối lượng, nguồn điện và liên lạc đều còn biên an toàn.',
+    whyGaugeBad: 'Có {red} đồng hồ đo ở vùng đỏ. Một hệ thống đỏ nghĩa là nó đã chạm ngưỡng giới hạn — trong thiết kế thật, đó là lý do bị loại ở vòng duyệt.',
+    whyGaugePart: 'Chỉ {n} trên 3 đồng hồ đo đạt vùng xanh. Còn thiếu biên an toàn ở hệ thống còn lại, nghĩa là thiết kế vừa đủ chạy nhưng không đủ dư để chịu sai số.',
+    whyMassNote: 'Tàu của bạn nặng {mass} kg. Curiosity là 899 kg, Perseverance là 1.025 kg — mỗi kg thêm vào đều làm tên lửa đắt hơn và ăng-ten liên lạc yếu đi.',
+    whyNoData: 'Một số chỉ số không đọc được từ dữ liệu ván chơi, nên phần phân tích này chỉ dựa trên những gì đo được.',
     statSols: 'Sol đã sống',
     statBudget: 'Ngân sách còn dư',
     statMass: 'Khối lượng tàu',
@@ -93,6 +103,16 @@ const TEXT = {
     rankA: 'Excellent',
     rankB: 'Acceptable',
     rankHow: 'Rank comes from the Sols survived, the budget left and the safety margins on all four gauges.',
+    whyTitle: 'WHY THIS OUTCOME',
+    whySolsGood: 'You kept the crew alive {n} Sols, inside the {cap}-Sol window NASA allows a rescue crew. Time is the scarcest resource on Mars: every extra Sol burns another cycle of oxygen, water and food.',
+    whySolsBad: 'You needed {n} Sols, past the {cap}-Sol window. The overrun is not just calendar time — it is oxygen, water and calories burned every extra day, plus the dust-storm risk that piles up.',
+    whyBudgetGood: 'You kept {pct}% of the budget. Real NASA projects get cancelled when they breach cost caps, so headroom is survival, not a cosmetic bonus.',
+    whyBudgetBad: 'Only {pct}% of budget left, under the {cap}% safety floor. A mission with no reserve turns every small failure into a catastrophe, because there is no money for a reflight or a rebuilt part.',
+    whyGaugeGood: 'All {n} primary gauges sit in the green band: mass, power and comms all keep a safety margin.',
+    whyGaugeBad: '{red} gauge(s) in the red band. A red system has hit its hard limit — in real design reviews that is a disqualifier.',
+    whyGaugePart: 'Only {n} of 3 gauges reached green. The remaining system has no margin, meaning the design barely runs but cannot absorb error.',
+    whyMassNote: 'Your craft weighs {mass} kg. Curiosity is 899 kg, Perseverance is 1.025 kg — every extra kilogram makes the launch costlier and the comms link weaker.',
+    whyNoData: 'Some figures could not be read from this run, so this analysis only uses what was measurable.',
     statSols: 'Sols survived',
     statBudget: 'Budget left',
     statMass: 'Ship mass',
@@ -115,9 +135,19 @@ const TEXT = {
   },
 };
 
-function pick(key) {
+/* Lấy chuỗi theo ngôn ngữ hiện tại. Tham số thứ hai là bảng nội suy:
+   các chỗ giữ {n}, {cap}, {pct}, {mass}, {red} trong câu sẽ được thay
+   bằng số thật của ván chơi. Nhờ vậy phần giải thích lý do nói được
+   con số cụ thể chứ không chỉ câu chung chung. */
+function pick(key, vars) {
   const tbl = TEXT[getLang()] || TEXT.vi;
-  return tbl[key] ?? TEXT.vi[key] ?? key;
+  let s = tbl[key] ?? TEXT.vi[key] ?? key;
+  if (vars && typeof s === 'string') {
+    for (const [k, v] of Object.entries(vars)) {
+      s = s.split('{' + k + '}').join(String(v));
+    }
+  }
+  return s;
 }
 
 /* ============================================================
@@ -306,13 +336,20 @@ export function openTrueEnding({ container, stats, engine, onRestart, onExit } =
     bar.setAttribute('aria-valuenow', String(idx + 1));
     counter.textContent = `${idx + 1} / ${FRAMES.length}`;
 
-    /* Khung 09: tối dần rồi hiện chữ. Khung khác: gỡ cả hai. */
+    /* Khung 09: tối dần rồi hiện chữ. Khung khác: gỡ cả hai.
+       rAF không làm đường duy nhất: nếu khung cuối hiện đúng lúc tab bị
+       ẩn thì rAF không chạy và chữ THE END không bao giờ hiện. */
     if (last && frame.isEnd) {
       root.classList.add('is-ending');
-      requestAnimationFrame(() => {
+      let endShown = false;
+      const showEnd = () => {
+        if (endShown || finished) return;
+        endShown = true;
         dim.classList.add('is-on');
         endTitle.classList.add('is-on');
-      });
+      };
+      requestAnimationFrame(showEnd);
+      window.setTimeout(showEnd, 32);
     } else {
       root.classList.remove('is-ending');
       dim.classList.remove('is-on');
@@ -465,6 +502,19 @@ function readFacts(stats, engine) {
       if (st.gauges) out.gauges = st.gauges;
       if (Number.isFinite(st.budgetMusd)) out.budgetMusd = st.budgetMusd;
       if (Number.isFinite(st.budgetRemainingPct)) out.budgetPct = st.budgetRemainingPct;
+      /* Số Sol đã sống: lấy từ engine khi nguồn stats không có.
+         Giai đoạn 2 gọi bảng tổng kết với stats = null, nên trước đây ô
+         'SOL ĐÃ SỐNG' luôn hiện chữ dự phòng dù engine có số thật.
+         Engine giữ solsRemaining (số Sol đồng đội còn sống được) và
+         solsToArrival (số Sol chuyến bay). Đã sống = 300 trừ còn lại
+         cộng số Sol đã bay, cùng đơn vị Sol nên cộng trừ trực tiếp. */
+      if (out.sols === null) {
+        const conLai = Number(st.solsRemaining);
+        const daBay = Number(st.solsToArrival);
+        if (Number.isFinite(conLai)) {
+          out.sols = Math.max(0, Math.round(300 - conLai + (Number.isFinite(daBay) ? daBay : 0)));
+        }
+      }
     }
   } catch (e) {
     /* engine chưa sẵn sàng */
@@ -480,14 +530,71 @@ function readFacts(stats, engine) {
      B: còn lại.
    Số nào thiếu thì tiêu chí đó bị bỏ qua thay vì ép xuống hạng B,
    để bảng tổng kết vẫn dùng được khi mở riêng lẻ. */
-function rankOf(f) {
+/* Dựng danh sách lý do cụ thể cho kết quả ván chơi.
+   Đây là phần ban giám khảo NASA chấm nặng nhất trong đề bài: game phải
+   giải thích ĐƯỢC VÌ SAO thắng hay thua, chứ không chỉ hiện một huy hiệu
+   hạng. Mỗi dòng dưới đây gắn với một con số thật của ván chơi; dòng nào
+   thiếu dữ liệu thì bỏ qua chứ không bịa. */
+function buildWhy(f, pick) {
+  const out = [];
+  const solsCap = 20;
+
+  if (f.sols !== null) {
+    const ok = f.sols <= solsCap;
+    out.push(pick(ok ? 'whySolsGood' : 'whySolsBad', { n: f.sols, cap: solsCap }));
+  }
+
+  if (f.budgetPct !== null) {
+    const cap = 20;
+    const ok = f.budgetPct >= cap;
+    out.push(pick(ok ? 'whyBudgetGood' : 'whyBudgetBad', { pct: Math.round(f.budgetPct), cap }));
+  }
+
   const gauges = f.gauges || {};
-  const greens = ['mass', 'power', 'comms'].filter((k) => {
-    const v = Number(gauges[k]);
-    if (!Number.isFinite(v)) return false;
-    return k === 'comms' ? v >= 3 : v >= 35;
+  const keys = ['mass', 'power', 'comms'];
+  const present = keys.filter((k) => gauges[k]);
+  const greens = present.filter((k) => {
+    const g = gauges[k];
+    if (typeof g.status === 'string') return g.status === 'green';
+    const v = Number(g.value ?? g);
+    return Number.isFinite(v) && v >= 35;
   }).length;
-  const noRed = gauges.redCount === undefined || Number(gauges.redCount) === 0;
+  const reds = present.filter((k) => gauges[k].status === 'red').length;
+
+  if (reds > 0) {
+    out.push(pick('whyGaugeBad', { red: reds }));
+  } else if (greens === keys.length) {
+    out.push(pick('whyGaugeGood', { n: greens }));
+  } else if (present.length > 0) {
+    out.push(pick('whyGaugePart', { n: greens }));
+  }
+
+  if (f.massKg !== null) {
+    out.push(pick('whyMassNote', { mass: fmt(f.massKg) }));
+  }
+
+  if (out.length === 0) out.push(pick('whyNoData'));
+  return out;
+}
+
+function rankOf(f) {
+  /* Gauges từ engine là object {value, limit, pct, status}, không phải
+     số trần. Trước đây ép Number(gauges[k]) nên luôn ra NaN, greens
+     bằng 0 và hạng không bao giờ lên S. Giờ đọc thẳng status: một
+     đồng hồ "xanh" là khi engine đánh giá nó ở mức green. */
+  const gauges = f.gauges || {};
+  const keys = ['mass', 'power', 'comms'];
+  const greens = keys.filter((k) => {
+    const g = gauges[k];
+    if (!g) return false;
+    if (typeof g.status === 'string') return g.status === 'green';
+    /* dự phòng cho dạng số trần nếu bảng dev truyền số */
+    const v = Number(g.value ?? g);
+    if (!Number.isFinite(v)) return false;
+    return v >= 35;
+  }).length;
+  const reds = keys.filter((k) => gauges[k] && gauges[k].status === 'red').length;
+  const noRed = reds === 0;
   const budgetOk = (pct) => f.budgetPct === null || f.budgetPct >= pct;
   const solsOk = (cap) => f.sols === null || f.sols <= cap;
 
@@ -532,6 +639,11 @@ export function openSummary({ container, stats, engine, onRestart, onExit } = {}
       </section>
 
       <section class="te-sum-stats"></section>
+
+      <section class="te-sum-why">
+        <h3 class="te-sum-why-h"></h3>
+        <ul class="te-sum-why-list"></ul>
+      </section>
 
       <section class="te-sum-cmp">
         <h3 class="te-sum-cmp-h"></h3>
@@ -587,6 +699,16 @@ export function openSummary({ container, stats, engine, onRestart, onExit } = {}
     statsEl.appendChild(d);
   }
 
+  /* ---- vì sao kết quả này ---- */
+  root.querySelector('.te-sum-why-h').textContent = pick('whyTitle');
+  const whyList = root.querySelector('.te-sum-why-list');
+  for (const reason of buildWhy(f, pick)) {
+    const li = document.createElement('li');
+    li.className = 'te-sum-why-item';
+    li.textContent = reason;
+    whyList.appendChild(li);
+  }
+
   /* ---- bảng đối chiếu ---- */
   root.querySelector('.te-sum-cmp-h').textContent = pick('compareTitle');
   root.querySelector('.te-sum-cmp-sub').textContent = pick('compareSub');
@@ -639,10 +761,18 @@ export function openSummary({ container, stats, engine, onRestart, onExit } = {}
   document.addEventListener('keydown', onKey, true);
 
   host.appendChild(root);
-  requestAnimationFrame(() => {
+  /* Hiện bảng tổng kết. rAF bị hoãn khi tab ẩn / cửa sổ mất focus /
+     máy nghẽn, nên nếu chỉ có rAF thì bảng kẹt ở opacity 0 và người
+     chơi không bấm được nút Chơi lại. setTimeout làm đường chính. */
+  let shown = false;
+  const showRoot = () => {
+    if (shown || !root.isConnected) return;
+    shown = true;
     root.classList.add('is-in');
     if (typeof restartBtn.focus === 'function') restartBtn.focus({ preventScroll: true });
-  });
+  };
+  requestAnimationFrame(showRoot);
+  window.setTimeout(showRoot, 32);
 
   return { root, close, rank, facts: f };
 }

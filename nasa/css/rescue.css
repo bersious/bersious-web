@@ -862,7 +862,7 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
   box-shadow: 0 20px 50px color-mix(in srgb, var(--bg-void) 76%, transparent);
-  animation: rescue-modal-in var(--st-dur-move) var(--st-ease-out) both;
+  animation: rescue-modal-in var(--st-dur-move) var(--st-ease-out) forwards;
 }
 
 @keyframes rescue-modal-in {

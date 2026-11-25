@@ -662,8 +662,22 @@ export function createBaseScene({ container, stats, clock, onAction } = {}) {
 
   /* Ảnh nền lớn nên vẽ xong khung trước, ảnh hiện sau. Chờ một nhịp
      để bố cục chốt rồi mới đo lại, tránh khung lệch khi thanh cuộn
-     của trang biến mất. */
-  requestAnimationFrame(() => layout());
+     của trang biến mất.
+
+     Bố cục KHÔNG được đo lại một lần duy nhất bằng rAF: trình duyệt
+     hoãn rAF khi tab ẩn, khi cửa sổ mất focus hoặc khi máy nghẽn, nên
+     lần đo lại sẽ không bao giờ chạy và sân khấu ở lại khung lệch của
+     lần đo đầu (lúc trang còn thanh cuộn). setTimeout làm đường chính,
+     và cả hai cùng đi qua relayout() để không đo hai lần. */
+  let relaid = false;
+  const relayout = () => {
+    if (relaid) return;
+    relaid = true;
+    if (!root.isConnected) return;
+    layout();
+  };
+  requestAnimationFrame(relayout);
+  setTimeout(relayout, 48);
 
   /* ---------- dọn dẹp ---------- */
 

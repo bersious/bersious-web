@@ -611,6 +611,17 @@ export function openDevMode({ onJump, onEvent, onTool } = {}) {
     toast(msg);
   }
 
+  /* Đóng bảng Cài đặt bằng đúng nút Đóng của nó.
+     Bảng dev nằm TRÊN bảng cài đặt (z 9000 so với 300) nên khi bảng dev
+     tự đóng mà bảng cài đặt vẫn mở, người bấm quay về một lớp phủ kín
+     màn hình và tưởng cú bấm bị nuốt. Chỉ dùng cho các mục KHÔNG đi qua
+     onJump/onEvent (endings, công cụ có chuyển màn): hai handler đó đã tự
+     gọi close() của settings-ui rồi. */
+  function closeSettingsUi() {
+    const btn = document.querySelector('.settings-overlay .settings-close');
+    if (btn && typeof btn.click === 'function') btn.click();
+  }
+
   /* Toast nổi trên trang, dùng cho các phản hồi phải thấy được SAU
      khi bảng đã đóng (ví dụ "nước về 50" rồi mở nông trại xem thanh)
      hoặc khi bảng giữ mở mà người bấm nhìn xuống đáy màn. Tự xoá sau
@@ -882,11 +893,19 @@ function resetGuides() {
 
   buildAll();
   q('.dev-day-input').value = String(dayValue());
-  requestAnimationFrame(() => {
-    if (closed) return;
+  /* is-open phải vào sau khung hình đầu để hiệu ứng mở chạy, nhưng rAF
+     bị hoãn khi tab ẩn / cửa sổ mất focus / máy nghẽn. Nếu chỉ có rAF
+     thì bảng điều khiển kẹt ở trạng thái trong suốt và người chơi thấy
+     màn hình trống. setTimeout làm đường chính. */
+  let shown = false;
+  const show = () => {
+    if (shown || closed) return;
+    shown = true;
     overlay.classList.add('is-open');
     closeBtn.focus();
-  });
+  };
+  requestAnimationFrame(show);
+  window.setTimeout(show, 32);
 
   openPanel = { close };
   void lang;
@@ -995,7 +1014,18 @@ export function askPassword({ onUnlock } = {}) {
     q('.dev-pw-cancel').addEventListener('click', () => done(false));
     overlay.addEventListener('click', (e) => { if (e.target === overlay) done(false); });
 
-    requestAnimationFrame(() => { if (!closed) input.focus(); });
+    /* Đưa tiêu điểm vào ô mật khẩu. rAF bị hoãn khi tab ẩn / cửa sổ mất
+       focus, và khi đó ô không nhận được tiêu điểm thì người chơi gõ
+       phím mà không thấy gì xảy ra. setTimeout là đường chính; focused
+       chống gọi focus hai lần. */
+    let focused = false;
+    const focusInput = () => {
+      if (focused || closed) return;
+      focused = true;
+      input.focus();
+    };
+    requestAnimationFrame(focusInput);
+    window.setTimeout(focusInput, 32);
   });
 }
 

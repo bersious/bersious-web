@@ -455,15 +455,38 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
     const fill = btn.querySelector('.exp-cell-fill');
     const start = performance.now();
 
+    /* Hai đường chạy song song, đường nào tới trước thì thắng.
+       requestAnimationFrame cho thanh mượt, nhưng rAF bị trình duyệt
+       hoãn hẳn khi tab bị ẩn hoặc cửa sổ mất focus — lúc đó tick()
+       không bao giờ chạy tiếp, thanh đứng im và `searching` kẹt ở true,
+       người chơi không bấm tìm được nữa. setTimeout 100ms lo phần bảo
+       hiểm: chạy được cả khi tab ẩn. Biến done chống chạy finish hai lần
+       vì hai đường có thể cùng chạm đích trong một nhịp. */
+    let done = false;
+    const finishOnce = (now) => {
+      if (done) return;
+      const p = Math.min(1, (now - start) / duration);
+      fill.style.width = (p * 100).toFixed(1) + '%';
+      if (p < 1) return;
+      done = true;
+      clearInterval(iv);
+      finish(i, btn);
+    };
+
     function tick(now) {
+      if (done) return;
       const p = Math.min(1, (now - start) / duration);
       fill.style.width = (p * 100).toFixed(1) + '%';
       if (p < 1) {
         requestAnimationFrame(tick);
       } else {
+        done = true;
+        clearInterval(iv);
         finish(i, btn);
       }
     }
+
+    const iv = setInterval(() => finishOnce(performance.now()), 100);
     requestAnimationFrame(tick);
   }
 
@@ -567,7 +590,19 @@ export function openExplore({ container, clock, playerName = '', onClose, onFind
   const unTick = clock && typeof clock.onTick === 'function'
     ? clock.onTick(() => checkNewDay())
     : () => {};
-  requestAnimationFrame(() => el.classList.add('is-open'));
+  /* is-open phải vào sau khung hình đầu để hiệu ứng mở chạy. Nhưng rAF
+     KHÔNG được là đường duy nhất: tab ẩn hoặc cửa sổ mất focus thì nó
+     không chạy, và màn thám hiểm kẹt ở trạng thái trong suốt (vẫn bấm
+     được nhưng người chơi không thấy gì). setTimeout làm đường chính.
+     shown chống gắn class hai lần khi cả hai đường cùng chạy. */
+  let shown = false;
+  const show = () => {
+    if (shown || !el.isConnected) return;
+    shown = true;
+    el.classList.add('is-open');
+  };
+  requestAnimationFrame(show);
+  window.setTimeout(show, 32);
   closeBtn.focus();
 
   /* ---------- dọn dẹp ---------- */

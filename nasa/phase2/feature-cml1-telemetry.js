@@ -715,19 +715,20 @@ export function mountCml1({ container, engine, onNext } = {}) {
     if (received) {
       elScan.textContent = T('lockState');
       elLog.innerHTML = '';
-      addLog(T('log1'));
-      addLog(T('log2'));
-      addLog(T('log3', { n: fmt(st.sols) }));
-      addLog(T('log4'));
+      addLog(T('log1'), 'log1');
+      addLog(T('log2'), 'log2');
+      addLog(T('log3', { n: fmt(st.sols) }), 'log3', { n: fmt(st.sols) });
+      addLog(T('log4'), 'log4');
       q('.cml1-alert-head').textContent = T('alertHead');
     }
     updateRuler();
   }
 
-  function addLog(text) {
+  function addLog(text, key, args) {
     const li = document.createElement('li');
     li.className = 'cml1-log-line';
     li.textContent = text;
+    if (key) { li.dataset.lk = key; li._lkArgs = args || {}; }
     elLog.appendChild(li);
     if (elLog.children.length > 6) elLog.removeChild(elLog.firstElementChild);
     elLog.scrollTop = elLog.scrollHeight;
@@ -856,10 +857,10 @@ export function mountCml1({ container, engine, onNext } = {}) {
     if (tk2) tk2.classList.add('is-now');
 
     elLog.innerHTML = '';
-    addLog(T('log1'));
-    later(() => addLog(T('log2')), 260);
-    later(() => addLog(T('log3', { n: fmt(sols) })), 620);
-    later(() => addLog(T('log4')), 980);
+    addLog(T('log1'), 'log1');
+    later(() => addLog(T('log2'), 'log2'), 260);
+    later(() => addLog(T('log3', { n: fmt(sols) }), 'log3', { n: fmt(sols) }), 620);
+    later(() => addLog(T('log4'), 'log4'), 980);
 
     elScan.textContent = T('lockState');
 
@@ -970,11 +971,17 @@ export function mountCml1({ container, engine, onNext } = {}) {
   startStations();
   if (!received) {
     elLog.innerHTML = '';
-    addLog(T('logEmpty'));
+    addLog(T('logEmpty'), 'logEmpty');
   }
 
   unsubLang = onLangChange(() => {
     applyStrings();
+    /* Nhật ký radar là dòng duy nhất được in một lần rồi giữ nguyên,
+       nên đổi ngôn ngữ sẽ để lại câu tiếng Việt trong chế độ EN. Đánh
+       dấu key của mỗi dòng rồi dịch lại toàn bộ khi ngôn ngữ đổi. */
+    qa('.cml1-log-line').forEach((li) => {
+      if (li.dataset.lk) li.textContent = T(li.dataset.lk, li._lkArgs || {});
+    });
   });
 
   if (alreadySos) {

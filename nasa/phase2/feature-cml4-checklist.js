@@ -70,6 +70,48 @@ const T = {
     emptyChecks: 'Chưa có dữ liệu kiểm duyệt. Quay lại bước thiết kế để chọn thiết bị.',
     footNote: 'Bảng đèn đọc thẳng từ bộ tính toán của sứ mệnh. Mỗi mục là một giới hạn thật, không phải điểm trang trí. Bấm vào một dòng để đọc lý do bằng tiếng Việt đời thường.',
     footNoteEn: 'The light board reads straight from the mission calculator. Every row is a real limit, not decoration.',
+    /* Thanh đo */
+    gaugesTitle: 'Bốn thanh đo an toàn',
+    gaugesTitleEn: 'Four safety gauges',
+    gaugeTime: 'Thời gian',
+    gaugeTimeEn: 'Time',
+    gaugeTimeDesc: 'Thời gian đồng đội còn trụ được',
+    gaugeTimeDescEn: 'Crew survival time remaining',
+    gaugeMass: 'Khối lượng',
+    gaugeMassEn: 'Mass',
+    gaugeMassDesc: 'Tải trọng so với sức chở tên lửa',
+    gaugeMassDescEn: 'Payload vs rocket capacity',
+    gaugePower: 'Điện',
+    gaugePowerEn: 'Power',
+    gaugePowerDesc: 'Điện phát ra so với điện tiêu thụ',
+    gaugePowerDescEn: 'Power generated vs consumed',
+    gaugeComms: 'Liên lạc',
+    gaugeCommsEn: 'Comms',
+    gaugeCommsDesc: 'Độ trễ tín hiệu so với giới hạn',
+    gaugeCommsDescEn: 'Signal delay vs limit',
+    safeMark: 'Ngưỡng an toàn 35%',
+    safeMarkEn: 'Safe threshold 35%',
+    /* Thanh điều hướng đáy */
+    navPrev: '< BƯỚC TRƯỚC',
+    navPrevEn: '< BACK',
+    navNext: 'TIẾP THEO: DUYỆT PHÓNG',
+    navNextEn: 'NEXT: LAUNCH REVIEW',
+    logTitle: 'Nhật ký nhiệm vụ',
+    logTitleEn: 'Mission Log',
+    logCompact: 'Đã chọn {n}/6',
+    logCompactEn: '{n}/6 selected',
+    sysLauncher: 'Tên lửa đẩy',
+    sysLauncherEn: 'Launcher',
+    sysPower: 'Nguồn điện',
+    sysPowerEn: 'Power',
+    sysComms: 'Liên lạc',
+    sysCommsEn: 'Comms',
+    sysEdl: 'Hạ cánh',
+    sysEdlEn: 'Landing',
+    sysTrajectory: 'Quỹ đạo bay',
+    sysTrajectoryEn: 'Trajectory',
+    sysSupplies: 'Gói cứu hộ',
+    sysSuppliesEn: 'Survival kit',
   },
   en: {
     stepTag: 'Step 3',
@@ -110,6 +152,48 @@ const T = {
     emptyChecks: 'No review data yet. Go back to the design step and pick parts.',
     footNote: 'The light board reads straight from the mission calculator. Every row is a real limit, not decoration.',
     footNoteEn: 'Bảng đèn đọc thẳng từ bộ tính toán của sứ mệnh.',
+    /* Thanh đo */
+    gaugesTitle: 'Four safety gauges',
+    gaugesTitleEn: 'Bốn thanh đo an toàn',
+    gaugeTime: 'Time',
+    gaugeTimeEn: 'Thời gian',
+    gaugeTimeDesc: 'Crew survival time remaining',
+    gaugeTimeDescEn: 'Thời gian đồng đội còn trụ được',
+    gaugeMass: 'Mass',
+    gaugeMassEn: 'Khối lượng',
+    gaugeMassDesc: 'Payload vs rocket capacity',
+    gaugeMassDescEn: 'Tải trọng so với sức chở tên lửa',
+    gaugePower: 'Power',
+    gaugePowerEn: 'Điện',
+    gaugePowerDesc: 'Power generated vs consumed',
+    gaugePowerDescEn: 'Điện phát ra so với điện tiêu thụ',
+    gaugeComms: 'Comms',
+    gaugeCommsEn: 'Liên lạc',
+    gaugeCommsDesc: 'Signal delay vs limit',
+    gaugeCommsDescEn: 'Độ trễ tín hiệu so với giới hạn',
+    safeMark: 'Safe threshold 35%',
+    safeMarkEn: 'Ngưỡng an toàn 35%',
+    /* Thanh điều hướng đáy */
+    navPrev: '< BACK',
+    navPrevEn: '< BƯỚC TRƯỚC',
+    navNext: 'NEXT: LAUNCH REVIEW',
+    navNextEn: 'TIẾP THEO: DUYỆT PHÓNG',
+    logTitle: 'Mission Log',
+    logTitleEn: 'Nhật ký nhiệm vụ',
+    logCompact: '{n}/6 selected',
+    logCompactEn: 'Đã chọn {n}/6',
+    sysLauncher: 'Launcher',
+    sysLauncherEn: 'Tên lửa đẩy',
+    sysPower: 'Power',
+    sysPowerEn: 'Nguồn điện',
+    sysComms: 'Comms',
+    sysCommsEn: 'Liên lạc',
+    sysEdl: 'Landing',
+    sysEdlEn: 'Hạ cánh',
+    sysTrajectory: 'Trajectory',
+    sysTrajectoryEn: 'Quỹ đạo bay',
+    sysSupplies: 'Survival kit',
+    sysSuppliesEn: 'Gói cứu hộ',
   },
 };
 
@@ -312,9 +396,14 @@ function readMotion() {
 
 /* ---------- module chính ---------- */
 
-export function mountCml4({ container, engine, onNext } = {}) {
+export function mountCml4({ container, engine, onNext, actionsContainer } = {}) {
   if (!container) throw new Error('mountCml4 cần container');
   injectCss();
+
+  /* Đánh dấu đã mount để CSS ẩn các bản sao thanh đo ở nơi khác.
+     Class này giúp css-cml4.css biết đang ở bước cml4 để ẩn .p2-board
+     và .fg-gauges (các bản sao thanh đo của app và overlay). */
+  document.documentElement.classList.add('cml4-mounted');
 
   /* Chọn bảng theo ngôn ngữ đang bật. Bản cũ luôn đọc T.vi và chỉ
      kèm bản EN như một dòng phụ nhỏ, nên người chơi chọn EN vẫn thấy
@@ -365,6 +454,14 @@ export function mountCml4({ container, engine, onNext } = {}) {
       </div>
 
       <aside class="cm4-col-side">
+        <div class="cm4-gauges-panel">
+          <h3 class="cm4-side-title">
+            <span>${esc(t('gaugesTitle'))}</span>
+            <em>${esc(e('gaugesTitle'))}</em>
+          </h3>
+          <div class="cm4-gauges-list"></div>
+        </div>
+
         <div class="cm4-switches">
           <h3 class="cm4-side-title">
             <span>${esc(t('switchesTitle'))}</span>
@@ -408,6 +505,112 @@ export function mountCml4({ container, engine, onNext } = {}) {
     yellow: root.querySelector('[data-count="yellow"]'),
     red: root.querySelector('[data-count="red"]'),
   };
+  const gaugesListEl = root.querySelector('.cm4-gauges-list');
+
+  /* ---------- thanh đo ---------- */
+
+  const GAUGE_KEYS = ['time', 'mass', 'power', 'comms'];
+  const gaugeNodes = {};
+
+  GAUGE_KEYS.forEach((key) => {
+    const cell = document.createElement('div');
+    cell.className = 'cm4-meter';
+    cell.dataset.key = key;
+    cell.innerHTML = `
+      <div class="cm4-meter-head">
+        <span class="cm4-meter-label"></span>
+        <span class="cm4-meter-num">–</span>
+      </div>
+      <div class="cm4-meter-track">
+        <div class="cm4-meter-fill"></div>
+        <div class="cm4-meter-mark" style="left: 35%"></div>
+      </div>
+      <div class="cm4-meter-sub"></div>
+      <p class="cm4-meter-desc"></p>
+    `;
+    gaugesListEl.appendChild(cell);
+    gaugeNodes[key] = {
+      cell,
+      label: cell.querySelector('.cm4-meter-label'),
+      num: cell.querySelector('.cm4-meter-num'),
+      fill: cell.querySelector('.cm4-meter-fill'),
+      sub: cell.querySelector('.cm4-meter-sub'),
+      desc: cell.querySelector('.cm4-meter-desc'),
+    };
+  });
+
+  /* ---------- thanh điều hướng đáy ---------- */
+
+  let navBar = null;
+  let checklistItems = [];
+
+  function buildNavBar() {
+    if (!actionsContainer) return;
+    navBar = document.createElement('div');
+    navBar.className = 'cm4-nav-bar';
+    navBar.innerHTML = `
+      <div class="cm4-nav-left">
+        <button type="button" class="cm4-nav-btn cm4-nav-prev">
+          <span class="cm4-nav-prev-vi">${esc(t('navPrev'))}</span>
+          <span class="cm4-nav-prev-en">${esc(e('navPrev'))}</span>
+        </button>
+      </div>
+      <div class="cm4-nav-center">
+        <div class="cm4-log-title">
+          <span>${esc(t('logTitle'))}</span>
+          <em>${esc(e('logTitle'))}</em>
+        </div>
+        <ul class="cm4-log-list" role="list"></ul>
+        <div class="cm4-log-compact" hidden></div>
+      </div>
+      <div class="cm4-nav-right">
+        <button type="button" class="cm4-nav-btn cm4-nav-next">
+          <span class="cm4-nav-next-vi">${esc(t('navNext'))}</span>
+          <span class="cm4-nav-next-en">${esc(e('navNext'))}</span>
+        </button>
+      </div>
+    `;
+    actionsContainer.appendChild(navBar);
+
+    /* 6 phân hệ */
+    const systems = [
+      { key: 'launcher', vi: t('sysLauncher'), en: e('sysLauncher') },
+      { key: 'power', vi: t('sysPower'), en: e('sysPower') },
+      { key: 'comms', vi: t('sysComms'), en: e('sysComms') },
+      { key: 'edl', vi: t('sysEdl'), en: e('sysEdl') },
+      { key: 'trajectory', vi: t('sysTrajectory'), en: e('sysTrajectory') },
+      { key: 'supplies', vi: t('sysSupplies'), en: e('sysSupplies') },
+    ];
+
+    const logList = navBar.querySelector('.cm4-log-list');
+    systems.forEach((sys) => {
+      const li = document.createElement('li');
+      li.className = 'cm4-log-item';
+      li.dataset.key = sys.key;
+      li.innerHTML = `<span class="cm4-log-vi">${esc(sys.vi)}</span><span class="cm4-log-en">${esc(sys.en)}</span>`;
+      logList.appendChild(li);
+      checklistItems.push({ el: li, key: sys.key });
+    });
+
+    /* Sự kiện */
+    navBar.querySelector('.cm4-nav-prev').addEventListener('click', () => {
+      if (typeof onNext === 'function') onNext({ back: true });
+    });
+
+    navBar.querySelector('.cm4-nav-next').addEventListener('click', () => {
+      if (typeof onNext === 'function') onNext();
+    });
+
+    /* Responsive: thu gọn khi chật */
+    const ro = new ResizeObserver(() => {
+      const w = navBar.offsetWidth;
+      const compact = w < 900;
+      navBar.classList.toggle('is-compact', compact);
+    });
+    ro.observe(navBar);
+  }
+
+  buildNavBar();
 
   /* ---------- trạng thái cục bộ ---------- */
 
@@ -463,6 +666,74 @@ export function mountCml4({ container, engine, onNext } = {}) {
   function complianceOf(state) {
     const c = (state && state.compliance) || {};
     return { sterilized: !!c.sterilized, rtg_approved: !!c.rtg_approved };
+  }
+
+  /* ---------- vẽ thanh đo ---------- */
+
+  function renderGauges(state) {
+    if (!state || !state.gauges) return;
+    const g = state.gauges;
+    const langVi = getLang() !== 'en';
+
+    GAUGE_KEYS.forEach((key) => {
+      const node = gaugeNodes[key];
+      const item = g[key] || {};
+      const pct = typeof item.pct === 'number' ? item.pct : 0;
+      const status = item.status || 'ok';
+      const value = typeof item.value === 'number' ? item.value : 0;
+      const limit = typeof item.limit === 'number' ? item.limit : 0;
+      const unit = item.unit || '';
+
+      /* Nhãn */
+      const labelKey = 'gauge' + key.charAt(0).toUpperCase() + key.slice(1);
+      node.label.textContent = langVi ? t(labelKey) : e(labelKey);
+
+      /* Số */
+      const dv = (key === 'time' || key === 'comms') ? 1 : 0;
+      const isBig = key === 'mass' || key === 'power';
+      const fmtVal = isBig ? Math.round(value).toLocaleString() : value.toFixed(dv);
+      node.num.textContent = fmtVal + ' ' + unit;
+
+      /* Thanh */
+      const w = Math.max(0, Math.min(100, pct));
+      node.fill.style.width = w + '%';
+
+      /* Màu */
+      node.cell.classList.remove('is-ok', 'is-warn', 'is-fail');
+      if (status === 'warn') node.cell.classList.add('is-warn');
+      else if (status === 'fail') node.cell.classList.add('is-fail');
+      else node.cell.classList.add('is-ok');
+
+      /* Phụ đề */
+      const fmtLim = isBig ? Math.round(limit).toLocaleString() : limit.toFixed(dv);
+      node.sub.textContent = Math.round(pct) + '% / ' + fmtLim + ' ' + unit;
+
+      /* Mô tả */
+      const descKey = labelKey + 'Desc';
+      node.desc.textContent = langVi ? t(descKey) : e(descKey);
+    });
+  }
+
+  /* ---------- cập nhật checklist 6 phân hệ ---------- */
+
+  function renderChecklist(state) {
+    if (!state || !state.selection) return;
+    const sel = state.selection;
+    let done = 0;
+
+    checklistItems.forEach((item) => {
+      const has = !!sel[item.key];
+      item.el.classList.toggle('is-done', has);
+      if (has) done++;
+    });
+
+    /* Compact mode */
+    if (navBar) {
+      const compactEl = navBar.querySelector('.cm4-log-compact');
+      if (compactEl) {
+        compactEl.textContent = fill(t('logCompact'), { n: done });
+      }
+    }
   }
 
   /* ---------- vẽ danh sách đèn ---------- */
@@ -616,8 +887,10 @@ export function mountCml4({ container, engine, onNext } = {}) {
     const state = readState();
     lastState = state;
     const counts = renderChecks(state);
+    renderGauges(state);
     renderSwitches(state);
     renderLaunch(state, counts);
+    renderChecklist(state);
   }
 
   /* ---------- sự kiện ---------- */
@@ -756,6 +1029,7 @@ export function mountCml4({ container, engine, onNext } = {}) {
     refresh: render,
     destroy() {
       destroyed = true;
+      document.documentElement.classList.remove('cml4-mounted');
       if (typeof offLang === 'function') offLang();
       unsubs.forEach((u) => { try { u(); } catch { /* bỏ qua */ } });
       unsubs = [];
@@ -763,6 +1037,7 @@ export function mountCml4({ container, engine, onNext } = {}) {
       listEl.removeEventListener('keydown', onListKey);
       switchListEl.removeEventListener('click', onSwitchClick);
       launchBtn.removeEventListener('click', onLaunchClick);
+      if (navBar && navBar.parentNode) navBar.parentNode.removeChild(navBar);
       root.remove();
     },
   };

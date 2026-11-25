@@ -114,7 +114,13 @@
   /* Bốn cột: nhận diện, cụm chỉ số co giãn, bốn chấm bước, nút công cụ.
      Trước đây để ba cột nên cụm bước rơi xuống hàng ngầm và đẩy thanh
      cao hơn 56px. */
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  /* Cột 2 là cụm chỉ số, cột 3 là cụm bước. Trước đây cột 2 để
+     minmax(0, 1fr) còn cột 3 để auto, nên cụm bước (nội dung dài)
+     chiếm hết chỗ và cụm chỉ số bị bóp còn 282px ở màn 1366. Nay
+     đảo lại: chỉ số lấy đúng phần nó cần, cụm bước co lại và tự
+     ẩn chữ khi hết chỗ. Số liệu quan trọng hơn tên bước vì các
+     bước đã có số thứ tự trên chấm tròn. */
+  grid-template-columns: auto minmax(min-content, max-content) minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(8px, 1.2vw, 20px);
   height: var(--p2-top-h);
@@ -213,7 +219,10 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  min-width: 0;
+  /* Cho ô co tới mức vừa đủ chứ không về 0: min-width là bề rộng
+     tối thiểu để nhãn còn đọc được, phần co dãn do khung cha lo. */
+  min-width: max-content;
+  flex: 0 1 auto;
   padding: 3px 9px;
   border: 1px solid var(--p2-line-soft);
   border-radius: var(--p2-r);
@@ -254,6 +263,14 @@
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--tx-dim);
+  /* Nhãn KHÔNG được co. Đo thật ở 1366x768: ba nhãn 'Sóng DSN',
+     'Trễ liên lạc', 'Đồng đội còn sống' bị bóp về clientWidth = 0
+     nên người chơi chỉ thấy 'Sóng D', 'TRỄ LIÊN L', 'ĐỒNG ĐỘI C'.
+     Nguyên nhân: flex item mặc định co lại, mà khung cha hết chỗ do
+     cột các bước chiếm quá nhiều. Chặn co ở đây và cắt bớt cột bước
+     ở dưới, cả hai cùng cần thì nhãn mới đủ chỗ. */
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .p2-stat-value {
@@ -373,6 +390,17 @@
   border-color: color-mix(in srgb, var(--ok) 55%, transparent);
   background: var(--p2-ok-wash);
   color: var(--ok);
+}
+/* Bước đã xong thay số bằng dấu tick: số thứ tự chỉ có nghĩa khi bước đó
+   chưa qua, còn dấu tick nói ngay "xong rồi" mà không cần đọc số. */
+.p2-step.is-done .p2-step-dot {
+  font-size: 0;
+}
+.p2-step.is-done .p2-step-dot::after {
+  content: '\2713';
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /* đang ở bước này */
@@ -500,7 +528,11 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   padding: 0;
-  overflow: hidden;
+  /* Phải là hidden ở trục ngang thôi. Trước đây hidden cả hai trục nên
+     nó chặn luôn việc cuộn dọc của .p2-stage bên trong, khiến nội dung
+     dài ở bước 1 không thể cuộn tới. */
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .p2-stage {
@@ -508,8 +540,29 @@
   min-height: 0;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
-  overflow: hidden;
+  /* Đổi từ hidden sang auto: bước 1 (bắt sóng) có nội dung cao hơn sân
+     khấu ở màn 1366x768 trở xuống, và hidden làm nó bị CẮT mất phần đáy
+     chứ không cho cuộn. Giám khảo không bao giờ thấy khối so sánh thời
+     gian bay, cũng không biết là còn nội dung bên dưới.
+     overflow-x vẫn hidden để ảnh nền và các vệt khí không sinh thanh
+     cuộn ngang. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   isolation: isolate;
+  /* Thanh cuộn mảnh, màu chìm để không phá không khí bảng điều khiển. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line-strong) 72%, transparent) transparent;
+}
+
+.p2-stage::-webkit-scrollbar { width: 8px; }
+.p2-stage::-webkit-scrollbar-track { background: transparent; }
+.p2-stage::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--line-strong) 72%, transparent);
+}
+.p2-stage::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--line-strong) 92%, transparent);
 }
 
 /* ảnh nền: phủ kín sân khấu, luôn có hình dù feature chưa nạp */
@@ -905,12 +958,17 @@
 
 .p2-gauge-sub {
   font-family: var(--st-font-mono);
-  font-size: .62rem;
-  letter-spacing: .04em;
-  color: var(--tx-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Chú thích dưới thanh đo (ví dụ '51% trên 70.000 kg'). Đo được
+     9,9px, là cỡ nhỏ nhất trên cả thanh đáy, và đây là con số giải
+     thích vì sao thanh có màu đó nên người chơi cần đọc được.
+     Nâng lên 11,2 tới 12,8px và cho phép xuống hai dòng thay vì cắt
+     bằng dấu ba chấm, vì cắt giữa '70.000 kg' thì mất nghĩa. */
+  font-size: clamp(.7rem, .68rem + .08vw, .8rem);
+  letter-spacing: .02em;
+  line-height: 1.35;
+  color: var(--tx-soft);
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* ---------- khe cho feature tự thêm điều khiển ---------- */
@@ -1208,8 +1266,13 @@
 }
 
 @keyframes p2-fade-up {
+  /* Khoan dau chi hoat dong trong luc chay. KHONG duoc dat 'transform'
+     o khung cuoi voi fill-mode both: giu lai gia tri do khien phan tu
+     mang computed transform ma tran don vi vinh vien, bien thanh
+     containing block va GHIM moi modal position:fixed ben trong buoc
+     hien tai (modal bi cat mat khi khung buoc thap). */
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  to   { opacity: 1; }
 }
 
 /* nội dung feature hiện lên nhẹ khi đổi bước */
@@ -1279,7 +1342,11 @@ html.motion-off .p2-step-dot {
    1440 thì cụm chỉ số bị bóp và chữ tràn sang cụm bước, nên nhãn
    chữ nhường chỗ trước, còn số thì luôn hiện. */
 @media (max-width: 1500px) {
-  .p2-stat-label { display: none; }
+  /* KHÔNG ẩn nhãn chỉ số nữa. Đây chính là chỗ sinh ra lỗi 'Sóng D',
+     'TRỄ LIÊN L', 'ĐỒNG ĐỘI C' mà người chơi báo: nhãn bị ẩn hoặc bị
+     bóp tới mức chỉ còn vài ký tự. Nay nhãn giữ nguyên, nhường chỗ
+     bằng cách ẩn tên bước (các bước vẫn còn chấm tròn đánh số). */
+  .p2-step-name { display: none; }
   /* Bóp đệm và khoảng cách trong ô chỉ số. Nếu không, ba ô cần hơn
      460px trong khi cột chỉ còn khoảng 342px ở màn 1440, và flex sẽ
      ép mỗi ô nhỏ hơn nội dung của nó, gây cắt chữ. */
@@ -1380,7 +1447,8 @@ html.motion-off .p2-step-dot {
     padding: 3px 7px;
     border-radius: var(--p2-r);
   }
-  .p2-stat-label { display: none; }
+  /* Giữ nhãn ở mức hẹp nhất có thể đọc, chỉ thu nhỏ cỡ chữ. */
+  .p2-stat-label { font-size: .56rem; letter-spacing: .04em; }
   .p2-stat-value { font-size: .76rem; }
   .p2-stat-icon { width: 15px; height: 15px; }
 

@@ -43,7 +43,6 @@ export const STRINGS = {
     'name.sign': 'Ký tên',
     'name.placeholder': 'Tên của bạn',
     'name.prompt': 'Bạn là ai trong nhóm này?',
-    'name.hint': 'Nhật ký sứ mệnh cần một cái tên. Gõ vào rồi bấm Enter.',
 
     /* ---------- bảng cài đặt ---------- */
     'settings.open': 'Cài đặt',
@@ -115,6 +114,11 @@ export const STRINGS = {
 
     'settings.language': 'Ngôn ngữ',
     'settings.language.desc': 'Đổi ngôn ngữ cho toàn bộ giao diện và lời kể.',
+
+    'settings.report': 'Báo lỗi cho nhóm làm game',
+    'settings.report.desc': 'Gặp lỗi thì báo cho nhóm làm game biết.',
+    'settings.report.hint': 'Mở sẵn thư tới ' + '25521290@gm.uit.edu' + ', kèm thông tin máy để dễ tìm nguyên nhân.',
+    'report.button': 'Báo lỗi',
 
     'settings.data': 'Dữ liệu',
     'settings.reset': 'Xoá dữ liệu đã lưu',
@@ -717,7 +721,6 @@ export const STRINGS = {
     'name.sign': 'Sign',
     'name.placeholder': 'Your name',
     'name.prompt': 'Who are you in this crew?',
-    'name.hint': 'The mission log needs a name. Type it and press Enter.',
 
     /* ---------- settings ---------- */
     'base.sleep.forecastTitle': 'Tomorrow morning forecast',
@@ -789,6 +792,11 @@ export const STRINGS = {
 
     'settings.language': 'Language',
     'settings.language.desc': 'Changes the language for the whole interface and the story.',
+
+    'settings.report': 'Report a bug',
+    'settings.report.desc': 'Hit a bug? Tell the team behind the game.',
+    'settings.report.hint': 'Opens a pre-filled email to ' + '25521290@gm.uit.edu' + ' with your machine details attached.',
+    'report.button': 'Report a bug',
 
     'settings.data': 'Data',
     'settings.reset': 'Clear saved data',

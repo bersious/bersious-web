@@ -59,7 +59,7 @@ export const CREW = [
     role: { vi: 'Kỹ sư hệ thống', en: 'Systems engineer' },
     color: '#4fb8c9',
     short: 'YOU',
-  },,
+  },
   /* Hai nguoi nha, chi xuat hien trong doan hoi tuong gia dinh, khong
      co mat trong phien ban thoai ngoai doi. */
   {

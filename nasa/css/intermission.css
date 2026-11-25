@@ -41,6 +41,36 @@
       var(--bg-void, #07090d) 100%);
 }
 
+/* ---------- hạt bụi và scanline, không khí phim ----------
+   Phủ trên tranh nhưng dưới chữ: khung được JS gán z-index 10..22 nên
+   lớp này đứng ở 25, còn viền trang (30), thanh tiến trình và nút (40+)
+   vẫn nằm trên. Rất mờ: một sọc đen 1px mỗi 3px, opacity .14. Trượt
+   đúng 3px rồi lặp nên mắt gần như không thấy nó chạy, chỉ thấy tranh
+   "động đậy" rất nhẹ. */
+.im-stage::before {
+  content: '';
+  position: absolute;
+  /* rộng hơn sân khấu để lúc trượt không hở mép */
+  inset: -12px;
+  z-index: 25;
+  pointer-events: none;
+  /* một lớp sọc 1px mỗi 3px, opacity .14: đủ thấy không khí phim khi nhìn
+     gần, không đủ để làm tối tranh. Quầng sáng bỏ hẳn để không phủ bụi
+     trắng lên vùng giữa ảnh. */
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(0, 0, 0, .26) 0 1px,
+      transparent 1px 3px);
+  opacity: .14;
+  animation: im-scan 6s linear infinite;
+  will-change: transform;
+}
+
+@keyframes im-scan {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 3px, 0); }
+}
+
 /* viền trang truyện, giữ mắt trong hình */
 .im-stage::after {
   content: '';
@@ -48,22 +78,33 @@
   inset: 0;
   z-index: 30;
   pointer-events: none;
-  box-shadow: inset 0 0 0 1px var(--line-hair, #1b232e);
+  box-shadow:
+    inset 0 0 0 1px var(--line-hair, #1b232e),
+    /* tối dần sát mép, tạo chiều sâu cho trang truyện. Giữ mỏng: vignette
+       đã lo phần tối, lớp này chỉ làm mềm đường viền */
+    inset 0 0 clamp(22px, 3vw, 46px) color-mix(in srgb, var(--bg-void, #07090d) 34%, transparent);
 }
 
 /* ---------- một khung ---------- */
 
+/* Vào khung: khung mới trượt lên 8px và thu từ 1.02 về 1, chậm hơn nhịp
+   mờ để mắt kịp bắt chuyển động. Khung cũ mờ đi nhanh hơn một chút nên
+   hai lớp không "giằng" nhau giữa màn. */
 .im-frame {
   position: absolute;
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 460ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1)),
-              transform 620ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1));
-  /* khung mới vào từ hơi thấp và nhỏ, trượt nhẹ lên, đúng kiểu lật
-     trang truyện */
-  transform: translate3d(0, 1.6%, 0) scale(1.012);
+  transition: opacity 520ms var(--st-ease-out, cubic-bezier(.22,.61,.36,1)) 60ms,
+              transform 980ms cubic-bezier(.16, .84, .28, 1);
+  transform: translate3d(0, 8px, 0) scale(1.02);
   will-change: opacity, transform;
+}
+
+/* khung đang rời đi: không trượt, chỉ mờ, và mờ nhanh */
+.im-frame:not(.is-on) {
+  transition: opacity 340ms linear,
+              transform 340ms linear;
 }
 
 .im-frame.is-on {
@@ -113,7 +154,67 @@ html.motion-off .im-frame {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Ken Burns khởi điểm: hơi nhỏ hơn khung một chút, phóng lên trong
+     suốt thời gian khung hiện. Bốn hướng khác nhau theo :nth-of-type để
+     hai khung liền nhau không bao giờ cùng một cú zoom. */
+  transform: scale(1.001);
+  transform-origin: 50% 50%;
+  will-change: transform;
   backface-visibility: hidden;
+}
+
+/* ---------- Ken Burns: zoom rất chậm, mỗi khung một hướng ----------
+   Biên độ chỉ 6 phần trăm trong 7 giây, đủ để ảnh "thở" mà không làm
+   người xem thấy khó chịu. Animation chạy trên .is-on nên mỗi lần khung
+   được bật lại (kể cả khi quay lui) là một cú zoom mới từ đầu. */
+.im-frame.is-on .im-cell img {
+  animation: im-kb-in 7s cubic-bezier(.25, .3, .35, 1) forwards;
+}
+
+/* hướng 1: vào gần, neo góc trên trái */
+.im-frame:nth-of-type(4n+1).is-on .im-cell img {
+  transform-origin: 34% 32%;
+  animation-name: im-kb-in-tl;
+}
+/* hướng 2: ra xa, neo góc dưới phải */
+.im-frame:nth-of-type(4n+2).is-on .im-cell img {
+  transform-origin: 68% 74%;
+  animation-name: im-kb-out-br;
+}
+/* hướng 3: vào gần, neo dưới trái */
+.im-frame:nth-of-type(4n+3).is-on .im-cell img {
+  transform-origin: 30% 76%;
+  animation-name: im-kb-in-bl;
+}
+/* hướng 4: ra xa, neo trên phải */
+.im-frame:nth-of-type(4n).is-on .im-cell img {
+  transform-origin: 72% 26%;
+  animation-name: im-kb-out-tr;
+}
+
+@keyframes im-kb-in {
+  from { transform: scale(1.001); }
+  to   { transform: scale(1.06); }
+}
+
+@keyframes im-kb-in-tl {
+  from { transform: scale(1.001) translate3d(0, 0, 0); }
+  to   { transform: scale(1.062) translate3d(0, 0, 0); }
+}
+
+@keyframes im-kb-out-br {
+  from { transform: scale(1.062); }
+  to   { transform: scale(1.002); }
+}
+
+@keyframes im-kb-in-bl {
+  from { transform: scale(1.004); }
+  to   { transform: scale(1.056); }
+}
+
+@keyframes im-kb-out-tr {
+  from { transform: scale(1.058); }
+  to   { transform: scale(1.004); }
 }
 
 /* chưa có ảnh, hoặc ảnh đang tải: hiện số khung lớn giữa ô */
@@ -153,21 +254,40 @@ html.motion-off .im-frame {
 /* ảnh tải xong thì ẩn số đi */
 .im-cell.has-art .im-noart { display: none; }
 
-/* ---------- vệt tối, để chữ trên ảnh luôn đủ tương phản ---------- */
-
+/* ---------- vệt tối, để chữ trên ảnh luôn đủ tương phản ----------
+   Ba lớp: dải tối từ đáy lên (đỡ chữ), vignette bốn góc, và một quầng
+   tối đều sát mép. Ảnh vẫn nhìn rõ ở giữa: chỗ tối nhất chỉ khoảng 82
+   phần trăm ở sát đáy, còn vùng giữa hoàn toàn trong. */
 .im-vig {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
   background:
+    /* dải đỡ chữ chỉ còn vừa đủ: hộp thoại và dòng dẫn cảnh nay có nền
+       mờ riêng nên không cần phủ tối cả đáy màn nữa */
     linear-gradient(to top,
-      color-mix(in srgb, var(--bg-void, #07090d) 82%, transparent) 0%,
-      color-mix(in srgb, var(--bg-void, #07090d) 34%, transparent) 26%,
-      transparent 52%),
-    radial-gradient(130% 110% at 50% 42%,
-      transparent 54%,
-      color-mix(in srgb, var(--bg-void, #07090d) 44%, transparent) 100%);
+      color-mix(in srgb, var(--bg-void, #07090d) 34%, transparent) 0%,
+      color-mix(in srgb, var(--bg-void, #07090d) 12%, transparent) 16%,
+      transparent 30%),
+    /* vignette chính: trong suốt tới 70 phần trăm bán kính, rồi tối dần
+       ra mép. Tranh ở giữa hoàn toàn không bị đụng tới; độ tối dồn hết
+       vào vành ngoài nên mắt bị hút vào trung tâm mà ảnh vẫn rõ. */
+    radial-gradient(at 50% 42%,
+      transparent 70%,
+      color-mix(in srgb, var(--bg-void, #07090d) 8%, transparent) 88%,
+      color-mix(in srgb, var(--bg-void, #07090d) 56%, transparent) 100%),
+    /* quầng mỏng sát mép: khung hình như lùi vào trong tối */
+    radial-gradient(150% 128% at 50% 50%,
+      transparent 90%,
+      color-mix(in srgb, var(--bg-void, #07090d) 40%, transparent) 100%);
+  /* vignette thở rất nhẹ theo nhịp thở, chỉ khi khung đang hiện */
+  animation: im-breathe 9s ease-in-out infinite alternate;
+}
+
+@keyframes im-breathe {
+  from { opacity: .88; }
+  to   { opacity: 1; }
 }
 
 /* ---------- lớp phủ chữ ---------- */
@@ -179,7 +299,7 @@ html.motion-off .im-frame {
   pointer-events: none;
 }
 
-/* dòng dẫn cảnh, góc dưới trái */
+/* dòng dẫn cảnh, góc dưới trái — một tấm kính mờ có gáy amber */
 .im-caption {
   position: absolute;
   left: clamp(14px, 2.6vw, 38px);
@@ -189,10 +309,31 @@ html.motion-off .im-frame {
   display: flex;
   gap: .7em;
   align-items: baseline;
-  font-size: clamp(.84rem, .5vw + .72rem, 1.02rem);
-  line-height: 1.6;
+  padding: clamp(9px, .9vw, 13px) clamp(13px, 1.2vw, 17px);
+  /* nền mờ chứ không phải hộp đặc: tranh vẫn xuyên qua, chữ vẫn nổi */
+  background: color-mix(in srgb, var(--bg-void, #07090d) 72%, transparent);
+  border-left: 2px solid var(--amber, #e8a33d);
+  border-radius: 0 var(--st-radius, 3px) var(--st-radius, 3px) 0;
+  backdrop-filter: blur(4px) saturate(.92);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--amber, #e8a33d) 16%, transparent),
+    0 16px 40px -28px #000;
+  font-size: clamp(.86rem, .5vw + .74rem, 1.04rem);
+  line-height: 1.62;
+  letter-spacing: .002em;
   color: var(--tx-bright, #eaf1f8);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .9), 0 0 18px rgba(7, 9, 13, .85);
+  /* viền tối mảnh quanh chữ: đọc được cả khi tranh sáng */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .95), 0 0 14px rgba(7, 9, 13, .8);
+}
+
+/* khi khung hiện, dòng dẫn cảnh trồi lên sau một nhịp ngắn */
+.im-frame.is-on .im-caption {
+  animation: im-rise 620ms var(--st-ease-out, cubic-bezier(.22,.61,.36,1)) 120ms both;
+}
+
+@keyframes im-rise {
+  from { opacity: 0; transform: translate3d(0, 7px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .im-caption-tag {
@@ -206,7 +347,7 @@ html.motion-off .im-frame {
 
 .im-caption-tx { font-style: italic; }
 
-/* hộp thoại nhân vật */
+/* hộp thoại nhân vật — cùng ngôn ngữ với dòng dẫn cảnh: kính mờ, gáy amber */
 .im-say {
   position: absolute;
   left: var(--x, 5%);
@@ -215,11 +356,19 @@ html.motion-off .im-frame {
   max-width: 56ch;
   margin: 0;
   padding: clamp(10px, 1vw, 14px) clamp(13px, 1.3vw, 18px);
-  background: color-mix(in srgb, var(--bg-void, #07090d) 84%, transparent);
-  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 40%, transparent);
-  border-radius: var(--st-radius, 3px);
-  backdrop-filter: blur(3px);
-  box-shadow: 0 12px 34px -22px #000;
+  background: color-mix(in srgb, var(--bg-void, #07090d) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber, #e8a33d) 34%, transparent);
+  border-left: 2px solid var(--amber, #e8a33d);
+  border-radius: 0 var(--st-radius, 3px) var(--st-radius, 3px) 0;
+  backdrop-filter: blur(5px) saturate(.94);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--amber, #e8a33d) 14%, transparent),
+    0 18px 44px -30px #000;
+}
+
+/* hộp thoại hiện lên cùng nhịp với dòng dẫn cảnh, lệch 40ms cho có lớp */
+.im-frame.is-on .im-say {
+  animation: im-rise 600ms var(--st-ease-out, cubic-bezier(.22,.61,.36,1)) 160ms both;
 }
 
 .im-say-who {
@@ -393,34 +542,71 @@ html.motion-off .im-frame {
   bottom: 0;
   height: 3px;
   z-index: 40;
-  background: color-mix(in srgb, var(--bg-void, #07090d) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-void, #07090d) 84%, transparent);
+  box-shadow: inset 0 1px 0 var(--line-hair, #1b232e);
 }
 
 .im-bar i {
   display: block;
   height: 100%;
   width: 0;
+  border-radius: 0 2px 2px 0;
   background: linear-gradient(to right,
     var(--amber-dim, #6b4a1c),
     var(--amber, #e8a33d));
-  transition: width 420ms var(--st-ease-out, cubic-bezier(.2,.7,.3,1));
+  /* đầu thanh phát sáng nhẹ, như đèn báo đang chạy */
+  box-shadow:
+    0 0 10px -1px color-mix(in srgb, var(--amber, #e8a33d) 70%, transparent),
+    0 0 22px -6px color-mix(in srgb, var(--amber, #e8a33d) 55%, transparent);
+  transition: width 480ms var(--st-ease-out, cubic-bezier(.22,.61,.36,1));
 }
 
 .is-static .im-bar i,
 html.motion-off .im-bar i { transition: none; }
 
+/* bộ đếm khung: viên kính nhỏ, chữ sáng trên nền tối, tương phản cao */
 .im-count {
   position: absolute;
   left: clamp(14px, 2.4vw, 30px);
   bottom: clamp(14px, 2vh, 22px);
   z-index: 41;
+  display: inline-flex;
+  align-items: center;
+  gap: .62em;
+  padding: .48em .78em .46em;
   font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
   font-size: .68rem;
+  font-weight: 500;
   letter-spacing: .16em;
-  color: var(--tx-dim, #72879d);
+  line-height: 1;
+  color: var(--tx-bright, #eaf1f8);
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, var(--bg-void, #07090d) 78%, transparent);
+  border: 1px solid var(--line-hair, #1b232e);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .9);
 }
 
+/* chấm amber nhấp theo nhịp: báo hiệu màn đang chạy */
+.im-count::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber, #e8a33d);
+  box-shadow: 0 0 8px 0 color-mix(in srgb, var(--amber, #e8a33d) 72%, transparent);
+  animation: im-pulse 1.9s ease-in-out infinite;
+}
+
+@keyframes im-pulse {
+  0%, 100% { opacity: .42; }
+  50%      { opacity: 1; }
+}
+
+/* nút bỏ qua: viên kính có gáy amber, vẫn là nút thật 44x44 */
 .im-skip {
   position: absolute;
   right: clamp(12px, 2vw, 26px);
@@ -428,32 +614,46 @@ html.motion-off .im-bar i { transition: none; }
   z-index: 42;
   min-height: 44px;
   min-width: 44px;
-  padding: 0 clamp(14px, 1.4vw, 20px);
+  padding: 0 clamp(15px, 1.5vw, 21px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: .55em;
   font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
   font-size: .72rem;
+  font-weight: 500;
   letter-spacing: .17em;
   text-transform: uppercase;
+  /* chữ sáng trên nền tối: tương phản trên 12:1, giữ nguyên WCAG */
   color: var(--tx-bright, #eaf1f8);
-  background: color-mix(in srgb, var(--bg-panel, #111721) 78%, transparent);
+  background: color-mix(in srgb, var(--bg-panel, #111721) 74%, transparent);
   border: 1px solid var(--line-strong, #35455a);
+  border-left: 2px solid color-mix(in srgb, var(--amber, #e8a33d) 78%, transparent);
   border-radius: var(--st-radius, 3px);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 12px 30px -24px #000;
   cursor: pointer;
-  transition: border-color 160ms linear, color 160ms linear, background 160ms linear;
+  transition: border-color 160ms linear, color 160ms linear,
+              background 160ms linear, box-shadow 200ms linear,
+              transform 180ms var(--st-ease-out, cubic-bezier(.22,.61,.36,1));
 }
 
 .im-skip:hover,
 .im-skip:focus-visible {
   color: var(--amber, #e8a33d);
   border-color: var(--amber, #e8a33d);
-  background: color-mix(in srgb, var(--bg-raise, #161d29) 86%, transparent);
+  border-left-color: var(--amber, #e8a33d);
+  background: color-mix(in srgb, var(--bg-raise, #161d29) 88%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--amber, #e8a33d) 30%, transparent),
+    0 14px 34px -22px #000;
 }
+
+.im-skip:active { transform: translateY(1px); }
 
 .im-skip:focus-visible {
   outline: 2px solid var(--amber, #e8a33d);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* ---------- màn hẹp ----------
@@ -512,12 +712,47 @@ html.motion-off .im-bar i { transition: none; }
   .im-say-tx { font-size: .84rem; line-height: 1.5; }
 }
 
-/* ---------- giảm chuyển động ---------- */
+/* ---------- giảm chuyển động ----------
+   Tắt hết: không zoom, không trượt, không scanline, không nhấp nháy,
+   không vignette thở. Chỉ còn chuyển khung tức thì. */
 
 @media (prefers-reduced-motion: reduce) {
-  .im-frame { transition: none; transform: none; }
+  .im-frame,
+  .im-frame:not(.is-on) { transition: none; transform: none; }
   .im-frame.is-on .im-sfx { animation: none; }
+  .im-frame.is-on .im-caption,
+  .im-frame.is-on .im-say { animation: none; }
+  .im-frame.is-on .im-cell img,
+  .im-frame:nth-of-type(4n+1).is-on .im-cell img,
+  .im-frame:nth-of-type(4n+2).is-on .im-cell img,
+  .im-frame:nth-of-type(4n+3).is-on .im-cell img,
+  .im-frame:nth-of-type(4n).is-on .im-cell img {
+    animation: none;
+    transform: none;
+  }
+  .im-stage::before { animation: none; opacity: .1; }
+  .im-vig { animation: none; }
+  .im-count::before { animation: none; opacity: 1; }
+  .im-skip { transition: none; }
+  .im-skip:active { transform: none; }
   .im-bar i, .im-g-track i { transition: none; }
 }
 
 html.motion-off .im-frame.is-on .im-sfx { animation: none; }
+
+html.motion-off .im-frame,
+html.motion-off .im-frame:not(.is-on) { transition: none; transform: none; }
+
+html.motion-off .im-frame.is-on .im-caption,
+html.motion-off .im-frame.is-on .im-say { animation: none; }
+
+html.motion-off .im-frame.is-on .im-cell img {
+  animation: none;
+  transform: none;
+}
+
+html.motion-off .im-stage::before { animation: none; opacity: .1; }
+html.motion-off .im-vig { animation: none; }
+html.motion-off .im-count::before { animation: none; opacity: 1; }
+html.motion-off .im-skip { transition: none; }
+html.motion-off .im-skip:active { transform: none; }

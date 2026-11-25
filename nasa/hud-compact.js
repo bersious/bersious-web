@@ -82,10 +82,14 @@ const ICONS = {
   save: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/></svg>`,
+  /* Cùng một hình bánh răng với nút cài đặt ở góc màn hình (index.html).
+     Trước đây chỗ này là hình mặt trời (tròn + tám tia), nên người chơi
+     thấy hai biểu tượng cài đặt khác nhau ở hai màn. */
   settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="3.1"/>
-    <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/></svg>`,
+      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>`,
   collapse: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="m6 14 6-6 6 6"/></svg>`,
@@ -894,7 +898,11 @@ export function createCompactHud({
 
     for (const [id, b] of Object.entries(station)) {
       b.keyEl.textContent = t('hud2.' + id);
-      b.unitEl.textContent = t('hud2.unit.' + id);
+      const unit = t('hud2.unit.' + id);
+      b.unitEl.textContent = unit;
+      /* Quy uoc hien thi: '60 W', '100 kPa' co khoang trang truoc don vi,
+         nhung '%' phai sat so ('100%'). O % thi xoá gap 4px của cell. */
+      b.cell.classList.toggle('u-tight', unit.trim() === '%');
     }
 
     speedsEl.setAttribute('aria-label', t('hud2.speed'));

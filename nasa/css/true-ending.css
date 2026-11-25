@@ -390,6 +390,58 @@
   color: #f0e4d2;
 }
 
+/* ---- vì sao kết quả này ----
+   Phần ban giám khảo NASA chấm nặng nhất: game phải nói được lý do thắng
+   hay thua bằng con số cụ thể. Mỗi dòng là một gạch đầu dòng có dấu nháy
+   màu hổ phách để dễ quét mắt, chữ đủ thoáng để đọc trên màn chiếu. */
+
+.te-sum-why {
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-left: 3px solid rgba(217, 145, 62, .55);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .022);
+}
+
+.te-sum-why-h {
+  margin: 0 0 10px;
+  font-family: var(--st-font-mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(217, 145, 62, .92);
+}
+
+.te-sum-why-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.te-sum-why-item {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: rgba(226, 233, 241, .78);
+}
+
+.te-sum-why-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(217, 145, 62, .7);
+}
+
 /* ---- bảng đối chiếu ---- */
 
 .te-sum-cmp {

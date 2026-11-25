@@ -22,6 +22,43 @@
   font-family: var(--st-font-body);
   font-size: var(--st-size-base);
   color: var(--tx);
+  /* Lưới 3 cột 28 / 44 / 28 thay cho các khung nổi tự do.
+     Trước đây mọi thứ là position:absolute neo vào bốn góc, nên ở
+     màn hẹp chúng trượt vào nhau và đè lên chữ. Đo thật ở 1920x1080:
+     13 phần tử absolute, trong đó .asm-summary 300x200 và .asm-next
+     146x52 nằm chồng lên vùng nội dung. Nay mỗi thứ có ô của nó
+     trong lưới, không còn neo góc. */
+  display: grid;
+  /* inset: 0 là ĐÚNG, với điều kiện khung cha là .p2-stage-inner.
+     Đo thật ở 1366x768: .p2-stage-inner nằm đúng vùng sân khấu
+     113..590, nên lớp phủ phủ kín cha là vừa khít, không chạm thanh
+     trên lẫn thanh đáy. Trước đây hàng cuối bị thanh đáy đè chỉ vì
+     mountAssemblyUi lỡ nhận nhầm khung cha (body) khi host không có;
+     phần sửa nằm ở phía JS, không phải ở đây.
+     Giữ inset: 0 để lớp phủ luôn khít cha, dù cha là khung nào. */
+  grid-template-columns: 28fr 44fr 28fr;
+  /* Hàng 1 để trống: đó là chỗ của khối tiêu đề và dòng dẫn của bước
+     lắp ráp (feature-cml3 vẽ vào khoảng 113..287). Lớp phủ này không
+     vẽ vào đó, nếu không sẽ đè lên tiêu đề. */
+  /* Hàng 1 chừa chỗ cho khối tiêu đề + dòng dẫn của bước lắp ráp.
+     Đo thật: .cml3-title nằm 156..194 và dòng dẫn kết thúc ở 271,
+     trong khi badge đồng đội cao 59px. Nếu hàng 1 để auto thì badge
+     rơi ngay vào vùng tiêu đề và chồng 16px lên chữ. Chiều cao hàng
+     1 phải đủ chứa cả hai khối đó. */
+  /* Hàng 1 phải chứa TRỌN khối tiêu đề (kết thúc ở 194) VÀ dòng dẫn
+     (kết thúc ở 271) của feature-cml3. Đo thật: để 176px thì badge
+     đồng đội vẫn rơi đúng vào dòng dẫn ở 225..271. Nay chừa đủ 190px
+     so với mép trên sân khấu (113) để dòng dẫn nằm trọn trong hàng 1. */
+  grid-template-rows: 172px auto minmax(0, 1fr) 64px;
+  grid-template-areas:
+    'head   head   head'
+    'crew   stage  summary'
+    'stage1 stage  summary'
+    'stage2 stage  next';
+  /* Vùng đệm để lưới không chạm mép màn hình. */
+  padding: 0 12px 12px;
+  gap: 0 12px;
+  align-content: stretch;
 }
 
 .asm-ui *,
@@ -137,15 +174,37 @@
 .asm-dot.is-done { background: var(--ok); }
 
 /* nhãn chữ bên ngoài nút */
+/* Nhãn của sáu nút chỉ dẫn quanh con tàu. Chúng nằm trực tiếp trên ảnh
+   sân khấu, mà ảnh có chỗ sáng chỗ tối, nên chữ mảnh màu xám dễ chìm hẳn
+   vào vùng sáng. Đo trên ảnh chụp: các nhãn ở nửa trên sân khấu (vùng có
+   đèn rọi) đọc khó hơn hẳn các nhãn ở nửa dưới.
+   Cách chữa rẻ nhất và không phá thẩm mỹ: thêm một quầng tối mờ phía sau
+   chữ, đủ để tách khỏi nền mà không thành một cái hộp. Đồng thời nâng cỡ
+   chữ lên một bậc và cho phép rộng hơn để nhãn dài không phải gãy dòng
+   giữa từ. */
 .asm-label {
-  max-width: 96px;
-  font-size: var(--st-size-cap);
-  line-height: 1.25;
-  letter-spacing: .05em;
+  max-width: 112px;
+  font-size: clamp(.8rem, .76rem + .12vw, .9rem);
+  line-height: 1.3;
+  letter-spacing: .04em;
   text-transform: uppercase;
   text-align: center;
-  color: var(--tx-soft);
+  color: var(--tx-bright);
   pointer-events: none;
+  /* Quầng tối nhiều lớp: lớp gần tạo viền mảnh, lớp xa tạo vùng tối rộng
+     để chữ đọc được cả khi nằm trên mảng sáng của ảnh. */
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .95),
+    0 0 6px rgba(0, 0, 0, .85),
+    0 0 14px rgba(0, 0, 0, .6);
+  /* Nền mờ bo góc phía sau nhãn. Quầng tối chỉ đủ khi nền ảnh tối; trên
+     mảng giàn kim loại sáng (đo được vùng quanh nhãn "NHIÊN LIỆU") thì
+     chữ vẫn chìm. Một tấm nền tối bán trong suốt đặt sau chữ làm tương
+     phản ổn định trên MỌI vùng ảnh, không phụ thuộc điểm ảnh phía sau.
+     Giữ alpha thấp để nhãn vẫn là chữ trên nền, không thành một cái hộp. */
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-void) 62%, transparent);
   transition: color var(--st-dur-fast) ease, font-weight var(--st-dur-fast) ease;
 }
 
@@ -157,11 +216,17 @@
 
 /* ---------- bảng thông tin tổng / summary panel ---------- */
 
+/* Bảng thông tin tổng: nay ghim vào CỘT PHẢI của lưới, không trôi nổi.
+   Trước đây neo absolute ở góc trên phải nên đè lên cột phải của
+   màn lắp ráp, che cả thanh đo bên dưới nó. */
 .asm-summary {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: min(300px, 46%);
+  grid-area: summary;
+  align-self: start;
+  width: 100%;
+  max-width: none;
+  /* Không cần đệm dưới nữa: nút TIẾP THEO đã có hàng riêng. Nhưng giữ
+   một khoảng nhỏ để ô xác nhận xanh không dán sát thanh đo kế tiếp. */
+  margin-bottom: 10px;
   padding: 10px 12px 11px;
   border: 1px solid var(--line-strong);
   border-radius: var(--st-radius-lg);
@@ -247,10 +312,19 @@
 
 /* ---------- đồng hồ đếm ngược sinh tồn / crew counter ---------- */
 
+/* Đồng đội trên Sao Hỏa.
+   Đo thật ở 1366x768: khối này cao 59px, nằm ở 123..182, còn
+   .cml3-title chiếm 156..194, nên hai thứ đè lên nhau và người chơi
+   không đọc được phần đầu tiêu đề. Nay nó nằm ở hàng thứ hai của
+   lưới, tức dưới khối tiêu đề, và tựa xuống đáy hàng đó. */
 .asm-crew {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+  grid-area: crew;
+  justify-self: start;
+  align-self: end;
+  /* Cách mép trái đúng bằng lề cột thẻ linh kiện bên dưới, và chừa
+     khoảng thở bên dưới để không chạm dòng mô tả của hero. */
+  margin-left: 18px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -313,10 +387,17 @@
 
 /* ---------- nút NEXT ---------- */
 
+/* Nút Tiếp theo: hàng cuối, nhưng CHỈ trong cột giữa.
+   Đo thật ở 1920x1080: khi cho nút phủ hết chiều ngang (grid-column
+   1 / -1) thì nó trùm lên hộp cảnh báo bão bụi ở cuối cột phải, che
+   mất đúng vế khuyên dự trữ nguồn điện, tức phần quan trọng nhất của
+   cảnh báo. Cột phải là của feature-cml3 (thanh đo và hộp cảnh báo),
+   nên lớp phủ này không được vẽ vào đó. Giới hạn ở cột 2 là hết đè. */
 .asm-next {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
+  grid-column: 2;
+  grid-row: 4;
+  justify-self: end;
+  align-self: center;
   display: inline-flex;
   align-items: center;
   gap: 10px;
