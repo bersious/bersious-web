@@ -714,8 +714,8 @@ export function mountCml3(opts = {}) {
                   <span class="cml3-opt-name">${escapeHtml(name)}</span>
                   <span class="cml3-opt-nasa mono">${escapeHtml(sub)}</span>
                   <span class="cml3-opt-stats">
-                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardMass')}</i><span class="cml3-stat-val">${escapeHtml(massTxt)}</span> <span style="color:var(--tx-ghost)">${T('unitKg')}</span></span>
-                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardCost')}</i><span class="cml3-stat-val">${fmt(m.cost_musd, 1)}</span> <span style="color:var(--tx-ghost)">${T('unitMusd')}</span></span>
+                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardMass')}</i><span class="cml3-stat-val">${escapeHtml(massTxt)}</span> <span class="cml3-stat-unit">${T('unitKg')}</span></span>
+                    <span class="cml3-stat"><i class="cml3-stat-k">${T('cardCost')}</i><span class="cml3-stat-val">${fmt(m.cost_musd, 1)}</span> <span class="cml3-stat-unit">${T('unitMusd')}</span></span>
                     ${powerChip}
                   </span>
                   <span class="cml3-opt-trade">${escapeHtml(trade)}</span>

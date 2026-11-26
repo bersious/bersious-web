@@ -582,3 +582,13 @@ html.motion-off .act-intro-card.is-pre {
 html.motion-off .act-intro-start {
   transition: none;
 }
+
+
+/* Phat hien boi A4: mot so nut triệt tiêu outline khi focus ban phim.
+   Them rule rieng de khong lam thay hover state da co. */
+.act-intro-card:focus-visible,
+.asm-next:focus-visible,
+.fg-launch-btn:focus-visible:not(:disabled) {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}

@@ -227,7 +227,11 @@
     linear-gradient(168deg,
       color-mix(in srgb, var(--bg-raise) 86%, transparent),
       color-mix(in srgb, var(--bg-panel) 80%, transparent) 58%,
-      color-mix(in srgb, var(--bg-deep) 84%, transparent));
+      color-mix(in srgb, var(--bg-deep) 84%, transparent)),
+    url('./assets/p2-radar-grid.svg');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
   box-shadow: inset 0 0 60px color-mix(in srgb, var(--bg-void) 70%, transparent);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -406,10 +410,19 @@
 
 .cml1-lead {
   margin: 0;
-  max-width: 62ch;
+  /* Đoạn dẫn truyện là chữ bắt buộc phải đọc để hiểu bối cảnh, mà nó
+     nằm ngay trên ảnh nền sân khấu. Không có nền thì các mảng sáng của
+     ảnh (bàn console, ghế) làm chữ mất tương phản. Bọc một lớp nền mờ
+     lấy từ bảng màu, giới hạn bề rộng về ngưỡng đọc thoải mái 60-75 ký
+     tự, và thêm đệm để chữ không dính mép khung. */
+  max-width: 54ch;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
   font-size: .95rem;
   line-height: 1.66;
-  color: var(--tx-soft);
+  color: var(--tx);
 }
 
 /* ---------- dải bốn chặng của chiến dịch ----------
@@ -680,7 +693,17 @@
   padding: clamp(14px, 1.5vw, 20px);
   border: 1px solid var(--line);
   border-radius: var(--cml1-radius);
-  background: linear-gradient(170deg, var(--bg-panel), var(--bg-deep));
+  /* Nen the ba tram: anh luoi toa do DSN lam watermark chinh, phu
+     gradient 90-92% nen chu van doc ro nhu cu. */
+  background-color: var(--bg-deep);
+  background-image:
+    linear-gradient(170deg,
+      color-mix(in srgb, var(--bg-panel) 92%, transparent),
+      color-mix(in srgb, var(--bg-deep) 90%, transparent)),
+    url('./assets/p2-dsn-map.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 
 .cml1-st-list {
@@ -728,9 +751,14 @@
 .cml1-st-bar {
   position: relative;
   height: 5px;
-  border-radius: 999px;
-  background: var(--bg-void);
+  border-radius: var(--st-radius-sm, 2px);
+  /* Track va moc max de thanh doc duoc la ti le, khong phai vach tron. */
+  /* 20% van qua mem tren nen card. Nang len 32% de nhin ra day track
+     ma van khong qua sang soi khi fill cyan chay tren do. */
+  background: color-mix(in srgb, var(--line-strong) 62%, transparent);
+  border-right: 1px solid var(--line-strong);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .cml1-st-bar i {
@@ -751,7 +779,7 @@
 }
 
 .cml1-st-val {
-  text-align: right;
+  text-align: left;
   font-size: .7rem;
   color: var(--tx-soft);
   font-variant-numeric: tabular-nums;
@@ -1531,3 +1559,43 @@ html.motion-off .cml1-root *,
 html.motion-off .cml1-in,
 html.motion-off .cml1-ruler-pop,
 html.motion-off .cml1-log-line { animation: none !important; transition-duration: 1ms !important; }
+
+
+/* Ba tram DSN tren vong radar: cach deu 120 do, nhan 12px mau --tx-soft. */
+.cml1-radar-station .cml1-st-dot { fill: var(--cyan); }
+.cml1-radar-station .cml1-st-lbl {
+  font-family: var(--st-font-mono, monospace);
+  font-size: 12px;
+  fill: var(--tx-soft);
+  letter-spacing: .05em;
+  user-select: none;
+}
+
+/* Dai thong so radar: chi hien so lieu co that tu state. */
+.cml1-radar-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--st-radius);
+  background: var(--bg-panel);
+}
+.cml1-hud-item { display: inline-flex; align-items: baseline; gap: 6px; }
+.cml1-hud-lbl {
+  font-family: var(--st-font-mono, monospace);
+  font-size: var(--st-size-label);
+  text-transform: uppercase;
+  color: var(--tx-soft);
+  letter-spacing: .06em;
+}
+.cml1-hud-val {
+  font-family: var(--st-font-mono, monospace);
+  font-size: var(--st-size-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-bright);
+}
+.cml1-hud-val.is-ok { color: var(--ok); }

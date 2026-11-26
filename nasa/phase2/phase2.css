@@ -153,7 +153,7 @@
 .p2-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--st-gap-sm);
   min-width: 0;
 }
 
@@ -218,7 +218,7 @@
 .p2-stat {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--st-gap-xs);
   /* Cho ô co tới mức vừa đủ chứ không về 0: min-width là bề rộng
      tối thiểu để nhãn còn đọc được, phần co dãn do khung cha lo. */
   min-width: max-content;
@@ -344,7 +344,9 @@
   border-radius: 999px;
   background: transparent;
   font: inherit;
-  color: var(--tx-dim);
+  /* Bước chưa tới dùng --tx-soft thay vì --tx-dim: thanh trên dùng
+     backdrop-filter nên ảnh nền lọt qua làm --tx-dim tụt dưới 4.5:1. */
+  color: var(--tx-soft);
   cursor: default;
   transition:
     border-color var(--p2-dur) var(--p2-ease),
@@ -367,7 +369,7 @@
   font-size: .62rem;
   font-weight: 600;
   line-height: 1;
-  color: var(--tx-dim);
+  color: var(--tx-soft);
   transition:
     border-color var(--p2-dur) var(--p2-ease),
     background-color var(--p2-dur) var(--p2-ease),
@@ -470,11 +472,11 @@
   border-color: var(--line-strong);
   color: var(--tx-soft);
   cursor: not-allowed;
-  /* Nút bị khoá vẫn phải đọc ra là nút. Để mờ gần như tàng hình thì
-     vùng đáy trông như khoảng trống, không phải như một nút chưa bấm
-     được. Dùng viền đứt và chữ mức --tx-soft để vẫn thấy hình nút. */
+  /* Nút bị khoá vẫn phải đọc ra là nút. Viền liền nét (không đứt) để
+     không bị nhầm với khung kéo-thả chưa hoàn thiện, chữ mức --tx-soft
+     để vẫn thấy hình nút. */
   background: color-mix(in srgb, var(--bg-inset) 52%, transparent);
-  border-style: dashed;
+  border-style: solid;
   opacity: 1;
 }
 
@@ -488,7 +490,7 @@
   /* Nút quay lại dùng ký tự mũi tên chứ không dùng tệp SVG, nên cỡ chữ
      phải khai ở đây, nếu không ký tự co theo cỡ chữ mặc định và nhỏ
      hơn vùng 18px rất nhiều. */
-  font-size: 1.05rem;
+  font-size: var(--st-size-body);
   line-height: 1;
 }
 
@@ -1490,6 +1492,52 @@ html.motion-off .p2-step-dot {
   .p2-brand-name { font-size: .78rem; }
   .p2-step-sep { width: 3px; }
   .p2-navrow .p2-btn-text { display: none; }
+
+  /* Thanh chip và dải bước nằm cùng một hàng trên desktop. Ở 390px
+     chúng chồng lên nhau, làm chip "TRỄ LIÊN LẠC" bị cắt giữa từ. Tách
+     thành hai hàng, giấu hẳn chip thứ ba (đồng đội còn sống đã có trong
+     bốn ô đo tài nguyên ở dưới). Bỏ overflow:hidden vì chính nó cắt
+     mất chữ của chip khi hai hàng chưa đủ chỗ. */
+  .p2-root { --p2-top-h: 112px; }
+  .p2-top {
+    /* Bốn cột của desktop không vừa 390px. Chuyển về hai hàng: hàng một
+       là nhận diện + chỉ số + công cụ, hàng hai là dải bước. Trước đây
+       cột bước nằm cùng hàng với chỉ số nên đè lên chip "TRỄ LIÊN LẠC". */
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    /* Desktop dùng grid-template-areas; nếu chỉ đổi columns/rows mà
+       giữ areas cũ thì status vẫn nằm hàng một, steps chồng lên nó. */
+    grid-template-areas:
+      'brand status tools'
+      'steps steps steps';
+    align-content: center;
+    row-gap: 2px;
+  }
+  .p2-statusbar {
+    justify-content: flex-start;
+    overflow: visible;
+  }
+  .p2-stat:nth-child(3) { display: none; }
+  /* Chip DSN cũng đã có trong badge "DSN" ngay dưới tiêu đề. Ở 390px
+     giữ nó chỉ làm toggle VI/EN và bánh răng đè lên chữ. */
+  .p2-stat:nth-child(1) { display: none; }
+  .p2-tools { flex-shrink: 0; }
+  .p2-steps {
+    /* Desktop đặt dải bước bằng position:absolute để căn giữa thanh.
+       Ở đây phải trả về static, nếu không grid không đẩy được nó
+       xuống hàng hai và nó vẫn đè lên chip "TRỄ LIÊN LẠC". */
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+    margin-left: 0;
+    padding: 2px 0;
+  }
+
+  /* Đoạn dẫn truyện và bảng bản ghi thuộc cùng một cột. Cho phép xuống
+     dòng tự nhiên thay vì bị card kế tiếp đè lên dòng cuối. */
+  .p2-stage-inner { padding-bottom: 16px; }
+  .p2-stage-head { position: static; }
 }
 
 /* --- màn thấp: thu đệm để cả ba vùng vẫn vừa khung nhìn --- */

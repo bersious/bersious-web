@@ -386,8 +386,8 @@
 
 /* Nhãn tên quỹ đạo viết nhỏ, mờ, đặt ở đỉnh mỗi elip. */
 .tj-tag-orbit {
-  fill: var(--tx-ghost);
-  font-size: 9px;
+  fill: var(--tx-dim);
+  font-size: var(--st-size-label);
 }
 
 /* Trái Đất: chấm xanh. Sao Hỏa: chấm đỏ, to hơn. */
@@ -409,7 +409,7 @@
 
 .tj-tag {
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: var(--st-size-label);
   letter-spacing: .06em;
   fill: var(--tx-soft);
 }

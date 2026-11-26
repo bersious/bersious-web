@@ -314,6 +314,22 @@ const RADAR = `
     <text x="248" y="172" class="cml1-rg-l">1,5 AU</text>
   </g>
 
+  <!-- Ba trạm DSN cách đều 120 độ trên vòng r=142. Nhãn 12px, màu --tx-soft. -->
+  <g class="cml1-radar-stations" aria-hidden="true">
+    <g class="cml1-radar-station" transform="translate(210, 68)">
+      <circle class="cml1-st-dot" cx="0" cy="0" r="4"></circle>
+      <text class="cml1-st-lbl" x="0" y="-8" text-anchor="middle">Goldstone</text>
+    </g>
+    <g class="cml1-radar-station" transform="translate(333, 281)">
+      <circle class="cml1-st-dot" cx="0" cy="0" r="4"></circle>
+      <text class="cml1-st-lbl" x="8" y="14" text-anchor="start">Canberra</text>
+    </g>
+    <g class="cml1-radar-station" transform="translate(87, 281)">
+      <circle class="cml1-st-dot" cx="0" cy="0" r="4"></circle>
+      <text class="cml1-st-lbl" x="-8" y="14" text-anchor="end">Madrid</text>
+    </g>
+  </g>
+
   <g class="cml1-sweep">
     <path class="cml1-sweep-cone" d="M210 210 L210 20 A190 190 0 0 1 316.2 52.1 Z"></path>
     <line class="cml1-sweep-edge" x1="210" y1="210" x2="210" y2="20"></line>
@@ -368,7 +384,6 @@ const SHELL = `
         <h2 class="cml1-panel-h" data-l="readoutTitle"></h2>
         <dl class="cml1-ro">
           <div><dt data-l="roBand"></dt><dd class="mono" data-l="roBandVal"></dd></div>
-          <div><dt data-l="roDelay"></dt><dd class="mono" data-l="roDelayVal"></dd></div>
           <div><dt data-l="roStrength"></dt><dd class="mono" data-ro="strength" data-l="roStrengthVal"></dd></div>
           <div><dt data-l="roSource"></dt><dd data-ro="source" data-l="roSourceVal"></dd></div>
         </dl>

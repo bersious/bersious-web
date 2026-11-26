@@ -903,7 +903,7 @@
   gap: 7px;
   padding: 9px 11px;
   background: var(--bg-deep);
-  font-size: .7rem;
+  font-size: 12px;
   line-height: 1.35;
   color: var(--tx-ghost);
   min-height: 44px;
@@ -1023,7 +1023,7 @@
   padding: 2px 7px;
   border: 1px solid currentColor;
   border-radius: 999px;
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--ok);
@@ -1061,7 +1061,7 @@
 
 .cml3-gauge-note {
   margin: 7px 0 0;
-  font-size: .7rem;
+  font-size: 12px;
   line-height: 1.45;
   color: var(--tx-dim);
   font-variant-numeric: tabular-nums;
@@ -1153,7 +1153,31 @@
 
 .cml3-next svg { width: 18px; height: 18px; }
 
-.cml3-next:hover {
+/* Đơn vị đi kèm giá trị (kg, triệu USD). Trước đây là inline style
+   --tx-ghost, mức mờ nhất bảng màu, đọc không ra. Dùng --tx-soft và
+   một khoảng đệm để đơn vị không dính vào số. */
+.cml3-stat-unit {
+  margin-left: 2px;
+  color: var(--tx-soft);
+}
+
+/* Nút chuyển bước khoá được (hệ thống chưa thoả điều kiện). Trước đây
+   thiếu hẳn trạng thái này nên nút vẫn trông bấm được dù không chạy. */
+.cml3-next:disabled {
+  background: var(--bg-inset);
+  border-color: var(--line);
+  color: var(--tx-ghost);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.cml3-next:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.cml3-next:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 22px color-mix(in srgb, var(--amber) 30%, transparent);
 }
@@ -1163,7 +1187,7 @@
 .cml3-next-hint {
   margin: 0;
   text-align: center;
-  font-size: .7rem;
+  font-size: 12px;
   color: var(--tx-dim);
 }
 
@@ -1252,6 +1276,10 @@
 
 .cml3-modal-x svg { width: 16px; height: 16px; }
 .cml3-modal-x:hover { color: var(--amber); border-color: var(--amber-dim); }
+.cml3-modal-x:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
 
 .cml3-modal-body {
   overflow-y: auto;
@@ -1292,7 +1320,7 @@
   margin: 0;
   padding-top: 10px;
   border-top: 1px solid var(--line-hair);
-  font-size: .7rem;
+  font-size: 12px;
   line-height: 1.6;
   color: var(--tx-dim);
   /* Chống ngắt dòng giữa số và đơn vị. Đo trên ảnh chụp thật: "325 kg"
@@ -1366,7 +1394,7 @@
 }
 
 .cml3-callout-label {
-  font-size: .68rem;
+  font-size: 12px;
   font-family: var(--st-font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;

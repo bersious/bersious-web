@@ -62,7 +62,7 @@
   gap: 8px;
   margin: 0;
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: var(--st-size-label);
   letter-spacing: var(--st-track-label);
   text-transform: uppercase;
   color: var(--cyan);
@@ -277,7 +277,7 @@
   font-size: .92em;
   letter-spacing: .04em;
   text-transform: none;
-  color: var(--tx-ghost);
+  color: var(--tx-dim);
 }
 
 .exv-strip-k.is-small {
@@ -386,7 +386,7 @@
   border: 1px solid var(--line);
   border-radius: var(--st-radius);
   overflow: hidden;
-  background: radial-gradient(120% 100% at 50% 45%, #0b1017 0%, #080c12 55%, var(--bg-void) 100%);
+  background: radial-gradient(120% 100% at 50% 45%, var(--bg-panel) 0%, var(--bg-deep) 55%, var(--bg-void) 100%);
 }
 
 .exv-fallback-canvas {
@@ -442,7 +442,7 @@
 
 .exv-planet-name {
   font-family: var(--st-font-mono);
-  font-size: 9.5px;
+  font-size: var(--st-size-label);
   letter-spacing: .14em;
   fill: var(--tx-dim);
 }
@@ -701,7 +701,7 @@
   position: absolute;
   inset: 7px;
   z-index: 3;
-  border: 1px solid rgba(53, 69, 90, .2);
+  border: 1px solid var(--line-hair);
   border-radius: 2px;
   pointer-events: none;
 }

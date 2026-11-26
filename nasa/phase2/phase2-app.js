@@ -63,7 +63,7 @@ const CHUOI = {
     'wait.item2': 'Engine đã nối',
     'wait.item3': 'Chờ tệp feature',
 
-    'hint.default': 'Chọn một lựa chọn ở sân khấu trung tâm. Nút chuyển bước nằm ngay trong nội dung của bước đó.',
+    'hint.default': 'Chọn một cấu hình ở khung giữa màn hình. Nút chuyển bước nằm ở thanh dưới cùng.',
     'hint.review': 'Đọc bảng đèn kiểm duyệt. Mọi mục đỏ phải chuyển xanh trước khi phóng.',
 
     'toast.landed': 'Tàu đã hạ cánh. Đồng đội đã nhận được tiếp tế.',
@@ -133,7 +133,7 @@ const CHUOI = {
     'wait.item2': 'Engine connected',
     'wait.item3': 'Waiting for feature file',
 
-    'hint.default': 'Pick an option on the centre stage. Each step carries its own next button inside its content.',
+    'hint.default': 'Pick a configuration in the centre panel. The next button sits in the bar at the bottom.',
     'hint.review': 'Read the review light board. Every red item has to turn green before launch.',
 
     'toast.landed': 'The ship has landed. The crew has supplies.',
