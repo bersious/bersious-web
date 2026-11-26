@@ -1385,3 +1385,15 @@ html.motion-off .exv-stage-state::before,
 html.motion-off .exv-sum-badge::before {
   background-repeat: no-repeat;
 }
+
+/* Icon nut bam o kich thuoc 18-22px lam mat chi tiet (vien octagon + icon ben
+   trong), doc thanh mot o mau vo nghia. Bo icon cho nut, giu lai cho HUD va
+   badge noi dung hon. */
+.exv-btn::before {
+  content: none;
+}
+
+/* Nut bi vo hieu hoa doc duoc hon: .45 -> .62 */
+.exv-btn-ghost:disabled {
+  opacity: .62;
+}
