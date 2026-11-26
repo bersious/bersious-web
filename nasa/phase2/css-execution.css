@@ -125,7 +125,7 @@
   border-radius: var(--st-radius);
   background: var(--bg-panel);
   font-family: var(--st-font-mono);
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -141,7 +141,7 @@
   border-radius: 50%;
   border: 1px solid var(--line-strong);
   font-style: normal;
-  font-size: .56rem;
+  font-size: .75rem;
   color: var(--tx-dim);
 }
 
@@ -266,7 +266,7 @@
   align-items: baseline;
   gap: 6px;
   font-family: var(--st-font-mono);
-  font-size: .56rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -283,7 +283,7 @@
 .exv-strip-k.is-small {
   letter-spacing: .04em;
   text-transform: none;
-  font-size: .6rem;
+  font-size: .75rem;
   color: var(--tx-soft);
 }
 
@@ -310,14 +310,14 @@
 
 .exv-strip-v u {
   font-family: var(--st-font-mono);
-  font-size: .72rem;
+  font-size: .75rem;
   text-decoration: none;
   color: var(--tx-soft);
 }
 
 .exv-strip-v i {
   font-family: var(--st-font-mono);
-  font-size: .58rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -375,7 +375,7 @@
   padding: 8px 10px;
   border-left: 2px solid var(--warn);
   background: color-mix(in srgb, var(--warn) 8%, transparent);
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--warn);
 }
 
@@ -540,7 +540,7 @@
 
 .exv-btn em {
   font-family: var(--st-font-mono);
-  font-size: .58rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .08em;
   opacity: .62;
@@ -742,7 +742,7 @@
 
 .exv-hud-k {
   font-family: var(--st-font-mono);
-  font-size: .54rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -767,7 +767,7 @@
 .exv-hud-speed i,
 .exv-hud-alt i {
   font-family: var(--st-font-mono);
-  font-size: .54rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .06em;
   color: var(--tx-dim);
@@ -806,7 +806,7 @@
   border-radius: 50%;
   border: 1px solid var(--line-strong);
   font-family: var(--st-font-mono);
-  font-size: .64rem;
+  font-size: .75rem;
   color: var(--tx-dim);
 }
 
@@ -826,7 +826,7 @@
 
 .exv-stage-text em {
   font-family: var(--st-font-mono);
-  font-size: .56rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .06em;
   color: var(--tx-dim);
@@ -834,7 +834,7 @@
 
 .exv-stage-text p {
   margin: 4px 0 0;
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.5;
   color: var(--tx-soft);
 }
@@ -842,7 +842,7 @@
 .exv-stage-speed {
   grid-column: 2;
   font-family: var(--st-font-mono);
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .05em;
   color: var(--amber);
 }
@@ -850,7 +850,7 @@
 .exv-stage-state {
   grid-column: 2;
   font-family: var(--st-font-mono);
-  font-size: .54rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -900,7 +900,7 @@
 
 .exv-sum-badge {
   font-family: var(--st-font-mono);
-  font-size: .56rem;
+  font-size: .75rem;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--ok);
@@ -946,7 +946,7 @@
   padding: 8px 12px;
   text-align: left;
   font-family: var(--st-font-mono);
-  font-size: .56rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -973,7 +973,7 @@
 
 .exv-tr th em {
   font-family: var(--st-font-mono);
-  font-size: .54rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .05em;
   color: var(--tx-dim);
@@ -1006,7 +1006,7 @@
 .exv-td-nasa i,
 .exv-td-player i {
   font-style: normal;
-  font-size: .6rem;
+  font-size: .75rem;
   letter-spacing: .06em;
   color: var(--tx-dim);
 }
@@ -1015,7 +1015,7 @@
   display: block;
   margin-top: 2px;
   text-decoration: none;
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .04em;
   color: var(--tx-dim);
 }
@@ -1036,7 +1036,7 @@
 
 .exv-verdict-cell.is-en {
   margin-top: 4px;
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--tx-dim);
 }
 
@@ -1051,7 +1051,7 @@
   padding: 9px 11px;
   border-left: 2px solid var(--line-strong);
   background: var(--bg-inset);
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.55;
   color: var(--tx-dim);
   max-width: 84ch;
@@ -1103,7 +1103,7 @@
     flex: 1 1 auto;
     justify-content: center;
     padding: 5px 6px;
-    font-size: .54rem;
+    font-size: .75rem;
   }
 
   .exv-chip i {
@@ -1193,7 +1193,7 @@
     left: 0;
     top: 5px;
     font-family: var(--st-font-mono);
-    font-size: .54rem;
+    font-size: .75rem;
     letter-spacing: .1em;
     text-transform: uppercase;
     color: var(--tx-dim);
@@ -1278,4 +1278,110 @@ html.motion-off .exv-wave-dot {
 .exv-btn-ghost:disabled {
   opacity: .45;
   cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+ * Asset UI sinh bang model anh (gemini-3.1-flash-lite-image qua Vilao).
+ * Dat cuoi file de khong ghi de rule hien co. Moi icon la pseudo-element
+ * nen khong dong cham text node, va co flex:0 0 <size> de khong bi nen
+ * co lai khi container hep.
+ * Duong dan tu phase2/ toi phase2/assets/ui/ -> ./assets/ui/<ten>.webp
+ * (khong dung ../art/ui vi workflow deploy chi chep src/, data/, phase2/)
+ * ------------------------------------------------------------------------- */
+.exv-btn::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  background: center / contain no-repeat;
+}
+
+.exv-btn[data-act='beacon']::before {
+  background-image: url('./assets/ui/signal.webp');
+}
+
+.exv-btn[data-act='land-now']::before {
+  width: 20px;
+  height: 20px;
+  flex-basis: 20px;
+  background-image: url('./assets/ui/abort.webp');
+}
+
+.exv-btn.is-primary::before {
+  background-image: url('./assets/ui/launch.webp');
+}
+
+.exv-hud-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.exv-hud-k::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  background: center / contain no-repeat;
+}
+
+.exv-hud-speed .exv-hud-k::before {
+  background-image: url('./assets/ui/velocity.webp');
+}
+
+.exv-hud-alt .exv-hud-k::before {
+  background-image: url('./assets/ui/telemetry.webp');
+}
+
+.exv-stage-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.exv-stage-state::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  background: url('./assets/ui/warning.webp') center / contain no-repeat;
+}
+
+.exv-stage.is-done .exv-stage-state::before {
+  background-image: url('./assets/ui/seal.webp');
+}
+
+.exv-sum-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exv-sum-badge::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  background: url('./assets/ui/mars-verdict.webp') center / contain no-repeat;
+}
+
+/* Uoc thuc hien cho man hinh nho: giu icon nhung thu nho de khong an cho chu */
+@media (max-width: 640px) {
+  .exv-btn::before {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+
+  .exv-sum-badge::before {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+  }
+}
+
+html.motion-off .exv-btn::before,
+html.motion-off .exv-stage-state::before,
+html.motion-off .exv-sum-badge::before {
+  background-repeat: no-repeat;
 }
