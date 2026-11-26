@@ -252,7 +252,7 @@
   gap: 10px;
   padding: 3px 0;
   border-top: 1px solid var(--line-hair);
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--tx-soft);
 }
 
@@ -285,7 +285,7 @@
   border: 1px solid var(--ok);
   border-radius: var(--st-radius);
   background: color-mix(in srgb, var(--ok) 10%, transparent);
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.4;
   color: var(--tx);
 }
@@ -453,7 +453,7 @@
   transform: none;
 }
 
-.asm-ui.is-compact .asm-label { font-size: .58rem; max-width: 76px; }
+.asm-ui.is-compact .asm-label { font-size: .75rem; max-width: 76px; }
 .asm-ui.is-compact .asm-leader { opacity: .5; }
 
 /* ---------- giảm chuyển động / reduced motion ---------- */

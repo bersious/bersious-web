@@ -459,7 +459,7 @@
   border-radius: var(--st-radius);
 }
 
-.flt-bar[data-role] .flt-bar-name { font-size: 9.5px; letter-spacing: .08em; }
+.flt-bar[data-role] .flt-bar-name { font-size: 12px; letter-spacing: .08em; }
 .flt-bar[data-role] .flt-bar-val { font-size: var(--st-size-label); }
 
 /* ---------- thân: chỗ nội dung sự kiện chạy ---------- */
@@ -1080,7 +1080,7 @@
 
   .flt-map-stage .mviz-head { display: none; }
 
-  .flt-map-stage .mviz-progress-row { font-size: 10px; }
+  .flt-map-stage .mviz-progress-row { font-size: 12px; }
 
   /* Bốn ô, hai cột: AU và km đều phải còn, vì đó là hai đơn vị người
      chơi cần đối chiếu. Ô số lần đốt TCM đã có trên thanh tiến trình
@@ -1129,7 +1129,7 @@
   .flt-speeds { padding: 2px; }
   .flt-speed { min-width: 44px; }
   .flt-bar[data-role] { padding: 6px; }
-  .flt-bar[data-role] .flt-bar-name { font-size: 9px; }
+  .flt-bar[data-role] .flt-bar-name { font-size: 12px; }
   .flt-ev-title { font-size: 1.2rem; }
   .flt-ev-sit { font-size: .95rem; }
 }

@@ -124,7 +124,7 @@
 .hud-trend {
   flex: 0 0 auto;
   min-width: .7em;
-  font-size: .58rem;
+  font-size: .75rem;
   line-height: 1;
   text-align: center;
 }
@@ -212,7 +212,7 @@
 
 @media (max-width: 560px) {
   .hud-group-label { display: none; }
-  .hud-name { font-size: .6rem; }
+  .hud-name { font-size: .75rem; }
   .hud-value { font-size: .7rem; }
   .hud-icon { width: 11px; height: 11px; }
 }

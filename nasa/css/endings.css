@@ -150,7 +150,7 @@
 .ending-eyebrow {
   margin: 0 0 8px;
   font-family: var(--st-font-mono);
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--amber);
@@ -253,7 +253,7 @@
 .ending-metric-label {
   margin: 0;
   font-family: var(--st-font-mono);
-  font-size: .6rem;
+  font-size: .75rem;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -579,7 +579,7 @@
 
 .ending-slot-when {
   font-family: var(--st-font-mono);
-  font-size: .72rem;
+  font-size: .75rem;
   color: var(--tx-dim);
 }
 

@@ -92,7 +92,7 @@
 
 .clock-sol-label {
   font-family: var(--st-font-mono, ui-monospace, monospace);
-  font-size: .55rem;
+  font-size: .75rem;
   letter-spacing: .16em;
   color: rgba(245, 158, 11, .62);
 }
@@ -256,7 +256,7 @@
 @media (max-width: 720px) {
   .clock-lcd { padding: 5px 10px 8px; gap: 7px; }
   .clock-time { font-size: 1.02rem; }
-  .clock-speed-btn { min-width: 40px; min-height: 30px; font-size: .66rem; padding: 0 8px; }
+  .clock-speed-btn { min-width: 40px; min-height: 30px; font-size: .75rem; padding: 0 8px; }
 }
 
 @media (max-width: 460px) {
@@ -302,7 +302,7 @@
     flex: 0 0 auto;
     min-width: 0;
     padding: 0 6px;
-    font-size: .58rem;
+    font-size: .75rem;
   }
 
   /* Nút thứ ba chỉ còn mũi tên, bỏ chữ, để hàng nút vừa bề ngang */
@@ -312,5 +312,5 @@
 @media (max-width: 460px) {
   .clock-time { font-size: .92rem; }
   .clock-sol-num { font-size: .76rem; }
-  .clock-speed-btn { min-height: 28px; font-size: .55rem; padding: 0 5px; }
+  .clock-speed-btn { min-height: 28px; font-size: .75rem; padding: 0 5px; }
 }

@@ -132,7 +132,7 @@
   flex: none;
   padding: 7px 14px;
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: rgba(226, 200, 168, .78);
@@ -196,7 +196,7 @@
   bottom: 10px;
   padding: 4px 10px;
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .09em;
   color: rgba(240, 224, 196, .9);
   background: rgba(10, 8, 6, .62);
@@ -238,7 +238,7 @@
 
 .mem-speaker .mem-role {
   font-family: var(--st-font-mono, monospace);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .1em;
   color: rgba(200, 190, 170, .55);
 }
@@ -308,7 +308,7 @@
   min-width: 96px;
   padding: 9px 16px;
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: #f0dcbc;

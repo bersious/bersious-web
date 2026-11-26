@@ -835,7 +835,7 @@ html.motion-off .base-clock-fill { transition: none; }
 
 .base-item-hint {
   font-family: var(--st-font-mono, monospace);
-  font-size: .64rem;
+  font-size: .75rem;
   letter-spacing: .09em;
   text-transform: uppercase;
   color: rgba(232, 163, 61, .82);
@@ -1004,7 +1004,7 @@ html.motion-off .base-note-panel { animation: none; }
 .base-note-label {
   margin: 0 0 8px;
   font-family: var(--st-font-mono, monospace);
-  font-size: .66rem;
+  font-size: .75rem;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--tx-soft, #8497aa);
@@ -1045,7 +1045,7 @@ html.motion-off .base-note-panel { animation: none; }
 /* Ở màn hẹp, hai hàng chữ trong ô dễ tràn. Cắt gọn một dòng. */
 @media (max-width: 520px) {
   .base-item-hint {
-    font-size: .58rem;
+    font-size: .75rem;
     letter-spacing: .04em;
   }
 }
@@ -1152,7 +1152,7 @@ html.motion-off .base-note-panel { animation: none; }
   border: 1px solid rgba(232, 163, 61, .3);
   color: var(--amber, #e8a33d);
   font-family: var(--st-font-mono, monospace);
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
@@ -1310,7 +1310,7 @@ html.motion-off .base-note-panel { animation: none; }
 }
 
 .sc-label {
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--tx-soft, #8497aa);
@@ -1327,7 +1327,7 @@ html.motion-off .base-note-panel { animation: none; }
 /* ngưỡng cảnh báo: dưới 40 vàng, dưới 20 đỏ */
 .sc-delta {
   font-family: var(--st-font-mono, monospace);
-  font-size: .72rem;
+  font-size: .75rem;
   color: var(--tx-soft, #8497aa);
   font-variant-numeric: tabular-nums;
 }

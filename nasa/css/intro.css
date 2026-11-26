@@ -308,7 +308,7 @@
 
 .intro-skip-key {
   font-family: var(--st-font-mono, "JetBrains Mono", monospace);
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .08em;
   color: var(--tx-dim, #72879d);
   padding: 2px 6px;
@@ -367,7 +367,7 @@
 
 @media (max-width: 640px) {
   .intro-kicker {
-    font-size: .58rem;
+    font-size: .75rem;
     letter-spacing: .18em;
   }
   .intro-title {
@@ -376,7 +376,7 @@
     padding-left: .2em;
   }
   .intro-sub {
-    font-size: .62rem;
+    font-size: .75rem;
     letter-spacing: .14em;
     padding-left: .14em;
   }

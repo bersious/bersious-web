@@ -339,7 +339,7 @@ html.motion-off .im-frame {
 .im-caption-tag {
   flex: none;
   font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
-  font-size: .66rem;
+  font-size: .75rem;
   letter-spacing: .16em;
   color: var(--amber, #e8a33d);
   padding-top: .18em;
@@ -575,7 +575,7 @@ html.motion-off .im-bar i { transition: none; }
   gap: .62em;
   padding: .48em .78em .46em;
   font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
-  font-size: .68rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .16em;
   line-height: 1;
@@ -620,7 +620,7 @@ html.motion-off .im-bar i { transition: none; }
   justify-content: center;
   gap: .55em;
   font-family: var(--st-font-mono, 'JetBrains Mono', monospace);
-  font-size: .72rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -699,7 +699,7 @@ html.motion-off .im-bar i { transition: none; }
 
   .im-g {
     grid-template-columns: 4.6em 1fr auto;
-    font-size: .64rem;
+    font-size: .75rem;
     gap: 6px;
   }
 

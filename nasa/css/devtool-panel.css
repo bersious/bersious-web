@@ -27,7 +27,7 @@
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .08em;
   text-transform: uppercase;
   /* #dfe9f3 trên #1b2430: 11,8:1, đủ AA cho chữ nhỏ */
@@ -184,7 +184,7 @@ html.motion-off .dev-overlay { transition: none; }
   margin: 0 0 8px;
   padding-bottom: 6px;
   font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: #7ec8d8;
@@ -222,7 +222,7 @@ html.motion-off .dev-overlay { transition: none; }
 }
 
 .dev-item-desc {
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.4;
   color: #93a7bb;
 }
@@ -296,7 +296,7 @@ html.motion-off .dev-overlay { transition: none; }
   padding: 8px clamp(12px, 2vw, 20px);
   border-top: 1px solid #22303f;
   font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: .66rem;
+  font-size: .75rem;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: #8fa2b5;
@@ -312,7 +312,7 @@ html.motion-off .dev-overlay { transition: none; }
   max-width: calc(100% - 32px);
   padding: 8px 14px;
   font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .05em;
   color: #0d131a;
   background: #7ec8d8;
@@ -357,7 +357,7 @@ html.motion-off .dev-overlay { transition: none; }
 html.motion-off #devtool-toast { transition: none; }
 
 @media (max-width: 560px) {
-  #devtool-toast { bottom: 16px; font-size: .72rem; }
+  #devtool-toast { bottom: 16px; font-size: .75rem; }
 }
 
 /* ============================================================
@@ -460,7 +460,7 @@ html.motion-off .settings-group-dev .ghost-btn { transition: none; }
 
 .dev-pw-hint {
   margin: 0;
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.4;
   color: #93a7bb;
 }
@@ -468,7 +468,7 @@ html.motion-off .settings-group-dev .ghost-btn { transition: none; }
 .dev-pw-label {
   margin-top: 2px;
   font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: #9fb2c6;
@@ -555,5 +555,5 @@ html.motion-off .dev-pw-input.is-wrong { animation: none; }
 
 @media (max-height: 620px) {
   .dev-sub { display: none; }
-  .dev-warn { font-size: .72rem; }
+  .dev-warn { font-size: .75rem; }
 }

@@ -101,7 +101,7 @@
 
 .cm4-title-en {
   font-family: var(--st-font-mono);
-  font-size: .6em;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: .08em;
   text-transform: none;
@@ -736,12 +736,19 @@
 }
 
 /* Ổ khoá nhỏ trong nút: nói rõ nút đang bị chặn, không cần đọc chữ.
+   Thay SVG ổ khoá bằng ảnh confirm.webp, ẩn nét vẽ SVG bên trong và giữ nguyên kích thước khung.
    Ẩn khi nút đã sẵn sàng phóng. */
 .cm4-launch-lock {
   width: 14px;
   height: 14px;
   margin-top: 4px;
+  background: url('./assets/ui/confirm.webp') center / contain no-repeat;
   opacity: .8;
+  display: inline-block;
+}
+
+.cm4-launch-lock * {
+  display: none;
 }
 
 .cm4-launch-btn.is-ready .cm4-launch-lock {

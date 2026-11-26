@@ -257,12 +257,22 @@
 
 .te-sum-head {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.te-sum-head::before {
+  content: '';
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  background: url('../../phase2/assets/ui/mars-verdict.webp') center / contain no-repeat;
 }
 
 .te-sum-sub {
   margin: 0 0 6px;
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: rgba(232, 163, 61, .8);
@@ -336,7 +346,7 @@
 
 .te-sum-rank-lab {
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: rgba(236, 226, 210, .56);
@@ -377,7 +387,7 @@
 
 .te-sum-tile-k {
   font-family: var(--st-font-mono, monospace);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: rgba(236, 226, 210, .5);
@@ -407,7 +417,7 @@
 .te-sum-why-h {
   margin: 0 0 10px;
   font-family: var(--st-font-mono, monospace);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -475,7 +485,7 @@
   padding: 0 4px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, .07);
   font-family: var(--st-font-mono, monospace);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: rgba(236, 226, 210, .44);

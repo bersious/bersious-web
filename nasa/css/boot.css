@@ -475,7 +475,7 @@ html.motion-off .boot-repo { transition: none; }
   .boot-brief dd { text-align: right; }
   .boot-foot {
     justify-content: flex-start;
-    font-size: .58rem;
+    font-size: .75rem;
     letter-spacing: .1em;
   }
   .boot-foot span:nth-child(n + 3) { display: none; }
@@ -493,7 +493,7 @@ html.motion-off .boot-repo { transition: none; }
     gap: 4px 10px;
   }
   .boot-brief dt,
-  .boot-brief dd { font-size: .66rem; }
+  .boot-brief dd { font-size: .75rem; }
   /* giữ bốn dòng đầu, bỏ bớt cho gọn */
   .boot-brief dl > :nth-child(n + 9) { display: none; }
   .boot h1 { font-size: clamp(1.7rem, 9.6vw, 2.2rem); }

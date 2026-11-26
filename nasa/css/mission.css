@@ -78,7 +78,7 @@ body::before {
 }
 .brand small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.16em;
   color: var(--text-dim);
   margin-top: 2px;
@@ -93,7 +93,7 @@ body::before {
   border: 1px solid var(--line);
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 6px 11px;
@@ -136,7 +136,7 @@ body::before {
   border-left: 2px solid transparent;
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-align: left;
   padding: 8px 12px;
@@ -149,11 +149,11 @@ body::before {
   background: #0b1a28;
 }
 .steps .num {
-  font-size: 9px;
+  font-size: 12px;
   opacity: .6;
   min-width: 12px;
 }
-.steps .lock { margin-left: auto; font-size: 9px; opacity: .5; }
+.steps .lock { margin-left: auto; font-size: 12px; opacity: .5; }
 
 /* --- centre: active screen --- */
 
@@ -219,12 +219,12 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 2px 10px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 .opt .stats b { color: var(--text); font-weight: 500; }
 .opt .blurb {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
   margin-top: 8px;
   line-height: 1.5;
@@ -232,7 +232,7 @@ body::before {
   padding-top: 7px;
 }
 .opt .tradeoff {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--warn);
   margin-top: 5px;
   line-height: 1.5;
@@ -241,7 +241,7 @@ body::before {
 .opt .tag {
   position: absolute; top: 9px; right: 9px;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent);
@@ -260,7 +260,7 @@ body::before {
 }
 .rail h3 {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -272,13 +272,13 @@ body::before {
 .res-head {
   display: flex; justify-content: space-between; align-items: baseline;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--text-dim);
   margin-bottom: 4px;
 }
-.res-head .val { color: var(--text); font-size: 11px; letter-spacing: 0; }
+.res-head .val { color: var(--text); font-size: 12px; letter-spacing: 0; }
 .res-bar {
   height: 6px;
   background: #101a26;
@@ -297,7 +297,7 @@ body::before {
 .res[data-status="warn"] .val { color: var(--warn); }
 .res[data-status="fail"] .val { color: var(--fail); }
 .res-note {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-dim);
   margin-top: 3px;
   line-height: 1.45;
@@ -315,7 +315,7 @@ body::before {
 }
 .verdict .label {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -335,7 +335,7 @@ body::before {
   list-style: none; margin: 8px 0 0; padding: 0;
 }
 .verdict li {
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--text-dim);
   padding-left: 12px;
@@ -359,14 +359,14 @@ body::before {
   background: linear-gradient(0deg, #0b1320, #080d15);
 }
 .footbar .hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
   font-family: var(--mono);
 }
 
 .btn {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
   padding: 9px 18px;
@@ -417,7 +417,7 @@ body::before {
   border-bottom: 1px solid #6b4a00;
   color: #ffce6b;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: .06em;
   padding: 5px 18px;
 }

@@ -416,7 +416,7 @@
     justify-content: flex-end;
     border-top: 1px solid var(--line-hair);
   }
-  .story-btn { height: var(--st-btn-h-sm); padding: 0 14px; font-size: .74rem; flex: 0 0 auto; }
+  .story-btn { height: var(--st-btn-h-sm); padding: 0 14px; font-size: .75rem; flex: 0 0 auto; }
   .story-caption { top: 14px; left: 14px; font-size: max(12px, .6rem); }
   .story-speaker { margin-bottom: 7px; }
 }

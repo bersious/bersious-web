@@ -369,7 +369,7 @@
   border: 1px solid var(--line-strong);
   background: var(--bg-inset);
   font-family: var(--st-font-mono);
-  font-size: .62rem;
+  font-size: .75rem;
   font-weight: 600;
   line-height: 1;
   color: var(--tx-soft);
@@ -403,7 +403,7 @@
 }
 .p2-step.is-done .p2-step-dot::after {
   content: '\2713';
-  font-size: .62rem;
+  font-size: .75rem;
   font-weight: 700;
   line-height: 1;
 }
@@ -513,7 +513,7 @@
   min-width: 64px;
   padding: 0 10px;
   font-family: var(--st-font-mono);
-  font-size: .74rem;
+  font-size: .75rem;
   letter-spacing: .1em;
 }
 
@@ -1213,7 +1213,7 @@
 }
 
 .p2-set-label span {
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.45;
   color: var(--tx-dim);
 }
@@ -1438,9 +1438,9 @@ html.motion-off .p2-step-dot {
     padding: 6px 8px;
   }
 
-  .p2-gauge-label { font-size: .58rem; letter-spacing: .08em; }
-  .p2-gauge-num { font-size: .74rem; }
-  .p2-gauge-sub { font-size: .58rem; }
+  .p2-gauge-label { font-size: .75rem; letter-spacing: .08em; }
+  .p2-gauge-num { font-size: .75rem; }
+  .p2-gauge-sub { font-size: .75rem; }
   .p2-gauge-track { height: 5px; }
 
   .p2-brand-name { font-size: .84rem; }
@@ -1453,17 +1453,17 @@ html.motion-off .p2-step-dot {
     border-radius: var(--p2-r);
   }
   /* Giữ nhãn ở mức hẹp nhất có thể đọc, chỉ thu nhỏ cỡ chữ. */
-  .p2-stat-label { font-size: .56rem; letter-spacing: .04em; }
+  .p2-stat-label { font-size: .75rem; letter-spacing: .04em; }
   .p2-stat-value { font-size: .76rem; }
   .p2-stat-icon { width: 15px; height: 15px; }
 
   /* chấm bước chỉ còn chấm, chữ số giữ nguyên vì nó là số */
-  .p2-step-dot { width: 18px; height: 18px; font-size: .58rem; }
+  .p2-step-dot { width: 18px; height: 18px; font-size: .75rem; }
 
   .p2-stage-inner { padding: 8px 12px; }
   .p2-stage-head { top: 6px; left: 12px; gap: 6px; }
   .p2-stage-title { font-size: .92rem; }
-  .p2-stage-badge { padding: 3px 7px; font-size: .56rem; }
+  .p2-stage-badge { padding: 3px 7px; font-size: .75rem; }
 
   .p2-wait {
     margin-top: 30px;
@@ -1471,8 +1471,8 @@ html.motion-off .p2-step-dot {
     gap: 8px;
   }
   .p2-wait-list { gap: 6px 8px; }
-  .p2-wait-list li { font-size: .56rem; padding: 3px 7px; }
-  .p2-wait-note { font-size: .74rem; line-height: 1.5; }
+  .p2-wait-list li { font-size: .75rem; padding: 3px 7px; }
+  .p2-wait-note { font-size: .75rem; line-height: 1.5; }
 
   .p2-actions { padding: 8px 12px 10px; gap: 6px; }
   .p2-navrow { gap: 6px; }
@@ -1565,6 +1565,6 @@ html.motion-off .p2-step-dot {
 
 @media (max-height: 560px) {
   .p2-wait-list { display: none; }
-  .p2-wait-note { font-size: .72rem; }
+  .p2-wait-note { font-size: .75rem; }
   .p2-stage-head { display: none; }
 }

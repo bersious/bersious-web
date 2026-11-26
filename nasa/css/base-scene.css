@@ -625,7 +625,7 @@
   background: color-mix(in srgb, var(--bg-void) 88%, transparent);
   border: 1px solid color-mix(in srgb, var(--cyan) 46%, transparent);
   font-family: var(--st-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   color: var(--cyan);

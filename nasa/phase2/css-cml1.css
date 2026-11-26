@@ -296,12 +296,12 @@
 .cml1-az-l,
 .cml1-rg-l {
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .07em;
   fill: var(--tx-ghost);
 }
 
-.cml1-rg-l { font-size: 8.5px; fill: color-mix(in srgb, var(--cyan) 42%, transparent); }
+.cml1-rg-l { font-size: 12px; fill: color-mix(in srgb, var(--cyan) 42%, transparent); }
 
 .cml1-sweep {
   transform-origin: 210px 210px;
@@ -466,7 +466,7 @@
   height: 20px;
   border: 1px solid currentColor;
   border-radius: 50%;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
   color: var(--tx-ghost);
 }
@@ -475,7 +475,7 @@
 .cml1-tk.is-done .cml1-tk-n { color: var(--ok); }
 
 .cml1-tk-t {
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.42;
   color: var(--tx-dim);
 }
@@ -662,7 +662,7 @@
   position: relative;
   padding-left: 16px;
   font-family: var(--st-font-mono);
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.55;
   color: var(--tx-dim);
   animation: cml1-login var(--st-dur-move) var(--st-ease-out) both;
@@ -789,7 +789,7 @@
 
 .cml1-st-note {
   margin: 0 0 14px;
-  font-size: .72rem;
+  font-size: .75rem;
   line-height: 1.55;
   color: var(--tx-dim);
 }
@@ -865,7 +865,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: 4px;
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: .05em;
   color: var(--tx-ghost);
 }
@@ -937,7 +937,7 @@
 .cml1-alert-crew {
   margin: 0;
   font-family: var(--st-font-mono);
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .04em;
   color: var(--tx-dim);
 }
@@ -1599,3 +1599,21 @@ html.motion-off .cml1-log-line { animation: none !important; transition-duration
   color: var(--tx-bright);
 }
 .cml1-hud-val.is-ok { color: var(--ok); }
+
+/* Icon HUD telemetry: 4 o BAND/FREQ/SNR/LOCK, moi o ~130px nen icon 12px
+   khong lam tran. Pseudo-element nen khong dong cham chu. */
+.cml1-hud-item { gap: 5px; }
+
+.cml1-hud-item::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  background: center / contain no-repeat;
+  opacity: .85;
+}
+
+.cml1-hud-item:nth-child(1)::before { background-image: url('../phase2/assets/ui/radar.webp'); }
+.cml1-hud-item:nth-child(2)::before { background-image: url('../phase2/assets/ui/signal.webp'); }
+.cml1-hud-item:nth-child(3)::before { background-image: url('../phase2/assets/ui/chip.webp'); }
+.cml1-hud-item:nth-child(4)::before { background-image: url('../phase2/assets/ui/seal.webp'); }

@@ -211,7 +211,7 @@
     flex: 0 0 auto;
     scroll-snap-align: start;
   }
-  .has-new-scene .base-card-name { font-size: .72rem; }
+  .has-new-scene .base-card-name { font-size: .75rem; }
 
   /* Trên điện thoại, vùng ngay trên thanh công cụ đã bị widget nhật ký
      chiếm (nó neo góc dưới trái). Nên dòng nhàn rỗi lên trên, canh giữa
@@ -222,7 +222,7 @@
     top: calc(var(--bs-hud-h, 123px) + 42px);
     bottom: auto;
     max-width: calc(100vw - 130px);
-    font-size: .72rem;
+    font-size: .75rem;
     line-height: 1.35;
   }
 }

@@ -319,7 +319,7 @@
 .hud2-vital-k {
   flex: 0 0 auto;
   min-width: 4.4em;
-  font-size: .6rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .04em;
   color: var(--tx);
@@ -396,13 +396,13 @@
 
 .hud2-sol {
   font-family: var(--st-font-mono, monospace);
-  font-size: .6rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   color: var(--hud2-accent);
 }
 
 .hud2-sep {
-  font-size: .6rem;
+  font-size: .75rem;
   color: var(--tx-soft);
 }
 
@@ -450,7 +450,7 @@
   background: color-mix(in srgb, var(--bg-raise) 78%, transparent);
   color: var(--tx);
   font-family: var(--st-font-mono, monospace);
-  font-size: .68rem;
+  font-size: .75rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color var(--st-dur-fast, .12s) ease,
@@ -498,7 +498,7 @@
 
 .hud2-quest-k {
   font-family: var(--st-font-mono, monospace);
-  font-size: .54rem;
+  font-size: .75rem;
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -506,7 +506,7 @@
 }
 
 .hud2-quest-v {
-  font-size: .68rem;
+  font-size: .75rem;
   color: var(--tx);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -549,7 +549,7 @@
 .hud2-st-ico svg { width: 100%; height: 100%; }
 
 .hud2-st-k {
-  font-size: .62rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .03em;
   /* Giu phan cap: nhan nho hon so mot bac (so dung --tx-bright), nhung
@@ -578,7 +578,7 @@
 
 .hud2-st-u {
   font-family: var(--st-font-mono, monospace);
-  font-size: .56rem;
+  font-size: .75rem;
   /* Don vi nho nhat tren thanh nhung van phai doc duoc: dung --tx thay
      cho --tx-soft (xam nhat, gan nhu bien mat). */
   color: var(--tx);
@@ -621,7 +621,7 @@
   background: color-mix(in srgb, var(--bg-raise) 70%, transparent);
   color: var(--tx);
   font-family: var(--st-font-body, system-ui, sans-serif);
-  font-size: .68rem;
+  font-size: .75rem;
   cursor: pointer;
   /* Nhãn nút phải nằm một dòng: để nó tự xuống dòng thì "Hướng dẫn" và
      "Cài đặt" thành hai dòng trong khi "Lưu" một dòng, ba nút so le
@@ -660,7 +660,7 @@
 
 .hud2-saved {
   font-family: var(--st-font-mono, monospace);
-  font-size: .56rem;
+  font-size: .75rem;
   letter-spacing: .06em;
   color: var(--ok);
   opacity: 0;
@@ -690,7 +690,7 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   color: var(--hud2-accent);
-  font-size: .66rem;
+  font-size: .75rem;
   cursor: pointer;
 }
 
@@ -771,7 +771,7 @@
   flex: 1 1 auto;
   margin: 0;
   font-family: var(--st-font-mono, monospace);
-  font-size: .55rem;
+  font-size: .75rem;
   font-weight: 600;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -850,7 +850,7 @@
   border-radius: 2px;
   background: color-mix(in srgb, var(--amber) 14%, transparent);
   font-family: var(--st-font-mono, monospace);
-  font-size: .52rem;
+  font-size: .75rem;
   letter-spacing: .08em;
   color: var(--amber);
   white-space: nowrap;
@@ -890,7 +890,7 @@
   border-bottom: 2px solid transparent;
   background: transparent;
   font-family: var(--st-font-mono, monospace);
-  font-size: .5rem;
+  font-size: .75rem;
   font-weight: 600;
   letter-spacing: .1em;
   line-height: 1.25;
@@ -922,7 +922,7 @@
 .ml-count {
   margin: 0 0 5px;
   font-family: var(--st-font-mono, monospace);
-  font-size: .5rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--tx-soft);
@@ -933,7 +933,7 @@
 .ml-ph {
   margin: 0 0 3px;
   font-family: var(--st-font-mono, monospace);
-  font-size: .5rem;
+  font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -967,7 +967,7 @@
 .ml-box {
   flex: 0 0 auto;
   font-family: var(--st-font-mono, monospace);
-  font-size: .6rem;
+  font-size: .75rem;
   line-height: 1.5;
   letter-spacing: .02em;
   color: var(--tx-soft);
@@ -984,7 +984,7 @@
 
 .ml-t {
   font-family: var(--st-font-body, system-ui, sans-serif);
-  font-size: .72rem;
+  font-size: .75rem;
   font-weight: 700;
   line-height: 1.35;
   color: var(--tx-bright);
@@ -993,7 +993,7 @@
 .ml-extra {
   margin-left: 4px;
   font-family: var(--st-font-mono, monospace);
-  font-size: .55rem;
+  font-size: .75rem;
   font-weight: 600;
   letter-spacing: .06em;
   color: var(--amber);
@@ -1001,7 +1001,7 @@
 
 .ml-g {
   font-family: var(--st-font-body, system-ui, sans-serif);
-  font-size: .64rem;
+  font-size: .75rem;
   line-height: 1.4;
   color: var(--tx-soft);
   /* Hướng dẫn dài thì cắt ở ba dòng, đủ để hiểu việc cần làm */
@@ -1028,7 +1028,7 @@
   border-radius: 0 4px 4px 0;
   background: color-mix(in srgb, var(--hud2-caution) 10%, transparent);
   font-family: var(--st-font-body, system-ui, sans-serif);
-  font-size: .63rem;
+  font-size: .75rem;
   line-height: 1.4;
   color: var(--hud2-caution);
 }
@@ -1041,7 +1041,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--st-font-body, system-ui, sans-serif);
-  font-size: .58rem;
+  font-size: .75rem;
   color: var(--tx-soft);
 }
 
@@ -1059,7 +1059,7 @@
   border-radius: 999px;
   background: var(--hud2-accent);
   font-family: var(--st-font-mono, monospace);
-  font-size: .5rem;
+  font-size: .75rem;
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: .04em;
@@ -1164,7 +1164,7 @@
 
 .ml-eyebrow {
   font-family: var(--st-font-mono, monospace);
-  font-size: .58rem;
+  font-size: .75rem;
   font-weight: 700;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -1263,7 +1263,7 @@
 .hud2-guide-h {
   margin: 0 0 7px;
   font-family: var(--st-font-mono, monospace);
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--cyan);
@@ -1385,8 +1385,8 @@
 
   .hud2-left { gap: 7px; }
   .hud2-avatar { width: 30px; height: 30px; }
-  .hud2-avatar-ini { font-size: .68rem; }
-  .hud2-name { max-width: 9ch; font-size: .72rem; }
+  .hud2-avatar-ini { font-size: .75rem; }
+  .hud2-name { max-width: 9ch; font-size: .75rem; }
 
   .hud2-vitals { grid-template-columns: repeat(2, minmax(70px, auto)); gap: 2px 8px; }
   .hud2-vital-k { display: none; }
@@ -1402,16 +1402,16 @@
   .hud2-st-u { display: none; }
   .hud2-st-v { font-size: .8rem; min-width: 2.4ch; }
 
-  .hud2-speed { min-width: 44px; padding: 0 4px; font-size: .6rem; }
+  .hud2-speed { min-width: 44px; padding: 0 4px; font-size: .75rem; }
   .hud2-speed[data-kind="fast"] { max-width: 44px; }
   .hud2-speed[data-kind="fast"] .hud2-speed-txt { display: none; }
 
   .hud2-time { font-size: .88rem; }
-  .hud2-sol { font-size: .54rem; }
+  .hud2-sol { font-size: .75rem; }
   .hud2-clock { padding: 1px 7px 2px; }
 
   .hud2-quest-k { display: none; }
-  .hud2-quest-v { font-size: .64rem; }
+  .hud2-quest-v { font-size: .75rem; }
 
   /* Nhật ký trên điện thoại: thu bề ngang và bớt chiều cao thân, người
      chơi vẫn mở rộng được bằng nút mũi tên. */

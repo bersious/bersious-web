@@ -240,14 +240,14 @@ html.motion-off .p2cm-modal { animation: none; }
 }
 
 .p2cm-stat-k {
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--tx-dim);
 }
 
 .p2cm-stat-v {
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--amber);
 }
 
@@ -451,13 +451,13 @@ html.motion-off .p2cm-modal { animation: none; }
 
 .p2cm-sci-nasa {
   margin: 2px 0 0;
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--tx-dim);
 }
 
 .p2cm-sci-h {
   margin: 16px 0 6px;
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--cyan);
@@ -469,7 +469,7 @@ html.motion-off .p2cm-modal { animation: none; }
   padding: 1px 6px;
   border: 1px solid var(--cyan-dim);
   border-radius: 3px;
-  font-size: .6rem;
+  font-size: .75rem;
   color: var(--cyan);
   vertical-align: .18em;
 }
@@ -532,7 +532,7 @@ html.motion-off .p2cm-modal { animation: none; }
   color: var(--cyan);
   text-transform: uppercase;
   letter-spacing: .08em;
-  font-size: .64rem;
+  font-size: .75rem;
 }
 
 .p2cm-sci-link {

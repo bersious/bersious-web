@@ -152,7 +152,7 @@ html.motion-off .comms-panel,
   height: 18px;
   border-radius: 50%;
   border: 1px solid currentColor;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
 }
 
@@ -509,7 +509,7 @@ html.motion-off .comms-panel,
   border: 1px solid var(--cyan-dim);
   border-radius: 999px;
   font-family: var(--st-font-mono);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--cyan);
@@ -552,7 +552,7 @@ html.motion-off .comms-panel,
   background: var(--bg-deep);
   color: var(--tx-soft);
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -647,7 +647,7 @@ html.motion-off .comms-panel,
 .comms-fm-lab,
 .comms-fe-lab {
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .18em;
   fill: var(--tx-dim);
   text-anchor: middle;
@@ -852,7 +852,7 @@ html.motion-off .comms-panel,
   display: flex;
   justify-content: space-between;
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tx-dim);
   letter-spacing: .04em;
 }
@@ -937,7 +937,7 @@ html.motion-off .comms-panel,
   background: var(--bg-void);
   border-radius: 2px;
   font-family: var(--st-font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: .1em;
   color: var(--cyan);
   overflow-wrap: anywhere;
@@ -1161,13 +1161,13 @@ html.motion-off .comms-panel,
   overflow-wrap: anywhere;
 }
 
-.comms-dsn-sub { font-size: 10px; color: var(--tx-dim); letter-spacing: .04em; }
+.comms-dsn-sub { font-size: 12px; color: var(--tx-dim); letter-spacing: .04em; }
 .comms-dsn-alt { font-size: var(--st-size-label); color: var(--tx-dim); margin-left: auto; }
 
 .comms-dsn-state {
   flex: 1 0 100%;
   font-family: var(--st-font-mono);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -1204,7 +1204,7 @@ html.motion-off .comms-panel,
   background: var(--ok);
   color: var(--bg-void);
   font-family: var(--st-font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: .14em;
 }
@@ -1450,7 +1450,7 @@ html.motion-off .comms-panel,
 
 .comms-modal-fact span {
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .1em;
   color: var(--tx-dim);
   min-width: 28px;
@@ -1514,7 +1514,7 @@ html.motion-off .comms-panel,
   .comms-steps { flex: 1 1 auto; }
   .comms-chip-txt { display: none; }
   .comms-chip { padding: 4px 8px; }
-  .comms-chip-num { width: 20px; height: 20px; font-size: 11px; }
+  .comms-chip-num { width: 20px; height: 20px; font-size: 12px; }
   .comms-panel { max-height: 97dvh; border-radius: var(--st-radius); }
   .comms-root { padding: 0; }
   .comms-foot { flex-wrap: wrap; }

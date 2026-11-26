@@ -115,7 +115,7 @@
 
 .repair-progress-text {
   flex: 0 0 auto;
-  font-size: .74rem;
+  font-size: .75rem;
   letter-spacing: .1em;
   color: var(--tx-soft, #9fb0c4);
 }
@@ -156,7 +156,7 @@
 }
 
 .repair-item-num {
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   color: var(--tx-dim, #72879d);
   padding-top: 3px;
@@ -200,7 +200,7 @@
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  font-size: .74rem;
+  font-size: .75rem;
 }
 
 .repair-chip {

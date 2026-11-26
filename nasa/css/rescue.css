@@ -398,7 +398,7 @@
   flex-wrap: wrap;
   gap: 4px 12px;
   font-family: var(--st-font-mono);
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--tx-soft);
   font-variant-numeric: tabular-nums;
 }
@@ -407,7 +407,7 @@
   color: var(--tx-dim);
   text-transform: uppercase;
   letter-spacing: .06em;
-  font-size: .68rem;
+  font-size: .75rem;
 }
 
 .rescue-mod-stat.is-draw { color: var(--warn); }
@@ -505,7 +505,7 @@
 
 .rescue-launcher-note {
   margin: 8px 0 0;
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.5;
   color: var(--tx-dim);
 }
@@ -578,7 +578,7 @@
 
 .rescue-bar-note {
   margin: 6px 0 0;
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.45;
   color: var(--tx-dim);
 }
@@ -718,7 +718,7 @@
 .rescue-val-badge {
   justify-self: start;
   font-family: var(--st-font-mono);
-  font-size: .62rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   padding: 2px 6px;
@@ -961,7 +961,7 @@
 
 .rescue-info-source {
   margin: 0;
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.55;
   color: var(--tx-dim);
 }

@@ -76,7 +76,7 @@
 
 .mviz-title-en {
   font-family: var(--st-font-mono);
-  font-size: .62em;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: .12em;
   color: var(--tx-dim);
@@ -87,7 +87,7 @@
    bản tiếng Việt vẫn giữ cỡ chữ lớn và màu sáng ở chế độ EN, nên người
    chấm đọc tiếng Anh vẫn thấy tiếng Việt là dòng chính. */
 .mviz-title-vi:not(.is-primary) {
-  font-size: .74em;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: .1em;
   color: var(--tx-dim);
@@ -221,7 +221,7 @@
   box-shadow: 0 10px 26px rgba(0, 0, 0, .6);
   pointer-events: none;
   font-family: var(--st-font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.45;
   letter-spacing: .02em;
   color: var(--tx);
@@ -247,7 +247,7 @@
 }
 
 .mviz-tip-name-en {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -271,7 +271,7 @@
 
 .mviz-tip-note {
   color: var(--tx-dim);
-  font-size: 9.5px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -289,7 +289,7 @@
   border-radius: 999px;
   color: var(--ok);
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -448,7 +448,7 @@
   border-radius: var(--st-radius);
   color: var(--tx-soft);
   font-family: var(--st-font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .06em;
   cursor: pointer;
   transition:
@@ -519,7 +519,7 @@
   gap: 5px;
   margin-bottom: 4px;
   font-family: var(--st-font-mono);
-  font-size: 8.5px;
+  font-size: 12px;
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -563,7 +563,7 @@
 
 .mviz-unit {
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .1em;
   color: var(--tx-dim);
   text-transform: uppercase;
@@ -581,7 +581,7 @@
   gap: 8px;
   margin-top: 5px;
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .03em;
   color: var(--tx-dim);
 }
@@ -593,7 +593,7 @@
 }
 
 .mviz-phase-wrap .mviz-unit {
-  font-size: 8.5px;
+  font-size: 12px;
   letter-spacing: .1em;
 }
 
@@ -615,7 +615,7 @@
 .mviz-mini-label {
   text-transform: uppercase;
   letter-spacing: .1em;
-  font-size: 8.5px;
+  font-size: 12px;
   opacity: .85;
 }
 
@@ -638,7 +638,7 @@
 
 .mviz-clock-sub {
   font-family: var(--st-font-mono);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: .05em;
   color: var(--tx-dim);
   white-space: nowrap;
@@ -705,7 +705,7 @@
 .mviz-tcm-name em {
   font-style: normal;
   font-weight: 500;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .03em;
   white-space: nowrap;
   overflow: hidden;
@@ -717,7 +717,7 @@
 }
 
 .mviz-tcm-name em {
-  font-size: 8.5px;
+  font-size: 12px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--tx-ghost);
@@ -726,7 +726,7 @@
 
 .mviz-tcm-meta {
   font-family: var(--st-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: .04em;
   color: var(--tx-dim);
 }
@@ -734,7 +734,7 @@
 .mviz-tcm-state {
   flex: none;
   font-family: var(--st-font-mono);
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--tx-ghost);
@@ -763,7 +763,7 @@
   padding-top: 7px;
   border-top: 1px solid var(--line-hair);
   font-family: var(--st-font-mono);
-  font-size: 8.5px;
+  font-size: 12px;
   line-height: 1.55;
   letter-spacing: .02em;
   /* Nền tối cộng chữ quá mờ thì ghi chú coi như không tồn tại. Dùng
@@ -794,7 +794,7 @@
   align-items: baseline;
   gap: 6px;
   font-family: var(--st-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .03em;
   color: var(--tx-dim);
 }
@@ -803,7 +803,7 @@
   flex: 1 1 auto;
   text-transform: uppercase;
   letter-spacing: .1em;
-  font-size: 8.5px;
+  font-size: 12px;
   color: var(--tx-dim);
 }
 
@@ -815,7 +815,7 @@
 
 .mviz-budget i {
   font-style: normal;
-  font-size: 8.5px;
+  font-size: 12px;
   letter-spacing: .08em;
   color: var(--tx-ghost);
   min-width: 32px;
@@ -909,7 +909,7 @@
 
   .mviz-tip {
     max-width: 190px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .mviz-tcm-name em {
@@ -931,11 +931,11 @@
   }
 
   .mviz-sub {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .mviz-legend {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .mviz-big-num {

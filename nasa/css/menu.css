@@ -567,7 +567,7 @@
   border-radius: 999px;
   background: transparent;
   font-family: var(--st-font-mono, "JetBrains Mono", monospace);
-  font-size: .72rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .14em;
   color: #b6c2ce;
@@ -962,7 +962,7 @@ a.mbtn:focus-visible {
    xuống nhỏ hơn và bỏ letter-spacing để hai bên cùng nằm vừa. */
 @media (max-width: 560px) {
   .menu-version {
-    font-size: .5rem;
+    font-size: .75rem;
     letter-spacing: .04em;
     right: 12px;
   }
@@ -1148,7 +1148,7 @@ html.motion-off .menu-astro-img { transform: scaleX(-1); }
     gap: 6px;
   }
   .menu-credit {
-    font-size: .5rem;
+    font-size: .75rem;
     letter-spacing: .1em;
     white-space: normal;
     line-height: 1.4;

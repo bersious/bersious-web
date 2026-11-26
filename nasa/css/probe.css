@@ -118,7 +118,7 @@
 
 .probe-kicker {
   margin: 0 0 8px;
-  font-size: .68rem;
+  font-size: .75rem;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--cyan, #4fb8c9);

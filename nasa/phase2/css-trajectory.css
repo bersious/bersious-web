@@ -181,7 +181,7 @@
 .tj-name-en {
   font-style: normal;
   font-family: var(--st-font-mono);
-  font-size: .66rem;
+  font-size: .75rem;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--cyan);
@@ -242,7 +242,7 @@
 
 .tj-stat dt {
   margin: 0;
-  font-size: .66rem;
+  font-size: .75rem;
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -305,7 +305,7 @@
   border: 1px solid var(--cyan-dim);
   border-radius: 3px;
   font-family: var(--st-font-mono);
-  font-size: .58rem;
+  font-size: .75rem;
   letter-spacing: .05em;
   color: var(--cyan);
   vertical-align: .12em;
@@ -317,7 +317,7 @@
   margin: 0;
   padding-left: 10px;
   border-left: 2px solid var(--cyan-dim);
-  font-size: .74rem;
+  font-size: .75rem;
   line-height: 1.5;
   color: var(--tx-dim);
 }
@@ -421,7 +421,7 @@
 .tj-caption {
   margin: 0;
   font-family: var(--st-font-mono);
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .04em;
   color: var(--tx-dim);
   text-align: right;
@@ -441,7 +441,7 @@
   margin-top: 6px;
   padding-top: 10px;
   border-top: 1px solid var(--line-hair);
-  font-size: .72rem;
+  font-size: .75rem;
   overflow-wrap: anywhere;
 }
 
