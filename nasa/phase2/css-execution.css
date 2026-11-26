@@ -566,7 +566,7 @@
 
 .exv-btn.is-primary:hover,
 .exv-btn.is-primary:focus-visible {
-  background: color-mix(in srgb, var(--amber) 86%, white);
+  background: color-mix(in srgb, var(--amber) 86%, var(--tx-bright));
 }
 
 .exv-btn.is-primary em {
@@ -1225,7 +1225,8 @@
 @media (prefers-reduced-motion: reduce) {
   .exv-bar-fill,
   .exv-cmd-progress span,
-  .exv-stage {
+  .exv-stage,
+  .exv-btn {
     transition: none !important;
   }
 
@@ -1236,7 +1237,8 @@
 
 html.motion-off .exv-bar-fill,
 html.motion-off .exv-cmd-progress span,
-html.motion-off .exv-stage {
+html.motion-off .exv-stage,
+html.motion-off .exv-btn {
   transition: none !important;
 }
 

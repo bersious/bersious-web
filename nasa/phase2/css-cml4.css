@@ -210,7 +210,7 @@
   background: var(--cm4-green);
   box-shadow: 0 0 0 3px rgba(0, 0, 0, .35),
               0 0 10px color-mix(in srgb, var(--cm4-green) 70%, transparent),
-              inset 0 0 0 2px color-mix(in srgb, var(--cm4-green) 55%, white);
+              inset 0 0 0 2px color-mix(in srgb, var(--cm4-green) 55%, var(--tx-bright));
 }
 
 .cm4-dot.is-yellow {
@@ -774,7 +774,7 @@
 }
 
 .cm4-launch-btn.is-ready:hover {
-  background: color-mix(in srgb, var(--amber) 86%, white);
+  background: color-mix(in srgb, var(--amber) 86%, var(--tx-bright));
   box-shadow: 0 0 0 1px var(--amber-glow), 0 10px 32px color-mix(in srgb, var(--amber) 30%, transparent);
 }
 
@@ -1291,7 +1291,7 @@ html.cml4-mounted .p2-navrow { display: none; }
 
 .cm4-nav-next:hover,
 .cm4-nav-next:focus-visible {
-  background: color-mix(in srgb, var(--amber) 86%, white);
+  background: color-mix(in srgb, var(--amber) 86%, var(--tx-bright));
   border-color: var(--amber);
   color: var(--bg-void);
   filter: brightness(1.08);

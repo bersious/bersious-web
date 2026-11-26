@@ -373,6 +373,24 @@ const SHELL = `
         <div class="cml1-radar-corner cml1-rw" aria-hidden="true"></div>
         <div class="cml1-radar-corner cml1-re" aria-hidden="true"></div>
         <div class="cml1-radar-wrap">${RADAR}</div>
+        <div class="cml1-radar-hud" aria-label="radar telemetry">
+          <div class="cml1-hud-item">
+            <span class="cml1-hud-lbl" data-l="hudBand">BĂNG</span>
+            <span class="cml1-hud-val mono" data-hud="band">X-BAND</span>
+          </div>
+          <div class="cml1-hud-item">
+            <span class="cml1-hud-lbl" data-l="hudFreq">TẦN SỐ</span>
+            <span class="cml1-hud-val mono" data-hud="freq">8.4 GHz</span>
+          </div>
+          <div class="cml1-hud-item">
+            <span class="cml1-hud-lbl" data-l="hudSnr">SNR</span>
+            <span class="cml1-hud-val mono" data-hud="snr">14.8 dB</span>
+          </div>
+          <div class="cml1-hud-item">
+            <span class="cml1-hud-lbl" data-l="hudLock">TRẠNG THÁI</span>
+            <span class="cml1-hud-val mono is-ok" data-hud="lock">LOCKED</span>
+          </div>
+        </div>
         <p class="cml1-radar-cap mono" data-l="radarCaption"></p>
       </div>
       <p class="cml1-scan-state" role="status" aria-live="polite" data-l="scanState"></p>

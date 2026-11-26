@@ -1366,7 +1366,7 @@
   padding: 0 22px;
   border: 1px solid var(--amber-dim);
   border-radius: var(--st-radius);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 92%, white 8%), var(--amber));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 92%, var(--tx-bright) 8%), var(--amber));
   /* Chữ trên nền hổ phách đặc: dùng nền tối nhất của bảng màu,
      không phát minh màu mới, và vẫn đạt tương phản trên 8:1. */
   color: var(--bg-void);

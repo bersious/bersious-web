@@ -1206,13 +1206,18 @@ export async function mountPhase2(options) {
     else if (sols <= 140) frame.statSurv.classList.add('is-caution');
 
     /* bốn chấm bước */
+    /* 'summary' không phải một step trong STEPS. Nếu để stepById xử lý
+       thì nó trả STEPS[0], cả bốn chấm mất trạng thái và dải bước nhảy
+       về ô 1 ngay khi sứ mệnh đã xong — đúng cảm giác "cũ cũ" khi xem
+       lại màn tổng kết. Ở màn tổng kết cả bốn bước đều đã qua. */
+    const isSummary = currentStepId === 'summary';
     const step = stepById(currentStepId || 'cml1');
     STEPS.forEach((sp, i) => {
       const node = frame.stepNodes[i];
       if (!node) return;
-      node.classList.toggle('is-current', sp.id === step.id);
-      node.classList.toggle('is-done', sp.dot < step.dot);
-      node.setAttribute('aria-current', sp.id === step.id ? 'step' : 'false');
+      node.classList.toggle('is-current', !isSummary && sp.id === step.id);
+      node.classList.toggle('is-done', isSummary || sp.dot < step.dot);
+      node.setAttribute('aria-current', !isSummary && sp.id === step.id ? 'step' : 'false');
     });
 
     /* đầu sân khấu */
@@ -1899,7 +1904,12 @@ export async function mountPhase2(options) {
     bridge: bridge,
     root: container,
     getState: () => state,
-    setStep: (id) => showStep(id),
+    /* 'summary' KHÔNG nằm trong STEPS: nó là trạng thái sau khi qua
+       bước 4, do showSummary() dựng, không phải một step của dải bước.
+       Trước đây chuyển thẳng vào showStep('summary') nên stepById trả
+       STEPS[0] và bảng dev nhảy về màn "Bắt sóng cầu cứu" (cml1) — người
+       dùng thấy như nút nhảy không đi đúng mạch truyện. */
+    setStep: (id) => (id === 'summary' ? showSummary() : showStep(id)),
     setLang: setLang,
     getLang: () => lang,
     destroy() {

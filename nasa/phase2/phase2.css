@@ -120,7 +120,7 @@
      đảo lại: chỉ số lấy đúng phần nó cần, cụm bước co lại và tự
      ẩn chữ khi hết chỗ. Số liệu quan trọng hơn tên bước vì các
      bước đã có số thứ tự trên chấm tròn. */
-  grid-template-columns: auto minmax(min-content, max-content) minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, max-content) max-content auto;
   align-items: center;
   gap: clamp(8px, 1.2vw, 20px);
   height: var(--p2-top-h);
@@ -332,6 +332,9 @@
   gap: clamp(4px, .7vw, 10px);
   min-width: 0;
   padding: 4px 4px 4px 2px;
+  /* Chan tuyet doi viec dai buoc tran ra ngoai roi ve len nut CAI DAT o
+     goc phai. Neu noi dung dai hon o, no bi cat gon thay vi de len nhau. */
+  overflow: hidden;
 }
 
 .p2-step {
@@ -1343,7 +1346,7 @@ html.motion-off .p2-step-dot {
    Bốn cụm trên thanh trên cần khoảng 1595px nếu giữ đủ nhãn. Ở
    1440 thì cụm chỉ số bị bóp và chữ tràn sang cụm bước, nên nhãn
    chữ nhường chỗ trước, còn số thì luôn hiện. */
-@media (max-width: 1500px) {
+@media (max-width: 1720px) {
   /* KHÔNG ẩn nhãn chỉ số nữa. Đây chính là chỗ sinh ra lỗi 'Sóng D',
      'TRỄ LIÊN L', 'ĐỒNG ĐỘI C' mà người chơi báo: nhãn bị ẩn hoặc bị
      bóp tới mức chỉ còn vài ký tự. Nay nhãn giữ nguyên, nhường chỗ
@@ -1515,7 +1518,15 @@ html.motion-off .p2-step-dot {
   }
   .p2-statusbar {
     justify-content: flex-start;
-    overflow: visible;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .p2-stat:nth-child(2) {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .p2-stat:nth-child(3) { display: none; }
   /* Chip DSN cũng đã có trong badge "DSN" ngay dưới tiêu đề. Ở 390px

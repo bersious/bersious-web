@@ -376,7 +376,7 @@
 
 .cml3-stat-k {
   font-style: normal;
-  font-size: .72rem;
+  font-size: .75rem; /* >=12px */
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-dim);
@@ -602,7 +602,7 @@
      quầng sáng lạnh. */
   filter:
     drop-shadow(0 8px 16px rgba(0, 0, 0, .72))
-    drop-shadow(0 0 26px rgba(79, 184, 201, .28));
+    drop-shadow(0 0 26px color-mix(in srgb, var(--cyan) 28%, transparent));
 }
 
 .cml3-stage-empty {
@@ -618,7 +618,7 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
   backdrop-filter: blur(8px);
-  font-size: .74rem;
+  font-size: .75rem; /* >=12px */
   color: var(--tx-dim);
   pointer-events: none;
 }
@@ -969,7 +969,7 @@
 
 .cml3-gauges-sub {
   margin: 0;
-  font-size: .74rem;
+  font-size: .75rem; /* >=12px */
   line-height: 1.45;
   color: var(--tx-dim);
 }
@@ -1137,7 +1137,7 @@
   padding: 0 18px;
   border: 1px solid var(--amber-dim);
   border-radius: var(--st-radius);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 92%, white 8%), var(--amber));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 92%, var(--tx-bright) 8%), var(--amber));
   /* Chữ trên nền hổ phách đặc: dùng nền tối nhất của bảng màu,
      không phát minh màu mới, và vẫn đạt tương phản trên 8:1. */
   color: var(--bg-void);
